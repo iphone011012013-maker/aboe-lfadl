@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>صفحة توليد روابط احترافية</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="manifest" href="/manifest.json">
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      direction: rtl;
+      background-color: #000000;
+      color: #f0f0f0
+      padding: 20px;
+      max-width: 480px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #FFD700; /* لون ذهبي مميز للعنوان */
+      margin-bottom: 20px;
+      font-size: 2em;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.5); /* ظل نص داكن */
+    }
+
+    textarea, input {
+      width: 100%;
+      font-size: 16px;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: 3px solid #ffba00;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px 5px 5px 0;
+      font-size: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      color: white;
+    }
+
+    .extract-btn { background-color: #007bff; }
+    .google-btn { background-color: #dc3545; }
+    .download-btn { background-color: #28a745; }
+
+    .link-card {
+      background: #fff;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .link-input {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+    .tool-button {   
+      background-color: #FFD700; /* لون ذهبي للأزرار */
+      color: #000000; /* لون أسود للنص على الأزرار */
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, border 0.3s ease; /* أضف border للtransition */
+            text-decoration: none; /* لإزالة خط الروابط */
+            display: flex
+            gap: 10px;
+            font-weight: bold;
+
+        }
+        .tool-button:hover {
+            background-color: #FFEB80; /* لون ذهبي أفتح عند التمرير */
+            transform: translateY(-3px);
+            box-shadow: 0 5px 5px rgba(255, 215, 0, 0.4); /* ظل ذهبي عند التمرير */
+        }
+        .tool-button i {
+            font-size: 20px; /* حجم الأيقونة */
+            color: #000000; /* لون الأيقونة (أسود) */
+        }
+        .tool-button img { /* للصور التي تستخدم كأيقونات */
+            width: 30px;
+            height: 30px;
+        }
+  </style>
+</head>
+<body>
+
+  <h1>✔️ أدخل نص يحتوي على روابط📝⛓️‍💥</h1>
+  <textarea id="inputText" placeholder="ألصق هنا أي نص فيه روابط..."></textarea>
+  <button class="extract-btn" onclick="extractLinks()">📤 استخراج الروابط وتصحيح الناقص</button>
+
+  <h1>✏️ راجع وعدّل الروابط:</h1>
+  <div id="reviewContainer"></div>
+
+  <button class="download-btn" onclick="downloadMobilePage()">📥 تحميل صفحة الهاتف</button>
+   <a href="Link_Ai.html" class="tool-button">
+                 <i class="fas fa-robot"  margin-left;"></i>
+ Link Ai TooLs
+    <i class="fas fa-link" margin-right;"></i>
+  </a>
+
+  <script>
+    let finalLinks = [];
+
+    function isValidFullDomain(link) {
+      return /\.(com|net|org|ai|io|fm|audio|co)(\/|$)/i.test(link);
+    }
+
+    function fixLink(link) {
+      let fixed = link.trim();
+
+      if (!/^https?:\/\//i.test(fixed)) fixed = "https://" + fixed;
+
+      // استبدال .co بـ .com فقط
+      fixed = fixed.replace(/\.co(\/|$)/i, ".com$1");
+
+      return fixed;
+    }
+
+    function extractLinks() {
+      const input = document.getElementById("inputText").value;
+      const container = document.getElementById("reviewContainer");
+      container.innerHTML = "";
+      finalLinks = [];
+
+      const potentialLinks = input.match(/[a-zA-Z0-9\-_:\/.]+\.[a-z]{2,}/g) || [];
+
+      potentialLinks.forEach((raw, index) => {
+        let fixed = fixLink(raw);
+        finalLinks.push(fixed);
+
+        const div = document.createElement("div");
+        div.className = "link-card";
+
+        const inputField = document.createElement("input");
+        inputField.type = "text";
+        inputField.value = fixed;
+        inputField.className = "link-input";
+        inputField.oninput = () => {
+          finalLinks[index] = inputField.value.trim();
+        };
+
+        const googleBtn = document.createElement("button");
+        googleBtn.className = "google-btn";
+        googleBtn.textContent = "🔍 ابحث في Google";
+        googleBtn.onclick = () => {
+          const query = encodeURIComponent(raw);
+          window.open(`https://www.google.com/search?q=${query}`, "_blank");
+        };
+
+        div.appendChild(inputField);
+
+        // إذا الرابط غير كامل (لا ينتهي بنطاق معروف) ➜ أضف زر بحث جوجل
+        if (!isValidFullDomain(fixed)) {
+          div.appendChild(googleBtn);
+        }
+
+        container.appendChild(div);
+      });
+
+      if (potentialLinks.length === 0) {
+        container.innerHTML = "<p>❌ لم يتم العثور على روابط.</p>";
+      }
+    }
+
+    function getDomainName(link) {
+      try {
+        const hostname = new URL(link).hostname.replace('www.', '');
+        const parts = hostname.split('.');
+        return parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
+      } catch (e) {
+        return "رابط";
+      }
+    }
+
+    function downloadMobilePage() {
+      if (finalLinks.length === 0) {
+        alert("⚠️ لا توجد روابط!");
+        return;
+      }
+
+      const htmlCards = finalLinks.map(link => {
+        const name = getDomainName(link);
+        return `
+          <div class="link-card">
+            <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:8px;">${name}</div>
+            <button onclick="window.open('${link}', '_blank')" style="width:100%;padding:10px;margin-bottom:6px;border-radius:8px;background:#007bff;color:white;border:none;font-size:16px;">🔗 فتح الرابط</button>
+            <button onclick="navigator.clipboard.writeText('${link}').then(()=>alert('✅ تم نسخ الرابط'))" style="width:100%;padding:10px;border-radius:8px;background:#ffc107;color:black;border:none;font-size:16px;">📋 نسخ الرابط</button>
+          </div>
+        `;
+      }).join('');
+
+      const finalHTML = `
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>روابطي</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      direction: rtl;
+      background-color: #f4f4f4;
+      padding: 20px;
+      max-width: 480px;
+      margin: auto;
+    }
+    .link-card {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">✔️Link AI TOOLS⛓️‍💥</h2>
+  ${htmlCards}
+</body>
+</html>
+      `.trim();
+
+      const blob = new Blob([finalHTML], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "LINK_AI_TOOLS.html";
+      a.click();
+    }
+  </script>
+
+</body>
+</html>

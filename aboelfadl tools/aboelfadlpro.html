@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <title>أدوات أبو الفضل</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    select, input, textarea, button {
+      font-family: inherit;
+    }
+    .tool-section {
+  display: none; /* ✅ عشان تكون مخفية   تلقائيًا */
+  }
+  </style>
+</head>
+<body>
+<div style="background-color: #000; padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 0 15px #daa520;">
+  <h1 style="color: #ffd700; font-size: 24px; font-weight: bold; margin: 0; text-align: center; font-family: 'Cairo', sans-serif;">
+    𝐀𝐛𝐨𝐄𝐥𝐟𝐚𝐝𝐥 𝐏𝐫𝐨
+  </h1>
+</div>
+
+  <!-- ✅ هنا قائمة اختيار الأداة -->
+  <div style="text-align: center; margin: 30px 0;">
+    <label for="toolSelector" style="color: #fff; font-weight: bold;">🛠️ اختر الأداة:</label><br>
+    <select id="toolSelector" onchange="showTool()" 
+      style="padding: 10px 15px; font-size: 16px; border-radius: 10px; border: 2px solid #daa520; margin-top: 10px;">
+      <option value="">-- اختر أداة --</option>
+      <option value="tool_qr">🔳 توليد QR</option>
+      <option value="tool_pdf_tools">📝ادوات PDF📝</option>
+      <option value="tool_barcode">📦 توليد باركود</option>
+      <option value="tool_cv">📄 إنشاء سيرة ذاتية</option>
+      <option value="tool_merge_images">🖼️ دمج صور</option>
+      <option value="tool_image_editor">🛠️ تعديل الصور</option>
+      <option value="tool_password">🔐 توليد كلمة سر</option>
+      <option value="tool_ip_screen">🌐 معرفة IP وحجم الشاشة</option>
+      
+    </select>
+  </div>
+
+  <!-- ✅ أدوات سيتم نسخها هنا أداة أداة -->
+  <!-- مثال فقط: أول div فاضي -->
+  <div id="tool_qr" style="display: none;">
+<class="tool-section">
+  <h3 style="color: #ffd700;">🔳 توليد رمز QR لأي رابط أو نص</h3>
+  <input type="text" id="qrText" placeholder="اكتب النص أو الرابط هنا..." 
+    style="padding: 10px; width: 80%; max-width: 400px; border-radius: 10px; border: 2px solid #daa520; font-size: 16px;">
+  <br><br>
+  <button onclick="generateQR()" 
+    style="background: #ffd700; color: #121212; font-weight: bold; padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer;">
+    توليد QR
+  </button>
+  <div id="qrResult" style="margin-top: 20px;"></div>
+</div>
+
+<!-- ✅ أداة توليد باركود (تكون مخفية تلقائيًا) -->
+<div id="tool_barcode" class="tool-section">
+  <h3 style="color: #ffd700;">📦 توليد باركود لأي رقم أو كود</h3>
+
+  <input type="text" id="barcodeInput" placeholder="اكتب رقم أو كود المنتج"
+    style="padding: 10px; width: 80%; max-width: 400px; border-radius: 10px; border: 2px solid #daa520; font-size: 16px;">
+
+  <br><br>
+  <label for="barcodeFormat" style="color: #ccc;">نوع الباركود:</label>
+  <select id="barcodeFormat" style="padding: 8px 12px; border-radius: 10px;">
+    <option value="CODE128">CODE128</option>
+    <option value="EAN13">EAN-13</option>
+    <option value="UPC">UPC</option>
+  </select>
+
+  <br><br>
+  <button onclick="generateBarcode()"
+    style="background: #ffd700; color: #121212; font-weight: bold; padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer;">
+    توليد الباركود
+  </button>
+
+  <div id="barcodeResult" style="margin-top: 20px;">
+    <svg id="barcodeSVG"></svg>
+    <br>
+    <button onclick="downloadBarcode()" id="barcodeDownloadBtn"
+      style="margin-top: 10px; display: none; background: #444; color: #ffd700; font-weight: bold; padding: 8px 15px; border-radius: 30px; border: none; cursor: pointer;">
+      ⬇️ تحميل الباركود
+    </button>
+  </div>
+</div>
+
+<!-- ✅ نموذج إدخال بيانات السيرة الذاتية -->
+<div id="tool_cv" class="tool-section">
+  <h3 style="color: #ffd700;">📄 إنشاء سيرة ذاتية احترافية</h3>
+
+  <div style="max-width: 600px; margin: auto; text-align: right;">
+
+    <label>الاسم الكامل:</label>
+    <input type="text" id="cv_name" placeholder="مثال: محمود أبو الفضل" style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
+
+    <label>البريد الإلكتروني:</label>
+    <input type="email" id="cv_email" placeholder="مثال: email@example.com" style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
+
+    <label>رقم الهاتف:</label>
+    <input type="text" id="cv_phone" placeholder="مثال: 01000000000" style="width: 100%; padding: 8px; margin-bottom: 10px;"><br>
+
+    <label>الملف الشخصي:</label>
+    <textarea id="cv_profile" placeholder="نبذة عنك..." style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea><br>
+
+    <label>الخبرات (كل سطر خبرة):</label>
+    <textarea id="cv_experience" placeholder="مثال:\nمندوب مبيعات - شركة X - سنتين" style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea><br>
+
+    <label>المهارات (كل سطر مهارة):</label>
+    <textarea id="cv_skills" placeholder="مثال:\nإدارة فرق\nالتواصل\nالقيادة" style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea><br>
+
+    <label>التعليم:</label>
+    <input type="text" id="cv_education" placeholder="مثال: كلية آداب - قسم تاريخ - 2025" style="width: 100%; padding: 8px; margin-bottom: 20px;"><br>
+
+    <button onclick="generateCV()" style="background: #ffd700; color: #121212; font-weight: bold; padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer;">✍️ توليد السيرة الذاتية</button>
+  </div>
+
+  <br><br>
+
+  <!-- ✅ النتيجة النهائية للسيرة -->
+  <div id="cv_result" style="display: none; max-width: 700px; margin: auto; background: #fff; color: #000; padding: 30px; border-radius: 15px; text-align: right; font-family: 'Arial';"></div>
+
+  <br>
+  <button id="cv_download_btn" onclick="downloadCVasPDF()" style="display: none; background: #444; color: #ffd700; font-weight: bold; padding: 10px 25px; border-radius: 30px; border: none; cursor: pointer;">
+    ⬇️ تحميل PDF
+  </button>
+</div>
+
+<!-- ✅ أداة دمج الصور -->
+<div id="tool_merge_images" class="tool-section">
+  <h3 style="color: #ffd700;">🖼️ دمج الصور مع إمكانية الترتيب باللمس</h3>
+
+  <input type="file" id="imageInput" multiple accept="image/*"
+    style="padding: 10px; border-radius: 10px; border: 2px solid #daa520; background: #fff; color: #000;">
+
+  <div id="imageList" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px;"></div>
+
+  <button onclick="mergeImages()" style="margin-top: 20px; background: #ffd700; color: #121212; font-weight: bold; padding: 10px 25px; border-radius: 30px; border: none; cursor: pointer;">
+    دمج وتحميل الصورة
+  </button>
+
+  <canvas id="mergedCanvas" style="margin-top: 20px; max-width: 100%; border: 2px solid #fff;"></canvas>
+</div>
+<!-- ✅ أداة تعديل الصور -->
+<div id="tool_image_editor" class="tool-section">
+  <h3 style="color: #ffd700;">🛠️ تعديل الصور (قص + ضغط)</h3>
+
+  <input type="file" id="imageUploader" accept="image/*"
+    style="padding: 10px; border-radius: 10px; border: 2px solid #daa520; background: #fff; color: #000;">
+
+  <br><br>
+  <img id="imagePreview" style="display:none; max-width:100%; max-height:400px; margin-top:20px; border:2px solid #daa520; border-radius:10px;">
+
+  <br>
+  <button onclick="cropImage()" id="cropBtn" style="display:none; background: #ffd700; color: #121212; padding: 10px 20px; border-radius: 30px; border: none; font-weight: bold; margin-top:10px;">
+    ✂️ قص الصورة
+  </button>
+
+  <button onclick="compressImage()" id="compressBtn" style="display:none; background: #444; color: #ffd700; padding: 10px 20px; border-radius: 30px; border: none; font-weight: bold; margin-top:10px;">
+    🗜️ ضغط وتحميل الصورة
+  </button>
+
+  <canvas id="outputCanvas" style="display:none; margin-top: 20px; max-width: 100%;"></canvas>
+</div>
+
+<!-- ✅ أداة توليد كلمة سر -->
+<div id="tool_password" class="tool-section">
+  <h3 style="color: #ffd700;">🔐 توليد كلمة سر عشوائية</h3>
+
+  <label for="length">طول كلمة السر:</label>
+  <input type="number" id="length" value="12" min="4" max="50"
+    style="width: 60px; text-align: center; padding: 5px; margin-bottom: 10px; border-radius: 10px; border: 2px solid #daa520;">
+
+  <br><br>
+  <label><input type="checkbox" id="includeUpper" checked> حروف كبيرة</label>
+  <label><input type="checkbox" id="includeLower" checked> حروف صغيرة</label>
+  <label><input type="checkbox" id="includeNumbers" checked> أرقام</label>
+  <label><input type="checkbox" id="includeSymbols" checked> رموز</label>
+
+  <br><br>
+  <button onclick="generatePassword()" 
+    style="background: #ffd700; color: #121212; font-weight: bold; padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer;">
+    🔄 توليد كلمة السر
+  </button>
+
+  <div style="margin-top: 20px;">
+    <input type="text" id="passwordOutput" readonly 
+      style="width: 80%; max-width: 400px; padding: 10px; text-align: center; border-radius: 10px; border: 2px solid #daa520; font-size: 18px;">
+    <br><br>
+    <button onclick="copyPassword()" 
+      style="background: #444; color: #ffd700; font-weight: bold; padding: 8px 15px; border-radius: 30px; border: none; cursor: pointer;">
+      📋 نسخ كلمة السر
+    </button>
+  </div>
+</div>
+
+<!-- ✅ أداة معرفة IP وحجم الشاشة -->
+<div id="tool_ip_screen" class="tool-section">
+  <h3 style="color: #ffd700;">🌐 معرفة عنوان IP وحجم الشاشة</h3>
+
+  <p><strong>عنوان IP الخارجي:</strong> <span id="ipAddress">... جاري التحميل</span></p>
+  <p><strong>عرض الشاشة (Screen Width):</strong> <span id="screenWidth"></span> بيكسل</p>
+  <p><strong>ارتفاع الشاشة (Screen Height):</strong> <span id="screenHeight"></span> بيكسل</p>
+  <p><strong>عرض النافذة (Window Width):</strong> <span id="windowWidth"></span> بيكسل</p>
+  <p><strong>ارتفاع النافذة (Window Height):</strong> <span id="windowHeight"></span> بيكسل</p>
+  <p><strong>المتصفح:</strong> <span id="userAgent"></span></p>
+</div>
+
+<!-- ✅ أداة متكاملة: أدوات PDF --><div id="tool_pdf_tools" class="tool-section" style="text-align: center;">
+  <h3 style="color: #ffd700; font-family: 'Cairo', sans-serif; font-size: 22px; margin-bottom: 20px;">📎 أدوات PDF المتقدمة</h3>  <select id="pdfActionSelector" onchange="showPDFTool()" style="padding: 12px 18px; font-size: 17px; border-radius: 12px; border: 2px solid #daa520; background-color: #222; color: #fff;">
+    <option value="">-- اختر وظيفة PDF --</option>
+    <option value="pdfFromImages">🖼️ تحويل الصور إلى PDF</option>
+    <option value="txtToPDF">📄 تحويل TXT إلى PDF</option>
+    <option value="pdfToImages">🔄 تحويل PDF إلى صور PNG</option>
+    <option value="previewPDF">📑 معاينة PDF</option>
+  </select>  <div id="pdfFromImages" class="pdf-tool" style="display:none; margin-top: 30px;">
+    <input type="file" id="imgToPdfInput" multiple accept="image/*" style="margin-bottom: 15px;">
+    <div id="imgPreviewContainer" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
+    <input type="text" id="imgToPdfFileName" placeholder="اسم الملف" style="padding: 8px; margin-top: 15px;">
+    <button onclick="convertImagesToPDF()" style="margin-top: 10px; background: #ffd700; color: #121212; padding: 10px 20px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer;">📤 تحويل</button>
+    <iframe id="imgToPdfPreview" style="display:none; width: 90%; max-width: 700px; height: 400px; border: 2px solid #fff; margin-top: 20px; border-radius: 10px;"></iframe>
+  </div>  <div id="txtToPDF" class="pdf-tool" style="display:none; margin-top: 30px;">
+    <textarea id="txtContent" rows="6" placeholder="اكتب النص هنا..." style="width: 90%; max-width: 600px; padding: 10px; border-radius: 10px;"></textarea><br>
+    <label style="color: #ccc;">أو قم برفع ملف .txt:</label>
+    <input type="file" id="txtFileUpload" accept=".txt" style="margin-top: 10px;">
+    <input type="text" id="txtPdfFileName" placeholder="اسم الملف" style="padding: 8px; margin-top: 10px;">
+    <button onclick="convertTextToPDF()" style="margin-top: 10px; background: #ffd700; color: #121212; padding: 10px 20px; border-radius: 30px; font-weight: bold; border: none; cursor: pointer;">📤 تحويل</button>
+  </div>  <div id="pdfToImages" class="pdf-tool" style="display:none; margin-top: 30px;">
+    <input type="file" id="pdfToImagesInput" accept="application/pdf">
+    <div id="pdfImagesPreview" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
+    <button id="downloadAllImagesBtn" onclick="downloadAllImages()" style="display:none; margin-top: 20px; background: #444; color: #ffd700; padding: 10px 20px; border-radius: 30px; border: none; cursor: pointer; font-weight: bold;">⬇️ تحميل جميع الصور</button>
+  </div>  <div id="previewPDF" class="pdf-tool" style="display:none; margin-top: 30px;">
+    <input type="file" id="previewPdfInput" accept="application/pdf">
+    <iframe id="pdfViewer" style="width: 95%; max-width: 700px; height: 500px; border: 2px solid #fff; margin-top: 20px; border-radius: 10px;"></iframe>
+    <br>
+    <a id="downloadPdfPreviewBtn" style="display:none; margin-top: 10px; background: #444; color: #ffd700; padding: 10px 20px; border-radius: 30px; font-weight: bold; text-decoration: none;" download>⬇️ تحميل PDF</a>
+  </div>
+</div><!-- ✅ مكتبات --><script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.12.313/pdf.min.js"></script><script>
+function showPDFTool() {
+  document.querySelectorAll('.pdf-tool').forEach(tool => tool.style.display = 'none');
+  const selected = document.getElementById('pdfActionSelector').value;
+  if (selected) document.getElementById(selected).style.display = 'block';
+}
+
+function convertImagesToPDF() {
+  const files = document.getElementById('imgToPdfInput').files;
+  const fileName = document.getElementById('imgToPdfFileName').value || 'images_to_pdf';
+  if (files.length === 0) return alert('اختر صور أولاً');
+
+  const container = document.createElement('div');
+  const preview = document.getElementById('imgPreviewContainer');
+  preview.innerHTML = '';
+
+  Array.from(files).forEach(file => {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.style.width = '100%';
+    img.style.marginBottom = '10px';
+    container.appendChild(img);
+
+    const thumb = document.createElement('img');
+    thumb.src = img.src;
+    thumb.style.width = '100px';
+    thumb.style.border = '1px solid #ccc';
+    preview.appendChild(thumb);
+  });
+
+  const opt = {
+    margin: 0,
+    filename: fileName + '.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(container).toPdf().output('datauristring').then(function(pdfURI) {
+    const iframe = document.getElementById('imgToPdfPreview');
+    iframe.src = pdfURI;
+    iframe.style.display = 'block';
+    html2pdf().set(opt).from(container).save();
+  });
+}
+
+function convertTextToPDF() {
+  const fileInput = document.getElementById('txtFileUpload');
+  const fileName = document.getElementById('txtPdfFileName').value || 'text_to_pdf';
+  const contentArea = document.getElementById('txtContent');
+
+  if (fileInput.files.length > 0) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      html2pdf().set({ filename: fileName + '.pdf' }).from(text).save();
+    };
+    reader.readAsText(fileInput.files[0]);
+  } else if (contentArea.value.trim()) {
+    html2pdf().set({ filename: fileName + '.pdf' }).from(contentArea.value).save();
+  } else {
+    alert("اكتب نص أو ارفع ملف أولاً");
+  }
+}
+
+function renderPDFToImages(pdfFile) {
+  const fileReader = new FileReader();
+  fileReader.onload = function () {
+    const typedarray = new Uint8Array(this.result);
+    pdfjsLib.getDocument(typedarray).promise.then(pdf => {
+      const container = document.getElementById('pdfImagesPreview');
+      container.innerHTML = '';
+      document.getElementById('downloadAllImagesBtn').style.display = 'inline-block';
+
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        pdf.getPage(pageNum).then(page => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          const viewport = page.getViewport({ scale: 2 });
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          page.render({ canvasContext: ctx, viewport: viewport }).promise.then(() => {
+            const img = document.createElement('img');
+            img.src = canvas.toDataURL();
+            img.setAttribute('data-url', img.src);
+            img.style.width = '100px';
+            container.appendChild(img);
+          });
+        });
+      }
+    });
+  };
+  fileReader.readAsArrayBuffer(pdfFile);
+}
+
+function downloadAllImages() {
+  document.querySelectorAll('#pdfImagesPreview img').forEach((img, index) => {
+    const link = document.createElement('a');
+    link.href = img.getAttribute('data-url');
+    link.download = `page_${index + 1}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  });
+}
+
+document.getElementById('pdfToImagesInput').addEventListener('change', function () {
+  if (this.files.length > 0) renderPDFToImages(this.files[0]);
+});
+
+document.getElementById('previewPdfInput').addEventListener('change', function () {
+  if (this.files.length > 0) {
+    const file = this.files[0];
+    const fileURL = URL.createObjectURL(file);
+    document.getElementById('pdfViewer').src = fileURL;
+    const downloadLink = document.getElementById('downloadPdfPreviewBtn');
+    downloadLink.href = fileURL;
+    downloadLink.download = file.name;
+    downloadLink.style.display = 'inline-block';
+  }
+});
+</script>
+<!-- مكتبات -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<!-- JavaScript -->
+
+<script>
+  function fetchIPAndScreenInfo() {
+    document.getElementById("screenWidth").innerText = screen.width;
+    document.getElementById("screenHeight").innerText = screen.height;
+    document.getElementById("windowWidth").innerText = window.innerWidth;
+    document.getElementById("windowHeight").innerText = window.innerHeight;
+    document.getElementById("userAgent").innerText = navigator.userAgent;
+
+    // API لعرض الـ IP الخارجي
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("ipAddress").innerText = data.ip;
+      })
+      .catch(() => {
+        document.getElementById("ipAddress").innerText = "⚠️ غير متاح حالياً";
+      });
+  }
+
+  // لما تختار الأداة من القائمة، يحصل التحديث تلقائي
+  document.getElementById("toolSelector").addEventListener("change", function () {
+    if (this.value === "tool_ip_screen") {
+      fetchIPAndScreenInfo();
+    }
+  });
+</script>
+
+<script>
+  function generatePassword() {
+    const length = parseInt(document.getElementById('length').value);
+    const includeUpper = document.getElementById('includeUpper').checked;
+    const includeLower = document.getElementById('includeLower').checked;
+    const includeNumbers = document.getElementById('includeNumbers').checked;
+    const includeSymbols = document.getElementById('includeSymbols').checked;
+
+    let chars = '';
+    if (includeUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (includeLower) chars += 'abcdefghijklmnopqrstuvwxyz';
+    if (includeNumbers) chars += '0123456789';
+    if (includeSymbols) chars += '!@#$%^&*()-_=+[]{};:,.<>?/|';
+
+    if (chars.length === 0) {
+      alert("من فضلك اختر نوع الأحرف أولاً!");
+      return;
+    }
+
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      password += chars[randomIndex];
+    }
+
+    document.getElementById('passwordOutput').value = password;
+  }
+
+  function copyPassword() {
+    const passwordField = document.getElementById('passwordOutput');
+    passwordField.select();
+    passwordField.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    alert("تم نسخ كلمة السر ✅");
+  }
+</script>
+
+<script>
+  let draggedItem = null;
+
+  document.getElementById('imageInput').addEventListener('change', function () {
+    const imageList = document.getElementById('imageList');
+    imageList.innerHTML = '';
+    Array.from(this.files).forEach(file => {
+      const img = document.createElement('img');
+      img.className = 'draggable';
+      img.draggable = true;
+      img.file = file;
+      img.src = URL.createObjectURL(file);
+      img.addEventListener('dragstart', () => draggedItem = img);
+      img.addEventListener('dragover', e => e.preventDefault());
+      img.addEventListener('drop', function () {
+        if (draggedItem !== this) {
+          const list = imageList;
+          const draggedIndex = Array.from(list.children).indexOf(draggedItem);
+          const droppedIndex = Array.from(list.children).indexOf(this);
+          if (draggedIndex < droppedIndex) {
+            list.insertBefore(draggedItem, this.nextSibling);
+          } else {
+            list.insertBefore(draggedItem, this);
+          }
+        }
+      });
+      imageList.appendChild(img);
+    });
+  });
+
+  function mergeImages() {
+    const imageElements = document.querySelectorAll('#imageList img');
+    if (imageElements.length === 0) return;
+
+    const canvas = document.getElementById('mergedCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const images = Array.from(imageElements);
+    let loadedImages = 0;
+    const imgObjects = [];
+
+    images.forEach((imgEl, index) => {
+      const img = new Image();
+      img.src = imgEl.src;
+      img.onload = function () {
+        imgObjects[index] = img;
+        loadedImages++;
+        if (loadedImages === images.length) {
+          const width = Math.max(...imgObjects.map(i => i.width));
+          const height = imgObjects.reduce((sum, i) => sum + i.height, 0);
+
+          canvas.width = width;
+          canvas.height = height;
+
+          let yOffset = 0;
+          imgObjects.forEach(img => {
+            ctx.drawImage(img, 0, yOffset);
+            yOffset += img.height;
+          });
+
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL("image/png");
+          link.download = "merged_image.png";
+          link.click();
+        }
+      };
+    });
+  }
+</script>
+
+<script>
+function generateCV() {
+  const name = document.getElementById("cv_name").value;
+  const email = document.getElementById("cv_email").value;
+  const phone = document.getElementById("cv_phone").value;
+  const profile = document.getElementById("cv_profile").value;
+  const experience = document.getElementById("cv_experience").value.split("\\n").join("</li><li>");
+  const skills = document.getElementById("cv_skills").value.split("\\n").join("</li><li>");
+  const education = document.getElementById("cv_education").value;
+
+  const resultDiv = document.getElementById("cv_result");
+  resultDiv.innerHTML = `
+    <h2 style="color: #222;">${name}</h2>
+    <p><strong>البريد الإلكتروني:</strong> ${email}</p>
+    <p><strong>الهاتف:</strong> ${phone}</p>
+    <hr>
+    <h3>الملف الشخصي</h3>
+    <p>${profile}</p>
+    <h3>الخبرات</h3>
+    <ul><li>${experience}</li></ul>
+    <h3>المهارات</h3>
+    <ul><li>${skills}</li></ul>
+    <h3>التعليم</h3>
+    <p>${education}</p>
+  `;
+
+  resultDiv.style.display = "block";
+  document.getElementById("cv_download_btn").style.display = "inline-block";
+}
+
+function downloadCVasPDF() {
+  const element = document.getElementById("cv_result");
+  const options = {
+    margin: 0.5,
+    filename: 'CV_AboElfadl.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'A4', orientation: 'portrait' }
+  };
+  html2pdf().set(options).from(element).save();
+}
+</script>
+
+<script>
+  function generateBarcode() {
+    const value = document.getElementById("barcodeInput").value.trim();
+    const format = document.getElementById("barcodeFormat").value;
+    const svg = document.getElementById("barcodeSVG");
+    const btn = document.getElementById("barcodeDownloadBtn");
+
+    if (!value) {
+      alert("من فضلك أدخل الكود أو الرقم");
+      return;
+    }
+
+    try {
+      JsBarcode(svg, value, {
+        format: format,
+        lineColor: "#000",
+        width: 2,
+        height: 100,
+        displayValue: true
+      });
+      btn.style.display = "inline-block";
+    } catch (e) {
+      alert("⚠️ الكود غير متوافق مع نوع الباركود المختار.");
+      btn.style.display = "none";
+    }
+  }
+
+  function downloadBarcode() {
+    const svg = document.getElementById("barcodeSVG");
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = function () {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const pngFile = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.download = `barcode_${Date.now()}.png`;
+      link.href = pngFile;
+      link.click();
+    };
+
+    img.src = "data:image/svg+xml;base64," + btoa(svgData);
+  }
+</script>
+  <script>
+  function generateQR() {
+    const text = document.getElementById("qrText").value.trim();
+    const qrResult = document.getElementById("qrResult");
+
+    if (!text) {
+      alert("من فضلك أدخل نص أو رابط!");
+      return;
+    }
+
+    qrResult.innerHTML = "";
+
+    const qr = new QRCode(qrResult, {
+      text: text,
+      width: 200,
+      height: 200,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    setTimeout(() => {
+      const img = qrResult.querySelector("img");
+      if (img) {
+        const a = document.createElement("a");
+        a.href = img.src;
+        a.download = `qr_${text.slice(0, 10)}.png`;
+        a.innerText = "⬇️ تحميل QR";
+        a.style.display = "inline-block";
+        a.style.marginTop = "10px";
+        a.style.color = "#ffd700";
+        a.style.textDecoration = "none";
+        a.style.fontWeight = "bold";
+        qrResult.appendChild(document.createElement("br"));
+        qrResult.appendChild(a);
+      }
+    }, 500);
+  }
+</script>
+
+  <script>
+    function showTool() {
+      const selected = document.getElementById("toolSelector").value;
+      const allTools = document.querySelectorAll('[id^="tool_"]');
+      allTools.forEach(tool => tool.style.display = "none");
+      if (selected) document.getElementById(selected).style.display = "block";
+    }
+  </script>
+<script>
+  let cropper;
+
+  document.getElementById('imageUploader').addEventListener('change', function (e) {
+    const image = document.getElementById('imagePreview');
+    const file = e.target.files[0];
+    if (!file) return;
+    image.src = URL.createObjectURL(file);
+    image.style.display = 'block';
+
+    setTimeout(() => {
+      if (cropper) cropper.destroy();
+      cropper = new Cropper(image, {
+        aspectRatio: NaN,
+        viewMode: 1
+      });
+      document.getElementById('cropBtn').style.display = 'inline-block';
+      document.getElementById('compressBtn').style.display = 'inline-block';
+    }, 300);
+  });
+
+  function cropImage() {
+    const canvas = cropper.getCroppedCanvas();
+    document.getElementById('outputCanvas').style.display = 'block';
+    document.getElementById('outputCanvas').getContext('2d').drawImage(canvas, 0, 0);
+  }
+
+  function compressImage() {
+    const canvas = cropper.getCroppedCanvas({ width: 800 }); // ضغط العرض إلى 800px
+    canvas.toBlob(function (blob) {
+      const link = document.createElement('a');
+      link.download = 'compressed_image.jpg';
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    }, 'image/jpeg', 0.7); // ضغط الجودة إلى 70%
+  }
+</script>
+
+</body>
+</html>

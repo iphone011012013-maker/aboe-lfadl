@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محفظة فودافون كاش</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #dc0000; /* Vodafone red */
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 50px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #dc0000;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            box-sizing: border-box;
+            z-index: 1000;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .top-bar span {
+            margin: 0 5px;
+        }
+
+        .top-bar .time {
+            font-weight: bold;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .menu-item {
+            background-color: #f8f8f8;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 25px 15px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 110px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            color: #333;
+            font-weight: 700;
+            font-size: 1.15em;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .menu-item:hover {
+            background-color: #e6e6e6;
+            transform: translateY(-2px);
+        }
+
+        .menu-item:active {
+            background-color: #dcdcdc;
+            transform: translateY(0);
+        }
+
+        .menu-item .icon-wrapper {
+            width: 60px;
+            height: 60px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .menu-item .icon-wrapper svg {
+            width: 35px;
+            height: 35px;
+            fill: white;
+            stroke: white;
+            stroke-width: 1.5;
+        }
+
+        /* Specific icons - using custom SVGs based on your images */
+        /* Icon for Money Transfer (phone with arrow) */
+        .icon-money-transfer svg { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smartphone-transfer"><path d="M5 2c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2H5zM8 18h8M12 2v2"></path><polyline points="17 8 21 12 17 16"></polyline><line x1="21" y1="12" x2="3" y2="12"></line></svg>'); }
+
+        /* General Money/Transaction Icon (arrows with dollar signs) for other financial services */
+        .icon-money-transaction svg { content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-currency-exchange"><circle cx="12" cy="12" r="10"></circle><path d="M8 8l8 8M16 8l-8 8M12 5v14M5 12h14M8 12c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4-4-1.8-4-4z"></path><text x="12" y="14" font-family="Arial" font-size="8" fill="white" text-anchor="middle" dominant-baseline="middle">$</text><text x="7" y="7" font-family="Arial" font-size="6" fill="white" text-anchor="middle" dominant-baseline="middle">$</text><text x="17" y="17" font-family="Arial" font-size="6" fill="white" text-anchor="middle" dominant-baseline="middle">$</text></svg>'); }
+
+        /* Fallback / General icon if no specific one is provided for a category */
+        .icon-wallet-balance svg,
+        .icon-visa-cash svg,
+        .icon-atm-withdrawal svg,
+        .icon-secret-number svg,
+        .icon-balance-services svg,
+        .icon-wallet-reports svg {
+            content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-currency-exchange"><path d="M12 2l-5 5h10l-5-5zM12 22l5-5H7l5 5z"></path><line x1="12" y1="7" x2="12" y2="17"></line><circle cx="12" cy="12" r="4"></circle><text x="12" y="14" font-family="Arial" font-size="8" fill="white" text-anchor="middle" dominant-baseline="middle">$</text></svg>');
+        }
+
+
+        /* General Modal/Dialog styling */
+        .modal {
+            display: none; /* افتراضيًا مخفي */
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 350px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s forwards;
+            position: relative;
+        }
+
+        .modal-content h3 {
+            color: #dc0000;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .modal-content p {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-content .code-display {
+            background-color: #eee;
+            border: 1px dashed #ccc;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-family: 'monospace';
+            font-size: 1.3em;
+            color: #333;
+            border-radius: 8px;
+            display: inline-block;
+            direction: ltr;
+            font-weight: bold;
+            word-break: break-all;
+        }
+
+        .modal-content button {
+            background-color: #dc0000;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-content button:hover {
+            background-color: #b00000;
+        }
+
+        .modal-content button.cancel {
+            background-color: #ccc;
+            color: #333;
+            margin-left: 10px;
+        }
+        .modal-content button.cancel:hover {
+            background-color: #aaa;
+        }
+
+        /* Specific styling for the simplified transfer form modal */
+        #transferMoneyModal .modal-content {
+            padding: 25px;
+        }
+        #transferMoneyModal .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            justify-content: flex-end; /* Align header to the right */
+        }
+        #transferMoneyModal .modal-header img {
+            width: 40px;
+            height: auto;
+        }
+        #transferMoneyModal .modal-header h3 {
+            margin: 0;
+            color: #333;
+            font-size: 1.4em;
+        }
+        #transferMoneyModal .input-group {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+        #transferMoneyModal .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-size: 1em;
+            font-weight: bold;
+        }
+        #transferMoneyModal .input-group input {
+            width: calc(100% - 24px); /* Account for padding */
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2em;
+            text-align: right;
+            box-sizing: border-box;
+        }
+        #transferMoneyModal .note {
+            font-size: 0.9em;
+            color: #777;
+            text-align: right;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        #transferMoneyModal .transfer-button {
+            background-color: #dc0000;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 10px;
+        }
+        #transferMoneyModal .transfer-button:hover {
+            background-color: #b00000;
+        }
+        #transferMoneyModal .toggle-reports {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            color: #555;
+            font-size: 1.1em;
+        }
+        #transferMoneyModal .toggle-reports input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        /* New styles for Balance Services Modal */
+        #balanceServicesModal .modal-content {
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        #balanceServicesModal .modal-content .header-image {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        #balanceServicesModal .modal-content .header-image img {
+            width: 120px;
+            height: auto;
+            vertical-align: middle;
+        }
+        #balanceServicesModal .modal-content .balance-menu-item {
+            display: block;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #333;
+            text-align: right;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            text-decoration: none;
+        }
+        #balanceServicesModal .modal-content .balance-menu-item:hover {
+            background-color: #e6e6e6;
+            transform: translateY(-1px);
+        }
+        #balanceServicesModal .modal-content .balance-menu-item:last-of-type {
+            margin-bottom: 0;
+        }
+        #balanceServicesModal .modal-content .close-button-bottom {
+            background-color: #dc0000;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+        #balanceServicesModal .modal-content .close-button-bottom:hover {
+            background-color: #b00000;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <span>%35</span>
+        <span>٣,٨ ك.ب...</span>
+        <span class="time">١٢:٠٤ ص</span>
+    </div>
+
+    <div class="container">
+        <a href="#" class="menu-item" data-action="transfer-money-gui">
+            <div class="icon-wrapper icon-money-transfer">
+                <svg></svg>
+            </div>
+            <span>تحويل الأموال</span>
+        </a>
+
+        <a href="tel:*9*13%23" class="menu-item">
+            <div class="icon-wrapper icon-money-transaction">
+                <svg></svg>
+            </div>
+            <span>رصيد المحفظة</span>
+        </a>
+
+        <a href="tel:*9*100%23" class="menu-item">
+            <div class="icon-wrapper icon-money-transaction">
+                <svg></svg>
+            </div>
+            <span>اصدار فيزا كاش</span>
+        </a>
+
+        <a href="tel:*9*22%23" class="menu-item">
+            <div class="icon-wrapper icon-money-transaction">
+                <svg></svg>
+            </div>
+            <span>سحب ATM</span>
+        </a>
+
+        <a href="tel:*9*5%23" class="menu-item">
+            <div class="icon-wrapper icon-money-transaction">
+                <svg></svg>
+            </div>
+            <span>إنشاء / إعادة تعيين الرقم السري</span>
+        </a>
+
+        <a href="#" class="menu-item" data-action="balance-services-menu">
+            <div class="icon-wrapper icon-money-transaction">
+                <svg></svg>
+            </div>
+            <span>خدمات الرصيد</span>
+        </a>
+
+        <a href="tel:*9*500%23" class="menu-item">
+            <div class="icon-wrapper icon-money-transaction">
+                <svg></svg>
+            </div>
+            <span>تقارير المحفظة</span>
+        </a>
+    </div>
+
+    <div id="generalModal" class="modal">
+        <div class="modal-content">
+            <h3 id="generalModalTitle"></h3>
+            <p id="generalModalMessage"></p>
+            <div class="code-display" id="generalModalCode"></div>
+            <button id="generalModalCloseBtn">إغلاق</button>
+        </div>
+    </div>
+
+    <div id="transferMoneyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Vodafone_logo.svg/512px-Vodafone_logo.svg.png" alt="Vodafone Logo">
+                <h3>تحويل أموال</h3>
+            </div>
+            <div class="input-group">
+                <label for="transferRecipientNumber">رقم الهاتف</label>
+                <input type="tel" id="transferRecipientNumber" placeholder="" dir="ltr" inputmode="numeric">
+            </div>
+            <div class="input-group">
+                <label for="transferAmount">المبلغ</label>
+                <input type="number" id="transferAmount" placeholder="" dir="ltr" inputmode="numeric">
+            </div>
+            <p class="note">رجاء العلم قيمة مبلغ التحويل من 5 ج إلى 60 ألف جنيه في المعاملة الواحدة</p>
+            <button id="executeTransferBtn" class="transfer-button">تحويل الأموال</button>
+            <div class="toggle-reports">
+                <span>إظهار التقارير</span>
+                <input type="checkbox" id="showReportsToggle">
+            </div>
+            <div id="transferCodeDisplay" class="code-display" style="display:none; margin-top: 20px; background-color: #eafaea; border-color: #a0e0a0; color: #007000;"></div>
+            <button id="callGeneratedTransferCodeBtn" style="display:none; margin-top:15px; background-color: #007bff;">اتصال بالكود</button>
+            <button id="closeTransferMoneyModal" class="cancel" style="margin-top:15px;">إلغاء</button>
+        </div>
+    </div>
+
+    <div id="balanceServicesModal" class="modal">
+        <div class="modal-content">
+            <div class="header-image">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/4/47/Vodafone_Cash_logo.png" alt="Vodafone Cash Logo">
+            </div>
+            <a href="tel:*9*200%23" class="balance-menu-item">تجديد باقه فليكس أو الانترنت</a>
+            <a href="tel:*9*45%23" class="balance-menu-item">شحن رصيد</a>
+            <a href="tel:*9*فكة_3%23" class="balance-menu-item">شحن كارت فكة 3 جنيه</a>
+            <a href="tel:*9*فكة_6%23" class="balance-menu-item">شحن كارت فكة 6 جنيه</a>
+            <a href="tel:*9*فكة_9%23" class="balance-menu-item">شحن كارت فكة 9 جنيه</a>
+            <a href="tel:*9*فكة_10.5%23" class="balance-menu-item">شحن كارت فكة 10.5 جنيه</a>
+            <a href="tel:*9*400%23" class="balance-menu-item">شحن كارت فكة 13 جنيه</a>
+            <a href="tel:*9*110%23" class="balance-menu-item">شحن كارت فكة 16 جنيه</a>
+            <a href="tel:*9*فكة_11.5%23" class="balance-menu-item">شحن كارت 11.5 مارد</a>
+            <button class="close-button-bottom" id="closeBalanceServicesModal">إغلاق</button>
+        </div>
+    </div>
+
+    <script>
+        // --- General Modal Elements ---
+        const generalModal = document.getElementById('generalModal');
+        const generalModalTitle = document.getElementById('generalModalTitle');
+        const generalModalMessage = document.getElementById('generalModalMessage');
+        const generalModalCode = document.getElementById('generalModalCode');
+        const generalModalCloseBtn = document.getElementById('generalModalCloseBtn');
+
+        // --- Transfer Money Modal Elements ---
+        const transferMoneyModal = document.getElementById('transferMoneyModal');
+        const transferRecipientNumberInput = document.getElementById('transferRecipientNumber');
+        const transferAmountInput = document.getElementById('transferAmount');
+        const executeTransferBtn = document.getElementById('executeTransferBtn');
+        const transferCodeDisplay = document.getElementById('transferCodeDisplay');
+        const callGeneratedTransferCodeBtn = document.getElementById('callGeneratedTransferCodeBtn');
+        const closeTransferMoneyModalBtn = document.getElementById('closeTransferMoneyModal');
+
+        // --- Balance Services Modal Elements ---
+        const balanceServicesModal = document.getElementById('balanceServicesModal');
+        const closeBalanceServicesModalBtn = document.getElementById('closeBalanceServicesModal');
+
+        // --- Functions for Modals ---
+        function showGeneralModal(title, message, code = '') {
+            generalModalTitle.textContent = title;
+            generalModalMessage.textContent = message;
+            if (code) {
+                generalModalCode.textContent = code;
+                generalModalCode.style.display = 'inline-block';
+            } else {
+                generalModalCode.style.display = 'none';
+            }
+            generalModal.style.display = 'flex'; // يجعلها مرئية
+        }
+
+        function hideGeneralModal() {
+            generalModal.style.display = 'none'; // يجعلها غير مرئية
+        }
+
+        function showTransferMoneyModal() {
+            // Clear previous inputs and messages
+            transferRecipientNumberInput.value = '';
+            transferAmountInput.value = '';
+            transferCodeDisplay.textContent = '';
+            transferCodeDisplay.style.display = 'none';
+            transferCodeDisplay.classList.remove('error');
+            callGeneratedTransferCodeBtn.style.display = 'none';
+
+            transferMoneyModal.style.display = 'flex'; // يجعلها مرئية
+        }
+
+        function hideTransferMoneyModal() {
+            transferMoneyModal.style.display = 'none'; // يجعلها غير مرئية
+        }
+
+        function showBalanceServicesModal() {
+            balanceServicesModal.style.display = 'flex'; // يجعلها مرئية
+        }
+
+        function hideBalanceServicesModal() {
+            balanceServicesModal.style.display = 'none'; // يجعلها غير مرئية
+        }
+
+        // --- Event Listeners ---
+        generalModalCloseBtn.addEventListener('click', hideGeneralModal);
+        closeTransferMoneyModalBtn.addEventListener('click', hideTransferMoneyModal);
+        closeBalanceServicesModalBtn.addEventListener('click', hideBalanceServicesModal);
+
+        // --- Main Menu Item Click Handler ---
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(event) {
+                const action = this.dataset.action;
+
+                if (action === 'transfer-money-gui') {
+                    event.preventDefault(); // منع الانتقال الافتراضي لـ href
+                    showTransferMoneyModal();
+                } else if (action === 'balance-services-menu') {
+                    event.preventDefault(); // منع الانتقال الافتراضي لـ href
+                    showBalanceServicesModal();
+                }
+                // For other buttons (Balance, ATM, Secret Number, Visa, Reports),
+                // the default behavior of 'href="tel:..."' will be used,
+                // and no modal will appear. The `event.preventDefault()` is not called for them.
+            });
+        });
+
+        // --- Transfer Money Modal Logic ---
+        executeTransferBtn.addEventListener('click', function() {
+            const recipient = transferRecipientNumberInput.value.trim();
+            const amount = transferAmountInput.value.trim();
+
+            transferCodeDisplay.classList.remove('error');
+
+            if (!recipient || !amount) {
+                transferCodeDisplay.textContent = 'الرجاء إدخال رقم المستلم والمبلغ.';
+                transferCodeDisplay.style.display = 'block';
+                transferCodeDisplay.classList.add('error');
+                callGeneratedTransferCodeBtn.style.display = 'none';
+                return;
+            }
+            // Basic Egyptian mobile number validation (010, 011, 012, 015 followed by 8 digits)
+            if (!/^(010|011|012|015)\d{8}$/.test(recipient)) {
+                 transferCodeDisplay.textContent = 'رقم المستلم غير صحيح. يجب أن يكون رقم هاتف مصري (010/011/012/015) مكون من 11 رقم.';
+                 transferCodeDisplay.style.display = 'block';
+                 transferCodeDisplay.classList.add('error');
+                 callGeneratedTransferCodeBtn.style.display = 'none';
+                 return;
+            }
+            const numericAmount = parseFloat(amount);
+            if (isNaN(numericAmount) || numericAmount < 5 || numericAmount > 60000) {
+                transferCodeDisplay.textContent = 'المبلغ يجب أن يكون بين 5 و 60000 جنيه.';
+                transferCodeDisplay.style.display = 'block';
+                transferCodeDisplay.classList.add('error');
+                callGeneratedTransferCodeBtn.style.display = 'none';
+                return;
+            }
+
+            const rawFullCode = `*9*7*${recipient}*${numericAmount}#`;
+            const encodedFullCode = encodeURIComponent(rawFullCode);
+            
+            transferCodeDisplay.textContent = `الكود الجاهز للطلب: ${rawFullCode} (سيطلب الرقم السري على الهاتف)`;
+            transferCodeDisplay.style.display = 'block';
+            transferCodeDisplay.classList.remove('error');
+
+            callGeneratedTransferCodeBtn.dataset.codeToCall = `tel:${encodedFullCode}`;
+            callGeneratedTransferCodeBtn.style.display = 'inline-block';
+        });
+
+        callGeneratedTransferCodeBtn.addEventListener('click', function() {
+            const codeToCall = this.dataset.codeToCall;
+            if (codeToCall) {
+                window.location.href = codeToCall;
+                hideTransferMoneyModal();
+                // هنا ما زلنا نظهر الـ GeneralModal لإبلاغ المستخدم بالاتصال بالكود بعد إعداد كود التحويل
+                showGeneralModal('تنبيه', 'تم محاولة فتح تطبيق الاتصال بالكود. يرجى الضغط على زر الاتصال في هاتفك لإتمام العملية (سوف يطلب منك الرقم السري).', decodeURIComponent(codeToCall.replace('tel:','')));
+            }
+        });
+
+        // --- Balance Services Menu Item Click Handler ---
+        document.querySelectorAll('#balanceServicesModal .balance-menu-item').forEach(item => {
+            item.addEventListener('click', function(event) {
+                // لا نحتاج لـ event.preventDefault() هنا لأننا نترك الـ href تعمل مباشرة
+                // window.location.href = this.href;  // هذا هو الإجراء الافتراضي للرابط tel:
+                hideBalanceServicesModal(); // فقط نخفي المودال بعد الضغط
+            });
+        });
+
+    </script>
+</body>
+</html>

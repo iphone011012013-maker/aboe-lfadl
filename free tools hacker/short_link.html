@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        .container { 
+            background: rgba(0, 0, 0, 0.85); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 800px; 
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        #longURL {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #000;
+            color: #0f0;
+            font-size: 1.1rem;
+            text-align: left;
+            direction: ltr;
+            font-family: 'Share Tech Mono', monospace;
+            box-sizing: border-box;
+        }
+        #generateBtn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1.2rem;
+            font-family: 'Cairo', sans-serif;
+            margin-top: 15px;
+        }
+        #generateBtn:hover {
+            background: #111;
+            color: #0f0;
+            border: 2px solid #0f0;
+        }
+        #generateBtn:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .results-container {
+            margin-top: 25px;
+            display: none;
+        }
+        .result-item {
+            background: #111;
+            border: 1px solid #222;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .result-item .label {
+            font-family: 'Cairo', sans-serif;
+            color: #fff;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .result-item .link {
+            color: #0f0;
+            word-break: break-all;
+            flex-grow: 1;
+            text-align: left;
+            direction: ltr;
+        }
+        .result-item .copy-btn {
+            padding: 5px 10px;
+            background: #0f0;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            margin-right: 10px;
+        }
+        .loader {
+            border: 4px solid #333;
+            border-top: 4px solid #0f0;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="container">
+        <h1>أداة إخفاء الروابط</h1>
+        <p class="subtitle">أدخل الرابط الأصلي واحصل على رابط مختصر من TinyURL</p>
+        
+        <div class="input-group">
+            <input type="url" id="longURL" placeholder="https://your-long-suspicious-link.com/phishing-page">
+        </div>
+
+        <button id="generateBtn">🔗 Generate Link</button>
+        <div class="loader" id="loader"></div>
+
+        <div class="results-container" id="resultsContainer">
+            <!-- النتائج ستظهر هنا -->
+        </div>
+    </div>
+
+    <script>
+        // Matrix Effect
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        const letters = "01";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        function draw() {
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+
+        // Link Shortener Logic
+        const generateBtn = document.getElementById('generateBtn');
+        const loader = document.getElementById('loader');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const longURLInput = document.getElementById('longURL');
+
+        // *** تم الإبقاء على TinyURL فقط ***
+        const tinyUrlAPI = 'https://tinyurl.com/api-create.php?url=';
+
+        async function shortenLink(longURL) {
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
+            const fullApiUrl = proxyUrl + encodeURIComponent(tinyUrlAPI + encodeURIComponent(longURL));
+            
+            try {
+                const response = await fetch(fullApiUrl);
+                if (!response.ok) return `Error: ${response.status}`;
+                const textData = await response.text();
+                return textData.startsWith('http') ? textData : 'Failed';
+            } catch (error) {
+                console.error('Error with TinyURL:', error);
+                return 'Network Error';
+            }
+        }
+
+        generateBtn.addEventListener('click', async () => {
+            const longURL = longURLInput.value.trim();
+            if (!longURL) {
+                alert('الرجاء إدخال الرابط الأصلي أولاً.');
+                return;
+            }
+
+            loader.style.display = 'block';
+            generateBtn.disabled = true;
+            resultsContainer.style.display = 'none';
+            resultsContainer.innerHTML = '';
+
+            const shortURL = await shortenLink(longURL);
+
+            loader.style.display = 'none';
+            generateBtn.disabled = false;
+            resultsContainer.style.display = 'block';
+
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item';
+
+            let linkHTML;
+            if (shortURL && shortURL.startsWith('http')) {
+                linkHTML = `<span class="link">${shortURL}</span>`;
+            } else {
+                linkHTML = `<span class="link" style="color: #ff4141;">Failed: ${shortURL}</span>`;
+            }
+
+            resultItem.innerHTML = `
+                <span class="label">TinyURL:</span>
+                ${linkHTML}
+                <button class="copy-btn">نسخ</button>
+            `;
+            resultsContainer.appendChild(resultItem);
+        });
+
+        resultsContainer.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('copy-btn')) {
+                const linkSpan = e.target.parentElement.querySelector('.link');
+                if (linkSpan && !linkSpan.style.color) {
+                    navigator.clipboard.writeText(linkSpan.textContent).then(() => {
+                        const originalText = e.target.textContent;
+                        e.target.textContent = 'تم!';
+                        setTimeout(() => { e.target.textContent = originalText; }, 2000);
+                    });
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
+

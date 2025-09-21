@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدقق الروابط المعطلة</title>
+    <style>
+        /* الأنماط الأساسية (الوضع النهاري) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            direction: rtl; /* لضمان الاتجاه من اليمين لليسار */
+            text-align: right; /* لمحاذاة النص لليمين */
+            color: #333;
+            transition: background-color 0.3s, color 0.3s; /* لتأثير انتقال سلس */
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        h2 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: color 0.3s;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        textarea {
+            width: calc(100% - 22px);
+            height: 250px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            resize: vertical;
+            direction: ltr;
+            text-align: left;
+            background-color: #fff; /* الوضع النهاري */
+            color: #333; /* الوضع النهاري */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+            display: block;
+        }
+        .buttons-group {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease, color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #pasteCodeBtn {
+            background-color: #6c757d;
+        }
+        #pasteCodeBtn:hover {
+            background-color: #5a6268;
+        }
+        #livePreviewBtn {
+            background-color: #ffc107;
+            color: #333;
+        }
+        #livePreviewBtn:hover {
+            background-color: #e0a800;
+        }
+        #downloadCodeBtn {
+            background-color: #17a2b8;
+        }
+        #downloadCodeBtn:hover {
+            background-color: #138496;
+        }
+        #darkModeToggle { /* زر الوضع الليلي الجديد */
+            background-color: #6c757d;
+        }
+        #darkModeToggle:hover {
+            background-color: #5a6268;
+        }
+
+        #result-container {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        #broken-links-selection {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        #broken-links-dropdown {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            max-width: 65%;
+            background-color: #fff; /* الوضع النهاري */
+            color: #333; /* الوضع النهاري */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        #preview-broken-link-btn {
+            background-color: #28a745;
+        }
+        #preview-broken-link-btn:hover {
+            background-color: #218838;
+        }
+        #repaired-code-text-preview {
+            white-space: pre-wrap;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border: 1px solid #ced4da;
+            max-height: 400px;
+            overflow-y: auto;
+            direction: ltr;
+            text-align: left;
+            color: #333; /* الوضع النهاري */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        #live-preview-iframe-container {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+            display: none;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        #live-preview-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            display: block;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        /* ------------------------------------- */
+        /* أنماط الوضع الليلي (Dark Mode Styles) */
+        /* ------------------------------------- */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .dark-mode .container {
+            background-color: #16213e;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .dark-mode h2 {
+            color: #92b4ec;
+        }
+        .dark-mode textarea {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+        .dark-mode input[type="file"] {
+            color: #e0e0e0;
+        }
+        .dark-mode button {
+            background-color: #3e5f8a;
+            color: #e0e0e0;
+        }
+        .dark-mode button:hover {
+            background-color: #2e4a6d;
+        }
+        .dark-mode #pasteCodeBtn {
+            background-color: #4a4e69;
+        }
+        .dark-mode #pasteCodeBtn:hover {
+            background-color: #3b3e55;
+        }
+        .dark-mode #livePreviewBtn {
+            background-color: #c07d00;
+            color: #e0e0e0;
+        }
+        .dark-mode #livePreviewBtn:hover {
+            background-color: #a06500;
+        }
+        .dark-mode #downloadCodeBtn {
+            background-color: #0b5f6b;
+        }
+        .dark-mode #downloadCodeBtn:hover {
+            background-color: #084a54;
+        }
+        .dark-mode #darkModeToggle {
+            background-color: #4a4e69;
+        }
+        .dark-mode #darkModeToggle:hover {
+            background-color: #3b3e55;
+        }
+
+        .dark-mode #result-container {
+            background-color: #0f3460;
+            border-color: #3e5f8a;
+        }
+        .dark-mode #broken-links-dropdown {
+            background-color: #1a2e4b;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+        .dark-mode #repaired-code-text-preview {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+        .dark-mode #live-preview-iframe-container {
+            background-color: #0f3460;
+            border-color: #3e5f8a;
+        }
+        /* لتغيير ألوان رسائل الحالة في الوضع الليلي */
+        .dark-mode .success {
+            background-color: #1e4d2b;
+            color: #7ad08d;
+            border-color: #2c6e39;
+        }
+        .dark-mode .info {
+            background-color: #1a4d55;
+            color: #8dd8e6;
+            border-color: #276d75;
+        }
+        .dark-mode .error {
+            background-color: #5e1f24;
+            color: #e6a0a7;
+            border-color: #7b2a30;
+        }
+
+        /* زر الوضع الليلي في الزاوية */
+        #darkModeToggleContainer {
+            position: fixed;
+            top: 20px;
+            /* بما أن الاتجاه RTL، سنضعه في اليسار ليكون في الزاوية */
+            left: 20px;
+            z-index: 1000;
+        }
+
+        /* تنسيق قسم الروابط المعطلة والبدائل */
+        .broken-link-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .dark-mode .broken-link-item {
+             border-bottom: 1px solid #3e5f8a;
+        }
+        .broken-link-item:last-child {
+            border-bottom: none;
+        }
+        .broken-link-info {
+            flex-grow: 1;
+            margin-left: 10px; /* مسافة بين النص والزر */
+        }
+        .broken-link-url {
+            font-weight: bold;
+            color: #dc3545; /* لون أحمر للرابط المعطل */
+        }
+        .dark-mode .broken-link-url {
+            color: #f5c6cb;
+        }
+        .suggested-link {
+            font-size: 0.9em;
+            color: #28a745; /* لون أخضر للرابط المقترح */
+            margin-top: 4px;
+        }
+        .dark-mode .suggested-link {
+            color: #8be09b;
+        }
+        .link-action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-shrink: 0; /* منع الأزرار من الانكماش */
+        }
+        .link-action-buttons button {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            white-space: nowrap; /* منع انقسام النص */
+        }
+        /* تعديل حجم الخط للقائمة المنسدلة لكي تكون أوضح */
+        #broken-links-dropdown option {
+            font-size: 0.9rem;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="darkModeToggleContainer">
+        <button id="darkModeToggle">تبديل الوضع الليلي</button>
+    </div>
+
+    <div class="container">
+        <h2>مدقق الروابط المعطلة</h2>
+
+        <label for="htmlCode">الصق كود HTML هنا:</label>
+        <textarea id="htmlCode" placeholder="أو قم برفع ملف HTML/TXT..."></textarea>
+
+        <label for="fileUpload">أو ارفع ملف (HTML أو TXT):</label>
+        <input type="file" id="fileUpload" accept=".html, .htm, .txt">
+
+        <div class="buttons-group">
+            <button id="pasteCodeBtn">لصق</button>
+            <button id="checkLinksBtn">فحص الروابط</button>
+            <button id="copyCodeBtn">نسخ الكود</button>
+            <button id="downloadCodeBtn">تحميل الكود النهائي</button>
+            <button id="livePreviewBtn">معاينة المظهر</button>
+        </div>
+
+        <div id="result-container" style="display: none;">
+            <h3>الروابط المعطلة المحتملة:</h3>
+            <div id="broken-links-list">
+                <p id="no-broken-links-message" style="display: none; color: gray;">لا توجد روابط معطلة.</p>
+            </div>
+            
+            <div id="status-message" class="message info" style="display: none;"></div>
+
+            <h3 style="margin-top: 30px;">معاينة الكود النصي:</h3>
+            <pre id="repaired-code-text-preview">
+                </pre>
+        </div>
+
+        <div id="live-preview-iframe-container">
+            <h3>معاينة المظهر الحي للكود:</h3>
+            <iframe id="live-preview-iframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const htmlCodeInput = document.getElementById('htmlCode');
+        const fileUpload = document.getElementById('fileUpload');
+        const pasteCodeBtn = document.getElementById('pasteCodeBtn');
+        const checkLinksBtn = document.getElementById('checkLinksBtn');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+        const downloadCodeBtn = document.getElementById('downloadCodeBtn');
+        const livePreviewBtn = document.getElementById('livePreviewBtn');
+        const resultContainer = document.getElementById('result-container');
+        // const brokenLinksDropdown = document.getElementById('broken-links-dropdown'); // لم نعد نستخدم القائمة المنسدلة لعرض الكل
+        // const previewBrokenLinkBtn = document.getElementById('preview-broken-link-btn'); // لم نعد نستخدم هذا الزر بشكل مباشر هنا
+        const brokenLinksList = document.getElementById('broken-links-list'); // العنصر الجديد لعرض الروابط
+        const noBrokenLinksMessage = document.getElementById('no-broken-links-message'); // رسالة عند عدم وجود روابط معطلة
+
+        const repairedCodeTextPreview = document.getElementById('repaired-code-text-preview');
+        const statusMessage = document.getElementById('status-message');
+        const livePreviewIframeContainer = document.getElementById('live-preview-iframe-container');
+        const livePreviewIframe = document.getElementById('live-preview-iframe');
+
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        let currentHtmlContent = '';
+        let detectedBrokenLinks = []; // ستخزن الآن كائنات { originalUrl, suggestedUrl }
+
+        // وظيفة لتطبيق الوضع الليلي/النهاري
+        function applyDarkMode(isDarkMode) {
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        // التحقق من تفضيل المستخدم عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                applyDarkMode(true);
+            } else {
+                applyDarkMode(false);
+            }
+        });
+
+        // معالج حدث لزر تبديل الوضع الليلي
+        darkModeToggle.addEventListener('click', () => {
+            const isCurrentlyDarkMode = body.classList.contains('dark-mode');
+            applyDarkMode(!isCurrentlyDarkMode);
+        });
+
+        // وظيفة لعرض الرسائل
+        function showMessage(msg, type = 'info') {
+            statusMessage.textContent = msg;
+            statusMessage.className = `message ${type}`;
+            statusMessage.style.display = 'block';
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 7000);
+        }
+
+        // معالج حدث لزر اللصق
+        pasteCodeBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    htmlCodeInput.value = text;
+                    currentHtmlContent = text;
+                    showMessage('تم لصق الكود من الحافظة.', 'success');
+                    repairedCodeTextPreview.textContent = currentHtmlContent;
+                    updateLivePreview();
+                } else {
+                    showMessage('الحافظة فارغة أو لا يوجد نص.', 'info');
+                }
+            } catch (err) {
+                showMessage('فشل قراءة الحافظة. الرجاء السماح بالوصول أو اللصق يدوياً.', 'error');
+                console.error('Failed to read clipboard: ', err);
+            }
+        });
+
+        // معالج حدث لرفع الملف
+        fileUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    htmlCodeInput.value = e.target.result;
+                    currentHtmlContent = e.target.result;
+                    showMessage('تم تحميل الملف بنجاح.', 'success');
+                    repairedCodeTextPreview.textContent = currentHtmlContent;
+                    updateLivePreview();
+                };
+                reader.onerror = () => {
+                    showMessage('حدث خطأ أثناء قراءة الملف.', 'error');
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // وظيفة لتحديث معاينة المظهر الحي
+        function updateLivePreview() {
+            if (currentHtmlContent.trim()) {
+                livePreviewIframeContainer.style.display = 'block';
+                const iframeDoc = livePreviewIframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(`<base href="${window.location.href}">` + currentHtmlContent);
+                iframeDoc.close();
+            } else {
+                livePreviewIframeContainer.style.display = 'none';
+            }
+        }
+
+        // معالج حدث لزر فحص الروابط
+        checkLinksBtn.addEventListener('click', async () => {
+            currentHtmlContent = htmlCodeInput.value;
+            if (!currentHtmlContent.trim()) {
+                showMessage('الرجاء إدخال كود HTML أو رفع ملف.', 'error');
+                return;
+            }
+
+            // brokenLinksDropdown.innerHTML = '<option value="">-- اختر رابطًا للمعاينة --</option>'; // لم نعد نستخدم هذا
+            brokenLinksList.innerHTML = ''; // مسح القائمة القديمة
+            noBrokenLinksMessage.style.display = 'none'; // إخفاء الرسالة الافتراضية
+
+            detectedBrokenLinks = [];
+            resultContainer.style.display = 'block';
+            repairedCodeTextPreview.textContent = currentHtmlContent;
+            
+            updateLivePreview();
+
+            showMessage('جاري فحص الروابط... (تحذير: فحص الروابط الخارجية محدود للغاية في المتصفح بسبب قيود الأمان)', 'info');
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(currentHtmlContent, 'text/html');
+            const elementsWithLinks = doc.querySelectorAll('a[href], link[href], script[src], img[src], form[action]');
+            
+            for (const element of elementsWithLinks) {
+                let href = element.getAttribute('href') || element.getAttribute('src') || element.getAttribute('action');
+
+                if (href && !href.startsWith('#') && !href.startsWith('mailto:') && !href.startsWith('tel:') && href.trim() !== '') {
+                    let fullUrl;
+                    try {
+                        fullUrl = new URL(href, window.location.href).href;
+                    } catch (e) {
+                        continue; // تجاهل الروابط غير الصالحة
+                    }
+
+                    const isSameOrigin = (new URL(fullUrl)).origin === window.location.origin;
+                    let isBroken = false;
+                    let suggestedUrl = null;
+
+                    if (isSameOrigin) {
+                        try {
+                            const response = await fetch(fullUrl, { method: 'HEAD' });
+                            if (!response.ok) {
+                                isBroken = true;
+                            }
+                        } catch (e) {
+                            isBroken = true;
+                        }
+                    } else {
+                        // محاولة بسيطة لاقتراح HTTPS إذا كان الرابط HTTP
+                        if (fullUrl.startsWith('http://')) {
+                            const httpsUrl = 'https://' + fullUrl.substring(7); // استبدال http بـ https
+                            try {
+                                await fetch(httpsUrl, { method: 'HEAD', mode: 'no-cors' });
+                                // إذا لم يرمِ خطأ، نعتبر HTTPS قد يكون بديلاً (ولكن لا يمكننا التأكد من 200 OK)
+                                suggestedUrl = httpsUrl;
+                            } catch (e) {
+                                // لا يعمل HTTPS أيضاً، أو مشكلة شبكة
+                                // لا نقوم بتغيير isBroken هنا، لأن no-cors لا يخبرنا بـ 404
+                            }
+                        }
+                        
+                        try {
+                            // محاولة التحقق من الرابط الأصلي بـ no-cors لاكتشاف مشاكل الشبكة
+                            await fetch(fullUrl, { method: 'HEAD', mode: 'no-cors' });
+                        } catch (e) {
+                            // إذا حدث خطأ في الشبكة (DNS, offline, إلخ)
+                            isBroken = true;
+                        }
+                        // لا يمكننا تحديد إذا كان الرابط الخارجي معطلاً بـ 404 عبر no-cors.
+                        // لذا، إذا كان suggestedUrl موجوداً، فهذا يعني أن الرابط الأصلي محتمل أن يكون معطلاً أو مشكوكاً فيه.
+                        if (suggestedUrl && !isBroken) { // إذا وجدنا بديلاً HTTPS ولم نكتشف خطأ شبكة صارم على الأصلي، فما زال يجب الإشارة إلى الأصلي كمعطل محتمل.
+                             isBroken = true; // نعتبر الأصلي معطلاً لأنه HTTP ووجدنا بديل HTTPS
+                        }
+                    }
+
+                    if (isBroken) {
+                        // تجنب إضافة الروابط المكررة (خاصة إذا كان هناك أكثر من عنصر يشير لنفس الرابط)
+                        const exists = detectedBrokenLinks.some(item => item.originalUrl === href);
+                        if (!exists) {
+                            detectedBrokenLinks.push({ originalUrl: href, suggestedUrl: suggestedUrl });
+                        }
+                    }
+                }
+            }
+
+            displayBrokenLinks(); // استدعاء الوظيفة الجديدة لعرض الروابط
+
+            if (detectedBrokenLinks.length > 0) {
+                showMessage('تم العثور على روابط معطلة محتملة. الرجاء مراجعة القائمة أدناه.', 'error');
+            } else {
+                showMessage('لم يتم العثور على روابط معطلة محتملة في هذا الكود. (تذكر تحذير فحص الروابط الخارجية)', 'success');
+            }
+        });
+
+        // وظيفة جديدة لعرض الروابط المعطلة والبدائل
+        function displayBrokenLinks() {
+            brokenLinksList.innerHTML = ''; // مسح المحتوى القديم
+            if (detectedBrokenLinks.length === 0) {
+                noBrokenLinksMessage.style.display = 'block';
+                return;
+            }
+            noBrokenLinksMessage.style.display = 'none';
+
+            detectedBrokenLinks.forEach(item => {
+                const linkDiv = document.createElement('div');
+                linkDiv.classList.add('broken-link-item');
+
+                const infoDiv = document.createElement('div');
+                infoDiv.classList.add('broken-link-info');
+
+                const originalUrlP = document.createElement('p');
+                originalUrlP.classList.add('broken-link-url');
+                originalUrlP.textContent = `معطل محتمل: ${item.originalUrl}`;
+                infoDiv.appendChild(originalUrlP);
+
+                if (item.suggestedUrl) {
+                    const suggestedUrlP = document.createElement('p');
+                    suggestedUrlP.classList.add('suggested-link');
+                    suggestedUrlP.textContent = `مقترح: ${item.suggestedUrl}`;
+                    infoDiv.appendChild(suggestedUrlP);
+                } else {
+                    const noSuggestionP = document.createElement('p');
+                    noSuggestionP.classList.add('suggested-link');
+                    noSuggestionP.textContent = `لا يوجد بديل مقترح تلقائياً.`;
+                    infoDiv.appendChild(noSuggestionP);
+                }
+                
+                linkDiv.appendChild(infoDiv);
+
+                const actionButtonsDiv = document.createElement('div');
+                actionButtonsDiv.classList.add('link-action-buttons');
+
+                // زر معاينة الرابط الأصلي
+                const previewOriginalBtn = document.createElement('button');
+                previewOriginalBtn.textContent = 'معاينة الأصلي';
+                previewOriginalBtn.style.backgroundColor = '#dc3545'; /* لون أحمر */
+                previewOriginalBtn.addEventListener('click', () => {
+                    window.open(item.originalUrl, '_blank');
+                });
+                actionButtonsDiv.appendChild(previewOriginalBtn);
+
+                // زر معاينة الرابط المقترح (إذا وجد)
+                if (item.suggestedUrl) {
+                    const previewSuggestedBtn = document.createElement('button');
+                    previewSuggestedBtn.textContent = 'معاينة المقترح';
+                    previewSuggestedBtn.style.backgroundColor = '#28a745'; /* لون أخضر */
+                    previewSuggestedBtn.addEventListener('click', () => {
+                        window.open(item.suggestedUrl, '_blank');
+                    });
+                    actionButtonsDiv.appendChild(previewSuggestedBtn);
+                }
+
+                linkDiv.appendChild(actionButtonsDiv);
+                brokenLinksList.appendChild(linkDiv);
+            });
+        }
+
+
+        // معالج حدث لزر نسخ الكود
+        copyCodeBtn.addEventListener('click', () => {
+            const codeToCopy = htmlCodeInput.value;
+            if (codeToCopy.trim()) {
+                navigator.clipboard.writeText(codeToCopy).then(() => {
+                    showMessage('تم نسخ الكود إلى الحافظة!', 'success');
+                }).catch(err => {
+                    showMessage('فشل نسخ الكود: ' + err, 'error');
+                });
+            } else {
+                showMessage('لا يوجد كود لنسخه.', 'info');
+            }
+        });
+
+        // معالج حدث لزر تحميل الكود النهائي
+        downloadCodeBtn.addEventListener('click', () => {
+            const codeToDownload = htmlCodeInput.value;
+            if (codeToDownload.trim()) {
+                const blob = new Blob([codeToDownload], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'abolfadl_tools_code.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showMessage('تم تحميل الكود بنجاح كملف HTML.', 'success');
+            } else {
+                showMessage('لا يوجد كود لتحميله.', 'info');
+            }
+        });
+
+        // معالج حدث لزر معاينة المظهر
+        livePreviewBtn.addEventListener('click', () => {
+            updateLivePreview();
+            if (currentHtmlContent.trim()) {
+                showMessage('يتم عرض معاينة المظهر الحي.', 'info');
+            } else {
+                showMessage('لا يوجد كود للمعاينة الحية.', 'info');
+            }
+        });
+
+        // لمزامنة التغييرات اليدوية مع currentHtmlContent وتحديث المعاينات
+        htmlCodeInput.addEventListener('input', () => {
+            currentHtmlContent = htmlCodeInput.value;
+            repairedCodeTextPreview.textContent = currentHtmlContent;
+            updateLivePreview();
+        });
+    </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدقق SEO للصفحات (On-Page SEO Checker)</title>
+    <style>
+        /* الأنماط الأساسية (الوضع النهاري) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            direction: rtl; /* لضمان الاتجاه من اليمين لليسار */
+            text-align: right; /* لمحاذاة النص لليمين */
+            color: #333;
+            transition: background-color 0.3s, color 0.3s; /* لتأثير انتقال سلس */
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        h2 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: color 0.3s;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        textarea {
+            width: calc(100% - 22px);
+            height: 250px;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            resize: vertical;
+            direction: ltr;
+            text-align: left;
+            background-color: #fff; /* الوضع النهاري */
+            color: #333; /* الوضع النهاري */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+            display: block;
+        }
+        .buttons-group {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease, color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #pasteCodeBtn {
+            background-color: #6c757d;
+        }
+        #pasteCodeBtn:hover {
+            background-color: #5a6268;
+        }
+        #livePreviewBtn {
+            background-color: #ffc107;
+            color: #333;
+        }
+        #livePreviewBtn:hover {
+            background-color: #e0a800;
+        }
+        #downloadCodeBtn {
+            background-color: #17a2b8;
+        }
+        #downloadCodeBtn:hover {
+            background-color: #138496;
+        }
+        #darkModeToggle {
+            background-color: #6c757d;
+        }
+        #darkModeToggle:hover {
+            background-color: #5a6268;
+        }
+        #checkSeoBtn { /* لون مميز لزر فحص الـ SEO */
+            background-color: #28a745;
+        }
+        #checkSeoBtn:hover {
+            background-color: #218838;
+        }
+
+        #result-container {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        #seo-results-list {
+            list-style: none;
+            padding: 0;
+        }
+        #seo-results-list li {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            line-height: 1.5; /* لراحة القراءة */
+        }
+        #seo-results-list li:last-child {
+            border-bottom: none;
+        }
+        .seo-status.good {
+            color: #28a745; /* أخضر */
+            font-weight: bold;
+        }
+        .seo-status.warning {
+            color: #ffc107; /* برتقالي */
+            font-weight: bold;
+        }
+        .seo-status.bad {
+            color: #dc3545; /* أحمر */
+            font-weight: bold;
+        }
+        .seo-status.info { /* لون لحالة المعلومات */
+            color: #17a2b8; /* أزرق فاتح */
+            font-weight: bold;
+        }
+
+        #repaired-code-text-preview {
+            white-space: pre-wrap;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border: 1px solid #ced4da;
+            max-height: 400px;
+            overflow-y: auto;
+            direction: ltr;
+            text-align: left;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        #live-preview-iframe-container {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+            display: none;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        #live-preview-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            display: block;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        /* ------------------------------------- */
+        /* أنماط الوضع الليلي (Dark Mode Styles) */
+        /* ------------------------------------- */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .dark-mode .container {
+            background-color: #16213e;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .dark-mode h2 {
+            color: #92b4ec;
+        }
+        .dark-mode textarea {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+        .dark-mode input[type="file"] {
+            color: #e0e0e0;
+        }
+        .dark-mode button {
+            background-color: #3e5f8a;
+            color: #e0e0e0;
+        }
+        .dark-mode button:hover {
+            background-color: #2e4a6d;
+        }
+        .dark-mode #pasteCodeBtn {
+            background-color: #4a4e69;
+        }
+        .dark-mode #pasteCodeBtn:hover {
+            background-color: #3b3e55;
+        }
+        .dark-mode #livePreviewBtn {
+            background-color: #c07d00;
+            color: #e0e0e0;
+        }
+        .dark-mode #livePreviewBtn:hover {
+            background-color: #a06500;
+        }
+        .dark-mode #downloadCodeBtn {
+            background-color: #0b5f6b;
+        }
+        .dark-mode #downloadCodeBtn:hover {
+            background-color: #084a54;
+        }
+        .dark-mode #darkModeToggle {
+            background-color: #4a4e69;
+        }
+        .dark-mode #darkModeToggle:hover {
+            background-color: #3b3e55;
+        }
+        .dark-mode #checkSeoBtn {
+            background-color: #1d7a3a; /* لون أخضر داكن لزر فحص الـ SEO */
+        }
+        .dark-mode #checkSeoBtn:hover {
+            background-color: #17602e;
+        }
+
+        .dark-mode #result-container {
+            background-color: #0f3460;
+            border-color: #3e5f8a;
+        }
+        .dark-mode #seo-results-list li {
+            border-bottom: 1px solid #3e5f8a;
+        }
+        .dark-mode .seo-status.good {
+            color: #8be09b;
+        }
+        .dark-mode .seo-status.warning {
+            color: #f7e1a1;
+        }
+        .dark-mode .seo-status.bad {
+            color: #e6a0a7;
+        }
+        .dark-mode .seo-status.info {
+            color: #92b4ec;
+        }
+
+        .dark-mode #repaired-code-text-preview {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+        .dark-mode #live-preview-iframe-container {
+            background-color: #0f3460;
+            border-color: #3e5f8a;
+        }
+        .dark-mode .success {
+            background-color: #1e4d2b;
+            color: #7ad08d;
+            border-color: #2c6e39;
+        }
+        .dark-mode .info {
+            background-color: #1a4d55;
+            color: #8dd8e6;
+            border-color: #276d75;
+        }
+        .dark-mode .error {
+            background-color: #5e1f24;
+            color: #e6a0a7;
+            border-color: #7b2a30;
+        }
+
+        /* زر الوضع الليلي في الزاوية */
+        #darkModeToggleContainer {
+            position: fixed;
+            top: 20px;
+            left: 20px; 
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="darkModeToggleContainer">
+        <button id="darkModeToggle">تبديل الوضع الليلي</button>
+    </div>
+
+    <div class="container">
+        <h2>مدقق SEO للصفحات (On-Page SEO Checker)</h2>
+
+        <label for="htmlCode">الصق كود HTML للصفحة هنا:</label>
+        <textarea id="htmlCode" placeholder="أو قم برفع ملف HTML/TXT..."></textarea>
+
+        <label for="fileUpload">أو ارفع ملف (HTML أو TXT):</label>
+        <input type="file" id="fileUpload" accept=".html, .htm, .txt">
+
+        <div class="buttons-group">
+            <button id="pasteCodeBtn">لصق</button>
+            <button id="checkSeoBtn">فحص SEO</button>
+            <button id="copyCodeBtn">نسخ الكود</button>
+            <button id="downloadCodeBtn">تحميل الكود النهائي</button>
+            <button id="livePreviewBtn">معاينة المظهر</button>
+        </div>
+
+        <div id="result-container" style="display: none;">
+            <h3>نتائج فحص SEO:</h3>
+            <ul id="seo-results-list">
+                </ul>
+            
+            <div id="status-message" class="message info" style="display: none;"></div>
+
+            <h3 style="margin-top: 30px;">معاينة الكود النصي:</h3>
+            <pre id="repaired-code-text-preview">
+                </pre>
+        </div>
+
+        <div id="live-preview-iframe-container">
+            <h3>معاينة المظهر الحي للكود:</h3>
+            <iframe id="live-preview-iframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const htmlCodeInput = document.getElementById('htmlCode');
+        const fileUpload = document.getElementById('fileUpload');
+        const pasteCodeBtn = document.getElementById('pasteCodeBtn');
+        const checkSeoBtn = document.getElementById('checkSeoBtn');
+        const copyCodeBtn = document.getElementById('copyCodeBtn');
+        const downloadCodeBtn = document.getElementById('downloadCodeBtn');
+        const livePreviewBtn = document.getElementById('livePreviewBtn');
+        const resultContainer = document.getElementById('result-container');
+        const seoResultsList = document.getElementById('seo-results-list');
+
+        const repairedCodeTextPreview = document.getElementById('repaired-code-text-preview');
+        const statusMessage = document.getElementById('status-message');
+        const livePreviewIframeContainer = document.getElementById('live-preview-iframe-container');
+        const livePreviewIframe = document.getElementById('live-preview-iframe');
+
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        let currentHtmlContent = '';
+
+        // وظيفة لتطبيق الوضع الليلي/النهاري
+        function applyDarkMode(isDarkMode) {
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        }
+
+        // التحقق من تفضيل المستخدم عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                applyDarkMode(true);
+            } else {
+                applyDarkMode(false);
+            }
+        });
+
+        // معالج حدث لزر تبديل الوضع الليلي
+        darkModeToggle.addEventListener('click', () => {
+            const isCurrentlyDarkMode = body.classList.contains('dark-mode');
+            applyDarkMode(!isCurrentlyDarkMode);
+        });
+
+        // وظيفة لعرض الرسائل
+        function showMessage(msg, type = 'info') {
+            statusMessage.textContent = msg;
+            statusMessage.className = `message ${type}`;
+            statusMessage.style.display = 'block';
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 7000);
+        }
+
+        // معالج حدث لزر اللصق
+        pasteCodeBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    htmlCodeInput.value = text;
+                    currentHtmlContent = text;
+                    showMessage('تم لصق الكود من الحافظة.', 'success');
+                    repairedCodeTextPreview.textContent = currentHtmlContent;
+                    updateLivePreview();
+                } else {
+                    showMessage('الحافظة فارغة أو لا يوجد نص.', 'info');
+                }
+            } catch (err) {
+                showMessage('فشل قراءة الحافظة. الرجاء السماح بالوصول أو اللصق يدوياً.', 'error');
+                console.error('Failed to read clipboard: ', err);
+            }
+        });
+
+        // معالج حدث لرفع الملف
+        fileUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    htmlCodeInput.value = e.target.result;
+                    currentHtmlContent = e.target.result;
+                    showMessage('تم تحميل الملف بنجاح.', 'success');
+                    repairedCodeTextPreview.textContent = currentHtmlContent;
+                    updateLivePreview();
+                };
+                reader.onerror = () => {
+                    showMessage('حدث خطأ أثناء قراءة الملف.', 'error');
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // وظيفة لتحديث معاينة المظهر الحي
+        function updateLivePreview() {
+            if (currentHtmlContent.trim()) {
+                livePreviewIframeContainer.style.display = 'block';
+                const iframeDoc = livePreviewIframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(`<base href="${window.location.href}">` + currentHtmlContent);
+                iframeDoc.close();
+            } else {
+                livePreviewIframeContainer.style.display = 'none';
+            }
+        }
+
+        // --- وظيفة فحص SEO الرئيسية ---
+        checkSeoBtn.addEventListener('click', async () => {
+            currentHtmlContent = htmlCodeInput.value;
+            if (!currentHtmlContent.trim()) {
+                showMessage('الرجاء إدخال كود HTML أو رفع ملف لفحص SEO.', 'error');
+                return;
+            }
+
+            seoResultsList.innerHTML = ''; // مسح النتائج السابقة
+            resultContainer.style.display = 'block';
+            repairedCodeTextPreview.textContent = currentHtmlContent;
+            updateLivePreview();
+
+            showMessage('جاري فحص عوامل SEO للصفحة...', 'info');
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(currentHtmlContent, 'text/html');
+            const results = [];
+
+            // 1. فحص عنوان الصفحة (<title>)
+            const titleElement = doc.querySelector('title');
+            const titleText = titleElement ? titleElement.textContent.trim() : '';
+            const titleLength = titleText.length;
+            let titleStatus = 'good';
+            let titleMessage = `العنوان: "${titleText}" (الطول: ${titleLength} حرف)`;
+
+            if (!titleText) {
+                titleStatus = 'bad';
+                titleMessage = 'لا يوجد وسم <title> في الصفحة.';
+            } else if (titleLength < 30 || titleLength > 60) {
+                titleStatus = 'warning';
+                titleMessage = `طول العنوان غير مثالي: ${titleLength} حرفاً. يفضل أن يكون بين 30 و 60 حرفاً.`;
+            }
+            results.push({ item: 'عنوان الصفحة (&lt;title&gt;)', status: titleStatus, message: titleMessage });
+
+            // 2. فحص الوصف التعريفي (<meta name="description">)
+            const metaDescriptionElement = doc.querySelector('meta[name="description"]');
+            const descriptionContent = metaDescriptionElement ? metaDescriptionElement.getAttribute('content').trim() : '';
+            const descriptionLength = descriptionContent.length;
+            let descriptionStatus = 'good';
+            let descriptionMessage = `الوصف التعريفي: "${descriptionContent}" (الطول: ${descriptionLength} حرف)`;
+
+            if (!descriptionContent) {
+                descriptionStatus = 'bad';
+                descriptionMessage = 'لا يوجد وسم &lt;meta name="description"&gt; في الصفحة.';
+            } else if (descriptionLength < 50 || descriptionLength > 160) {
+                descriptionStatus = 'warning';
+                descriptionMessage = `طول الوصف التعريفي غير مثالي: ${descriptionLength} حرفاً. يفضل أن يكون بين 50 و 160 حرفاً.`;
+            }
+            results.push({ item: 'الوصف التعريفي (&lt;meta description&gt;)', status: descriptionStatus, message: descriptionMessage });
+
+            // 3. فحص العلامات الوصفية للكلمات المفتاحية (<meta name="keywords">)
+            const metaKeywordsElement = doc.querySelector('meta[name="keywords"]');
+            const keywordsContent = metaKeywordsElement ? metaKeywordsElement.getAttribute('content').trim() : 'غير موجود';
+            results.push({ item: 'الكلمات المفتاحية (&lt;meta keywords&gt;)', status: 'info', message: `الكلمات المفتاحية: "${keywordsContent}" (أهميتها لـ SEO تراجعت).` });
+
+            // 4. فحص علامات العناوين (H1-H6)
+            const h1s = doc.querySelectorAll('h1');
+            const h2s = doc.querySelectorAll('h2');
+            const h3s = doc.querySelectorAll('h3');
+            let headingStatus = 'good';
+            let headingMessage = '';
+
+            if (h1s.length === 0) {
+                headingStatus = 'bad';
+                headingMessage = 'لا يوجد وسم &lt;h1&gt; في الصفحة. يجب أن تحتوي كل صفحة على &lt;h1&gt; واحد.';
+            } else if (h1s.length > 1) {
+                headingStatus = 'warning';
+                headingMessage = `يوجد أكثر من وسم &lt;h1&gt; واحد (${h1s.length}). يفضل أن يكون &lt;h1&gt; واحداً فقط لكل صفحة.`;
+            } else {
+                headingMessage = `يوجد وسم &lt;h1&gt; واحد: "${h1s[0].textContent.trim()}".`;
+            }
+            headingMessage += `<br>H2s: ${h2s.length}، H3s: ${h3s.length}. تأكد من استخدام العناوين بشكل هرمي.`;
+            results.push({ item: 'علامات العناوين (H1-H6)', status: headingStatus, message: headingMessage });
+
+            // 5. فحص سمات الصور البديلة (alt attributes)
+            const images = doc.querySelectorAll('img');
+            let imagesWithoutAlt = 0;
+            images.forEach(img => {
+                if (!img.hasAttribute('alt') || img.getAttribute('alt').trim() === '') {
+                    imagesWithoutAlt++;
+                }
+            });
+            let altStatus = 'good';
+            let altMessage = `عدد الصور التي لا تحتوي على سمة alt أو سمة alt فارغة: ${imagesWithoutAlt} من أصل ${images.length}.`;
+            if (imagesWithoutAlt > 0) {
+                altStatus = 'warning';
+                altMessage += ' يفضل إضافة سمة alt وصفية لجميع الصور لتحسين إمكانية الوصول وSEO.';
+            } else if (images.length === 0) {
+                altStatus = 'info';
+                altMessage = 'لا توجد صور في الصفحة.';
+            }
+            results.push({ item: 'سمات الصور البديلة (alt)', status: altStatus, message: altMessage });
+
+            // 6. فحص الروابط الداخلية والخارجية
+            const allLinks = doc.querySelectorAll('a[href]');
+            let internalLinks = 0;
+            let externalLinks = 0;
+            const currentOrigin = window.location.origin;
+
+            allLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href) {
+                    try {
+                        const url = new URL(href, window.location.href);
+                        if (url.origin === currentOrigin) {
+                            internalLinks++;
+                        } else {
+                            externalLinks++;
+                        }
+                    } catch (e) {
+                        // تجاهل الروابط غير الصالحة أو الداخلية مثل #
+                    }
+                }
+            });
+            results.push({ item: 'الروابط الداخلية والخارجية', status: 'info', message: `عدد الروابط الداخلية: ${internalLinks}. عدد الروابط الخارجية: ${externalLinks}.` });
+
+            // 7. فحص وجود ملف robots.txt (ملحوظة: هذا الفحص محدود بسبب CORS)
+            let robotsTxtStatus = 'info';
+            let robotsTxtMessage = 'لا يمكن التحقق من وجود ملف robots.txt بدقة من المتصفح (بسبب قيود CORS). تأكد من وجوده في جذر موقعك.';
+            // ملاحظة: لا يمكننا إجراء طلب HEAD فعلي لـ robots.txt من المتصفح لعنوان URL مختلف بسبب سياسة Same-Origin.
+            // إذا كنت تختبر هذا على خادم ويب لنفس النطاق، يمكنك استخدام مسار نسبي مثل '/robots.txt'.
+            // للمواقع الخارجية، هذا الفحص يحتاج إلى وكيل (proxy) من جانب الخادم.
+            results.push({ item: 'ملف robots.txt', status: robotsTxtStatus, message: robotsTxtMessage });
+
+            // 8. فحص وجود خريطة الموقع sitemap.xml (ملحوظة: هذا الفحص محدود بسبب CORS)
+            let sitemapXmlStatus = 'info';
+            let sitemapXmlMessage = 'لا يمكن التحقق من وجود ملف sitemap.xml بدقة من المتصفح (بسبب قيود CORS). تأكد من وجوده وتقديمه لمحركات البحث.';
+            // ملاحظة: نفس الملاحظة أعلاه تنطبق هنا.
+            results.push({ item: 'خريطة الموقع sitemap.xml', status: sitemapXmlStatus, message: sitemapXmlMessage });
+
+            // 9. فحص اللغة (lang attribute)
+            const htmlLang = doc.documentElement.getAttribute('lang');
+            let langStatus = 'good';
+            let langMessage = `سمة اللغة (lang): ${htmlLang ? htmlLang : 'غير محدد'}`;
+            if (!htmlLang || htmlLang.trim() === '') {
+                langStatus = 'bad';
+                langMessage = 'لا توجد سمة "lang" في وسم <html>. يفضل تحديد لغة الصفحة.';
+            }
+            results.push({ item: 'سمة اللغة (lang)', status: langStatus, message: langMessage });
+
+
+            // عرض النتائج في القائمة
+            results.forEach(res => {
+                const li = document.createElement('li');
+                // استبدال < و > بكيانات HTML لتجنب تفسيرها كـ tags
+                const itemHtml = res.item.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                li.innerHTML = `<strong>${itemHtml}:</strong> <span class="seo-status ${res.status}">${res.status === 'good' ? 'جيد' : res.status === 'warning' ? 'تحذير' : res.status === 'bad' ? 'ضعيف' : 'معلومات'}</span><br>${res.message}`;
+                seoResultsList.appendChild(li);
+            });
+
+            showMessage('اكتمل فحص SEO للصفحة.', 'success');
+        });
+
+        // معالج حدث لزر نسخ الكود
+        copyCodeBtn.addEventListener('click', () => {
+            const codeToCopy = htmlCodeInput.value;
+            if (codeToCopy.trim()) {
+                navigator.clipboard.writeText(codeToCopy).then(() => {
+                    showMessage('تم نسخ الكود إلى الحافظة!', 'success');
+                }).catch(err => {
+                    showMessage('فشل نسخ الكود: ' + err, 'error');
+                });
+            } else {
+                showMessage('لا يوجد كود لنسخه.', 'info');
+            }
+        });
+
+        // معالج حدث لزر تحميل الكود النهائي
+        downloadCodeBtn.addEventListener('click', () => {
+            const codeToDownload = htmlCodeInput.value;
+            if (codeToDownload.trim()) {
+                const blob = new Blob([codeToDownload], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'seo_checked_page.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showMessage('تم تحميل الكود بنجاح كملف HTML.', 'success');
+            } else {
+                showMessage('لا يوجد كود لتحميله.', 'info');
+            }
+        });
+
+        // معالج حدث لزر معاينة المظهر
+        livePreviewBtn.addEventListener('click', () => {
+            updateLivePreview();
+            if (currentHtmlContent.trim()) {
+                showMessage('يتم عرض معاينة المظهر الحي.', 'info');
+            } else {
+                showMessage('لا يوجد كود للمعاينة الحية.', 'info');
+            }
+        });
+
+        // لمزامنة التغييرات اليدوية مع currentHtmlContent وتحديث المعاينات
+        htmlCodeInput.addEventListener('input', () => {
+            currentHtmlContent = htmlCodeInput.value;
+            repairedCodeTextPreview.textContent = currentHtmlContent;
+            updateLivePreview();
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منسق أكواد</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        textarea {
+            width: calc(100% - 30px);
+            height: 300px;
+            margin-bottom: 20px;
+            direction: ltr; /* Code is typically LTR */
+            text-align: left;
+            font-family: monospace; /* Monospace font for code */
+        }
+
+        .button-group {
+            margin-bottom: 20px;
+        }
+
+        .format-options {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .format-options label {
+            margin-left: 10px;
+            color: #ccc;
+        }
+
+        .format-options select {
+            width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page-container">
+        <h1>منسق أكواد</h1>
+
+        <div class="format-options">
+            <label for="codeLanguage">لغة الكود:</label>
+            <select id="codeLanguage">
+                <option value="json">JSON</option>
+                <option value="javascript">JavaScript</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+            </select>
+            <p class="note-small">
+                ملاحظة: التنسيق متاح فقط لـ JSON حالياً. اللغات الأخرى تتطلب مكتبات خارجية.
+            </p>
+        </div>
+
+        <textarea id="codeInput" placeholder="أدخل الكود هنا..."></textarea>
+
+        <div class="button-group">
+            <button id="formatBtn" class="action-button">تنسيق</button>
+            <button id="clearBtn" class="action-button">مسح</button>
+            <button id="copyBtn" class="action-button">نسخ</button>
+        </div>
+
+        <p class="message" id="formatterMessage"></p>
+    </div>
+
+    <script>
+        const codeInput = document.getElementById('codeInput');
+        const codeLanguage = document.getElementById('codeLanguage');
+        const formatBtn = document.getElementById('formatBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const formatterMessage = document.getElementById('formatterMessage');
+
+        function formatCode() {
+            const code = codeInput.value.trim();
+            const language = codeLanguage.value;
+            formatterMessage.textContent = '';
+
+            if (code === '') {
+                displayFormatterMessage('الرجاء إدخال كود للتنسيق.', 'red');
+                return;
+            }
+
+            let formattedCode = code;
+
+            if (language === 'json') {
+                try {
+                    const parsedJson = JSON.parse(code);
+                    formattedCode = JSON.stringify(parsedJson, null, 2); // Pretty print JSON
+                    displayFormatterMessage('تم تنسيق JSON بنجاح!', 'green');
+                } catch (e) {
+                    displayFormatterMessage(`خطأ في تنسيق JSON: ${e.message}`, 'red');
+                }
+            } else {
+                displayFormatterMessage('التنسيق لهذه اللغة غير مدعوم محلياً بعد. يرجى استخدام أدوات خارجية (مثل Prettier أو Beautifier) لـ JavaScript/HTML/CSS.', '#FFA500'); // Orange warning
+            }
+
+            codeInput.value = formattedCode;
+        }
+
+        function clearInput() {
+            codeInput.value = '';
+            formatterMessage.textContent = '';
+        }
+
+        function copyCode() {
+            if (codeInput.value) {
+                navigator.clipboard.writeText(codeInput.value)
+                    .then(() => {
+                        displayFormatterMessage('تم نسخ الكود!', 'green');
+                        setTimeout(() => displayFormatterMessage(''), 2000);
+                    })
+                    .catch(err => {
+                        console.error('فشل النسخ:', err);
+                        displayFormatterMessage('فشل النسخ!', 'red');
+                    });
+            } else {
+                displayFormatterMessage('لا يوجد كود لنسخه.', 'red');
+            }
+        }
+
+        function displayFormatterMessage(msg, color = '#FFD700') {
+            formatterMessage.textContent = msg;
+            formatterMessage.style.color = color;
+        }
+
+        formatBtn.addEventListener('click', formatCode);
+        clearBtn.addEventListener('click', clearInput);
+        copyBtn.addEventListener('click', copyCode);
+    </script>
+</body>
+</html>
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عارض ملفات TXT/CSV</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .upload-section {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row-reverse;
+        }
+
+        #fileInputFileName {
+            color: #bbb;
+            font-size: 1em;
+            margin-right: 15px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        pre#fileContent {
+            background-color: #222;
+            color: #eee;
+            border: 1px solid #555;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1em;
+            text-align: left;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            min-height: 200px;
+            max-height: 500px;
+            overflow: auto;
+            direction: ltr;
+        }
+
+        .table-view-container {
+            margin-top: 20px;
+            max-height: 400px;
+            overflow: auto;
+            border: 1px solid #555;
+            border-radius: 8px;
+            background-color: #222;
+        }
+
+        .table-view-container table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #eee;
+        }
+
+        .table-view-container th, .table-view-container td {
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table-view-container th {
+            background-color: #333;
+            color: #FFD700;
+            position: sticky; /* Keep header sticky */
+            top: 0;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page-container">
+        <h1>عارض ملفات TXT/CSV</h1>
+
+        <div class="upload-section">
+            <label for="fileInput" class="custom-file-upload">
+                اختر ملف TXT أو CSV
+            </label>
+            <input type="file" id="fileInput" accept=".txt,.csv">
+            <span id="fileInputFileName">لم يتم اختيار ملف.</span>
+        </div>
+
+        <p class="message" id="viewerMessage"></p>
+
+        <h2 style="color: #ccc; margin-top: 30px;">المحتوى:</h2>
+        <pre id="fileContent" style="display: none;"></pre>
+        <div id="csvTable" class="table-view-container" style="display: none;"></div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileInputFileName = document.getElementById('fileInputFileName');
+        const fileContent = document.getElementById('fileContent');
+        const csvTable = document.getElementById('csvTable');
+        const viewerMessage = document.getElementById('viewerMessage');
+
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+
+            if (file) {
+                fileInputFileName.textContent = file.name;
+                viewerMessage.textContent = '';
+                fileContent.style.display = 'none';
+                csvTable.style.display = 'none';
+
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
+                        fileContent.textContent = content;
+                        fileContent.style.display = 'block';
+                        viewerMessage.textContent = 'تم عرض محتوى ملف TXT.';
+                    } else if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+                        parseCSVAndDisplay(content);
+                        viewerMessage.textContent = 'تم عرض محتوى ملف CSV كجدول.';
+                    } else {
+                        viewerMessage.textContent = 'نوع الملف غير مدعوم. الرجاء اختيار ملف TXT أو CSV.';
+                        viewerMessage.style.color = 'red';
+                    }
+                };
+
+                reader.onerror = function() {
+                    viewerMessage.textContent = 'حدث خطأ أثناء قراءة الملف.';
+                    viewerMessage.style.color = 'red';
+                };
+
+                reader.readAsText(file); // Read file as text
+            } else {
+                fileInputFileName.textContent = 'لم يتم اختيار ملف.';
+                fileContent.style.display = 'none';
+                csvTable.style.display = 'none';
+                viewerMessage.textContent = '';
+            }
+        });
+
+        function parseCSVAndDisplay(csvString) {
+            const lines = csvString.split('\n').filter(line => line.trim() !== ''); // Split by line, filter empty lines
+            if (lines.length === 0) {
+                csvTable.innerHTML = '<p style="padding: 15px;">ملف CSV فارغ أو غير صالح.</p>';
+                csvTable.style.display = 'block';
+                return;
+            }
+
+            let tableHtml = '<table>';
+            lines.forEach((line, index) => {
+                const cells = line.split(','); // Simple split by comma. For robust CSV parsing, use a library.
+                if (index === 0) {
+                    // Header row
+                    tableHtml += '<thead><tr>';
+                    cells.forEach(cell => {
+                        tableHtml += `<th>${cell.trim()}</th>`;
+                    });
+                    tableHtml += '</tr></thead><tbody>';
+                } else {
+                    // Data rows
+                    tableHtml += '<tr>';
+                    cells.forEach(cell => {
+                        tableHtml += `<td>${cell.trim()}</td>`;
+                    });
+                    tableHtml += '</tr>';
+                }
+            });
+            tableHtml += '</tbody></table>';
+            csvTable.innerHTML = tableHtml;
+            csvTable.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منشئ ملفات</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .input-group-file-creator {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .input-group-file-creator label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+            color: #ccc;
+        }
+
+        #fileNameInput {
+            width: calc(100% - 22px); /* Adjust for padding/border */
+            padding: 10px;
+            font-size: 1.1em;
+            direction: ltr; /* File names are LTR */
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        #fileContentInput {
+            width: calc(100% - 30px);
+            height: 250px;
+            margin-bottom: 20px;
+            direction: ltr;
+            text-align: left;
+            font-family: monospace;
+        }
+
+        #fileTypeSelect {
+            width: 150px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page-container">
+        <h1>منشئ ملفات</h1>
+
+        <div class="input-group-file-creator">
+            <label for="fileNameInput">اسم الملف:</label>
+            <input type="text" id="fileNameInput" placeholder="مثال: mydocument.txt أو index.html">
+        </div>
+
+        <div class="input-group-file-creator">
+            <label for="fileTypeSelect">نوع الملف:</label>
+            <select id="fileTypeSelect">
+                <option value="text/plain">ملف نصي (.txt)</option>
+                <option value="text/html">ملف HTML (.html)</option>
+                <option value="application/json">ملف JSON (.json)</option>
+                <option value="text/css">ملف CSS (.css)</option>
+                <option value="application/javascript">ملف JavaScript (.js)</option>
+            </select>
+        </div>
+
+        <div class="input-group-file-creator">
+            <label for="fileContentInput">محتوى الملف:</label>
+            <textarea id="fileContentInput" placeholder="اكتب محتوى الملف هنا..."></textarea>
+        </div>
+
+        <div>
+            <button id="createFileBtn" class="action-button">إنشاء وتنزيل الملف</button>
+        </div>
+
+        <p class="message" id="fileCreatorMessage"></p>
+    </div>
+
+    <script>
+        const fileNameInput = document.getElementById('fileNameInput');
+        const fileTypeSelect = document.getElementById('fileTypeSelect');
+        const fileContentInput = document.getElementById('fileContentInput');
+        const createFileBtn = document.getElementById('createFileBtn');
+        const fileCreatorMessage = document.getElementById('fileCreatorMessage');
+
+        createFileBtn.addEventListener('click', () => {
+            const fileName = fileNameInput.value.trim();
+            const fileContent = fileContentInput.value;
+            const fileType = fileTypeSelect.value;
+            fileCreatorMessage.textContent = '';
+
+            if (!fileName) {
+                displayFileCreatorMessage('الرجاء إدخال اسم للملف.', 'red');
+                return;
+            }
+
+            // Create a Blob from the content
+            const blob = new Blob([fileContent], { type: fileType });
+
+            // Create a URL for the Blob
+            const url = URL.createObjectURL(blob);
+
+            // Create a temporary anchor element to trigger download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName; // Set the download file name
+            document.body.appendChild(a); // Append to body (required for Firefox)
+            a.click(); // Programmatically click the link to trigger download
+            document.body.removeChild(a); // Clean up the temporary link
+
+            // Revoke the object URL to free up memory
+            URL.revokeObjectURL(url);
+
+            displayFileCreatorMessage(`تم إنشاء وتنزيل الملف "${fileName}" بنجاح!`, 'green');
+            setTimeout(() => displayFileCreatorMessage(''), 3000); // Clear message after 3 seconds
+        });
+
+        function displayFileCreatorMessage(msg, color = '#FFD700') {
+            fileCreatorMessage.textContent = msg;
+            fileCreatorMessage.style.color = color;
+        }
+    </script>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدقق JSON</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        textarea#jsonInput {
+            width: calc(100% - 30px); /* Adjust for padding */
+            height: 250px;
+            margin-bottom: 20px;
+            direction: ltr; /* JSON is usually LTR */
+            text-align: left;
+        }
+
+        .action-button {
+            background-color: #FFD700;
+            color: #333;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 0 10px;
+        }
+
+        .action-button:hover {
+            background-color: #FFEA00;
+        }
+
+        pre#jsonOutput {
+            background-color: #222;
+            color: #4CAF50; /* Green for valid JSON */
+            border: 1px solid #555;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1em;
+            text-align: left;
+            white-space: pre-wrap; /* Preserve whitespace and wrap long lines */
+            word-wrap: break-word; /* Break long words */
+            min-height: 50px;
+            max-height: 300px;
+            overflow: auto;
+            direction: ltr;
+        }
+
+        .error-message {
+            color: #f44336; /* Red for errors */
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page-container">
+        <h1>مدقق JSON</h1>
+
+        <textarea id="jsonInput" placeholder="أدخل كود JSON هنا..."></textarea>
+
+        <div>
+            <button id="validateBtn" class="action-button">تحقق وتنسيق</button>
+            <button id="clearBtn" class="action-button">مسح</button>
+        </div>
+
+        <h2 style="color: #ccc; margin-top: 30px;">الناتج:</h2>
+        <pre id="jsonOutput"></pre>
+        <p class="error-message" id="errorMessage"></p>
+    </div>
+
+    <script>
+        const jsonInput = document.getElementById('jsonInput');
+        const validateBtn = document.getElementById('validateBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const jsonOutput = document.getElementById('jsonOutput');
+        const errorMessage = document.getElementById('errorMessage');
+
+        function validateAndFormatJson() {
+            const jsonString = jsonInput.value.trim();
+            errorMessage.textContent = ''; // Clear previous errors
+            jsonOutput.textContent = ''; // Clear previous output
+            jsonOutput.style.color = '#4CAF50'; // Default to success color
+
+            if (jsonString === '') {
+                errorMessage.textContent = 'الرجاء إدخال نص للتحقق.';
+                return;
+            }
+
+            try {
+                const parsedJson = JSON.parse(jsonString);
+                jsonOutput.textContent = JSON.stringify(parsedJson, null, 2); // Pretty print
+                errorMessage.textContent = 'JSON صالح!';
+                errorMessage.style.color = '#4CAF50'; // Green for success
+            } catch (e) {
+                errorMessage.textContent = `خطأ في JSON: ${e.message}`;
+                errorMessage.style.color = '#f44336'; // Red for error
+                jsonOutput.style.color = '#f44336'; // Make output red too
+                jsonOutput.textContent = jsonString; // Show original invalid JSON
+            }
+        }
+
+        function clearInput() {
+            jsonInput.value = '';
+            jsonOutput.textContent = '';
+            errorMessage.textContent = '';
+        }
+
+        validateBtn.addEventListener('click', validateAndFormatJson);
+        clearBtn.addEventListener('click', clearInput);
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة فحص حجم الويب</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .input-group-web {
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row-reverse;
+        }
+
+        .input-group-web input[type="text"] {
+            flex-grow: 1;
+            padding: 12px;
+            font-size: 1.1em;
+            text-align: left;
+            direction: ltr;
+        }
+
+        .action-button {
+            margin-right: 15px; /* Space between input and button */
+        }
+
+        .result-display {
+            background-color: #222;
+            border: 1px solid #555;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 100px;
+            text-align: right;
+            font-size: 1.1em;
+            color: #FFD700;
+        }
+
+        .result-display p {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page-container">
+        <h1>أداة فحص حجم الويب</h1>
+
+        <div class="input-group-web">
+            <input type="text" id="urlInput" placeholder="أدخل رابط الموقع (مثل: https://example.com)" dir="ltr">
+            <button id="checkSizeBtn" class="action-button">فحص الحجم</button>
+        </div>
+
+        <p class="message" id="sizeCheckerMessage"></p>
+
+        <div id="sizeResult" class="result-display">
+            <p>سيتم عرض حجم الموقع هنا.</p>
+        </div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('urlInput');
+        const checkSizeBtn = document.getElementById('checkSizeBtn');
+        const sizeResult = document.getElementById('sizeResult');
+        const sizeCheckerMessage = document.getElementById('sizeCheckerMessage');
+
+        checkSizeBtn.addEventListener('click', async () => {
+            const url = urlInput.value.trim();
+            sizeResult.innerHTML = '<p>جاري الفحص...</p>';
+            sizeCheckerMessage.textContent = '';
+
+            if (!url) {
+                sizeCheckerMessage.textContent = 'الرجاء إدخال رابط صالح.';
+                sizeCheckerMessage.style.color = 'red';
+                sizeResult.innerHTML = '<p>أدخل رابطاً.</p>';
+                return;
+            }
+
+            // Simple URL validation (not exhaustive)
+            try {
+                new URL(url);
+            } catch (e) {
+                sizeCheckerMessage.textContent = 'الرجاء إدخال رابط صالح.';
+                sizeCheckerMessage.style.color = 'red';
+                sizeResult.innerHTML = '<p>رابط غير صالح.</p>';
+                return;
+            }
+
+            // !!! IMPORTANT NOTE ON WEB SIZE CHECKING !!!
+            // Directly checking website size from client-side JavaScript (like below)
+            // will almost always fail due to CORS (Cross-Origin Resource Sharing) policy.
+            // Browsers prevent JavaScript from making requests to different domains
+            // and reading response headers like 'Content-Length' for security reasons.
+
+            // To make this tool fully functional, you would need a Backend Server:
+            // 1. Client-side JS sends the URL to your Backend Server.
+            // 2. Backend Server makes an HTTP request to the target URL.
+            // 3. Backend Server reads the 'Content-Length' header (or calculates size).
+            // 4. Backend Server sends the size back to the client-side JS.
+
+            sizeCheckerMessage.textContent = 'لا يمكن فحص حجم الموقع مباشرة من المتصفح بسبب قيود الأمان (CORS). هذه الميزة تتطلب وسيطاً من جانب الخادم.';
+            sizeCheckerMessage.style.color = '#FFA500'; /* Orange for warning */
+            sizeResult.innerHTML = '<p>التنفيذ يتطلب خادماً.</p>';
+
+            /*
+            // This client-side code will likely fail due to CORS
+            try {
+                const response = await fetch(url, { method: 'HEAD' }); // HEAD request is lighter
+                if (response.ok) {
+                    const contentLength = response.headers.get('content-length');
+                    if (contentLength) {
+                        const sizeInBytes = parseInt(contentLength, 10);
+                        const sizeInKb = (sizeInBytes / 1024).toFixed(2);
+                        const sizeInMb = (sizeInBytes / (1024 * 1024)).toFixed(2);
+                        sizeResult.innerHTML = `
+                            <p>الحجم التقريبي: ${sizeInBytes} بايت</p>
+                            <p>الحجم التقريبي: ${sizeInKb} كيلوبايت</p>
+                            <p>الحجم التقريبي: ${sizeInMb} ميغابايت</p>
+                            <p style="color: #4CAF50;">(قد لا يكون الحجم دقيقاً بسبب الضغط أو CDN)</p>
+                        `;
+                        sizeCheckerMessage.textContent = 'تم الفحص بنجاح (الحجم تقريبي).';
+                        sizeCheckerMessage.style.color = '#4CAF50';
+                    } else {
+                        sizeResult.innerHTML = '<p>تعذر الحصول على حجم المحتوى (قد لا يدعم الخادم ذلك أو بسبب قيود CORS).</p>';
+                        sizeCheckerMessage.textContent = 'تعذر الحصول على حجم.';
+                        sizeCheckerMessage.style.color = '#FFA500';
+                    }
+                } else {
+                    sizeResult.innerHTML = `<p>حدث خطأ: ${response.status} ${response.statusText}</p>`;
+                    sizeCheckerMessage.textContent = 'خطأ في الاتصال بالرابط.';
+                    sizeCheckerMessage.style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Error checking size:', error);
+                sizeResult.innerHTML = '<p>حدث خطأ أثناء الاتصال بالرابط (تأكد من كتابة الرابط بشكل صحيح ووجود اتصال بالإنترنت).</p>';
+                sizeCheckerMessage.textContent = 'حدث خطأ في الفحص.';
+                sizeCheckerMessage.style.color = 'red';
+            }
+            */
+        });
+    </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير جهات الاتصال</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .contact-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+            text-align: right;
+        }
+
+        .contact-form-group label {
+            font-size: 1.1em;
+            color: #ccc;
+            margin-bottom: 5px;
+        }
+
+        .contact-form-group input[type="text"],
+        .contact-form-group input[type="email"],
+        .contact-form-group input[type="tel"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 1.1em;
+            direction: rtl; /* For names, etc. */
+        }
+        
+        .contact-form-group input[type="email"],
+        .contact-form-group input[type="tel"] {
+            direction: ltr; /* For emails, phone numbers */
+        }
+
+
+        .contact-list-container {
+            margin-top: 30px;
+            background-color: #222;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #555;
+            min-height: 100px;
+        }
+
+        .contact-item {
+            background-color: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            text-align: right;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .contact-item h3 {
+            color: #FFD700;
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .contact-item p {
+            margin: 5px 0;
+            color: #bbb;
+        }
+
+        .contact-item .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            position: absolute;
+            left: 15px; /* Position to the left in RTL */
+            top: 15px;
+            transition: background-color 0.2s ease;
+        }
+
+        .contact-item .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+    <div class="tool-page-container">
+        <h1>مدير جهات الاتصال</h1>
+
+        <div class="contact-form-group">
+            <label for="contactName">الاسم:</label>
+            <input type="text" id="contactName" placeholder="الاسم الكامل">
+
+            <label for="contactPhone">رقم الهاتف:</label>
+            <input type="tel" id="contactPhone" placeholder="مثل: 0123456789">
+
+            <label for="contactEmail">البريد الإلكتروني:</label>
+            <input type="email" id="contactEmail" placeholder="example@domain.com">
+
+            <button id="addContactBtn" class="action-button">إضافة جهة اتصال</button>
+        </div>
+
+        <p class="message" id="contactMessage"></p>
+
+        <h2 style="color: #ccc; margin-top: 30px;">قائمة جهات الاتصال:</h2>
+        <div id="contactList" class="contact-list-container">
+            <p style="text-align: center; color: #aaa;">لا توجد جهات اتصال بعد.</p>
+        </div>
+    </div>
+
+    <script>
+        const contactName = document.getElementById('contactName');
+        const contactPhone = document.getElementById('contactPhone');
+        const contactEmail = document.getElementById('contactEmail');
+        const addContactBtn = document.getElementById('addContactBtn');
+        const contactList = document.getElementById('contactList');
+        const contactMessage = document.getElementById('contactMessage');
+
+        const STORAGE_KEY = 'contacts_app';
+
+        // Load contacts from localStorage
+        function loadContacts() {
+            const contactsString = localStorage.getItem(STORAGE_KEY);
+            return contactsString ? JSON.parse(contactsString) : [];
+        }
+
+        // Save contacts to localStorage
+        function saveContacts(contacts) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(contacts));
+        }
+
+        // Render contacts to the UI
+        function renderContacts() {
+            const contacts = loadContacts();
+            contactList.innerHTML = ''; // Clear current list
+
+            if (contacts.length === 0) {
+                contactList.innerHTML = '<p style="text-align: center; color: #aaa;">لا توجد جهات اتصال بعد.</p>';
+                return;
+            }
+
+            contacts.forEach((contact, index) => {
+                const contactItem = document.createElement('div');
+                contactItem.classList.add('contact-item');
+                contactItem.innerHTML = `
+                    <h3>${contact.name}</h3>
+                    ${contact.phone ? `<p><strong>الهاتف:</strong> ${contact.phone}</p>` : ''}
+                    ${contact.email ? `<p><strong>البريد:</strong> ${contact.email}</p>` : ''}
+                    <button class="delete-btn" data-index="${index}">حذف</button>
+                `;
+                contactList.appendChild(contactItem);
+            });
+
+            // Add event listeners to new delete buttons
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', deleteContact);
+            });
+        }
+
+        // Add a new contact
+        addContactBtn.addEventListener('click', () => {
+            const name = contactName.value.trim();
+            const phone = contactPhone.value.trim();
+            const email = contactEmail.value.trim();
+
+            if (!name) {
+                displayContactMessage('الرجاء إدخال الاسم.', 'red');
+                return;
+            }
+
+            const contacts = loadContacts();
+            contacts.push({ name, phone, email });
+            saveContacts(contacts);
+            renderContacts();
+            clearForm();
+            displayContactMessage('تم إضافة جهة الاتصال بنجاح!', 'green');
+            setTimeout(() => displayContactMessage(''), 2000);
+        });
+
+        // Delete a contact
+        function deleteContact(event) {
+            const indexToDelete = parseInt(event.target.dataset.index);
+            const contacts = loadContacts();
+            contacts.splice(indexToDelete, 1); // Remove contact at index
+            saveContacts(contacts);
+            renderContacts();
+            displayContactMessage('تم حذف جهة الاتصال.', '#FFA500'); // Orange for deleted
+            setTimeout(() => displayContactMessage(''), 2000);
+        }
+
+        // Clear the form fields
+        function clearForm() {
+            contactName.value = '';
+            contactPhone.value = '';
+            contactEmail.value = '';
+        }
+
+        // Display messages
+        function displayContactMessage(msg, color = '#FFD700') {
+            contactMessage.textContent = msg;
+            contactMessage.style.color = color;
+        }
+
+        // Initial render on page load
+        renderContacts();
+    </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر كود HTML فقط (بمميزات متكاملة)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/default.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/matchesonscrollbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/dialog/dialog.css">
+
+
+    <style>
+        :root {
+            /* Light Mode Variables */
+            --body-bg: #f4f7f6;
+            --text-color: #333;
+            --header-bg: #ffffff;
+            --header-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            --container-bg: #ffffff;
+            --container-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --border-color: #dcdfe6;
+            --button-bg: #4CAF50;
+            --button-hover-bg: #45a049;
+            --button-text-color: white;
+            --input-bg: #f9f9f9;
+            --input-border: #ccc;
+            --project-item-bg: #e8eaf6;
+            --project-item-border: #c5cae9;
+            --project-item-hover-bg: #dbe0f7;
+            --delete-button-bg: #f44336;
+            --delete-button-hover-bg: #d32f2f;
+            --run-button-bg: #2196F3;
+            --run-button-hover-bg: #1976D2;
+            --dark-mode-toggle-bg: #607d8b;
+            --dark-mode-toggle-active-bg: #455a64;
+            --codemirror-bg: #fff;
+            --codemirror-text: #000;
+            --codemirror-gutter-bg: #f7f7f7;
+            --codemirror-gutter-border: #ddd;
+            --codemirror-active-line-bg: #eaf2ff;
+            --codemirror-selection-bg: #d7d4f0;
+        }
+
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --body-bg: #282c34;
+            --text-color: #e0e0e0;
+            --header-bg: #3a3f4a;
+            --header-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            --container-bg: #3a3f4a;
+            --container-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            --border-color: #555;
+            --button-bg: #61afef; /* A softer blue for dark mode buttons */
+            --button-hover-bg: #529fdf;
+            --button-text-color: white;
+            --input-bg: #4a4f59;
+            --input-border: #666;
+            --project-item-bg: #4a4f59;
+            --project-item-border: #666;
+            --project-item-hover-bg: #5a5f6a;
+            --delete-button-bg: #e06c75;
+            --delete-button-hover-bg: #c8535c;
+            --run-button-bg: #98c379;
+            --run-button-hover-bg: #85ad6a;
+            --dark-mode-toggle-bg: #5c6370;
+            --dark-mode-toggle-active-bg: #7f8c8d;
+            --codemirror-bg: #282c34;
+            --codemirror-text: #abb2bf;
+            --codemirror-gutter-bg: #2f333d;
+            --codemirror-gutter-border: #444;
+            --codemirror-active-line-bg: #3c4048;
+            --codemirror-selection-bg: #4a4f59;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow: hidden; /* Prevent body scroll, allow inner divs to scroll */
+        }
+
+        .header {
+            background-color: var(--header-bg);
+            padding: 15px 20px;
+            box-shadow: var(--header-shadow);
+            display: flex;
+            justify-content: center; /* Center the title */
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            position: sticky; /* Make it sticky */
+            top: 0;
+            z-index: 100; /* Ensure it's above other content */
+            width: 100%;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            color: var(--text-color);
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s;
+            background-color: var(--button-bg);
+            color: var(--button-text-color);
+            min-width: 100px; /* Adjust button minimum width for consistency */
+            flex-grow: 1; /* Allow buttons to grow, but controlled by flex-wrap */
+            box-sizing: border-box;
+        }
+
+        button:hover {
+            background-color: var(--button-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Specific button styles */
+        #runButton {
+            background-color: #2196F3; /* Blue for run/preview */
+        }
+        #runButton:hover {
+            background-color: #1976D2;
+        }
+
+        #saveButton {
+            background-color: #007bff; /* Blue for save */
+        }
+        #saveButton:hover {
+            background-color: #0056b3;
+        }
+
+        #downloadButton {
+            background-color: #17a2b8; /* Cyan for download */
+        }
+        #downloadButton:hover {
+            background-color: #138496;
+        }
+
+        #uploadButton { /* Upload button style */
+            background-color: #6f42c1; /* Purple */
+        }
+        #uploadButton:hover {
+            background-color: #563d7c;
+        }
+
+        #resetButton {
+            background-color: #ffc107; /* Orange for reset */
+            color: #333; /* Dark text for contrast */
+        }
+        #resetButton:hover {
+            background-color: #e0a800;
+        }
+
+        #clearButton {
+            background-color: var(--delete-button-bg);
+        }
+        #clearButton:hover {
+            background-color: var(--delete-button-hover-bg);
+        }
+
+        .dark-mode-toggle {
+            background-color: var(--dark-mode-toggle-bg);
+            color: var(--button-text-color);
+        }
+
+        .dark-mode-toggle:hover {
+            background-color: var(--dark-mode-toggle-active-bg);
+        }
+
+        /* Footer styles */
+        .footer {
+            background-color: var(--header-bg);
+            padding: 15px 20px;
+            box-shadow: 0 -2px 4px rgba(0,0,0,0.05); /* Shadow on top */
+            display: flex;
+            flex-direction: column; /* Stack button groups vertically */
+            gap: 15px; /* Space between groups */
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            position: sticky; /* Make it sticky */
+            bottom: 0;
+            z-index: 100;
+            width: 100%;
+            box-sizing: border-box;
+            align-items: center; /* Center button groups */
+        }
+
+        .button-row {
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap to next line */
+            justify-content: center; /* Center buttons within their row */
+            gap: 10px; /* Space between individual buttons */
+            max-width: 100%; /* Ensure it can take full width for responsiveness */
+            width: 100%; /* Take full width of footer */
+        }
+
+        /* Styles for clipboard/utility buttons */
+        .button-row .clipboard-btn,
+        .button-row .utility-btn {
+            background-color: #6c757d; /* A neutral gray */
+        }
+        .button-row .clipboard-btn:hover,
+        .button-row .utility-btn:hover {
+            background-color: #5a6268;
+        }
+
+
+        /* Main content area between header and footer */
+        .main-content {
+            flex-grow: 1; /* Allows it to take available space */
+            display: flex;
+            flex-direction: column; /* Stack search/replace above editor */
+            overflow: hidden; /* Hide overflow to prevent internal scrollbars from breaking layout */
+        }
+
+        .search-replace-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 10px 20px;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            box-shadow: var(--header-shadow);
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            justify-content: center; /* Center search/replace controls */
+        }
+
+        .search-replace-controls input[type="text"] {
+            padding: 8px;
+            border: 1px solid var(--input-border);
+            border-radius: 5px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            min-width: 120px; /* Adjusted min-width for inputs */
+            flex-grow: 1; /* Allow to grow */
+            max-width: 200px; /* Max width for inputs */
+        }
+        .search-replace-controls button {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            min-width: unset; /* Override button min-width for these smaller buttons */
+            flex-grow: 0;
+        }
+
+
+        /* Container for centering the editor */
+        .main-editor-area {
+            flex-grow: 1; /* Take all available space between search bar and footer */
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            padding: 20px; /* Padding around the centered editor */
+            overflow: auto; /* Allow this area to scroll if content (editor) is too large */
+        }
+
+        .editor-container {
+            width: 700px; /* Fixed width for the editor container */
+            height: 300px; /* Fixed height for the editor container */
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--container-shadow);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box; /* Include padding/border in width/height */
+        }
+
+        .CodeMirror {
+            flex-grow: 1;
+            width: 100%; /* Must be 100% of its parent .editor-container */
+            height: 100%; /* Must be 100% of its parent .editor-container */
+            font-size: 1.1em; /* Slightly larger font */
+            line-height: 1.5; /* Better readability */
+            border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+        }
+
+        /* CodeMirror theme overrides for dark mode */
+        body.dark-mode .CodeMirror.cm-s-default {
+            background-color: var(--codemirror-bg);
+            color: var(--codemirror-text);
+        }
+        body.dark-mode .CodeMirror-gutters {
+            background-color: var(--codemirror-gutter-bg);
+            border-right: 1px solid var(--codemirror-gutter-border);
+        }
+        body.dark-mode .CodeMirror-linenumber {
+            color: #888;
+        }
+        body.dark-mode .CodeMirror-activeline-background {
+            background: var(--codemirror-active-line-bg);
+        }
+        body.dark-mode .CodeMirror-activeline .CodeMirror-nonmatchingbracket {
+            color: #e06c75;
+        }
+        body.dark-mode .CodeMirror-selection-background {
+            background: var(--codemirror-selection-bg);
+        }
+
+        /* CodeMirror specific adjustments */
+        .cm-s-default .CodeMirror-selected { background: var(--codemirror-selection-bg); }
+        .cm-s-default .CodeMirror-line::selection, .cm-s-default .CodeMirror-line > span::selection, .cm-s-default .CodeMirror-line > span > span::selection { background: var(--codemirror-selection-bg); }
+        .cm-s-default .CodeMirror-gutters { background: var(--codemirror-gutter-bg); border-right: 1px solid var(--codemirror-gutter-border); }
+        .cm-s-default .CodeMirror-activeline-background { background: var(--codemirror-active-line-bg); }
+
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+            align-items: center; /* Center vertically */
+            justify-content: center; /* Center horizontally */
+            animation: fadeInModal 0.3s ease-out; /* Add fade-in animation */
+        }
+
+        .modal-content {
+            background-color: var(--container-bg);
+            margin: auto; /* Auto margin for centering */
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%; /* Responsive width */
+            max-width: 800px; /* Max width for larger screens */
+            box-shadow: var(--container-shadow);
+            position: relative; /* For positioning the close button */
+            animation: slideIn 0.3s ease-out; /* Add slide-in animation */
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+
+        .close-button {
+            color: var(--text-color);
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 30px;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--delete-button-bg);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #modalPreviewFrame {
+            width: 100%;
+            height: 60vh; /* Adjust height for modal preview */
+            border: 1px solid var(--border-color);
+            background-color: white; /* Always white for preview content */
+            border-radius: 5px;
+        }
+
+        /* Projects List Modal */
+        #projectsModal .modal-content {
+            max-width: 600px;
+        }
+
+        #projectsList {
+            list-style: none;
+            padding: 0;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .project-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--project-item-border);
+            background-color: var(--project-item-bg);
+            transition: background-color 0.2s ease;
+        }
+
+        .project-item:last-child {
+            border-bottom: none;
+        }
+
+        .project-item:hover {
+            background-color: var(--project-item-hover-bg);
+        }
+
+        .project-item span {
+            cursor: pointer;
+            flex-grow: 1;
+            color: var(--text-color);
+        }
+
+        .project-item button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            min-width: unset; /* Override general button min-width */
+            flex-grow: 0;
+        }
+
+        .project-item .delete-button {
+            background-color: var(--delete-button-bg);
+        }
+        .project-item .delete-button:hover {
+            background-color: var(--delete-button-hover-bg);
+        }
+
+        .project-item .load-button {
+            background-color: var(--run-button-bg); /* Use run button color for load */
+        }
+        .project-item .load-button:hover {
+            background-color: var(--run-button-hover-bg);
+        }
+
+        .project-input {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--input-border);
+            border-radius: 5px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .project-input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+
+        /* Animations (Already defined, ensure they are still compatible) */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header, .search-replace-controls {
+                flex-direction: column;
+                align-items: center; /* Center items in column mode */
+                gap: 5px;
+                padding: 10px;
+            }
+             .footer {
+                flex-direction: column; /* Stack button groups vertically */
+                align-items: center;
+            }
+            .button-row {
+                flex-direction: column; /* Stack buttons vertically within groups on small screens */
+                width: 100%;
+                max-width: 300px; /* Make buttons narrower on very small screens */
+            }
+            .button-row button {
+                width: 100%; /* Full width for buttons in stacked groups */
+            }
+
+            .search-replace-controls input[type="text"] {
+                width: calc(100% - 16px); /* Adjust for padding */
+                max-width: 100%; /* Allow full width on small screens */
+            }
+
+            .main-editor-area {
+                padding: 15px; /* Adjust padding for smaller screens */
+            }
+
+            .editor-container {
+                width: 100%; /* Allow editor to take full width on small screens */
+                height: 300px; /* Maintain height, but allow overflow */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>محرر HTML مباشر</h1>
+    </div>
+
+    <div class="search-replace-controls">
+        <input type="text" id="searchText" placeholder="بحث عن..." />
+        <button onclick="findNext()">بحث التالي</button>
+        <button onclick="findPrev()">بحث السابق</button>
+        <input type="text" id="replaceText" placeholder="استبدال بـ..." />
+        <button onclick="replaceCurrent()">استبدال</button>
+        <button onclick="replaceAll()">استبدال الكل</button>
+    </div>
+
+    <div class="main-content">
+        <div class="main-editor-area">
+            <div class="editor-container">
+                <textarea id="htmlCodeEditor"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".html, .htm, .txt" style="display: none;">
+
+    <div class="footer">
+        <div class="button-row">
+            <button id="runButton">تشغيل/معاينة</button>
+            <button id="downloadButton">تحميل الكود</button>
+            <button id="uploadButton">رفع ملف (HTML/TXT)</button>
+            <button id="saveButton">حفظ المشروع</button>
+            <button id="loadProjectsButton">المشاريع المحفوظة</button>
+            <button id="darkModeToggle" class="dark-mode-toggle">الوضع الداكن</button>
+        </div>
+        <div class="button-row">
+            <button id="cutButton" class="clipboard-btn">قص</button>
+            <button id="copyButton" class="clipboard-btn">نسخ</button>
+            <button id="pasteButton" class="clipboard-btn">لصق</button>
+            <button id="selectAllButton" class="utility-btn">تحديد الكل</button>
+            <button id="undoButton" class="utility-btn">تراجع</button>
+            <button id="redoButton" class="utility-btn">إعادة</button>
+            <button id="clearButton">مسح المحتوى</button>
+            <button id="resetButton">إعادة تعيين</button>
+        </div>
+    </div>
+
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('previewModal')">&times;</span>
+            <h2>معاينة الكود</h2>
+            <iframe id="modalPreviewFrame"></iframe>
+        </div>
+    </div>
+
+    <div id="projectsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('projectsModal')">&times;</span>
+            <h2>المشاريع المحفوظة</h2>
+            <input type="text" id="projectNameInput" class="project-input" placeholder="اسم المشروع الجديد (اختياري)">
+            <button onclick="saveNewProject()">حفظ كمشروع جديد</button>
+            <ul id="projectsList">
+                </ul>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/searchcursor.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/search.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/dialog/dialog.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/search/matchesonscrollbar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/selection/active-line.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/matchbrackets.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/undoredo/undo.js"></script>
+
+
+    <script>
+        let htmlEditor;
+        const defaultHtml = `<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة تجريبية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            color: #333;
+            flex-direction: column;
+            text-align: center;
+        }
+        .card {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #007bff;
+        }
+        p {
+            line-height: 1.6;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>مرحباً بك في محرر HTML!</h1>
+        <p>هذه صفحة تجريبية بسيطة. يمكنك تعديل الكود في المحرر ومشاهدة التغييرات في نافذة المعاينة.</p>
+        <p>جرب تغيير النص أو الألوان أو إضافة عناصر HTML جديدة!</p>
+        <button onclick="alert('أهلاً بك!')">اضغط هنا</button>
+    </div>
+</body>
+</html>`;
+
+        // Initialize CodeMirror
+        document.addEventListener('DOMContentLoaded', () => {
+            htmlEditor = CodeMirror.fromTextArea(document.getElementById('htmlCodeEditor'), {
+                mode: 'htmlmixed',
+                theme: 'default', // Start with default theme, dark mode will apply dracula
+                lineNumbers: true,
+                autoCloseTags: true,
+                matchBrackets: true,
+                autoCloseBrackets: true,
+                indentUnit: 4,
+                indentWithTabs: true,
+                tabSize: 4,
+                lineWrapping: true,
+                extraKeys: {
+                    "Ctrl-Space": "autocomplete",
+                    "Ctrl-S": saveCurrentProject, // Custom shortcut for save
+                    "Ctrl-P": () => openModal('previewModal'), // Custom shortcut for preview
+                    "Ctrl-D": downloadCombinedCode, // Custom shortcut for download
+                    "Ctrl-Z": "undo", // CodeMirror's built-in undo
+                    "Cmd-Z": "undo", // For Mac
+                    "Ctrl-Y": "redo", // CodeMirror's built-in redo
+                    "Cmd-Y": "redo", // For Mac
+                    "Shift-Ctrl-Z": "redo", // Alternative redo for Windows/Linux
+                    "Shift-Cmd-Z": "redo", // Alternative redo for Mac
+                    "Ctrl-A": "selectAll", // CodeMirror's built-in select all
+                    "Cmd-A": "selectAll" // For Mac
+                },
+                 highlightSelectionMatches: {showToken: /\w/, annotateScrollbar: true}, // For search highlight
+                 readOnly: false // Ensure it's editable
+            });
+
+            // Set initial content
+            const savedCode = localStorage.getItem('currentHtmlCode');
+            if (savedCode) {
+                htmlEditor.setValue(savedCode);
+            } else {
+                htmlEditor.setValue(defaultHtml);
+            }
+
+            // Update preview on editor changes (now only saves, no visible preview)
+            htmlEditor.on('changes', updatePreview);
+
+            // Initial auto-save
+            saveCurrentProject();
+
+            // Load projects and apply dark mode
+            loadProjects();
+            applyDarkModeOnLoad();
+        });
+
+
+        // --- Dark Mode Toggle ---
+        document.getElementById('darkModeToggle').addEventListener('click', toggleDarkMode);
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+
+            // Change CodeMirror theme
+            if (isDarkMode) {
+                htmlEditor.setOption('theme', 'dracula');
+            } else {
+                htmlEditor.setOption('theme', 'default');
+            }
+        }
+
+        function applyDarkModeOnLoad() {
+            const savedDarkMode = localStorage.getItem('darkMode');
+            if (savedDarkMode === 'true') {
+                document.body.classList.add('dark-mode');
+                htmlEditor.setOption('theme', 'dracula');
+            } else {
+                document.body.classList.remove('dark-mode'); // Ensure light mode is applied if not dark
+                htmlEditor.setOption('theme', 'default');
+            }
+        }
+
+        // --- Preview Functions (Now only saves, no visible preview) ---
+        function updatePreview() {
+            saveCurrentProject(); // Auto-save on every change
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modalId === 'previewModal') {
+                const modalPreviewFrame = document.getElementById('modalPreviewFrame');
+                const modalPreviewDoc = modalPreviewFrame.contentDocument || modalPreviewFrame.contentWindow.document;
+                modalPreviewDoc.open();
+                modalPreviewDoc.write(htmlEditor.getValue());
+                modalPreviewDoc.close();
+            }
+            modal.style.display = 'flex'; // Use flex to center
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal if clicked outside content
+        window.addEventListener('click', (event) => {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        // --- Project Management Functions ---
+        function saveCurrentProject() {
+            localStorage.setItem('currentHtmlCode', htmlEditor.getValue());
+            // console.log('Current code saved automatically.');
+        }
+
+        function saveNewProject() {
+            const projectNameInput = document.getElementById('projectNameInput');
+            let projectName = projectNameInput.value.trim();
+            const currentCode = htmlEditor.getValue();
+
+            if (!projectName) {
+                // Generate a unique name if not provided
+                const timestamp = new Date().toLocaleString('ar-EG', {
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit',
+                    hour12: false
+                }).replace(/\//g, '-').replace(/:/g, '-').replace(/, /g, '_');
+                projectName = `مشروع بدون عنوان - ${timestamp}`;
+            }
+
+            const projects = JSON.parse(localStorage.getItem('htmlProjects') || '{}');
+            projects[projectName] = currentCode;
+            localStorage.setItem('htmlProjects', JSON.stringify(projects));
+            projectNameInput.value = ''; // Clear input
+            renderProjectsList();
+            alert(`تم حفظ المشروع: "${projectName}"`);
+        }
+
+        function loadProject(projectName) {
+            const projects = JSON.parse(localStorage.getItem('htmlProjects') || '{}');
+            if (projects[projectName]) {
+                htmlEditor.setValue(projects[projectName]);
+                updatePreview(); // This will just auto-save the loaded project
+                closeModal('projectsModal');
+                alert(`تم تحميل المشروع: "${projectName}"`);
+            } else {
+                alert('المشروع غير موجود!');
+            }
+        }
+
+        function deleteProject(projectName) {
+            if (confirm(`هل أنت متأكد من حذف المشروع: "${projectName}"؟`)) {
+                const projects = JSON.parse(localStorage.getItem('htmlProjects') || '{}');
+                delete projects[projectName];
+                localStorage.setItem('htmlProjects', JSON.stringify(projects));
+                renderProjectsList();
+                alert(`تم حذف المشروع: "${projectName}"`);
+            }
+        }
+
+        function loadProjects() {
+            renderProjectsList();
+            // This button now opens the modal
+            document.getElementById('loadProjectsButton').addEventListener('click', () => openModal('projectsModal'));
+        }
+
+        function renderProjectsList() {
+            const projectsListElement = document.getElementById('projectsList');
+            projectsListElement.innerHTML = ''; // Clear current list
+            const projects = JSON.parse(localStorage.getItem('htmlProjects') || '{}');
+
+            if (Object.keys(projects).length === 0) {
+                projectsListElement.innerHTML = '<li style="padding: 10px; text-align: center; color: #777;">لا توجد مشاريع محفوظة.</li>';
+                return;
+            }
+
+            for (const name in projects) {
+                const listItem = document.createElement('li');
+                listItem.classList.add('project-item');
+                listItem.innerHTML = `
+                    <span>${name}</span>
+                    <div>
+                        <button class="load-button" onclick="loadProject('${name}')">تحميل</button>
+                        <button class="delete-button" onclick="deleteProject('${name}')">حذف</button>
+                    </div>
+                `;
+                projectsListElement.appendChild(listItem);
+            }
+        }
+
+        // --- Download Function ---
+        function downloadCombinedCode() {
+            const code = htmlEditor.getValue();
+            const blob = new Blob([code], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- Upload File Function ---
+        function uploadFile() {
+            document.getElementById('fileInput').click(); // Trigger the hidden file input
+        }
+
+        document.getElementById('fileInput').addEventListener('change', handleFileUpload);
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                htmlEditor.setValue(e.target.result);
+                saveCurrentProject(); // Save the uploaded content
+                alert(`تم رفع الملف: ${file.name}`);
+            };
+
+            reader.onerror = (e) => {
+                alert('فشل في قراءة الملف. يرجى التأكد من أنه ملف HTML أو TXT صالح.');
+                console.error('File reading error:', e);
+            };
+
+            // Read as text, suitable for .html and .txt
+            reader.readAsText(file);
+        }
+
+
+        // --- Reset Editor Content Function ---
+        function resetEditorContent() {
+            if (confirm('هل أنت متأكد من إعادة تعيين الكود إلى الافتراضي؟ سيتم فقدان التغييرات غير المحفوظة.')) {
+                htmlEditor.setValue(defaultHtml);
+                saveCurrentProject();
+                alert('تم إعادة تعيين الكود.');
+            }
+        }
+
+        // --- Clear Editor Content Function ---
+        function clearEditorContent() {
+            if (confirm('هل أنت متأكد من مسح كل المحتوى؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                htmlEditor.setValue(''); // تعيين قيمة المحرر إلى سلسلة فارغة
+                saveCurrentProject(); // حفظ المشروع بعد المسح (ليكون فارغًا)
+                alert('تم مسح كل المحتوى.');
+            }
+        }
+
+        // --- Copy/Paste/Cut Functions ---
+        function copyCode() {
+            const selectedText = htmlEditor.getSelection();
+            if (selectedText) {
+                navigator.clipboard.writeText(selectedText)
+                    .then(() => {
+                        console.log('Text copied to clipboard');
+                        alert('تم نسخ النص المحدد.');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        alert('فشل في نسخ النص. قد تحتاج إلى السماح للمتصفح بالوصول إلى الحافظة.');
+                    });
+            } else {
+                alert('الرجاء تحديد نص لنسخه أولاً.');
+            }
+        }
+
+        function pasteCode() {
+            navigator.clipboard.readText()
+                .then(text => {
+                    if (text) {
+                        htmlEditor.replaceSelection(text);
+                        alert('تم لصق النص من الحافظة.');
+                    } else {
+                        alert('الحافظة فارغة.');
+                    }
+                })
+                .catch(err => {
+                    console.error('Failed to read clipboard contents: ', err);
+                    alert('فشل في قراءة الحافظة. قد تحتاج إلى السماح للمتصفح بالوصول إلى الحافظة.');
+                });
+        }
+
+        function cutCode() {
+            const selectedText = htmlEditor.getSelection();
+            if (selectedText) {
+                navigator.clipboard.writeText(selectedText)
+                    .then(() => {
+                        htmlEditor.replaceSelection(''); // Remove selected text
+                        console.log('Text cut to clipboard');
+                        alert('تم قص النص المحدد.');
+                    })
+                    .catch(err => {
+                        console.error('Failed to cut text: ', err);
+                        alert('فشل في قص النص. قد تحتاج إلى السماح للمتصفح بالوصول إلى الحافظة.');
+                    });
+            } else {
+                alert('الرجاء تحديد نص لقصّه أولاً.');
+            }
+        }
+
+        // --- Undo/Redo/Select All Functions ---
+        function undoCode() {
+            htmlEditor.undo();
+        }
+
+        function redoCode() {
+            htmlEditor.redo();
+        }
+
+        function selectAllCode() {
+            htmlEditor.execCommand('selectAll');
+        }
+
+
+        // --- Search and Replace Functions ---
+        function findNext() {
+            const searchText = document.getElementById('searchText').value;
+            if (searchText) {
+                const cursor = htmlEditor.getSearchCursor(searchText, htmlEditor.getCursor());
+                if (!cursor.findNext()) {
+                    // If not found from current position, start from top
+                    cursor.find(searchText, null, true); // true for start at top
+                    if (!cursor.findNext()) {
+                        alert("لم يتم العثور على المزيد من التطابقات.");
+                    }
+                }
+                htmlEditor.setSelection(cursor.from(), cursor.to());
+                htmlEditor.focus();
+            }
+        }
+
+        function findPrev() {
+            const searchText = document.getElementById('searchText').value;
+            if (searchText) {
+                const cursor = htmlEditor.getSearchCursor(searchText, htmlEditor.getCursor(), {backwards: true});
+                if (!cursor.findPrevious()) {
+                    // If not found from current position, start from bottom
+                    cursor.find(searchText, null, false); // false for start at bottom
+                    if (!cursor.findPrevious()) {
+                        alert("لم يتم العثور على المزيد من التطابقات.");
+                    }
+                }
+                htmlEditor.setSelection(cursor.from(), cursor.to());
+                htmlEditor.focus();
+            }
+        }
+
+        function replaceCurrent() {
+            const searchText = document.getElementById('searchText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            if (!searchText) {
+                alert("الرجاء إدخال نص للبحث عنه أولاً.");
+                return;
+            }
+
+            const cursor = htmlEditor.getSearchCursor(searchText, htmlEditor.getCursor());
+            if (cursor.findNext()) {
+                cursor.replace(replaceText);
+            } else {
+                alert("لم يتم العثور على النص للبحث عنه.");
+            }
+            htmlEditor.focus();
+        }
+
+        function replaceAll() {
+            const searchText = document.getElementById('searchText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            if (!searchText) {
+                alert("الرجاء إدخال نص للبحث عنه أولاً.");
+                return;
+            }
+
+            const confirmReplace = confirm(`هل أنت متأكد من استبدال كل تكرارات "${searchText}" بـ "${replaceText}"؟`);
+            if (!confirmReplace) {
+                return;
+            }
+
+            let replacedCount = 0;
+            htmlEditor.operation(function() {
+                for (let cursor = htmlEditor.getSearchCursor(searchText); cursor.findNext();) {
+                    cursor.replace(replaceText);
+                    replacedCount++;
+                }
+            });
+            alert(`تم استبدال ${replacedCount} تكرار.`);
+            htmlEditor.focus();
+        }
+
+
+        // --- Keyboard Shortcuts ---
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) { // For Ctrl on Windows/Linux, Cmd on Mac
+                switch (e.key) {
+                    case 's': // Ctrl/Cmd + S to save
+                        e.preventDefault();
+                        saveCurrentProject(); // This saves to currentHtmlCode, for new projects use the button
+                        alert('تم حفظ الكود الحالي تلقائياً.');
+                        break;
+                    case 'p': // Ctrl/Cmd + P to preview
+                        e.preventDefault();
+                        openModal('previewModal'); // Now opens the modal
+                        break;
+                    case 'd': // Ctrl/Cmd + D to download
+                        e.preventDefault();
+                        downloadCombinedCode();
+                        break;
+                    case 'f': // Ctrl/Cmd + F for find (often opens browser find)
+                        e.preventDefault(); // Prevent browser find dialog
+                        document.getElementById('searchText').focus(); // Focus the search input
+                        break;
+                    case 'h': // Ctrl/Cmd + H for replace (common shortcut)
+                        e.preventDefault(); // Prevent browser history
+                        document.getElementById('replaceText').focus(); // Focus the replace input
+                        break;
+                    case 'c': // Ctrl/Cmd + C for copy
+                         // Allow default browser copy unless text is selected in CodeMirror
+                        if (htmlEditor.getSelection()) {
+                             e.preventDefault();
+                             copyCode();
+                        }
+                        break;
+                    case 'v': // Ctrl/Cmd + V for paste
+                         // Allow default browser paste unless CodeMirror is focused
+                         if (htmlEditor.hasFocus()) {
+                            e.preventDefault();
+                            pasteCode();
+                         }
+                        break;
+                    case 'x': // Ctrl/Cmd + X for cut
+                        // Allow default browser cut unless text is selected in CodeMirror
+                        if (htmlEditor.getSelection()) {
+                            e.preventDefault();
+                            cutCode();
+                        }
+                        break;
+                    case 'z': // Ctrl/Cmd + Z for undo
+                        // CodeMirror handles this via extraKeys directly for simplicity
+                        // But if custom logic was needed:
+                        // e.preventDefault();
+                        // undoCode();
+                        break;
+                    case 'y': // Ctrl/Cmd + Y for redo
+                        // CodeMirror handles this via extraKeys directly for simplicity
+                        // But if custom logic was needed:
+                        // e.preventDefault();
+                        // redoCode();
+                        break;
+                    case 'a': // Ctrl/Cmd + A for select all
+                        // CodeMirror handles this via extraKeys directly for simplicity
+                        // But if custom logic was needed:
+                        // e.preventDefault();
+                        // selectAllCode();
+                        break;
+                }
+            }
+            // For Ctrl+Shift+Z (alternative redo)
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'Z') {
+                e.preventDefault();
+                redoCode();
+            }
+        });
+
+        // --- Event Listeners for Buttons ---
+        document.getElementById('runButton').addEventListener('click', () => openModal('previewModal'));
+        document.getElementById('saveButton').addEventListener('click', saveNewProject); // This button now explicitly saves a new project
+        document.getElementById('downloadButton').addEventListener('click', downloadCombinedCode);
+        document.getElementById('uploadButton').addEventListener('click', uploadFile); // New upload button listener
+        document.getElementById('resetButton').addEventListener('click', resetEditorContent);
+        document.getElementById('clearButton').addEventListener('click', clearEditorContent);
+        document.getElementById('copyButton').addEventListener('click', copyCode);
+        document.getElementById('pasteButton').addEventListener('click', pasteCode);
+        document.getElementById('cutButton').addEventListener('click', cutCode);
+        document.getElementById('undoButton').addEventListener('click', undoCode);
+        document.getElementById('redoButton').addEventListener('click', redoCode);
+        document.getElementById('selectAllButton').addEventListener('click', selectAllCode);
+
+
+    </script>
+</body>
+</html>

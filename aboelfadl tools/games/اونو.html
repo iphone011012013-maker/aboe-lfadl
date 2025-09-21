@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة أونو</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); /* UNO themed gradient */
+            color: #fff;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+        }
+
+        h1 {
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            font-size: 2.5em;
+        }
+
+        .game-container {
+            background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent dark background */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 95%; /* Responsive width */
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative; /* For absolutely positioned elements like draw pile */
+        }
+
+        .game-info {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-align: center;
+            background-color: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        #game-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Card Pile (Draw & Discard) */
+        .card-pile {
+            width: 100px; /* Standard card width */
+            height: 150px; /* Standard card height */
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 10px;
+            background-color: rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9em;
+            color: #ccc;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        #draw-pile {
+            background: #880000; /* Dark red for draw pile */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.3);
+            position: relative;
+            cursor: pointer;
+        }
+
+        #draw-pile:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 10px rgba(255,255,255,0.4);
+        }
+
+        #discard-pile {
+            background-color: transparent; /* Top card visible */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            overflow: hidden; /* Hide overflowing parts of the card */
+        }
+
+        #discard-pile .uno-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none; /* No extra border */
+            box-shadow: none; /* No extra shadow */
+        }
+        
+        /* UNO Card Styles */
+        .uno-card {
+            width: 100px;
+            height: 150px;
+            background-color: #fff;
+            border: 2px solid #333;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            box-sizing: border-box;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            user-select: none;
+        }
+
+        .uno-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+        }
+
+        .uno-card.selected {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 0 3px #fdd835; /* Gold border for selected */
+            border-color: #fdd835;
+        }
+
+        /* Card Colors */
+        .card-red { background-color: #e53935; color: white; }
+        .card-green { background-color: #43a047; color: white; }
+        .card-blue { background-color: #1e88e5; color: white; }
+        .card-yellow { background-color: #fdd835; color: #333; }
+        .card-wild { background: linear-gradient(to bottom right, #e53935, #43a047, #1e88e5, #fdd835); color: white; }
+
+        /* Card Content */
+        .card-top-left, .card-bottom-right {
+            font-size: 0.5em; /* Smaller number/symbol in corners */
+            position: absolute;
+        }
+        .card-top-left { top: 5px; left: 5px; }
+        .card-bottom-right { bottom: 5px; right: 5px; transform: rotate(180deg); }
+
+        .card-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1; /* Occupy remaining space */
+            text-align: center;
+            font-size: 1em; /* Main symbol/number size */
+        }
+
+        /* Special Card Symbols */
+        .symbol-draw2::before { content: '+2'; }
+        .symbol-reverse::before { content: '⇄'; font-size: 1.2em; }
+        .symbol-skip::before { content: '⊘'; font-size: 1.2em; }
+        .symbol-wild::before { content: 'الوايلد'; font-size: 0.8em; }
+        .symbol-draw4::before { content: '+4'; font-size: 1em; }
+
+
+        #ai-hand-display, #player-hand {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            min-height: 180px; /* Space for cards */
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        #ai-hand-display {
+            min-height: 100px; /* Smaller for AI, only count visible */
+            background-color: rgba(0,0,0,0.3);
+            color: #eee;
+        }
+
+        #ai-hand-display .uno-card {
+            background-color: #333; /* Face down card */
+            color: transparent;
+            border: 2px solid #555;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.3);
+        }
+        #ai-hand-display .uno-card:hover {
+            transform: none; /* No hover effect on AI cards */
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.3);
+        }
+
+        #game-message {
+            color: #ffe082; /* Light yellow for messages */
+            font-weight: bold;
+            margin-top: 10px;
+            text-shadow: 0 0 5px rgba(255,224,130,0.5);
+            font-size: 1.3em;
+        }
+
+        .winner {
+            color: #8bc34a; /* Green for winner */
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(139,195,74,0.7);
+        }
+
+        .controls {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .controls button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: linear-gradient(180deg, #64b5f6 0%, #2196f3 100%); /* Blue gradient */
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls button:hover {
+            background: linear-gradient(180deg, #2196f3 0%, #64b5f6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        .controls button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Special button styling for "Draw" */
+        #draw-card-btn {
+            background: linear-gradient(180deg, #ff7043 0%, #e64a19 100%); /* Orange/red gradient */
+        }
+        #draw-card-btn:hover {
+            background: linear-gradient(180deg, #e64a19 0%, #ff7043 100%);
+        }
+
+        /* Color Picker Modal */
+        .color-picker-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .color-picker-content {
+            background-color: #fefefe;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,255,255,0.5);
+            color: #333;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .color-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: border-color 0.2s ease, transform 0.1s ease;
+        }
+        .color-box:hover {
+            transform: scale(1.1);
+        }
+        .color-box.selected {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+
+        .color-red { background-color: #e53935; }
+        .color-green { background-color: #43a047; }
+        .color-blue { background-color: #1e88e5; }
+        .color-yellow { background-color: #fdd835; }
+
+
+        /* Modal Styles (General) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 35px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 450px;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            color: #333;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #new-game-confirm-modal button {
+            margin: 12px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        #confirm-new-game-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        #confirm-new-game-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        #cancel-new-game-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+        #cancel-new-game-btn:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .uno-card {
+                width: 80px;
+                height: 120px;
+                font-size: 2em;
+            }
+            .card-pile {
+                width: 80px;
+                height: 120px;
+            }
+            .game-info {
+                font-size: 1em;
+            }
+            #ai-hand-display, #player-hand {
+                gap: 10px;
+                padding: 15px;
+                min-height: 150px;
+            }
+            .controls button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            .color-box {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Prevent text selection across browsers */
+        body * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة أونو</h1>
+    <div class="game-container">
+        <div class="game-info">
+            <p>الدور الحالي: <span id="current-turn">أنت</span></p>
+            <p id="game-message"></p>
+        </div>
+
+        <div id="game-area">
+            <div class="card-pile" id="draw-pile">
+                <span>سحب</span>
+                <p id="draw-pile-count"></p>
+            </div>
+            <div class="card-pile" id="discard-pile">
+                <!-- Top card of discard pile will be rendered here -->
+            </div>
+        </div>
+
+        <div id="ai-hand-display">
+            <p>الكمبيوتر: <span id="ai-card-count">0</span> ورقة</p>
+        </div>
+
+        <div id="player-hand">
+            <!-- Player's cards will be displayed here -->
+        </div>
+
+        <div class="controls">
+            <button id="draw-card-btn">اسحب ورقة</button>
+            <button id="continue-game-btn">لعبة جديدة (متابعة)</button>
+            <button id="show-history-btn">سجل النتائج</button>
+            <button id="new-game-btn">لعبة جديدة (مسح السجل)</button>
+        </div>
+    </div>
+
+    <!-- Color Picker Modal for Wild Cards -->
+    <div id="color-picker-modal" class="color-picker-modal">
+        <div class="color-picker-content">
+            <h2>اختر لونًا</h2>
+            <div class="color-options">
+                <div class="color-box color-red" data-color="red"></div>
+                <div class="color-box color-green" data-color="green"></div>
+                <div class="color-box color-blue" data-color="blue"></div>
+                <div class="color-box color-yellow" data-color="yellow"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Game History -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="history-close-btn">&times;</span>
+            <h2>سجل النتائج</h2>
+            <p>أنت: <span id="human-wins-count">0</span> فوز</p>
+            <p>الكمبيوتر: <span id="opponent-wins-count">0</span> فوز</p>
+        </div>
+    </div>
+
+    <!-- Modal for New Game Confirmation -->
+    <div id="new-game-confirm-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="new-game-close-btn">&times;</span>
+            <h2>بدء لعبة جديدة؟</h2>
+            <p>هل أنت متأكد أنك تريد مسح النتائج السابقة وبدء لعبة جديدة؟</p>
+            <button id="confirm-new-game-btn">نعم، ابدأ لعبة جديدة</button>
+            <button id="cancel-new-game-btn">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Logic for the UNO Game
+
+        // DOM Elements
+        const playerHandElement = document.getElementById('player-hand');
+        const aiHandDisplayElement = document.getElementById('ai-hand-display');
+        const currentTurnSpan = document.getElementById('current-turn');
+        const gameMessage = document.getElementById('game-message');
+        const drawPileElement = document.getElementById('draw-pile');
+        const drawPileCountSpan = document.getElementById('draw-pile-count');
+        const discardPileElement = document.getElementById('discard-pile');
+        const aiCardCountSpan = document.getElementById('ai-card-count');
+
+        // Control Buttons
+        const drawCardBtn = document.getElementById('draw-card-btn');
+        const continueGameBtn = document.getElementById('continue-game-btn');
+        const showHistoryBtn = document.getElementById('show-history-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+
+        // Modals
+        const colorPickerModal = document.getElementById('color-picker-modal');
+        const colorOptions = document.querySelector('.color-options');
+        const historyModal = document.getElementById('history-modal');
+        const historyCloseBtn = document.getElementById('history-close-btn');
+        const humanWinsCountSpan = document.getElementById('human-wins-count');
+        const opponentWinsCountSpan = document.getElementById('opponent-wins-count');
+        const newGameConfirmModal = document.getElementById('new-game-confirm-modal');
+        const newGameCloseBtn = document.getElementById('new-game-close-btn');
+        const confirmNewGameBtn = document.getElementById('confirm-new-game-btn');
+        const cancelNewGameBtn = document.getElementById('cancel-new-game-btn');
+
+        // Game State Variables
+        let deck = [];
+        let playerHand = [];
+        let opponentHand = []; // AI's hand
+        let discardPile = [];
+        let currentColor = ''; // Current color for playing cards
+        let currentNumber = ''; // Current number/symbol for playing cards
+        let currentPlayer = 'human'; // 'human' or 'opponent'
+        let gameEnded = false;
+        let skipNextTurn = false;
+        let drawCardsCount = 0; // For +2 and +4 cards
+
+        let humanWins = parseInt(localStorage.getItem('unoHumanWins') || '0');
+        let opponentWins = parseInt(localStorage.getItem('unoOpponentWins') || '0');
+
+        const COLORS = ['red', 'green', 'blue', 'yellow'];
+        const NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const SPECIAL_CARDS = ['draw2', 'reverse', 'skip']; // For colored special cards
+        const WILD_CARDS = ['wild', 'wildDraw4'];
+
+        // --- Card Generation and Utility Functions ---
+
+        function createDeck() {
+            let newDeck = [];
+            // Numbered cards (0-9)
+            COLORS.forEach(color => {
+                newDeck.push({ type: 'number', value: '0', color: color }); // One '0' of each color
+                for (let i = 1; i <= 9; i++) {
+                    newDeck.push({ type: 'number', value: String(i), color: color }); // Two of each 1-9
+                    newDeck.push({ type: 'number', value: String(i), color: color });
+                }
+            });
+
+            // Special colored cards (+2, Reverse, Skip)
+            COLORS.forEach(color => {
+                SPECIAL_CARDS.forEach(specialType => {
+                    newDeck.push({ type: specialType, value: specialType, color: color }); // Two of each
+                    newDeck.push({ type: specialType, value: specialType, color: color });
+                });
+            });
+
+            // Wild cards (Wild, Wild Draw 4)
+            WILD_CARDS.forEach(wildType => {
+                for (let i = 0; i < 4; i++) { // Four of each wild card
+                    newDeck.push({ type: wildType, value: wildType, color: 'wild' });
+                }
+            });
+            return shuffleArray(newDeck);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Render a single UNO card HTML element
+        function renderCard(card, isSelectable = false, isFaceDown = false) {
+            const cardElement = document.createElement('div');
+            cardElement.classList.add('uno-card', `card-${card.color}`);
+            cardElement.dataset.type = card.type;
+            cardElement.dataset.value = card.value;
+            cardElement.dataset.color = card.color;
+
+            if (isFaceDown) {
+                // Card back design, no text content
+                cardElement.innerHTML = '';
+                cardElement.style.backgroundImage = 'linear-gradient(45deg, #0d47a1 0%, #1976d2 100%)'; /* Blue back */
+                cardElement.style.border = '2px solid #555';
+                cardElement.style.boxShadow = 'inset 0 0 5px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.3)';
+                return cardElement;
+            }
+
+            const topLeft = document.createElement('span');
+            topLeft.classList.add('card-top-left');
+            topLeft.textContent = getCardDisplayValue(card);
+            cardElement.appendChild(topLeft);
+
+            const center = document.createElement('div');
+            center.classList.add('card-center');
+            center.textContent = getCardDisplayValue(card);
+            cardElement.appendChild(center);
+
+            const bottomRight = document.createElement('span');
+            bottomRight.classList.add('card-bottom-right');
+            bottomRight.textContent = getCardDisplayValue(card);
+            cardElement.appendChild(bottomRight);
+
+            if (isSelectable) {
+                cardElement.addEventListener('click', handleCardSelect);
+            }
+            return cardElement;
+        }
+
+        function getCardDisplayValue(card) {
+            switch (card.type) {
+                case 'draw2': return '+2';
+                case 'reverse': return '⇄';
+                case 'skip': return '⊘';
+                case 'wild': return 'وايلد';
+                case 'wildDraw4': return '+4';
+                default: return card.value;
+            }
+        }
+
+        // --- Game Initialization ---
+
+        function initializeGame() {
+            deck = createDeck();
+            playerHand = [];
+            opponentHand = [];
+            discardPile = [];
+            selectedCard = null;
+            gameEnded = false;
+            skipNextTurn = false;
+            drawCardsCount = 0;
+            gameMessage.textContent = '';
+            
+            // Deal initial hands (7 cards each)
+            for (let i = 0; i < 7; i++) {
+                playerHand.push(deck.pop());
+                opponentHand.push(deck.pop());
+            }
+
+            // Start discard pile with a non-wild card
+            let firstCard = deck.pop();
+            while (firstCard.type === 'wild' || firstCard.type === 'wildDraw4') {
+                deck.push(firstCard); // Put wild card back in deck
+                deck = shuffleArray(deck); // Reshuffle
+                firstCard = deck.pop();
+            }
+            discardPile.push(firstCard);
+            currentColor = firstCard.color;
+            currentNumber = firstCard.value;
+
+            // Handle first card being action card
+            if (firstCard.type === 'draw2') {
+                gameMessage.textContent = 'أول ورقة: +2! الكمبيوتر يسحب ورقتين.';
+                opponentHand.push(deck.pop(), deck.pop());
+                skipNextTurn = true; // Player's turn is skipped
+            } else if (firstCard.type === 'reverse') {
+                gameMessage.textContent = 'أول ورقة: عكس الاتجاه! الكمبيوتر يبدأ.';
+                currentPlayer = 'opponent'; // Reverse makes opponent go first
+            } else if (firstCard.type === 'skip') {
+                gameMessage.textContent = 'أول ورقة: تخطي الدور! الكمبيوتر دوره يتخطى.';
+                skipNextTurn = true; // Player's turn is skipped
+            }
+
+            renderHands();
+            renderPiles();
+            updateTurnDisplay();
+            disableDrawAndPlay(); // Disable buttons initially
+
+            if (currentPlayer === 'opponent' && !gameEnded) {
+                gameMessage.textContent += ' الكمبيوتر يبدأ...';
+                setTimeout(makeAIMove, 2000);
+            } else if (currentPlayer === 'human' && !gameEnded) {
+                gameMessage.textContent += ' دورك! اختر ورقة أو اسحب.';
+                enablePlayerInput();
+            }
+            checkPlayerActions();
+        }
+
+        // --- Rendering Functions ---
+
+        function renderHands() {
+            playerHandElement.innerHTML = '';
+            playerHand.forEach(card => {
+                const cardElem = renderCard(card, true);
+                playerHandElement.appendChild(cardElem);
+            });
+
+            aiHandDisplayElement.innerHTML = `<p>الكمبيوتر: <span id="ai-card-count">${opponentHand.length}</span> ورقة</p>`;
+            aiCardCountSpan.textContent = opponentHand.length;
+        }
+
+        function renderPiles() {
+            discardPileElement.innerHTML = '';
+            if (discardPile.length > 0) {
+                const topCard = discardPile[discardPile.length - 1];
+                const cardElem = renderCard(topCard);
+                discardPileElement.appendChild(cardElem);
+            }
+            drawPileCountSpan.textContent = deck.length;
+        }
+
+        function updateTurnDisplay() {
+            currentTurnSpan.textContent = currentPlayer === 'human' ? 'أنت' : 'الكمبيوتر';
+        }
+
+        // --- Game Logic ---
+
+        function canPlayCard(card) {
+            const topCard = discardPile[discardPile.length - 1];
+
+            if (card.color === 'wild' || card.color === 'wildDraw4') {
+                return true; // Wild cards can always be played
+            }
+            // Match color or number/symbol
+            return card.color === currentColor || card.value === currentNumber || card.type === topCard.type;
+        }
+
+        function handleCardSelect(event) {
+            if (gameEnded || currentPlayer !== 'human') return;
+
+            // Clear previous selection
+            if (selectedCard) {
+                document.querySelector('.uno-card.selected')?.classList.remove('selected');
+            }
+
+            const clickedCardElement = event.currentTarget;
+            const type = clickedCardElement.dataset.type;
+            const value = clickedCardElement.dataset.value;
+            const color = clickedCardElement.dataset.color;
+            const card = { type, value, color };
+
+            if (canPlayCard(card)) {
+                selectedCard = card;
+                clickedCardElement.classList.add('selected');
+                gameMessage.textContent = 'تم اختيار ورقة. انقر على كومة اللعب لوضعها.';
+                drawCardBtn.disabled = true; // Disable draw button when a card is selected
+            } else {
+                gameMessage.textContent = 'لا يمكنك لعب هذه الورقة. يجب أن تطابق اللون أو الرقم أو الرمز.';
+                selectedCard = null;
+                drawCardBtn.disabled = false; // Re-enable draw if invalid card selected
+            }
+        }
+
+        discardPileElement.addEventListener('click', () => {
+            if (gameEnded || currentPlayer !== 'human' || !selectedCard) {
+                if (!selectedCard) {
+                    gameMessage.textContent = 'الرجاء اختيار ورقة للعب أولاً.';
+                }
+                return;
+            }
+            
+            playCard(selectedCard);
+        });
+
+        async function playCard(cardToPlay) {
+            const hand = (currentPlayer === 'human') ? playerHand : opponentHand;
+            const cardIndex = hand.findIndex(c => c.type === cardToPlay.type && c.value === cardToPlay.value && c.color === cardToPlay.color);
+
+            if (cardIndex === -1 || !canPlayCard(cardToPlay)) {
+                gameMessage.textContent = 'حركة غير قانونية.'; // Should not happen if UI is correct
+                return;
+            }
+
+            hand.splice(cardIndex, 1); // Remove card from hand
+            discardPile.push(cardToPlay); // Add to discard pile
+            currentColor = cardToPlay.color;
+            currentNumber = cardToPlay.value;
+
+            selectedCard = null; // Clear selection
+            document.querySelector('.uno-card.selected')?.classList.remove('selected'); // Deselect visually
+            disableDrawAndPlay(); // Disable input while effects are processed
+
+            renderHands();
+            renderPiles();
+            checkWinCondition();
+
+            if (!gameEnded) {
+                let delay = 1000; // Default delay for actions
+
+                // Handle special cards
+                if (cardToPlay.type === 'draw2') {
+                    drawCardsCount += 2;
+                    gameMessage.textContent = `+2! اللاعب التالي يسحب ورقتين.`;
+                    skipNextTurn = true;
+                } else if (cardToPlay.type === 'reverse') {
+                    gameMessage.textContent = `عكس الاتجاه!`;
+                    // In 2-player, reverse acts like a skip
+                    skipNextTurn = true;
+                } else if (cardToPlay.type === 'skip') {
+                    gameMessage.textContent = `تخطي الدور!`;
+                    skipNextTurn = true;
+                } else if (cardToPlay.type === 'wild' || cardToPlay.type === 'wildDraw4') {
+                    if (currentPlayer === 'human') {
+                        gameMessage.textContent = 'اختر لونًا للورقة الوايلد.';
+                        await showColorPicker(); // Wait for human to pick color
+                    } else { // AI picks color
+                        currentColor = AI_pickColor();
+                        gameMessage.textContent = `الكمبيوتر اختار لونًا: ${translateColor(currentColor)}.`;
+                    }
+                    if (cardToPlay.type === 'wildDraw4') {
+                        drawCardsCount += 4;
+                        gameMessage.textContent += ` و +4! اللاعب التالي يسحب أربع ورقات.`;
+                        skipNextTurn = true;
+                    }
+                    delay = 1500; // Extra delay for wild card
+                }
+                
+                setTimeout(() => {
+                    switchPlayer();
+                }, delay);
+            }
+        }
+
+        drawCardBtn.addEventListener('click', handleDrawCard);
+
+        function handleDrawCard() {
+            if (gameEnded || currentPlayer !== 'human') return;
+            if (deck.length === 0) {
+                gameMessage.textContent = 'كومة السحب فارغة! لا يمكنك السحب.';
+                // If draw pile is empty and player cannot move, they must pass (implicitly handled by switchPlayer)
+                switchPlayer();
+                return;
+            }
+
+            const drawnCard = deck.pop();
+            playerHand.push(drawnCard);
+            gameMessage.textContent = 'لقد سحبت ورقة.';
+            renderHands();
+            renderPiles(); // Update draw pile count
+
+            // After drawing, if the drawn card can be played, let the player play it.
+            // Otherwise, switch turn.
+            if (canPlayCard(drawnCard)) {
+                gameMessage.textContent += ' يمكنك لعب الورقة التي سحبتها. اختر ورقة أو تجاوز الدور.';
+                drawCardBtn.disabled = true; // Disable draw button if can play
+            } else {
+                gameMessage.textContent += ' لا يمكنك لعب الورقة التي سحبتها. تجاوز دورك.';
+                switchPlayer();
+            }
+        }
+
+        function switchPlayer() {
+            if (skipNextTurn) {
+                skipNextTurn = false;
+                gameMessage.textContent += ` (تم تخطي الدور).`;
+            } else if (drawCardsCount > 0) {
+                const targetHand = currentPlayer === 'human' ? opponentHand : playerHand;
+                const playerName = currentPlayer === 'human' ? 'الكمبيوتر' : 'أنت';
+                for (let i = 0; i < drawCardsCount; i++) {
+                    if (deck.length > 0) {
+                        targetHand.push(deck.pop());
+                    } else {
+                        gameMessage.textContent += ' (كومة السحب فارغة، لم يتم سحب كل الأوراق المطلوبة).';
+                        break;
+                    }
+                }
+                gameMessage.textContent += ` ${playerName} يسحب ${drawCardsCount} ورقة.`;
+                drawCardsCount = 0; // Reset draw count
+                renderHands();
+                renderPiles();
+            }
+
+            // Actual player switch
+            currentPlayer = currentPlayer === 'human' ? 'opponent' : 'human';
+            updateTurnDisplay();
+            checkWinCondition(); // Check if player won after forcing a draw
+
+            if (!gameEnded) {
+                if (currentPlayer === 'opponent') {
+                    gameMessage.textContent += ' دور الكمبيوتر.';
+                    disableDrawAndPlay();
+                    setTimeout(makeAIMove, 1500);
+                } else {
+                    gameMessage.textContent += ' دورك.';
+                    enablePlayerInput();
+                }
+            }
+        }
+
+        function disableDrawAndPlay() {
+            drawCardBtn.disabled = true;
+            // Disable card clicks on player hand
+            playerHandElement.querySelectorAll('.uno-card').forEach(cardElem => {
+                cardElem.style.pointerEvents = 'none';
+            });
+            discardPileElement.style.pointerEvents = 'none'; // Prevent playing on discard pile
+        }
+
+        function enablePlayerInput() {
+            if (gameEnded) return;
+            drawCardBtn.disabled = false;
+            playerHandElement.querySelectorAll('.uno-card').forEach(cardElem => {
+                cardElem.style.pointerEvents = 'auto';
+            });
+            discardPileElement.style.pointerEvents = 'auto'; // Allow playing on discard pile
+            checkPlayerActions(); // Check if player can play, or needs to draw/pass
+        }
+
+        function checkPlayerActions() {
+            if (gameEnded) return;
+            const currentHand = currentPlayer === 'human' ? playerHand : opponentHand;
+            const playableCards = currentHand.filter(canPlayCard);
+
+            if (playableCards.length === 0) {
+                gameMessage.textContent = 'لا توجد أوراق قابلة للعب لديك. يجب أن تسحب ورقة.';
+                drawCardBtn.style.display = 'inline-block'; // Show draw button
+            } else {
+                gameMessage.textContent = 'اختر ورقة للعب أو اسحب ورقة.';
+                drawCardBtn.style.display = 'inline-block'; // Still allow drawing, even if playable
+            }
+        }
+
+        function checkWinCondition() {
+            let winner = null;
+            if (playerHand.length === 0) {
+                winner = 'human';
+            } else if (opponentHand.length === 0) {
+                winner = 'opponent';
+            }
+
+            if (winner) {
+                gameEnded = true;
+                disableDrawAndPlay();
+                if (winner === 'human') {
+                    gameMessage.textContent = 'أنت فزت جولة الأونو!';
+                    gameMessage.classList.add('winner');
+                    humanWins++;
+                    localStorage.setItem('unoHumanWins', humanWins);
+                } else {
+                    gameMessage.textContent = 'الكمبيوتر فاز جولة الأونو!';
+                    gameMessage.classList.add('winner');
+                    opponentWins++;
+                    localStorage.setItem('unoOpponentWins', opponentWins);
+                }
+            }
+        }
+
+        // --- AI Logic ---
+
+        function makeAIMove() {
+            if (gameEnded) return;
+
+            const aiHand = opponentHand;
+            const playableCards = aiHand.filter(canPlayCard);
+            let playedThisTurn = false;
+
+            if (playableCards.length > 0) {
+                // Simple AI strategy:
+                // 1. Play a +4 if available (risky but simple for now)
+                // 2. Play a +2 if available
+                // 3. Play a Skip/Reverse
+                // 4. Play a Wild card (if no other moves)
+                // 5. Play a matching number card
+                // 6. Play a matching color card
+
+                let cardToPlay = null;
+
+                // Prioritize action cards that force opponent to draw or skip
+                cardToPlay = playableCards.find(c => c.type === 'wildDraw4');
+                if (!cardToPlay) cardToPlay = playableCards.find(c => c.type === 'draw2');
+                if (!cardToPlay) cardToPlay = playableCards.find(c => c.type === 'skip' || c.type === 'reverse');
+                
+                // Then regular Wild card
+                if (!cardToPlay) cardToPlay = playableCards.find(c => c.type === 'wild');
+
+                // If no special cards, try to match number/value
+                if (!cardToPlay) {
+                    cardToPlay = playableCards.find(c => c.value === currentNumber);
+                }
+                // Else, try to match color
+                if (!cardToPlay) {
+                    cardToPlay = playableCards.find(c => c.color === currentColor);
+                }
+
+                // Fallback: Just pick any playable card (should always find one here if playableCards is not empty)
+                if (!cardToPlay) {
+                    cardToPlay = playableCards[0];
+                }
+
+                if (cardToPlay) {
+                    // For Wild cards, AI needs to pick a color
+                    if (cardToPlay.type === 'wild' || cardToPlay.type === 'wildDraw4') {
+                        currentColor = AI_pickColor(); // AI picks a color
+                    }
+                    playCard(cardToPlay);
+                    playedThisTurn = true;
+                }
+            }
+
+            if (!playedThisTurn) {
+                // AI cannot play, draws cards
+                if (deck.length > 0) {
+                    const drawnCard = deck.pop();
+                    aiHand.push(drawnCard);
+                    gameMessage.textContent = 'الكمبيوتر يسحب ورقة.';
+                    renderHands();
+                    renderPiles();
+
+                    // Check if AI can play the drawn card
+                    if (canPlayCard(drawnCard)) {
+                        gameMessage.textContent += ' الكمبيوتر يمكنه لعب الورقة التي سحبها.';
+                        setTimeout(() => playCard(drawnCard), 1000); // Play drawn card
+                    } else {
+                        gameMessage.textContent += ' الكمبيوتر لا يمكنه لعب الورقة التي سحبها. يتخطى دوره.';
+                        setTimeout(switchPlayer, 1000); // Pass turn
+                    }
+                } else {
+                    gameMessage.textContent = 'كومة السحب فارغة للكمبيوتر. الكمبيوتر يتخطى دوره.';
+                    switchPlayer(); // AI passes turn
+                }
+            }
+        }
+
+        function AI_pickColor() {
+            // Simple AI color picking: choose the color it has most of
+            const colorCounts = { 'red': 0, 'green': 0, 'blue': 0, 'yellow': 0 };
+            opponentHand.forEach(card => {
+                if (COLORS.includes(card.color)) { // Only count colored cards
+                    colorCounts[card.color]++;
+                }
+            });
+            let maxCount = -1;
+            let chosenColor = COLORS[0]; // Default to red if no clear favorite
+
+            for (const color of COLORS) {
+                if (colorCounts[color] > maxCount) {
+                    maxCount = colorCounts[color];
+                    chosenColor = color;
+                }
+            }
+            return chosenColor;
+        }
+
+        function translateColor(color) {
+            switch (color) {
+                case 'red': return 'أحمر';
+                case 'green': return 'أخضر';
+                case 'blue': return 'أزرق';
+                case 'yellow': return 'أصفر';
+                default: return color;
+            }
+        }
+
+        // --- Color Picker Modal ---
+
+        function showColorPicker() {
+            return new Promise(resolve => {
+                colorPickerModal.style.display = 'flex';
+                colorOptions.querySelectorAll('.color-box').forEach(box => {
+                    box.onclick = () => {
+                        currentColor = box.dataset.color;
+                        colorPickerModal.style.display = 'none';
+                        resolve(); // Resolve the promise
+                    };
+                });
+            });
+        }
+
+        // --- Button and Modal Functions ---
+
+        // Continue Game (resets game, keeps scores)
+        continueGameBtn.addEventListener('click', () => {
+            initializeGame();
+            gameMessage.classList.remove('winner');
+            gameMessage.textContent = 'بدأت جولة جديدة!';
+        });
+
+        // Show History button
+        showHistoryBtn.addEventListener('click', () => {
+            humanWinsCountSpan.textContent = humanWins;
+            opponentWinsCountSpan.textContent = opponentWins;
+            historyModal.style.display = 'flex';
+        });
+
+        // Close History Modal
+        historyCloseBtn.addEventListener('click', () => {
+            historyModal.style.display = 'none';
+        });
+
+        // New Game button (opens confirmation modal)
+        newGameBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'flex';
+        });
+
+        // Close New Game Confirmation Modal
+        newGameCloseBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'none';
+        });
+
+        // Confirm New Game and clear history
+        confirmNewGameBtn.addEventListener('click', () => {
+            localStorage.clear(); // Clear all results from local storage
+            humanWins = 0;
+            opponentWins = 0;
+            initializeGame();
+            newGameConfirmModal.style.display = 'none';
+            gameMessage.textContent = 'تم بدء لعبة جديدة ومسح النتائج!';
+            gameMessage.classList.remove('winner');
+        });
+
+        // Cancel New Game
+        cancelNewGameBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'none';
+        });
+
+        // Hide modals when clicking outside their content
+        window.addEventListener('click', (event) => {
+            if (event.target === historyModal) {
+                historyModal.style.display = 'none';
+            }
+            if (event.target === newGameConfirmModal) {
+                newGameConfirmModal.style.display = 'none';
+            }
+            // Do NOT close color picker if clicked outside. User MUST pick a color.
+        });
+
+
+        // Start the game when the page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>

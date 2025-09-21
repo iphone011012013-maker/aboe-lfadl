@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>منشئ رمز QR احترافي</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #121212;
+      color: #fff;
+      transition: 0.3s;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #000;
+    }
+
+    label, select, input, button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+    }
+
+    input, select {
+      background-color: #2c2c2c;
+      color: #fff;
+    }
+
+    button {
+      background-color: #ffba00; /* لون ذهبي */
+      color: #000;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e0a000; /* لون ذهبي أغمق عند التمرير */
+    }
+
+    #qrPreview {
+      display: block;
+      margin: 20px auto;
+      max-width: 90%;
+      border: 1px solid #ffba00;
+      border-radius: 5px;
+    }
+
+    .output-section {
+      text-align: center;
+      margin-top: 20px;
+      border-top: 1px solid #333;
+      padding-top: 20px;
+    }
+
+    .color-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .color-input input[type="color"] {
+      width: 50px;
+      height: 40px;
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+    .color-input label {
+      display: inline-block;
+      width: auto;
+      margin-bottom: 0;
+    }
+    /* Canvas for image processing (hidden) */
+    #hiddenCanvas {
+        display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>منشئ رمز QR احترافي</h2>
+
+    <label for="qrType">نوع البيانات:</label>
+    <select id="qrType">
+      <option value="url">رابط (URL)</option>
+      <option value="text">نص عادي</option>
+      <option value="tel">رقم هاتف</option>
+      <option value="sms">رسالة SMS</option>
+      <option value="email">بريد إلكتروني</option>
+      <option value="geo">إحداثيات جغرافية</option>
+      <option value="wifi">بيانات شبكة Wi-Fi</option>
+    </select>
+
+    <label for="qrData">أدخل البيانات:</label>
+    <input type="text" id="qrData" placeholder="الرابط، النص، الرقم، إلخ." required>
+
+    <div class="color-input">
+      <label for="qrFgColor">لون الكود:</label>
+      <input type="color" id="qrFgColor" value="#000000">
+    </div>
+    <div class="color-input">
+      <label for="qrBgColor">لون الخلفية:</label>
+      <input type="color" id="qrBgColor" value="#ffffff">
+    </div>
+
+    <label for="sizeRange">حجم الصورة: <span id="sizeValue">250x250</span></label>
+    <input type="range" id="sizeRange" min="50" max="1000" value="250">
+
+    <label for="fileName">اسم ملف التحميل:</label>
+    <input type="text" id="fileName" placeholder="اسم الملف (اختياري)">
+
+    <button onclick="downloadQR()">تحميل رمز QR</button>
+    <button onclick="copyLink()">نسخ رابط الصورة</button>
+    <button onclick="whatsappShareFunction()">مشاركة عبر واتساب</button>
+
+    <div class="output-section">
+      <img id="qrPreview" src="" alt="معاينة رمز QR">
+    </div>
+  </div>
+
+  <canvas id="hiddenCanvas"></canvas>
+
+  <script>
+    const qrType = document.getElementById('qrType');
+    const qrData = document.getElementById('qrData');
+    const qrFgColor = document.getElementById('qrFgColor');
+    const qrBgColor = document.getElementById('qrBgColor');
+    const qrPreview = document.getElementById('qrPreview');
+    const sizeRange = document.getElementById('sizeRange');
+    const sizeValue = document.getElementById('sizeValue');
+    const fileName = document.getElementById('fileName');
+    const hiddenCanvas = document.getElementById('hiddenCanvas');
+    const ctx = hiddenCanvas.getContext('2d');
+
+    // Initial QR generation
+    updateQR();
+
+    function updateQR() {
+      const data = getQRData();
+      const fgColor = qrFgColor.value.substring(1); // Remove #
+      const bgColor = qrBgColor.value.substring(1); // Remove #
+      const size = sizeRange.value;
+
+      if (!data) {
+        qrPreview.src = "";
+        qrPreview.alt = "ادخل بيانات لتوليد رمز QR";
+        return;
+      }
+
+      // Explicitly request PNG format in the QR API URL
+      const url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&color=${fgColor}&bgcolor=${bgColor}&format=png`;
+      qrPreview.src = url;
+      qrPreview.alt = data;
+    }
+
+    function getQRData() {
+      const type = qrType.value;
+      const value = qrData.value.trim();
+      switch (type) {
+        case 'url': return value;
+        case 'text': return value;
+        case 'tel': return `tel:${value}`;
+        case 'sms': return `sms:${value}`;
+        case 'email': return `mailto:${value}`;
+        case 'geo': return `geo:${value}`;
+        case 'wifi': return `WIFI:T:WPA;S:${value};P:password;;`;
+        default: return value;
+      }
+    }
+
+    async function downloadQR() {
+      const link = document.createElement('a');
+      const name = fileName.value.trim() || `qr-${Date.now()}`;
+
+      // Load the image onto the hidden canvas
+      const img = new Image();
+      img.crossOrigin = "Anonymous"; // Crucial for loading images from other origins onto canvas
+      img.src = qrPreview.src;
+
+      img.onload = () => {
+        hiddenCanvas.width = img.width;
+        hiddenCanvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        // Get data URL from canvas (browser knows it's a local PNG now)
+        const dataURL = hiddenCanvas.toDataURL('image/png');
+
+        link.href = dataURL;
+        link.download = name + ".png"; // Explicitly set .png extension
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      img.onerror = () => {
+        alert('فشل تحميل الصورة للتنزيل. يرجى المحاولة مرة أخرى.');
+        // Fallback for direct download if canvas fails (might still download as .bin)
+        // const fallbackLink = document.createElement('a');
+        // fallbackLink.href = qrPreview.src;
+        // fallbackLink.download = name + ".png";
+        // document.body.appendChild(fallbackLink);
+        // fallbackLink.click();
+        // document.body.removeChild(fallbackLink);
+      };
+    }
+
+    function copyLink() {
+      // For copying, we copy the image's src (the API URL)
+      navigator.clipboard.writeText(qrPreview.src).then(() => alert("تم نسخ الرابط!"));
+    }
+
+    function whatsappShareFunction() {
+      const qrImageUrl = qrPreview.src;
+      // Note: WhatsApp might not directly share images from external API URLs
+      // For proper image sharing, the image needs to be hosted or converted to a blob/file object.
+      // This will share the link to the QR image.
+      const message = `إليك رمز QR الخاص بك: ${encodeURIComponent(qrImageUrl)}`;
+      window.open(`https://wa.me/?text=${message}`, '_blank');
+    }
+
+    // Events
+    qrData.addEventListener('input', updateQR);
+    qrType.addEventListener('change', updateQR);
+    qrFgColor.addEventListener('input', updateQR); // Listen to color changes
+    qrBgColor.addEventListener('input', updateQR); // Listen to color changes
+    sizeRange.addEventListener('input', () => {
+      sizeValue.textContent = `${sizeRange.value}x${sizeRange.value}`;
+      updateQR();
+    });
+  </script>
+</body>
+
+</html>

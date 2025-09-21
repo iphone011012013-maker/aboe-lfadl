@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحويل الصوت إلى نص</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        #transcript-container {
+            width: 100%;
+            min-height: 150px;
+            height: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            line-height: 1.7;
+            text-align: right;
+            font-size: 1.1rem;
+        }
+
+        .controls-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn.stop {
+            background-color: #dc3545;
+        }
+        
+        .btn.action {
+            background-color: #6c757d;
+        }
+        
+        .btn.whatsapp {
+            background-color: #25D366;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        #status {
+            margin-top: 15px;
+            font-weight: 700;
+            color: #555;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🎙️ تحويل الصوت إلى نص</h1>
+        <p>اضغط "ابدأ التسجيل" وتحدث. سيتم إضافة النص هنا تلقائياً.</p>
+        
+        <div id="transcript-container">
+            <span id="transcript-output"></span>
+        </div>
+
+        <div class="controls-wrapper">
+            <button id="control-btn" class="btn">ابدأ التسجيل</button>
+            <button id="copy-btn" class="btn action">📋 نسخ</button>
+            <button id="download-btn" class="btn action">📄 تحميل</button>
+            <button id="whatsapp-btn" class="btn whatsapp">🟢 واتساب</button>
+        </div>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const controlBtn = document.getElementById('control-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const whatsappBtn = document.getElementById('whatsapp-btn');
+        const outputSpan = document.getElementById('transcript-output');
+        const statusDiv = document.getElementById('status');
+
+        // Check for browser support
+        window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!window.SpeechRecognition) {
+            statusDiv.textContent = 'عذراً، متصفحك لا يدعم هذه الميزة.';
+            controlBtn.disabled = true;
+            copyBtn.disabled = true;
+            downloadBtn.disabled = true;
+            whatsappBtn.disabled = true;
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        let isRecording = false;
+
+        // --- Recognition Configuration ---
+        recognition.lang = 'ar-EG';
+        recognition.interimResults = false;
+        recognition.continuous = false;
+
+        // --- Recognition Event Handlers ---
+        recognition.onstart = () => {
+            statusDiv.textContent = 'تحدث الآن...';
+        };
+
+        recognition.onend = () => {
+            if (isRecording) {
+                recognition.start();
+            } else {
+                statusDiv.textContent = '';
+            }
+        };
+
+        recognition.onerror = (event) => {
+            if (event.error !== 'no-speech' && event.error !== 'audio-capture') {
+                statusDiv.textContent = `حدث خطأ: ${event.error}`;
+                isRecording = false;
+                updateButtonState();
+            }
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[event.results.length - 1][0].transcript;
+            outputSpan.textContent = (outputSpan.textContent + ' ' + transcript.trim()).trim();
+        };
+
+        // --- Button Control Logic ---
+        const updateButtonState = () => {
+            if (isRecording) {
+                controlBtn.textContent = 'إيقاف التسجيل';
+                controlBtn.classList.add('stop');
+            } else {
+                controlBtn.textContent = 'ابدأ التسجيل';
+                controlBtn.classList.remove('stop');
+            }
+        };
+
+        controlBtn.addEventListener('click', () => {
+            isRecording = !isRecording;
+            if (isRecording) {
+                outputSpan.textContent = '';
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+            updateButtonState();
+        });
+
+        // --- Action Buttons Logic ---
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = outputSpan.textContent;
+            if (textToCopy) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    copyBtn.textContent = '✅ تم النسخ!';
+                    setTimeout(() => {
+                        copyBtn.innerHTML = '📋 نسخ';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const textToDownload = outputSpan.textContent;
+            if (textToDownload) {
+                const blob = new Blob([textToDownload], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'transcript.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        });
+        
+        whatsappBtn.addEventListener('click', () => {
+            const textToShare = outputSpan.textContent;
+            if (textToShare) {
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(textToShare)}`;
+                window.open(whatsappUrl, '_blank');
+            }
+        });
+    });
+    </script>
+</body>
+</html>

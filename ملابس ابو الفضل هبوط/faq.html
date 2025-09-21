@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأسئلة الشائعة | AboElfadl Clothing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #007bff;
+            --secondary: #007bff;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --whats: #00ab0b;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(255, 215, 0, 0.35);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7ff;
+            color: var(--dark);
+            line-height: 1.8;
+            direction: rtl;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo img {
+            width: 88px;
+            height: 50px;
+            object-fit: contain;
+            background: transparent;
+        }
+
+        .contact-info a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 60px 0;
+            background: linear-gradient(to right, #e0e7ff, #dbeafe);
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            color: var(--secondary);
+            position: relative;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+            left: 50%;
+            transform: translateX(50%);
+        }
+
+        .faq-item {
+            background: white;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .faq-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .faq-question {
+            padding: 20px 25px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background: var(--secondary);
+        }
+
+        .faq-question i {
+            font-size: 1.3rem;
+        }
+
+        .faq-answer {
+            padding: 25px;
+            color: var(--gray);
+            line-height: 1.8;
+            display: none;
+            background: #f8f9fa;
+        }
+
+        .faq-answer p {
+            margin-bottom: 15px;
+        }
+
+        .faq-answer ul {
+            margin: 15px 0;
+            padding-right: 20px;
+        }
+
+        .faq-answer ul li {
+            margin-bottom: 8px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            padding: 30px 0 20px;
+            text-align: center;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.3rem;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            background: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #adb5bd;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="logo.png" alt="AboElfadl Clothing">
+                    <span>AboElfadl Clothing</span>
+                </div>
+                <div class="contact-info">
+                    <a href="tel:01112041298">
+                        <i class="fas fa-phone"></i> 01112041298
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>الأسئلة الشائعة</h1>
+            <p>هنا تجد إجابات على أكثر الأسئلة شيوعًا حول الطلبات، التوصيل، الاستبدال، والمنتجات.</p>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container">
+            <h2 class="section-title">أسئلة يسألها العملاء</h2>
+
+            <div class="faq-list">
+                <!-- Question 1 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>كيف أقوم بطلب منتج من المتجر؟</span>
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>يمكنك طلب أي منتج من خلال:</p>
+                        <ul>
+                            <li>النقر على "اطلب الآن" في صفحة المنتج.</li>
+                            <li>تعبئة النموذج الذي يظهر مع إدخال اسمك، رقم الهاتف، وعنوان التوصيل.</li>
+                            <li>النقر على زر "الطلب عبر واتساب" وسيتم توجيهك تلقائيًا لمحادثة الدعم.</li>
+                        </ul>
+                        <p>بعد ذلك، سيتواصل معك فريق الدعم خلال دقائق لتأكيد الطلب.</p>
+                    </div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>ما هي مدة التوصيل؟</span>
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>مدة التوصيل تعتمد على موقعك:</p>
+                        <ul>
+                            <li><strong>القاهرة والجيزة:</strong> 1-3 أيام عمل.</li>
+                            <li><strong>باقي المحافظات:</strong> 3-7 أيام عمل.</li>
+                        </ul>
+                        <p>نرسل لك رقم تتبع الطلب بمجرد شحنه.</p>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>هل هناك توصيل مجاني؟</span>
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نعم! نقدم توصيل مجاني لجميع الطلبات داخل <strong>القاهرة والجيزة</strong>.</p>
+                        <p>لباقي المحافظات، يتم دفع رسوم شحن رمزية عند الاستلام.</p>
+                    </div>
+                </div>
+
+                <!-- Question 4 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>هل يمكنني استبدال أو إرجاع المنتج؟</span>
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نعم، يمكنك استبدال المنتج خلال 14 يومًا من استلامه، بشرط أن يكون:</p>
+                        <ul>
+                            <li>غير مُستخدم.</li>
+                            <li>معه جميع الملصقات والعبوة الأصلية.</li>
+                        </ul>
+                        <p>اتصل بنا عبر واتساب وسنرشدك خلال خطوات الاستبدال.</p>
+                    </div>
+                </div>
+
+                <!-- Question 5 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>كيف أعرف المقاس المناسب لي؟</span>
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نقدم جدول مقاسات دقيق لكل منتج. يمكنك:</p>
+                        <ul>
+                            <li>الاطلاع على جدول المقاسات أسفل صور المنتج.</li>
+                            <li>قياس قطعة ملابس مشابهة تملكها ومقارنتها بالأبعاد.</li>
+                            <li>الاستفسار من دعم الواتساب، وسنرشدك للمقاس الأمثل.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Question 6 -->
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>ما طرق الدفع المتاحة؟</span>
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>نقبل الدفع عند الاستلام (كاش)، وهي الطريقة الأكثر شيوعًا وآمانًا.</p>
+                        <p>كما نوفر خيارات دفع إلكتروني عند توفرها عبر متجر CEZMA.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="social-links">
+                <a href="https://www.facebook.com/aboelfadl.clothing" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/aboelfadl.clothing" target="_blank"><i class="fab fa-instagram"></i></a>
+                <a href="https://wa.me/201112041298" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                <a href="https://cezma.com/store/aboelfadl.clothing" target="_blank"><i class="fas fa-shopping-cart"></i></a>
+            </div>
+            <p>جميع الحقوق محفوظة &copy; 2024 <strong>AboElfadl Clothing</strong></p>
+            <div class="copyright">
+                نسعى لتقديم أفضل تجربة تسوق لعملائنا.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle FAQ answers
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const icon = question.querySelector('i');
+
+                if (answer.style.display === 'block') {
+                    answer.style.display = 'none';
+                    icon.classList.remove('fa-minus');
+                    icon.classList.add('fa-plus');
+                } else {
+                    answer.style.display = 'block';
+                    icon.classList.remove('fa-plus');
+                    icon.classList.add('fa-minus');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

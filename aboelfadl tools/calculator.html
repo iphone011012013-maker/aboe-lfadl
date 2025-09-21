@@ -1,0 +1,1366 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📐 الأدوات الحسابية - AboElfadl Tools</title>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 15px;
+    }
+    h1 {
+      text-align: center;
+      color: #ffd700;
+      margin: 20px 0;
+    }
+    .tool-card {
+      background: #1a1a1a;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+    }
+    .tool-title {
+      background: #ffd700;
+      color: #000;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #333;
+      color: #ffd700;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #ffd700;
+      color: #000;
+      font-weight: bold;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 10px;
+      background: #222;
+      color: #ffd700;
+      padding: 10px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+    .tools-bar {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+    .tools-bar button {
+      flex: 1;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📐 الأدوات الحسابية</h1>
+
+<div class="tool-card">
+  <div class="tool-title">🎓 المعدل التراكمي من 4 إلى 100</div>
+  <input type="number" id="gpa" placeholder="المعدل من 4">
+  <button onclick="convertGPA()">تحويل</button>
+  <div class="result" id="gpaResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('gpaResult')">📋 نسخ</button>
+    <button onclick="downloadText('gpaResult')">💾 تحميل</button>
+  </div>
+</div>
+
+<!-- النسبة الموزونة -->
+<div class="tool-card">
+  <div class="tool-title">📈 النسبة الموزونة</div>
+  <input type="number" id="thanawya" placeholder="الثانوية العامة %">
+  <input type="number" id="qiyas" placeholder="قياس %">
+  <input type="number" id="step" placeholder="تحصيلي %">
+  <button onclick="calcWeighted()">احسب</button>
+  <div class="result" id="weightedResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('weightedResult')">📋 نسخ</button>
+    <button onclick="downloadText('weightedResult')">💾 تحميل</button>
+  </div>
+</div>
+
+<!-- حساب الضريبة المضافة -->
+<div class="tool-card">
+  <div class="tool-title">💰 الضريبة المضافة</div>
+  <input type="number" id="priceBefore" placeholder="السعر قبل الضريبة">
+  <input type="number" id="vatRate" placeholder="نسبة الضريبة %">
+  <button onclick="calcVAT()">احسب</button>
+  <div class="result" id="vatResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('vatResult')">📋 نسخ</button>
+    <button onclick="downloadText('vatResult')">💾 تحميل</button>
+  </div>
+</div>
+
+<!-- حساب الزكاة -->
+<div class="tool-card">
+  <div class="tool-title">🕌 حساب زكاة المال</div>
+  <input type="number" id="moneyAmount" placeholder="قيمة المال">
+  <button onclick="calcZakat()">احسب</button>
+  <div class="result" id="zakatResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('zakatResult')">📋 نسخ</button>
+    <button onclick="downloadText('zakatResult')">💾 تحميل</button>
+  </div>
+</div>
+
+<!-- محول الطول -->
+<div class="tool-card">
+  <div class="tool-title">📏 محول الطول</div>
+  <input type="number" id="lengthInput" placeholder="أدخل القيمة">
+  <select id="lengthType">
+    <option value="cm2inch">سم إلى إنش</option>
+    <option value="inch2cm">إنش إلى سم</option>
+    <option value="m2ft">متر إلى قدم</option>
+    <option value="ft2m">قدم إلى متر</option>
+  </select>
+  <button onclick="convertLength()">حوّل</button>
+  <div class="result" id="lengthResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('lengthResult')">📋 نسخ</button>
+    <button onclick="downloadText('lengthResult')">💾 تحميل</button>
+  </div>
+
+<div class="tool-card">
+  <div class="tool-title">📊 النسبة المئوية من مبلغ</div>
+  <input type="number" id="percentBase" placeholder="المبلغ الأساسي">
+  <input type="number" id="percentValue" placeholder="النسبة %">
+  <button onclick="calcPercent()">احسب</button>
+  <div class="result" id="percentResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('percentResult')">📋 نسخ</button>
+    <button onclick="downloadText('percentResult')">💾 تحميل</button>
+  </div>
+</div>
+
+<!-- الخصم -->
+<div class="tool-card">
+  <div class="tool-title">🔻 الخصم</div>
+  <input type="number" id="discountBase" placeholder="المبلغ قبل الخصم">
+  <input type="number" id="discountRate" placeholder="نسبة الخصم %">
+  <button onclick="calcDiscount()">احسب</button>
+  <div class="result" id="discountResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('discountResult')">📋 نسخ</button>
+    <button onclick="downloadText('discountResult')">💾 تحميل</button>
+  </div>
+</div>
+
+<!-- الجذر التربيعي -->
+<div class="tool-card">
+  <div class="tool-title">📐 الجذر التربيعي</div>
+  <input type="number" id="sqrtInput" placeholder="أدخل الرقم">
+  <button onclick="calcSqrt()">احسب</button>
+  <div class="result" id="sqrtResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('sqrtResult')">📋 نسخ</button>
+    <button onclick="downloadText('sqrtResult')">💾 تحميل</button>
+  </div>
+</div>
+
+<!-- المتوسط الحسابي -->
+<div class="tool-card">
+  <div class="tool-title">📉 المتوسط الحسابي</div>
+  <input type="text" id="averageList" placeholder="أدخل الأرقام مفصولة بفواصل">
+  <button onclick="calcAverage()">احسب</button>
+  <div class="result" id="averageResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('averageResult')">📋 نسخ</button>
+    <button onclick="downloadText('averageResult')">💾 تحميل</button>
+  </div>
+</div>
+
+<!-- محول الحرارة -->
+<div class="tool-card">
+  <div class="tool-title">🌡️ محول الحرارة (مئوي ↔ فهرنهايت)</div>
+  <input type="number" id="tempInput" placeholder="أدخل درجة الحرارة">
+  <select id="tempType">
+    <option value="c2f">مئوي إلى فهرنهايت</option>
+    <option value="f2c">فهرنهايت إلى مئوي</option>
+  </select>
+  <button onclick="convertTemp()">حوّل</button>
+  <div class="result" id="tempResult"></div>
+  <div class="tools-bar">
+    <button onclick="copyText('tempResult')">📋 نسخ</button>
+    <button onclick="downloadText('tempResult')">💾 تحميل</button>
+  </div>
+</div>
+
+  </div>  <script>
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text);
+      alert("📋 تم النسخ!");
+    }
+
+    function downloadText(id) {
+      const text = document.getElementById(id).innerText;
+      const blob = new Blob([text], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = id + ".txt";
+      link.click();
+    }
+
+    function calcPercent() {
+      const base = parseFloat(document.getElementById('percentBase').value);
+      const rate = parseFloat(document.getElementById('percentValue').value);
+      if (isNaN(base) || isNaN(rate)) return alert("يرجى إدخال قيم صحيحة");
+      const result = base * (rate / 100);
+      document.getElementById('percentResult').innerText = `📊 القيمة = ${result.toFixed(2)} من ${base}`;
+    }
+
+    function calcDiscount() {
+      const base = parseFloat(document.getElementById('discountBase').value);
+      const rate = parseFloat(document.getElementById('discountRate').value);
+      const discount = base * (rate / 100);
+      const final = base - discount;
+      document.getElementById('discountResult').innerText = `💸 بعد الخصم: ${final.toFixed(2)} (الخصم = ${discount.toFixed(2)})`;
+    }
+
+    function calcSqrt() {
+      const n = parseFloat(document.getElementById('sqrtInput').value);
+      if (isNaN(n)) return alert("أدخل رقم صحيح");
+      document.getElementById('sqrtResult').innerText = `🧮 الجذر التربيعي: ${Math.sqrt(n).toFixed(4)}`;
+    }
+
+    function calcAverage() {
+      const list = document.getElementById('averageList').value.split(',').map(Number).filter(n => !isNaN(n));
+      if (list.length === 0) return alert("يرجى إدخال أرقام مفصولة بفواصل");
+      const avg = list.reduce((a,b)=>a+b,0) / list.length;
+      document.getElementById('averageResult').innerText = `📉 المتوسط: ${avg.toFixed(2)}`;
+    }
+
+    function convertTemp() {
+      const value = parseFloat(document.getElementById('tempInput').value);
+      const type = document.getElementById('tempType').value;
+      if (isNaN(value)) return alert("يرجى إدخال قيمة صحيحة");
+      let result;
+      if (type === "c2f") {
+        result = (value * 9/5) + 32;
+        document.getElementById('tempResult').innerText = `${value}°C = ${result.toFixed(2)}°F`;
+      } else {
+        result = (value - 32) * 5/9;
+        document.getElementById('tempResult').innerText = `${value}°F = ${result.toFixed(2)}°C`;
+      }
+    }
+  </script>
+<script>
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text);
+      alert("📋 تم النسخ!");
+    }
+
+    function downloadText(id) {
+      const text = document.getElementById(id).innerText;
+      const blob = new Blob([text], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = id + ".txt";
+      link.click();
+    }
+
+    function convertGPA() {
+      const gpa = parseFloat(document.getElementById('gpa').value);
+      if (isNaN(gpa) || gpa < 0 || gpa > 4) return alert("المعدل يجب أن يكون بين 0 و 4");
+      const converted = (gpa / 4) * 100;
+      document.getElementById('gpaResult').innerText = `🎯 النسبة = ${converted.toFixed(2)}٪`;
+    }
+
+    function calcWeighted() {
+      const t = parseFloat(document.getElementById('thanawya').value);
+      const q = parseFloat(document.getElementById('qiyas').value);
+      const s = parseFloat(document.getElementById('step').value);
+      if ([t, q, s].some(v => isNaN(v))) return alert("أدخل القيم كاملة");
+      const result = (t * 0.3) + (q * 0.3) + (s * 0.4);
+      document.getElementById('weightedResult').innerText = `📈 النسبة الموزونة = ${result.toFixed(2)}٪`;
+    }
+
+    function calcVAT() {
+      const price = parseFloat(document.getElementById('priceBefore').value);
+      const rate = parseFloat(document.getElementById('vatRate').value);
+      if (isNaN(price) || isNaN(rate)) return alert("أدخل القيم صحيحة");
+      const tax = price * (rate / 100);
+      const total = price + tax;
+      document.getElementById('vatResult').innerText = `💰 السعر شامل الضريبة: ${total.toFixed(2)} (الضريبة = ${tax.toFixed(2)})`;
+    }
+
+    function calcZakat() {
+      const amount = parseFloat(document.getElementById('moneyAmount').value);
+      if (isNaN(amount)) return alert("أدخل قيمة المال");
+      const zakat = amount * 0.025;
+      document.getElementById('zakatResult').innerText = `🕌 الزكاة الواجبة: ${zakat.toFixed(2)}`;
+    }
+
+    function convertLength() {
+      const value = parseFloat(document.getElementById('lengthInput').value);
+      const type = document.getElementById('lengthType').value;
+      if (isNaN(value)) return alert("أدخل القيمة بشكل صحيح");
+      let result = 0;
+      switch (type) {
+        case "cm2inch": result = value / 2.54; break;
+        case "inch2cm": result = value * 2.54; break;
+        case "m2ft": result = value * 3.28084; break;
+        case "ft2m": result = value / 3.28084; break;
+      }
+      document.getElementById('lengthResult').innerText = `📏 الناتج = ${result.toFixed(2)}`;
+    }
+  </script>
+</body>
+</html>
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>آلة حاسبة علمية متقدمة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7aS7lqT6/wL7Q+G/G2b8oF5l5c5A5r7q8j9w4B1eQ7b2D9R9w8C4x0A2B3v5l6c0A1B0b2e8g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* CSS الرئيسي */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+            color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            overflow-y: auto; /* للسماح بالتمرير عند الحاجة */
+        }
+
+        body.dark {
+            background: #121212;
+            color: #fff;
+        }
+
+        #calculator {
+            max-width: 480px; /* زيادة العرض لاستيعاب 7 أعمدة */
+            width: 100%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        body.dark #calculator {
+            background: #252525;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        /* شاشة العرض */
+        #display-container {
+            position: relative;
+            margin-bottom: 15px;
+            background: #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            overflow: hidden; /* لمنع تجاوز النص */
+            height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        body.dark #display-container {
+            background: #3a3a3a;
+            color: white;
+        }
+
+        #history-display {
+            font-size: 18px;
+            color: #777;
+            text-align: right;
+            height: 25px; /* ارتفاع ثابت */
+            overflow: hidden;
+            white-space: nowrap;
+            direction: ltr; /* لضمان عرض العمليات من اليسار لليمين */
+            text-overflow: ellipsis; /* لإضافة نقاط في نهاية النص الطويل */
+        }
+        body.dark #history-display {
+            color: #bbb;
+        }
+
+        #display {
+            width: 100%;
+            background: transparent;
+            border: none;
+            font-size: 48px;
+            text-align: right;
+            color: #000;
+            outline: none;
+            padding: 0;
+            box-sizing: border-box;
+            direction: ltr; /* لضمان عرض الأرقام من اليسار لليمين */
+        }
+        body.dark #display {
+            color: white;
+        }
+
+        /* الأزرار العلوية */
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap; /* للسماح بالتفاف الأزرار في الشاشات الصغيرة */
+            gap: 8px;
+        }
+
+        .top-controls button {
+            flex-grow: 1; /* للسماح للأزرار بالتوسع */
+            padding: 10px 15px;
+            font-size: 15px;
+            border-radius: 8px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex; /* لكي تتوسط الأيقونة والنص إن وجد */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .top-controls button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        body.dark .top-controls button {
+            background-color: #0056b3;
+        }
+        body.dark .top-controls button:hover {
+            background-color: #003d7a;
+        }
+
+        /* زر تبديل الثيم كأيقونة */
+        #toggle-theme {
+            font-size: 20px; /* حجم أكبر للأيقونة */
+            padding: 10px; /* مسافة داخلية متساوية */
+            width: 40px; /* عرض ثابت لجعله مربعًا */
+            height: 40px; /* ارتفاع ثابت لجعله مربعًا */
+            flex-grow: 0; /* لا يتمدد */
+            /* يمكنك تعديل الألوان لزر الثيم بشكل منفصل إذا أردت */
+            background-color: #f0f0f0; /* لون خفيف في الوضع النهاري */
+            color: #333; /* لون داكن للأيقونة في الوضع النهاري */
+            border: 1px solid #ccc;
+        }
+        #toggle-theme:hover {
+            background-color: #e0e0e0;
+        }
+        body.dark #toggle-theme {
+            background-color: #444; /* لون داكن في الوضع الليلي */
+            color: gold; /* لون ذهبي للأيقونة في الوضع الليلي */
+            border-color: gold;
+        }
+        body.dark #toggle-theme:hover {
+            background-color: #555;
+        }
+
+
+        /* تخطيط الأزرار الأساسي والمتقدم */
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr); /* 7 أعمدة كما في الصور */
+            gap: 8px;
+        }
+
+        /* الأزرار نفسها */
+        .buttons-grid button {
+            padding: 18px 0;
+            font-size: 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #f5f5f5; /* لون الأزرار الفاتح */
+            color: #333;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+
+        body.dark .buttons-grid button {
+            background-color: #363636; /* لون الأزرار الداكن */
+            color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .buttons-grid button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        body.dark .buttons-grid button:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* أزرار العمليات */
+        .buttons-grid button.operator {
+            background-color: #007bff; /* أزرق */
+            color: white;
+        }
+        body.dark .buttons-grid button.operator {
+            background-color: #0056b3;
+        }
+        .buttons-grid button.operator:hover {
+            background-color: #0056b3;
+        }
+        body.dark .buttons-grid button.operator:hover {
+            background-color: #003d7a;
+        }
+
+        /* زر Clear (C) */
+        .buttons-grid button.clear-button {
+            background-color: #ff9800; /* برتقالي */
+            color: white;
+        }
+        body.dark .buttons-grid button.clear-button {
+            background-color: #e68900;
+        }
+        .buttons-grid button.clear-button:hover {
+            background-color: #e68900;
+        }
+        body.dark .buttons-grid button.clear-button:hover {
+            background-color: #cc7a00;
+        }
+
+        /* زر Equals (=) */
+        .buttons-grid button.equal-button {
+            background-color: #4CAF50; /* أخضر */
+            color: white;
+        }
+        body.dark .buttons-grid button.equal-button {
+            background-color: #388e3c;
+        }
+        .buttons-grid button.equal-button:hover {
+            background-color: #388e3c;
+        }
+        body.dark .buttons-grid button.equal-button:hover {
+            background-color: #2e7d32;
+        }
+        
+        /* زر Backspace (←) */
+        .buttons-grid button.backspace-button {
+            background-color: #f44336; /* أحمر */
+            color: white;
+        }
+        body.dark .buttons-grid button.backspace-button {
+            background-color: #d32f2f;
+        }
+        .buttons-grid button.backspace-button:hover {
+            background-color: #d32f2f;
+        }
+        body.dark .buttons-grid button.backspace-button:hover {
+            background-color: #c62828;
+        }
+
+        /* زر نسخ النتيجة */
+        #copy-result {
+            margin-top: 15px;
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background-color: #6c757d; /* رمادي */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        #copy-result:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+        body.dark #copy-result {
+            background-color: #495057;
+        }
+        body.dark #copy-result:hover {
+            background-color: #343a40;
+        }
+
+        /* أقسام إضافية (العمر، السجل) */
+        #age-calculator, #history-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fdfdfd;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        body.dark #age-calculator, body.dark #history-container {
+            background: #333333;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        #age-calculator label, #age-calculator input[type="date"] {
+            display: block;
+            margin-bottom: 10px;
+        }
+        #age-calculator input[type="date"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background: #fff;
+            color: #000;
+        }
+        body.dark #age-calculator input[type="date"] {
+            background: #444;
+            border-color: #555;
+            color: white;
+        }
+
+        #age-calculator button {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #age-calculator button:hover {
+            background-color: #218838;
+        }
+        body.dark #age-calculator button {
+            background-color: #218838;
+        }
+        body.dark #age-calculator button:hover {
+            background-color: #1e7e34;
+        }
+
+        #age-result {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-size: 16px;
+            white-space: pre-line;
+            color: #333;
+        }
+        body.dark #age-result {
+            background: #495057;
+            color: white;
+        }
+
+        #history h4 {
+            margin-top: 0;
+            color: #555;
+        }
+        body.dark #history h4 {
+            color: #ccc;
+        }
+        #history ul {
+            list-style: none;
+            padding: 0;
+            max-height: 200px; /* ارتفاع ثابت للسجل */
+            overflow-y: auto; /* للسماح بالتمرير داخل السجل */
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background: #fdfdfd;
+        }
+        body.dark #history ul {
+            border-color: #555;
+            background: #444;
+        }
+        #history li {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+            color: #444;
+            direction: ltr; /* لضمان عرض العمليات من اليسار لليمين */
+            text-align: right;
+        }
+        body.dark #history li {
+            border-color: #555;
+            color: #eee;
+        }
+        #history li:last-child {
+            border-bottom: none;
+        }
+
+        /* رابط التذييل */
+        #footer-link {
+            margin-top: 25px;
+            padding: 12px;
+            border: 2px solid #007bff;
+            text-align: center;
+            border-radius: 10px;
+            text-decoration: none;
+            display: block;
+            color: #007bff;
+            font-weight: bold;
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+        #footer-link:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        body.dark #footer-link {
+            color: gold; /* لون ذهبي للوضع الليلي */
+            border-color: gold;
+        }
+        body.dark #footer-link:hover {
+            background-color: gold;
+            color: black;
+        }
+
+        /* الساعة */
+        #clock {
+            text-align: center;
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #555;
+        }
+        body.dark #clock {
+            color: #ccc;
+        }
+
+        /* استجابة التصميم للشاشات الصغيرة */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            #calculator {
+                padding: 15px;
+                border-radius: 10px;
+            }
+            #display {
+                font-size: 38px;
+                height: 70px;
+            }
+            #history-display {
+                font-size: 16px;
+                height: 20px;
+            }
+            .buttons-grid {
+                gap: 6px;
+            }
+            .buttons-grid button {
+                padding: 15px 0;
+                font-size: 18px;
+                border-radius: 6px;
+            }
+            .top-controls button {
+                font-size: 13px;
+                padding: 8px 10px;
+            }
+            /* Adjust size for the theme toggle icon on small screens */
+            #toggle-theme {
+                font-size: 18px;
+                width: 36px;
+                height: 36px;
+                padding: 0; /* Reset padding for precise sizing with flexbox */
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #copy-result {
+                padding: 12px;
+                font-size: 16px;
+            }
+            #age-calculator input[type="date"], #age-calculator button {
+                font-size: 16px;
+                padding: 10px;
+            }
+            #age-result, #history li {
+                font-size: 14px;
+            }
+            #clock {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="calculator">
+        <div class="top-controls">
+            <button id="toggle-theme">
+                <i class="fas fa-moon"></i> </button>
+            <button id="toggle-history">السجل</button>
+            <button id="toggle-age">احسب عمرك</button>
+        </div>
+        <div id="clock"></div>
+
+        <div id="display-container">
+            <div id="history-display"></div>
+            <input type="text" id="display" disabled value="0" />
+        </div>
+
+        <div class="buttons-grid" id="calculator-buttons">
+            <button class="control-button" data-type="toggle-2nd">2nd</button>
+            <button class="control-button" data-type="toggle-raddeg">Rad</button>
+            <button onclick="appendFunction('Math.sqrt(')">√</button>
+            <button class="clear-button" onclick="clearDisplay()">C</button>
+            <button onclick="append('(')">(</button>
+            <button onclick="append(')')">)</button>
+            <button onclick="append('%')">%</button>
+            <button class="operator" onclick="append('/')">÷</button>
+
+            <button data-function="sin" onclick="appendFunction('Math.sin(')">sin</button>
+            <button data-function="cos" onclick="appendFunction('Math.cos(')">cos</button>
+            <button data-function="tan" onclick="appendFunction('Math.tan(')">tan</button>
+            <button onclick="append('7')">7</button>
+            <button onclick="append('8')">8</button>
+            <button onclick="append('9')">9</button>
+            <button class="operator" onclick="append('*')">×</button>
+
+            <button data-function="ln" onclick="appendFunction('Math.log(')">ln</button>
+            <button data-function="log" onclick="appendFunction('Math.log10(')">log</button>
+            <button onclick="applyUnaryOperator('1/', true)">1/x</button>
+            <button onclick="append('4')">4</button>
+            <button onclick="append('5')">5</button>
+            <button onclick="append('6')">6</button>
+            <button class="operator" onclick="append('-')">-</button>
+
+            <button data-function="exp" onclick="appendFunction('Math.exp(')">eˣ</button>
+            <button data-function="x2" onclick="applyUnaryOperator('**2')">x²</button>
+            <button data-function="xy" onclick="append('**')">xʸ</button>
+            <button onclick="append('1')">1</button>
+            <button onclick="append('2')">2</button>
+            <button onclick="append('3')">3</button>
+            <button class="operator" onclick="append('+')">+</button>
+
+            <button data-function="abs" onclick="appendFunction('Math.abs(')">|x|</button>
+            <button data-constant="pi" onclick="append('Math.PI')">π</button>
+            <button data-constant="e" onclick="append('Math.E')">e</button>
+            <button onclick="changeSign()">+/-</button>
+            <button onclick="append('0')">0</button>
+            <button onclick="append('.')">.</button>
+            <button class="equal-button" onclick="calculate()">=</button>
+
+            <button class="backspace-button" onclick="backspace()">←</button>
+        </div>
+
+        <button id="copy-result" onclick="copyResult()">نسخ النتيجة</button>
+
+        <div id="age-calculator" style="display: none;">
+            <label for="birthdate">اختر تاريخ ميلادك:</label>
+            <input type="date" id="birthdate" max="" />
+            <button onclick="calculateAgeAndZodiac()">احسب العمر والبرج</button>
+            <div id="age-result" style="margin-top:10px; white-space: pre-line;"></div>
+        </div>
+
+        <div id="history-container" style="display: none;">
+            <h4>سجل العمليات</h4>
+            <ul id="history"></ul>
+            <button onclick="clearHistory()">مسح السجل</button>
+        </div>
+
+        <a id="footer-link" href="https://mahmoud-aboelfadl.my.canva.site/" target="_blank">
+            تم صنع هذا بواسطة Mahmoud Aboelfadl
+        </a>
+    </div>
+
+    <script>
+        // Get DOM Elements
+        const display = document.getElementById('display');
+        const historyDisplay = document.getElementById('history-display');
+        const calculatorButtons = document.getElementById('calculator-buttons');
+        const ageCalculatorDiv = document.getElementById('age-calculator');
+        const historyContainerDiv = document.getElementById('history-container');
+        const birthdateInput = document.getElementById('birthdate');
+        const ageResultDiv = document.getElementById('age-result');
+        const historyList = document.getElementById('history');
+        const toggleThemeButton = document.getElementById('toggle-theme'); // الحصول على زر تبديل الثيم
+
+        // State Variables
+        let currentExpression = '';
+        let history = [];
+        let isSecondMode = false; // For 2nd function button
+        let isRadians = true; // For Rad/Deg button
+        let lastResult = ''; // To store the last calculated result
+
+        // Initialize Max Date for Birthdate Input
+        birthdateInput.max = new Date().toISOString().split('T')[0];
+
+        // Define scientific function mappings for 1st and 2nd modes
+        const functionMap = {
+            'sin': { '1st': 'Math.sin(', '2nd': 'Math.asin(', 'text1': 'sin', 'text2': 'sin⁻¹' },
+            'cos': { '1st': 'Math.cos(', '2nd': 'Math.acos(', 'text1': 'cos', 'text2': 'cos⁻¹' },
+            'tan': { '1st': 'Math.tan(', '2nd': 'Math.atan(', 'text1': 'tan', 'text2': 'tan⁻¹' },
+            'ln': { '1st': 'Math.log(', '2nd': 'Math.log1p(', 'text1': 'ln', 'text2': 'ln(1+x)' }, // natural log
+            'log': { '1st': 'Math.log10(', '2nd': 'Math.log2(', 'text1': 'log', 'text2': 'log₂' }, // base 10 log, base 2 log
+            'exp': { '1st': 'Math.exp(', '2nd': 'Math.pow(10,', 'text1': 'eˣ', 'text2': '10ˣ' }, // e^x, 10^x
+            'x2': { '1st': '**2', '2nd': '**3', 'text1': 'x²', 'text2': 'x³' }, // x^2, x^3
+            'xy': { '1st': '**', '2nd': 'root(', 'text1': 'xʸ', 'text2': 'ʸ√x' }, // x^y, y-th root of x (handled differently)
+            'abs': { '1st': 'Math.abs(', '2nd': 'Math.cbrt(', 'text1': '|x|', 'text2': '³√x' }, // absolute, cube root
+            // 'fact': { '1st': 'factorial(', '2nd': '', 'text1': 'x!', 'text2': '' } // factorial (needs custom function) - added as part of general calculation flow
+        };
+
+        // --- Core Calculator Functions ---
+
+        function append(val) {
+            if (display.value === '0' && val !== '.' && !isNaN(val)) {
+                display.value = val;
+                currentExpression = val;
+            } else {
+                display.value += val;
+                currentExpression += val;
+            }
+            historyDisplay.textContent = currentExpression;
+        }
+
+        function appendFunction(func) {
+            if (display.value === '0') { // Clear default 0 when starting with a function
+                display.value = '';
+                currentExpression = '';
+            }
+            currentExpression += func;
+            display.value += func; // Show the function call on display
+            historyDisplay.textContent = currentExpression;
+        }
+
+        // Handles unary operators like 1/x, x^2, x^3, factorial, etc.
+        // This function is now more for applying operators that immediately change the last number.
+        function applyUnaryOperator(operatorText, isDivision = false) {
+            if (currentExpression === '' || display.value === 'Error' || isNaN(parseFloat(display.value))) {
+                // If current expression is empty or not a number, or an error, do nothing or clear
+                return;
+            }
+
+            let value = parseFloat(display.value);
+            let result;
+
+            if (isDivision) {
+                result = 1 / value;
+            } else if (operatorText === '**2') {
+                result = Math.pow(value, 2);
+            } else if (operatorText === '**3') {
+                result = Math.pow(value, 3);
+            } else if (operatorText === 'factorial(') {
+                result = factorial(value);
+            } else {
+                // For other unary functions, append them
+                append(operatorText);
+                return;
+            }
+            
+            if (isNaN(result) || !isFinite(result)) {
+                display.value = 'Error';
+                currentExpression = '';
+                historyDisplay.textContent = 'خطأ';
+            } else {
+                // To properly save to history, you might need to track the operation
+                let oldExpression = currentExpression;
+                currentExpression = String(result);
+                history.push(`${oldExpression.trim()} ${operatorText.replace('**','^')} = ${result}`);
+                saveHistory();
+                display.value = result;
+                historyDisplay.textContent = `${oldExpression.trim()} ${operatorText.replace('**','^')} = ${result}`; // Show last full operation
+                updateHistoryList();
+            }
+        }
+
+
+        // Factorial function
+        function factorial(n) {
+            if (n < 0 || !Number.isInteger(n)) {
+                return NaN; // Or 'Error' for display
+            }
+            if (n === 0) return 1;
+            let res = 1;
+            for (let i = 1; i <= n; i++) {
+                res *= i;
+            }
+            return res;
+        }
+
+        // Placeholder for y-th root function (more complex, requires two numbers)
+        function root(x, y) {
+            if (y === 0) return NaN; // Cannot take 0th root
+            if (x < 0 && y % 2 === 0) return NaN; // Even root of negative number
+            return Math.pow(x, 1 / y);
+        }
+
+
+        function calculate() {
+            if (currentExpression === '') return;
+
+            let expressionToEvaluate = currentExpression;
+
+            // Step 1: Replace constants with their Math equivalents
+            expressionToEvaluate = expressionToEvaluate.replace(/Math\.PI/g, Math.PI);
+            expressionToEvaluate = expressionToEvaluate.replace(/Math\.E/g, Math.E);
+
+            // Step 2: Handle factorial: replace x! with factorial(x)
+            // This regex tries to capture numbers before a '!'
+            expressionToEvaluate = expressionToEvaluate.replace(/(\d+\.?\d*)!/g, 'factorial($1)');
+
+            // Step 3: Handle percentage: replace N% with (N / 100)
+            expressionToEvaluate = expressionToEvaluate.replace(/(\d+\.?\d*)%/g, '($1 / 100)');
+
+
+            // Step 4: Convert trigonometric function arguments from degrees to radians if needed
+            if (!isRadians) {
+                // This regex captures Math.sin(X), Math.cos(X), Math.tan(X) and transforms X
+                // It's a simplistic approach; a full parser is more robust for nested functions.
+                expressionToEvaluate = expressionToEvaluate.replace(/(Math\.(?:sin|cos|tan|asin|acos|atan))\(([^)]+)\)/g, (match, func, arg) => {
+                    // Check if it's an inverse function which returns radians and should be converted back to degrees for display
+                    if (func === 'Math.asin' || func === 'Math.acos' || func === 'Math.atan') {
+                        // For inverse functions, the argument is already a ratio, result is radians.
+                        // We want to return degrees, so apply (result * 180 / Math.PI)
+                        return `(${func}(${arg}) * 180 / Math.PI)`;
+                    } else {
+                        // For direct trig functions (sin, cos, tan), the argument is in degrees
+                        return `${func}((${arg}) * Math.PI / 180)`;
+                    }
+                });
+            }
+            
+            // Step 5: Replace custom function names with Math. functions for eval
+            expressionToEvaluate = expressionToEvaluate.replace(/ln\(/g, 'Math.log(');
+            expressionToEvaluate = expressionToEvaluate.replace(/log\(/g, 'Math.log10(');
+            expressionToEvaluate = expressionToEvaluate.replace(/log2\(/g, 'Math.log2(');
+            expressionToEvaluate = expressionToEvaluate.replace(/exp\(/g, 'Math.exp('); // e^x
+            expressionToEvaluate = expressionToEvaluate.replace(/10\*\*/g, 'Math.pow(10,'); // 10^x
+            expressionToEvaluate = expressionToEvaluate.replace(/root\(([^,]+),([^)]+)\)/g, 'root($1,$2)'); // Handle root function if needed, but not directly using Math.pow(x,1/y)
+            expressionToEvaluate = expressionToEvaluate.replace(/abs\(/g, 'Math.abs(');
+            expressionToEvaluate = expressionToEvaluate.replace(/cbrt\(/g, 'Math.cbrt('); // cube root
+
+            try {
+                let result = eval(expressionToEvaluate);
+                if (isNaN(result) || !isFinite(result)) {
+                    throw new Error('Invalid calculation');
+                }
+                lastResult = result;
+                const entry = `${currentExpression} = ${result}`;
+                history.push(entry);
+                saveHistory();
+                display.value = result;
+                currentExpression = String(result);
+                historyDisplay.textContent = entry; // Show last full operation
+                updateHistoryList();
+            } catch (e) {
+                display.value = 'Error';
+                currentExpression = '';
+                historyDisplay.textContent = 'خطأ في العملية';
+                console.error("Calculation Error:", e); // For debugging
+            }
+        }
+
+        function backspace() {
+            if (display.value === 'Error') {
+                display.value = '0';
+                currentExpression = '';
+                historyDisplay.textContent = '';
+                return;
+            }
+            display.value = display.value.slice(0, -1);
+            currentExpression = currentExpression.slice(0, -1);
+            if (display.value === '') {
+                display.value = '0';
+                currentExpression = '';
+            }
+            historyDisplay.textContent = currentExpression;
+        }
+
+        function clearDisplay() {
+            display.value = '0';
+            currentExpression = '';
+            historyDisplay.textContent = '';
+        }
+
+        function changeSign() {
+            if (currentExpression === '' || display.value === '0' || display.value === 'Error') return;
+
+            // Try to change the sign of the last number in the expression
+            let match = currentExpression.match(/(-?\d+\.?\d*)$/); // Match last number
+            if (match) {
+                let lastNumStr = match[1];
+                let lastNum = parseFloat(lastNumStr);
+                let newNumStr = String(lastNum * -1);
+                currentExpression = currentExpression.slice(0, -lastNumStr.length) + newNumStr;
+                display.value = currentExpression;
+            } else if (!isNaN(parseFloat(currentExpression))) { // If it's a single number
+                currentExpression = String(parseFloat(currentExpression) * -1);
+                display.value = currentExpression;
+            }
+            historyDisplay.textContent = currentExpression;
+        }
+
+        // --- Toggle Modes & Features ---
+
+        // Function to update the theme icon
+        function updateThemeIcon() {
+            const icon = toggleThemeButton.querySelector('i');
+            if (document.body.classList.contains('dark')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        toggleThemeButton.onclick = () => {
+            document.body.classList.toggle('dark');
+            updateThemeIcon(); // Update the icon after toggling the theme
+        };
+
+        document.getElementById('toggle-history').onclick = () => {
+            const isVisible = historyContainerDiv.style.display !== 'none';
+            historyContainerDiv.style.display = isVisible ? 'none' : 'block';
+            ageCalculatorDiv.style.display = 'none'; // Close other sections
+        };
+
+        document.getElementById('toggle-age').onclick = () => {
+            const isVisible = ageCalculatorDiv.style.display !== 'none';
+            ageCalculatorDiv.style.display = isVisible ? 'none' : 'block';
+            historyContainerDiv.style.display = 'none'; // Close other sections
+        };
+
+        // --- 2nd Mode Toggle ---
+        function toggleSecondMode() {
+            isSecondMode = !isSecondMode;
+            const allButtons = calculatorButtons.querySelectorAll('button[data-function], button[data-constant], button[data-type="toggle-2nd"]');
+            
+            allButtons.forEach(button => {
+                const funcType = button.dataset.function || button.dataset.constant;
+                
+                if (funcType && functionMap[funcType]) {
+                    const funcData = functionMap[funcType];
+                    const newText = isSecondMode ? funcData.text2 : funcData.text1;
+                    const newFunction = isSecondMode ? funcData['2nd'] : funcData['1st'];
+
+                    button.textContent = newText;
+                    
+                    // Update onclick for functions that change behavior significantly
+                    if (funcType === 'x2') { // x^2 vs x^3
+                        button.onclick = () => applyUnaryOperator(newFunction);
+                    } else if (funcType === 'xy') { // x^y vs y-th root
+                        button.onclick = () => {
+                            if (isSecondMode) { // y-th root of x
+                                // For y-th root, you'd typically need to input two numbers (base and root)
+                                // Simplifying for this example: If you need a specific 'y' for 'y-th root',
+                                // you'd need a more complex input sequence.
+                                // For demo, let's make ʸ√x map to Math.cbrt (cube root) for simplicity in 2nd mode.
+                                appendFunction('Math.cbrt(');
+                            } else {
+                                append('**'); // x^y
+                            }
+                        };
+                    } else if (funcType === 'abs') { // |x| vs ³√x
+                         button.onclick = () => appendFunction(newFunction);
+                    }
+                    // For others (sin, cos, tan, ln, log, exp), just update the function string
+                    else {
+                        button.onclick = () => appendFunction(newFunction);
+                    }
+                } else if (button.dataset.type === 'toggle-2nd') {
+                    button.textContent = isSecondMode ? '1st' : '2nd';
+                }
+            });
+        }
+
+
+        // --- Rad/Deg Toggle ---
+        function toggleRadDeg() {
+            isRadians = !isRadians;
+            const radDegButton = document.querySelector('button[data-type="toggle-raddeg"]');
+            if (radDegButton) {
+                radDegButton.textContent = isRadians ? 'Rad' : 'Deg';
+            }
+        }
+
+
+        // --- Copy Result ---
+        function copyResult() {
+            let textToCopy = '';
+            if (display.value !== '0' && display.value !== 'Error' && display.value !== '') {
+                textToCopy = String(display.value);
+            } else if (ageResultDiv.textContent.trim() !== '') {
+                textToCopy = ageResultDiv.textContent;
+            } else {
+                alert('لا توجد نتيجة للنسخ');
+                return;
+            }
+
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => alert('تم نسخ النتيجة!'))
+                .catch(() => alert('فشل النسخ! تأكد من منح الأذونات.'));
+        }
+
+        // --- History Functions ---
+        function saveHistory() {
+            localStorage.setItem('calc_history', JSON.stringify(history));
+        }
+
+        function updateHistoryList() {
+            historyList.innerHTML = '';
+            // Display last 10 entries, reversed (most recent first)
+            history.slice(-10).reverse().forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                historyList.appendChild(li);
+            });
+        }
+
+        function clearHistory() {
+            if (confirm('هل أنت متأكد أنك تريد مسح كل السجل؟')) {
+                history = [];
+                saveHistory();
+                updateHistoryList();
+            }
+        }
+
+        // --- Age Calculator Functions ---
+        const signs = [
+            { name: "برج الجدي", symbol: "♑️", from: [12, 22], to: [1, 19], traits: "عملي، طموح، منظم" },
+            { name: "برج الدلو", symbol: "♒️", from: [1, 20], to: [2, 18], traits: "مستقل، مبتكر، إنساني" },
+            { name: "برج الحوت", symbol: "♓️", from: [2, 19], to: [3, 20], traits: "عاطفي، حساس، خيالي" },
+            { name: "برج الحمل", symbol: "♈️", from: [3, 21], to: [4, 19], traits: "جريء، قيادي، نشيط" },
+            { name: "برج الثور", symbol: "♉️", from: [4, 20], to: [5, 20], traits: "صبور، عنيد، مادي" },
+            { name: "برج الجوزاء", symbol: "♊️", from: [5, 21], to: [6, 20], traits: "ذكي، متقلب، اجتماعي" },
+            { name: "برج السرطان", symbol: "♋️", from: [6, 21], to: [7, 22], traits: "عاطفي، حنون، مزاجي" },
+            { name: "برج الأسد", symbol: "♌️", from: [7, 23], to: [8, 22], traits: "واثق، كريم، قيادي" },
+            { name: "برج العذراء", symbol: "♍️", from: [8, 23], to: [9, 22], traits: "منظم، ناقد، خجول" },
+            { name: "برج الميزان", symbol: "♎️", from: [9, 23], to: [10, 22], traits: "عادل، اجتماعي، متردد" },
+            { name: "برج العقرب", symbol: "♏️", from: [10, 23], to: [11, 21], traits: "غامض، قوي، عاطفي" },
+            { name: "برج القوس", symbol: "♐️", from: [11, 22], to: [12, 21], traits: "مغامر، صريح، متفائل" }
+        ];
+
+        function getZodiacSign(month, day) {
+            for (const sign of signs) {
+                // Adjust month to be 1-indexed for comparison
+                const currentMonth = month; // getMonth() returns 0-11, so it's already 1-indexed after adding 1
+
+                if (sign.from[0] > sign.to[0]) { // Crosses year boundary (e.g., Dec-Jan)
+                    if ((currentMonth === sign.from[0] && day >= sign.from[1]) ||
+                        (currentMonth === sign.to[0] && day <= sign.to[1])) {
+                        return sign;
+                    }
+                } else { // Within the same year
+                    if (currentMonth === sign.from[0] && day >= sign.from[1] &&
+                        currentMonth === sign.to[0] && day <= sign.to[1]) {
+                        return sign;
+                    }
+                    if (currentMonth === sign.from[0] && day >= sign.from[1] && currentMonth < sign.to[0]) {
+                        return sign;
+                    }
+                    if (currentMonth === sign.to[0] && day <= sign.to[1] && currentMonth > sign.from[0]) {
+                        return sign;
+                    }
+                }
+            }
+            return { name: "غير معروف", symbol: "❓", traits: "-" }; // Default if not found
+        }
+
+
+        function calculateAgeAndZodiac() {
+            const input = birthdateInput.value;
+            if (!input) {
+                alert('من فضلك اختر تاريخ ميلاد صالح');
+                return;
+            }
+            const birthDate = new Date(input);
+            const now = new Date();
+
+            if (birthDate > now) {
+                alert('تاريخ الميلاد لا يمكن أن يكون في المستقبل');
+                return;
+            }
+
+            let years = now.getFullYear() - birthDate.getFullYear();
+            let months = now.getMonth() - birthDate.getMonth();
+            let days = now.getDate() - birthDate.getDate();
+
+            if (days < 0) {
+                months--;
+                // Get the number of days in the previous month of the current date
+                days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            const zodiacMonth = birthDate.getMonth() + 1; // getMonth() is 0-indexed, so add 1
+            const zodiacDay = birthDate.getDate();
+            const zodiac = getZodiacSign(zodiacMonth, zodiacDay);
+
+            ageResultDiv.textContent =
+                `العمر: ${years} سنة، ${months} شهر، ${days} يوم\n` +
+                `البرج: ${zodiac.symbol} ${zodiac.name}\n` +
+                `الصفات: ${zodiac.traits}`;
+        }
+
+        // --- Clock Function ---
+        function updateClock() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            const ampm = hours >= 12 ? 'م' : 'ص';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // The hour '0' (midnight/noon) should be '12'
+
+            const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
+            document.getElementById('clock').textContent = `الوقت الحالي: ${timeStr}`;
+        }
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load history from localStorage
+            const savedHistory = JSON.parse(localStorage.getItem('calc_history') || '[]');
+            history.push(...savedHistory);
+            updateHistoryList();
+
+            // Set initial 2nd mode button text and functions (call once)
+            toggleSecondMode(); // This will initialize all buttons to their 1st mode texts/functions
+
+            // Set initial Rad/Deg button text
+            const radDegButton = document.querySelector('button[data-type="toggle-raddeg"]');
+            if (radDegButton) {
+                radDegButton.textContent = isRadians ? 'Rad' : 'Deg';
+            }
+
+            // Set initial theme icon based on current theme
+            updateThemeIcon();
+
+            // Start clock
+            setInterval(updateClock, 1000);
+            updateClock(); // Call immediately to avoid initial delay
+        });
+    </script>
+</body>
+</html>

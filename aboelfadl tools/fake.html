@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🚨 التوعية من طرق النصب الإلكترونية</title>
+  <style>
+    :root {
+      --primary-color: #b71c1c;
+      --secondary-color: #c62828;
+      --text-color: #333;
+      --background-gradient-start: #fdfbfb;
+      --background-gradient-end: #ebedee;
+      --spacing-small: 10px;
+      --spacing-medium: 20px;
+      --spacing-large: 30px;
+      --border-radius-small: 5px;
+      --border-radius-medium: 10px;
+      --border-radius-large: 15px;
+      --accordion-transition-speed: 0.3s;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, var(--background-gradient-start), var(--background-gradient-end));
+      margin: 0;
+      padding: 0;
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    header {
+      background: var(--primary-color);
+      color: white;
+      padding: var(--spacing-medium);
+      text-align: center;
+    }
+    .section {
+      background: rgba(255, 255, 255, 0.95);
+      margin: var(--spacing-medium);
+      padding: var(--spacing-medium);
+      border-radius: var(--border-radius-large);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      position: relative; /* For the accordion arrow */
+    }
+    .section h2 {
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      color: var(--primary-color);
+      cursor: pointer; /* For accordion toggle */
+      padding-bottom: var(--spacing-small);
+      border-bottom: 1px solid #eee;
+      margin-bottom: var(--spacing-small);
+    }
+    .section h2 .icon-svg {
+      width: 26px; /* Adjust SVG size */
+      height: 26px; /* Adjust SVG size */
+      margin-left: var(--spacing-small);
+      fill: var(--primary-color); /* Color for SVG icons */
+      flex-shrink: 0; /* Prevent icon from shrinking */
+    }
+    .accordion-arrow {
+      margin-right: auto; /* Push arrow to the left in RTL */
+      transition: transform var(--accordion-transition-speed) ease;
+      font-size: 1.5em; /* Make arrow a bit bigger */
+    }
+    .accordion-arrow.expanded {
+      transform: rotate(90deg);
+    }
+
+    .accordion-content {
+      max-height: 1000px; /* Large enough for content */
+      overflow: hidden;
+      transition: max-height var(--accordion-transition-speed) ease-out;
+    }
+    .accordion-content.collapsed {
+      max-height: 0;
+      padding: 0; /* Remove padding when collapsed */
+    }
+
+    .fake-ui {
+      margin: var(--spacing-small) 0;
+      background: #f2f2f2c0;
+      padding: var(--spacing-medium);
+      border-radius: var(--border-radius-medium);
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      box-shadow: inset 0 0 5px #ccc;
+    }
+    .fake-ui .phishing-link {
+        color: #007bff;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    .warning {
+      background: #fff3cd;
+      border-right: 6px solid #ffa000;
+      padding: var(--spacing-small);
+      margin-top: 8px;
+      border-radius: var(--border-radius-small);
+    }
+    .protection {
+      background: #e8f5e9;
+      border-right: 6px solid #388e3c;
+      padding: var(--spacing-small);
+      margin-top: var(--spacing-small);
+      border-radius: var(--border-radius-small);
+    }
+    .report-btn {
+      background-color: var(--secondary-color);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--border-radius-medium);
+      margin-top: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+    .report-btn:hover {
+      background-color: #ad1d1d;
+    }
+    .report-btn:disabled {
+        background-color: #388e3c; /* Green when reported */
+        cursor: not-allowed;
+    }
+    .feedback-section {
+        background: rgba(255, 255, 255, 0.95);
+        margin: var(--spacing-medium);
+        padding: var(--spacing-medium);
+        border-radius: var(--border-radius-large);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-top: var(--spacing-large);
+    }
+    .feedback-section textarea {
+        width: calc(100% - 20px);
+        padding: var(--spacing-small);
+        margin-top: var(--spacing-small);
+        border-radius: var(--border-radius-small);
+        border: 1px solid #ccc;
+        min-height: 80px;
+        resize: vertical;
+    }
+    .feedback-section button {
+        background-color: #388e3c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--border-radius-medium);
+        margin-top: var(--spacing-small);
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s;
+    }
+    .feedback-section button:hover {
+        background-color: #2e7d32;
+    }
+    .success-message {
+        color: #388e3c;
+        margin-top: var(--spacing-small);
+        font-weight: bold;
+    }
+    .footer {
+        text-align: center;
+        padding: var(--spacing-medium);
+        font-size: 0.9em;
+        color: #777;
+        margin-top: var(--spacing-medium);
+    }
+    /* Style for general list sections (tips, what to do) */
+    .section ul, .section ol {
+        list-style: none;
+        padding: 0;
+        margin-top: var(--spacing-medium);
+    }
+    .section ul li, .section ol li {
+        background: #f9f9f9;
+        border-right: 4px solid var(--primary-color);
+        padding: var(--spacing-small);
+        margin-bottom: 8px;
+        border-radius: var(--border-radius-small);
+        display: flex;
+        align-items: flex-start;
+    }
+    .section ul li::before {
+        content: "•"; /* Bullet for unordered list */
+        color: var(--primary-color);
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-left: 0.5em;
+        margin-top: -0.1em; /* Adjust vertical alignment */
+    }
+    .section ol li::before {
+        content: counter(list-item) "."; /* Number for ordered list */
+        counter-increment: list-item;
+    }
+
+    /* Quiz Section Styling */
+    .quiz-question {
+        margin-bottom: var(--spacing-medium);
+        padding: var(--spacing-small);
+        background-color: #f0f8ff;
+        border-left: 5px solid #007bff;
+        border-radius: var(--border-radius-small);
+    }
+    .quiz-question p {
+        font-weight: bold;
+        margin-bottom: var(--spacing-small);
+    }
+    .quiz-options label {
+        display: block;
+        margin-bottom: 8px;
+        cursor: pointer;
+        background-color: #e9ecef;
+        padding: 10px;
+        border-radius: var(--border-radius-small);
+        transition: background-color 0.2s ease;
+    }
+    .quiz-options label:hover {
+        background-color: #dee2e6;
+    }
+    .quiz-options input[type="radio"] {
+        margin-left: 10px;
+    }
+    .quiz-feedback {
+        margin-top: var(--spacing-small);
+        padding: 10px;
+        border-radius: var(--border-radius-small);
+        font-weight: bold;
+    }
+    .quiz-feedback.correct {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .quiz-feedback.incorrect {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .quiz-submit-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--border-radius-medium);
+        margin-top: var(--spacing-medium);
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s;
+    }
+    .quiz-submit-btn:hover {
+        background-color: #0056b3;
+    }
+    .quiz-submit-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    /* Back to Top Button */
+    .back-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+        z-index: 1000;
+    }
+    .back-to-top.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    /* Link differentiation section specific styles */
+    #link-differentiation ul {
+        list-style: none; /* Remove default list style */
+        padding: 0;
+        margin: 0;
+    }
+    #link-differentiation ul li {
+        background: #f9f9f9;
+        border-right: 4px solid var(--primary-color); /* Consistent border */
+        padding: var(--spacing-small);
+        margin-bottom: 8px;
+        border-radius: var(--border-radius-small);
+        display: flex;
+        flex-direction: column; /* Stack content vertically */
+        align-items: flex-start;
+    }
+    #link-differentiation ul li::before {
+        content: "•"; /* Consistent bullet point */
+        color: var(--primary-color);
+        font-weight: bold;
+        display: inline-block;
+        width: 1em;
+        margin-left: 0.5em;
+        margin-top: -0.1em;
+        align-self: flex-start; /* Align bullet to start */
+    }
+    #link-differentiation ul li p {
+        margin: 0 0 5px 0; /* Adjust spacing for internal paragraphs */
+        padding-right: calc(1em + 0.5em); /* Align text with bullet */
+        padding-top: 5px; /* Little space from bullet */
+    }
+
+    .link-example {
+        background-color: #f0f0f0;
+        padding: 8px;
+        margin: 5px 0; /* Adjust margin to fit inside li */
+        border-radius: 5px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: calc(100% - 16px); /* Full width minus padding */
+        box-sizing: border-box; /* Include padding in width calculation */
+        align-self: center; /* Center the example within the li */
+    }
+    .link-example.real {
+        border-left: 4px solid #388e3c; /* Green for real */
+        background-color: #e8f5e9;
+    }
+    .link-example.fake {
+        border-left: 4px solid #d32f2f; /* Red for fake */
+        background-color: #f8d7da;
+    }
+    .link-example .icon-status {
+        font-size: 1.2em;
+    }
+
+    /* Link Checker Tool styles */
+    .link-checker-input {
+        width: calc(100% - 20px);
+        padding: var(--spacing-small);
+        margin-top: var(--spacing-small);
+        border-radius: var(--border-radius-small);
+        border: 1px solid #ccc;
+        font-size: 1em;
+    }
+    .link-checker-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: var(--border-radius-medium);
+        margin-top: var(--spacing-small);
+        cursor: pointer;
+        font-size: 16px;
+        transition: background 0.3s;
+    }
+    .link-checker-btn:hover {
+        background-color: #0056b3;
+    }
+    .link-checker-result {
+        margin-top: var(--spacing-small);
+        padding: 10px;
+        border-radius: var(--border-radius-small);
+        font-weight: bold;
+        text-align: center;
+    }
+    .link-checker-result.safe {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .link-checker-result.suspicious {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .link-checker-result.unknown {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
+    /* AI Assistant Styles */
+    .ai-assistant-button {
+        position: fixed;
+        bottom: 20px;
+        left: 20px; /* Position at bottom-left */
+        background-color: #007bff; /* Blue color for AI button */
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        transition: background-color 0.3s, transform 0.3s;
+        z-index: 1001; /* Higher than back-to-top */
+    }
+
+    .ai-assistant-button:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+
+    .ai-assistant-button .icon-svg {
+        fill: white; /* Make SVG icon white inside the blue button */
+    }
+
+    .ai-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000; /* On top of everything */
+        display: none; /* Hidden by default */
+    }
+
+    .ai-modal-content {
+        background-color: white;
+        padding: var(--spacing-medium);
+        border-radius: var(--border-radius-large);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        width: 90%;
+        max-width: 500px;
+        max-height: 80vh; /* Limit height for scrollability */
+        overflow-y: auto; /* Enable scrolling for long content */
+        position: relative;
+        text-align: right; /* RTL alignment */
+    }
+
+    .ai-modal-content h2 {
+        color: #007bff;
+        margin-top: 0;
+        margin-bottom: var(--spacing-medium);
+        text-align: center;
+    }
+
+    .ai-modal-content .close-button {
+        position: absolute;
+        top: 10px;
+        left: 15px; /* Position at top-left for RTL */
+        font-size: 2em;
+        cursor: pointer;
+        color: #666;
+    }
+
+    .ai-modal-content .ai-options {
+        display: flex;
+        gap: var(--spacing-small);
+        margin-bottom: var(--spacing-medium);
+        justify-content: center;
+        flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    }
+
+    .ai-modal-content .ai-options button {
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+        border-radius: var(--border-radius-medium);
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: background-color 0.2s ease;
+    }
+
+    .ai-modal-content .ai-options button:hover {
+        background-color: #e0e0e0;
+    }
+
+    .ai-modal-content .ai-input-area textarea {
+        width: calc(100% - 20px);
+        min-height: 80px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        resize: vertical;
+    }
+
+    .ai-modal-content .ai-input-area button {
+        background-color: #28a745; /* Green for Ask button */
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .ai-modal-content .ai-input-area button:hover {
+        background-color: #218838;
+    }
+
+    .ai-response-area {
+        background-color: #f9f9f9;
+        border: 1px solid #eee;
+        padding: var(--spacing-medium);
+        border-radius: var(--border-radius-medium);
+        min-height: 100px;
+        text-align: right; /* RTL alignment */
+    }
+
+    .ai-response-area ul {
+        padding-right: 20px; /* Adjust padding for RTL list */
+        list-style-type: disc; /* Ensure bullets for unordered list */
+    }
+
+    .ai-response-area li {
+        margin-bottom: 5px;
+    }
+
+    .ai-response-area p {
+        margin-bottom: 10px;
+    }
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #007bff;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        animation: spin 1s linear infinite;
+        margin: 10px auto;
+        display: none; /* Hidden by default */
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛡️ التوعية ضد النصب الإلكتروني</h1>
+    <p>احذر من الوقوع ضحية الطرق الجديدة للنصب</p>
+  </header>
+
+  <audio id="alertSound">
+    <source src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // Global variable for quiz
+    let currentQuestionIndex = 0;
+    const quizQuestions = [
+        {
+            question: "وصلتك رسالة SMS من رقم مجهول تدعي أنك ربحت مليون جنيه وتطلب منك النقر على رابط لتأكيد الجائزة. ماذا تفعل؟",
+            options: [
+                "أ) أنقر على الرابط فورًا لأرى تفاصيل الجائزة.",
+                "ب) أتجاهل الرسالة وأحذفها، فقد تكون احتيالاً.",
+                "ج) أتصل بالبنك الخاص بي للاستفسار عن هذه الجائزة."
+            ],
+            correctAnswer: 1, // index of the correct option (0-indexed)
+            explanation: "الإجابة الصحيحة هي (ب). هذه رسالة احتيالية تهدف إلى سرقة بياناتك. البنوك والمؤسسات الرسمية لا تمنح جوائز بهذه الطريقة."
+        },
+        {
+            question: "أثناء تصفحك للإنترنت، تظهر نافذة منبثقة تقول: 'جهازك مصاب بفيروسات خطيرة! انقر هنا لتحميل برنامج إزالة الفيروسات.' ماذا تفعل؟",
+            options: [
+                "أ) أنقر على النافذة فورًا لتحميل البرنامج وحماية جهازي.",
+                "ب) أقوم بإغلاق النافذة وأتأكد من أن برنامج الحماية الخاص بي محدث.",
+                "ج) أعيد تشغيل الجهاز بسرعة لحذف الفيروسات."
+            ],
+            correctAnswer: 1,
+            explanation: "الإجابة الصحيحة هي (ب). هذه النوافذ المنبثقة غالبًا ما تكون خدعة لتثبيت برمجيات خبيثة. برامج الحماية الأصلية لا تظهر بهذه الطريقة."
+        },
+        {
+            question: "تلقيت طلب صداقة على وسائل التواصل الاجتماعي من شخص لا تعرفه، ولديه ملف شخصي فارغ تقريبًا. ماذا تفعل؟",
+            options: [
+                "أ) أقبل الطلب على الفور، ربما يكون صديقًا قديمًا.",
+                "ب) أتجاهل الطلب أو أرفضه، فالحسابات المشبوهة قد تكون لغرض الاحتيال أو التجسس.",
+                "ج) أرسل له رسالة أسأله من هو."
+            ],
+            correctAnswer: 1,
+            explanation: "الإجابة الصحيحة هي (ب). العديد من حسابات الاحتيال تستخدم ملفات شخصية وهمية لجذب الضحايا. من الأفضل تجاهل طلبات الصداقة من الغرباء المشبوهين."
+        }
+    ];
+
+    // List of recognized brands and their official/phishing patterns
+    const recognizedBrands = [
+        {
+            name: "جوجل",
+            keywords: ["google", "gmail", "youtube"],
+            official: "google.com",
+            officialUrls: ["https://www.google.com", "https://mail.google.com", "https://accounts.google.com", "https://youtube.com"],
+            phishingPatterns: ["gooogle.com", "google-login.com", "accounts-google.net", "g0ogle.com"]
+        },
+        {
+            name: "أمازون",
+            keywords: ["amazon", "prime"],
+            official: "amazon.com",
+            officialUrls: ["https://www.amazon.com", "https://www.amazon.eg"],
+            phishingPatterns: ["amaz0n.com", "amazon-offers.net", "prime-amazon.co", "amaz0n.info"]
+        },
+        {
+            name: "فيسبوك",
+            keywords: ["facebook", "fb", "meta"],
+            official: "facebook.com",
+            officialUrls: ["https://www.facebook.com", "https://web.facebook.com"],
+            phishingPatterns: ["faceb0ok.com", "fb-support.live", "login-facebook.ru", "facebook-security.com"]
+        },
+        {
+            name: "مايكروسوفت",
+            keywords: ["microsoft", "office", "outlook"],
+            official: "microsoft.com",
+            officialUrls: ["https://www.microsoft.com", "https://office.com", "https://outlook.live.com"],
+            phishingPatterns: ["micr0soft.com", "support-microsoft.tech", "office365-login.com", "microsoft-security.info"]
+        },
+        {
+            name: "البنك التجاري الدولي (CIB)",
+            keywords: ["cib", "cibeg", "تجاري دولي"],
+            official: "cibeg.com",
+            officialUrls: ["https://www.cibeg.com", "https://online.cibeg.com"],
+            phishingPatterns: ["cib-eg.net", "cib-online.com", "cib-secure.org", "cib-rewards.xyz"]
+        },
+        {
+            name: "بنك مصر",
+            keywords: ["بنك مصر", "banquemisr"],
+            official: "banquemisr.com",
+            officialUrls: ["https://www.banquemisr.com", "https://online.banquemisr.com"],
+            phishingPatterns: ["bankmisr.info", "misrbank.biz", "banque-misr.net", "bm-online.com"]
+        },
+        {
+            name: "البنك الأهلي المصري",
+            keywords: ["البنك الأهلي", "nbe", "nationalbank"],
+            official: "nbe.com.eg",
+            officialUrls: ["https://www.nbe.com.eg", "https://alahlynet.nbe.com.eg"],
+            phishingPatterns: ["nb-e.com", "nbe-online.net", "nationalbankegypt.info", "nbe-service.co"]
+        }
+    ];
+
+    function playAlertAndReport(buttonElement) {
+      const sound = document.getElementById("alertSound");
+      sound.currentTime = 0;
+      sound.play();
+
+      const originalText = buttonElement.textContent;
+      buttonElement.textContent = "تم الإبلاغ ✅";
+      buttonElement.disabled = true;
+
+      setTimeout(() => {
+        buttonElement.textContent = originalText;
+        buttonElement.disabled = false;
+      }, 3000); // Revert after 3 seconds
+
+      const scamType = buttonElement.closest('.section').querySelector('h2').textContent.trim();
+      // Improved: Extract just the main title part, removing potential emoji/icon text
+      const titleMatch = scamType.match(/(.*?)(?:\s\u{1F6A8}|\s\u{1F4B3}|\s\u{1F3AE}|\s\u{260E}|\s\u{1F4BB}|\s\u{1F4BC}|\s\u{1F6CD}|\s\u{1F9D9}|\s\u{1F4A1}|\s\u{26A0}|\s\u{1F517}|\s\u{1F4D3})?/u);
+      const cleanScamType = titleMatch ? titleMatch[1].trim() : scamType.trim();
+
+      alert(`شكراً لإبلاغك عن: ${cleanScamType}`);
+    }
+
+    function submitFeedback() {
+        const feedbackText = document.getElementById('feedbackText').value;
+        const feedbackMessageDiv = document.getElementById('feedbackMessage');
+
+        if (feedbackText.trim() === '') {
+            feedbackMessageDiv.textContent = 'الرجاء كتابة ملاحظاتك قبل الإرسال.';
+            feedbackMessageDiv.style.color = '#d32f2f'; // Red for error
+            return;
+        }
+
+        console.log("Feedback submitted:", feedbackText);
+        feedbackMessageDiv.textContent = 'شكراً لملاحظاتك القيمة! 🚀';
+        feedbackMessageDiv.style.color = '#388e3c'; // Green for success
+        document.getElementById('feedbackText').value = ''; // Clear textarea
+
+        setTimeout(() => {
+            feedbackMessageDiv.textContent = '';
+        }, 5000); // Clear message after 5 seconds
+    }
+
+    // Quiz Functions (remains unchanged)
+    function loadQuestion() {
+        const quizContainer = document.getElementById('quiz-container');
+        quizContainer.innerHTML = ''; // Clear previous question
+
+        if (currentQuestionIndex < quizQuestions.length) {
+            const qData = quizQuestions[currentQuestionIndex];
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'quiz-question';
+            questionDiv.innerHTML = `<p>${currentQuestionIndex + 1}. ${qData.question}</p><div class="quiz-options"></div>`;
+
+            const optionsDiv = questionDiv.querySelector('.quiz-options');
+            qData.options.forEach((option, index) => {
+                const label = document.createElement('label');
+                label.innerHTML = `<input type="radio" name="quiz-option" value="${index}"> ${option}`;
+                optionsDiv.appendChild(label);
+            });
+
+            const submitBtn = document.createElement('button');
+            submitBtn.className = 'quiz-submit-btn';
+            submitBtn.textContent = 'تحقق من الإجابة';
+            submitBtn.onclick = checkAnswer;
+
+            questionDiv.appendChild(submitBtn);
+            quizContainer.appendChild(questionDiv);
+
+            document.getElementById('quiz-feedback-message').textContent = ''; // Clear previous feedback
+        } else {
+            quizContainer.innerHTML = '<p style="text-align: center; font-size: 1.2em; color: #388e3c;">لقد أكملت الاختبار! أحسنت! 🎉</p>';
+            document.getElementById('quiz-feedback-message').textContent = '';
+        }
+    }
+
+    function checkAnswer() {
+        const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
+        const feedbackMessage = document.getElementById('quiz-feedback-message');
+        const submitBtn = document.querySelector('.quiz-submit-btn');
+
+        if (!selectedOption) {
+            feedbackMessage.textContent = 'الرجاء اختيار إجابة.';
+            feedbackMessage.className = 'quiz-feedback incorrect';
+            return;
+        }
+
+        const userAnswer = parseInt(selectedOption.value);
+        const correctAnswer = quizQuestions[currentQuestionIndex].correctAnswer;
+        const explanation = quizQuestions[currentQuestionIndex].explanation;
+
+        if (userAnswer === correctAnswer) {
+            feedbackMessage.textContent = `إجابة صحيحة! ✅ ${explanation}`;
+            feedbackMessage.className = 'quiz-feedback correct';
+        } else {
+            feedbackMessage.textContent = `إجابة خاطئة ❌. ${explanation}`;
+            feedbackMessage.className = 'quiz-feedback incorrect';
+        }
+
+        submitBtn.textContent = 'السؤال التالي';
+        submitBtn.onclick = nextQuestion;
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        loadQuestion();
+    }
+
+    // Accordion Toggle Function (remains unchanged)
+    function toggleAccordion(headerElement) {
+        const accordionContent = headerElement.nextElementSibling;
+        const arrow = headerElement.querySelector('.accordion-arrow');
+
+        if (accordionContent.classList.contains('collapsed')) {
+            accordionContent.classList.remove('collapsed');
+            arrow.classList.add('expanded');
+        } else {
+            accordionContent.classList.add('collapsed');
+            arrow.classList.remove('expanded');
+        }
+    }
+
+    // Phishing Link Simulation (remains unchanged)
+    function simulatePhishingClick(event, linkText) {
+        event.preventDefault();
+        alert(`⚠️ تحذير: هذا رابط احتيالي محتمل!\n\nكن حذرًا دائمًا عند النقر على روابط غير معروفة.\n\nالرابط المشبوه: ${linkText}`);
+    }
+
+    // Link Checker Tool Functions
+    function checkLink() {
+        const inputLink = document.getElementById('linkCheckerInput').value.trim();
+        const resultDiv = document.getElementById('linkCheckerResult');
+        resultDiv.textContent = '';
+        resultDiv.className = 'link-checker-result'; // Reset classes
+
+        if (!inputLink) {
+            resultDiv.textContent = 'الرجاء إدخال رابط للتحقق منه.';
+            resultDiv.classList.add('unknown');
+            return;
+        }
+
+        let hostname;
+        try {
+            hostname = new URL(inputLink).hostname;
+            // Remove www. if present for cleaner comparison
+            if (hostname.startsWith('www.')) {
+                hostname = hostname.substring(4);
+            }
+        } catch (e) {
+            resultDiv.textContent = 'الرابط الذي أدخلته غير صالح. الرجاء التأكد من التنسيق (مثل https://example.com).';
+            resultDiv.classList.add('unknown');
+            return;
+        }
+
+        hostname = hostname.toLowerCase();
+        let foundMatch = false;
+
+        for (const brand of recognizedBrands) {
+            const officialDomain = brand.official.toLowerCase();
+            const brandKeywords = brand.keywords.map(k => k.toLowerCase());
+
+            // Check for exact official match
+            if (hostname === officialDomain || brand.officialUrls.some(url => new URL(url).hostname.toLowerCase() === hostname)) {
+                resultDiv.textContent = `✅ هذا الرابط يبدو آمناً وهو رابط رسمي لـ ${brand.name}.`;
+                resultDiv.classList.add('safe');
+                foundMatch = true;
+                break;
+            }
+
+            // Check for known phishing patterns for this brand
+            if (brand.phishingPatterns.some(pattern => hostname.includes(pattern.toLowerCase()))) {
+                resultDiv.textContent = `⚠️ هذا الرابط مشبوه! يبدو أنه يحاول انتحال صفة ${brand.name}. الرابط الرسمي هو: ${brand.officialUrls[0]}`;
+                resultDiv.classList.add('suspicious');
+                foundMatch = true;
+                break;
+            }
+
+            // Check if brand keyword is present but domain is not official
+            // This is a simplified check, a more robust solution might need a whitelist of official subdomains
+            if (brandKeywords.some(keyword => hostname.includes(keyword)) && hostname !== officialDomain) {
+                const isOfficialSubdomain = brand.officialUrls.some(url => hostname.endsWith('.' + new URL(url).hostname.toLowerCase()));
+                if (!isOfficialSubdomain) {
+                    resultDiv.textContent = `❌ هذا الرابط غير صحيح. يبدو أنه يحاول انتحال صفة ${brand.name}. الرابط الرسمي هو: ${brand.officialUrls[0]}`;
+                    resultDiv.classList.add('suspicious');
+                    foundMatch = true;
+                    break;
+                }
+            }
+        }
+
+        if (!foundMatch) {
+            resultDiv.textContent = 'لا يمكننا تحديد حالة هذا الرابط بناءً على قاعدتنا الحالية. كن حذرًا دائمًا! ';
+            resultDiv.classList.add('unknown');
+        }
+    }
+
+
+    // Back to Top functionality
+    const backToTopButton = document.createElement('button');
+    backToTopButton.className = 'back-to-top';
+    backToTopButton.innerHTML = '⬆️'; // Up arrow emoji
+    backToTopButton.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.appendChild(backToTopButton);
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) { // Show button after scrolling 300px
+            backToTopButton.classList.add('show');
+        } else {
+            backToTopButton.classList.remove('show');
+        }
+    });
+
+    // AI Assistant Functions
+    function openAIAssistantModal() {
+        document.getElementById('aiAssistantModal').style.display = 'flex';
+        document.getElementById('aiResponseArea').innerHTML = '<p>أهلاً بك! اختر موضوعاً لأشرحه لك، أو صف موقفاً مشبوهاً لأقوم بتحليله.</p>';
+        document.getElementById('aiScenarioInput').value = ''; // Clear previous input
+    }
+
+    function closeAIAssistantModal() {
+        document.getElementById('aiAssistantModal').style.display = 'none';
+    }
+
+    async function getAIResponse(topic) {
+        const responseArea = document.getElementById('aiResponseArea');
+        responseArea.innerHTML = ''; // Clear previous content
+        document.getElementById('aiLoadingSpinner').style.display = 'block'; // Show spinner
+
+        let prompt = '';
+        if (topic === 'code_purpose') {
+            prompt = "اشرح لي فائدة هذا الكود الذي يتحدث عن التوعية ضد النصب الإلكتروني بأسلوب بسيط ومختصر، مع ذكر الفوائد الرئيسية للتطبيق.";
+        } else if (topic === 'prevent_hacking') {
+            prompt = "قدم نصائح بسيطة ومختصرة لمنع المخترقين من الوصول إلى بياناتي وأجهزتي.";
+        } else { // This is for user-entered scenario
+            const userScenario = document.getElementById('aiScenarioInput').value.trim();
+            if (!userScenario) {
+                responseArea.innerHTML = '<p style="color: red;">الرجاء وصف الموقف المشبوه أولاً.</p>';
+                document.getElementById('aiLoadingSpinner').style.display = 'none';
+                return;
+            }
+            prompt = `أنا أواجه الموقف التالي: "${userScenario}". هل هذا نصب؟ وكيف أتعامل معه؟ اشرح لي الأمر بأسلوب بسيط ومختصر وقدم نصائح عملية.`;
+        }
+
+        try {
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            document.getElementById('aiLoadingSpinner').style.display = 'none'; // Hide spinner
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                responseArea.innerHTML = `<p>${text}</p>`;
+            } else {
+                responseArea.innerHTML = '<p style="color: red;">عذراً، لم أتمكن من الحصول على إجابة في الوقت الحالي. الرجاء المحاولة مرة أخرى.</p>';
+            }
+        } catch (error) {
+            document.getElementById('aiLoadingSpinner').style.display = 'none'; // Hide spinner
+            responseArea.innerHTML = `<p style="color: red;">حدث خطأ أثناء التواصل مع المساعد الذكي: ${error.message}. الرجاء التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.</p>`;
+            console.error('Error calling Gemini API:', error);
+        }
+    }
+
+
+    // Initialize quiz and accordions on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadQuestion(); // Load the first quiz question
+
+        // Set up accordions for all sections except quiz, prevention, what-to-do, link-differentiation, feedback, and link checker tool
+        document.querySelectorAll('.section h2').forEach(header => {
+            // Check if the current header is NOT part of the sections we want to keep expanded by default
+            if (!header.closest('#quiz-section') && 
+                !header.closest('#prevention-tips') && 
+                !header.closest('#what-to-do') && 
+                !header.closest('#link-differentiation') && 
+                !header.closest('.feedback-section') && 
+                !header.closest('#link-checker-tool')) {
+                
+                header.addEventListener('click', () => toggleAccordion(header));
+                const arrowSpan = document.createElement('span');
+                arrowSpan.className = 'accordion-arrow';
+                arrowSpan.innerHTML = '▶️';
+                header.appendChild(arrowSpan);
+                header.nextElementSibling.classList.add('collapsed'); // Collapse the content
+            }
+        });
+
+        // Add event listener for AI assistant button
+        document.getElementById('aiAssistantButton').onclick = openAIAssistantModal;
+    });
+  </script>
+
+  <div class="section" id="scam1">
+    <h2 class="accordion-toggle">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
+        </svg>
+        دفع مزيف عبر روابط
+    </h2>
+    <div class="accordion-content">
+      <div class="fake-ui">
+        ✅ تم إرسال 1000 جنيه. اضغط لتأكيد استلام الأموال<br>
+        🔗 <span class="phishing-link" onclick="simulatePhishingClick(event, 'http://secure-transfer.online')">http://secure-transfer.online</span>
+      </div>
+      <div class="warning">🟠 الرابط يطلب بيانات بطاقتك البنكية!</div>
+      <div class="protection">✅ لا تفتح أي رابط تحويل أموال من شخص غير موثوق.</div>
+      <button class="report-btn" onclick="playAlertAndReport(this)">🚨 الإبلاغ عن هذا النوع</button>
+    </div>
+  </div>
+
+  <div class="section" id="scam2">
+    <h2 class="accordion-toggle">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a7 7 0 0 0-7 7v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a7 7 0 0 0-7-7z"/>
+            <path d="M16 16v.01"/>
+            <path d="M8 16v.01"/>
+            <path d="M16 12v.01"/>
+            <path d="M8 12v.01"/>
+        </svg>
+        ألعاب مهكرة مزيفة
+    </h2>
+    <div class="accordion-content">
+      <div class="fake-ui">
+        🎮 تحميل لعبة GTA مهكرة برابط مباشر<br>
+        🔗 <span class="phishing-link" onclick="simulatePhishingClick(event, 'http://gta-crack-free.apk')">http://gta-crack-free.apk</span>
+      </div>
+      <div class="warning">🔺 تحتوي على برمجيات خبيثة تسرق بيانات الجهاز.</div>
+      <div class="protection">✅ لا تثبّت تطبيقات من خارج المتجر الرسمي.</div>
+      <button class="report-btn" onclick="playAlertAndReport(this)">🚨 الإبلاغ عن هذا النوع</button>
+    </div>
+  </div>
+
+  <div class="section" id="scam3">
+    <h2 class="accordion-toggle">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+            <path d="M12 18h.01"/>
+        </svg>
+        مكالمات احتيالية من البنك
+    </h2>
+    <div class="accordion-content">
+      <div class="fake-ui">
+        ☎️ "معك البنك المركزي، يجب دفع غرامة 75 جنيه فورًا عبر فودافون كاش"
+      </div>
+      <div class="warning">❌ مكالمات وهمية تنتحل صفة مؤسسات رسمية.</div>
+      <div class="protection">✅ لا تشارك بياناتك عبر الهاتف لأي جهة.</div>
+      <button class="report-btn" onclick="playAlertAndReport(this)">🚨 الإبلاغ عن هذا النوع</button>
+    </div>
+  </div>
+
+  <div class="section" id="scam4">
+    <h2 class="accordion-toggle">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+        دعم فني وهمي
+    </h2>
+    <div class="accordion-content">
+      <div class="fake-ui">
+        ⚠️ "اكتشفنا مشكلة بجهازك. اضغط لطلب الدعم الفني"<br>
+        🔗 <span class="phishing-link" onclick="simulatePhishingClick(event, 'http://microsoft-support.tech')">http://microsoft-support.tech</span>
+      </div>
+      <div class="warning">❌ سيطلب منك تحميل برنامج يسمح بالتحكم في جهازك.</div>
+      <div class="protection">✅ الدعم الحقيقي لا يطلب الدخول إلى جهازك بهذه الطريقة.</div>
+      <button class="report-btn" onclick="playAlertAndReport(this)">🚨 الإبلاغ عن هذا النوع</button>
+    </div>
+  </div>
+
+  <div class="section" id="scam5">
+    <h2 class="accordion-toggle">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+        </svg>
+        عروض وظائف مزيفة
+    </h2>
+    <div class="accordion-content">
+      <div class="fake-ui">
+        💼 "مرحبًا، نبحث عن فتاة للعمل أونلاين من المنزل - الراتب 8000 جنيه"
+      </div>
+      <div class="warning">🔺 هدفهم جمع صورك أو بياناتك أو المال!</div>
+      <div class="protection">✅ تجاهل عروض العمل الغامضة والمبالغ فيها.</div>
+      <button class="report-btn" onclick="playAlertAndReport(this)">🚨 الإبلاغ عن هذا النوع</button>
+    </div>
+  </div>
+
+  <div class="section" id="scam6">
+    <h2 class="accordion-toggle">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        عروض تسوق خادعة
+    </h2>
+    <div class="accordion-content">
+      <div class="fake-ui">
+        🛒 "عرض اليوم فقط: iPhone 15 بـ 500 جنيه فقط!"
+      </div>
+      <div class="warning">⚠️ موقع مزيف يشبه Jumia أو Amazon.</div>
+      <div class="protection">✅ افحص الرابط جيدًا، لا تدخل بياناتك في مواقع مجهولة.</div>
+      <button class="report-btn" onclick="playAlertAndReport(this)">🚨 الإبلاغ عن هذا النوع</button>
+    </div>
+  </div>
+
+  <div class="section" id="scam7">
+    <h2 class="accordion-toggle">
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L13.5 2z"/>
+            <path d="M14 2v6h6"/>
+            <path d="M10 9l-3 3 3 3"/>
+            <path d="M14 9l3 3-3 3"/>
+        </svg>
+        نصب عبر السحر و"جلب الحبيب"
+    </h2>
+    <div class="accordion-content">
+      <div class="fake-ui">
+        🧿 "شيخ روحاني لفك السحر وجلب الحبيب خلال 3 أيام فقط!"
+      </div>
+      <div class="warning">❌ يتم استغلال الحالات النفسية والمشاكل لجمع الأموال.</div>
+      <div class="protection">✅ لا يوجد حل عبر الإنترنت للسحر، فقط نصب واحتيال.</div>
+      <button class="report-btn" onclick="playAlertAndReport(this)">🚨 الإبلاغ عن هذا النوع</button>
+    </div>
+  </div>
+
+  <div class="section" id="prevention-tips">
+      <h2>
+          <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 6c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/>
+              <path d="M9 18h6"/>
+              <path d="M10 22h4"/>
+              <path d="M8 22h8"/>
+          </svg>
+          نصائح عامة للوقاية
+      </h2>
+      <ul>
+          <li>✅  **تحقق دائمًا من مصدر المعلومات:** قبل النقر على أي رابط أو الرد على رسالة، تأكد من أن المرسل موثوق به.</li>
+          <li>✅  **لا تشارك بياناتك الحساسة أبدًا:** البنوك والمؤسسات الرسمية لن تطلب منك بيانات بطاقتك البنكية أو كلمات مرورك عبر الهاتف أو الرسائل النصية.</li>
+          <li>✅  **استخدم كلمات مرور قوية ومختلفة:** اجعل كلمات مرورك طويلة ومعقدة (أحرف كبيرة وصغيرة، أرقام، رموز) ولا تستخدم نفس كلمة المرور لأكثر من حساب.</li>
+          <li>✅  **تفعيل التحقق بخطوتين (2FA):** يضيف هذا طبقة أمان إضافية، حتى لو عرف المخترق كلمة مرورك، فلن يتمكن من الدخول بدون الخطوة الثانية (مثل رمز يصل إلى هاتفك).</li>
+          <li>✅  **كن حذرًا من العروض المغرية جدًا:** إذا بدا العرض جيدًا لدرجة يصعب تصديقها، فغالبًا ما يكون احتيالاً.</li>
+          <li>✅  **حدث برامجك بانتظام:** تأكد من أن نظام التشغيل والمتصفحات وتطبيقاتك محدثة دائمًا لسد الثغرات الأمنية.</li>
+      </ul>
+  </div>
+
+  <div class="section" id="what-to-do">
+      <h2>
+          <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" x2="12" y1="9" y2="13"/>
+              <line x1="12" x2="12.01" y1="17" y2="17"/>
+          </svg>
+          ماذا تفعل إذا تعرضت للاحتيال؟
+      </h2>
+      <ol>
+          <li>**غير كلمات المرور فورًا:** خاصة تلك المرتبطة بالخدمة التي تعرضت فيها للاحتيال.</li>
+          <li>**أبلغ البنك أو مزود الخدمة:** اتصل بهم على الأرقام الرسمية المعتمدة للإبلاغ عن المعاملات المشبوهة أو اختراق الحساب.</li>
+          <li>**جمع الأدلة:** التقط لقطات شاشة للرسائل، الروابط، أرقام الهواتف، وأي دليل يمكن أن يساعد في التحقيق.</li>
+          <li>**قدم بلاغًا للسلطات المختصة:** في مصر، يمكنك التواصل مع مباحث الإنترنت أو الجهات الأمنية المسؤولة عن جرائم الإنترنت.</li>
+          <li>**كن على اطلاع:** تابع أحدث طرق الاحتيال لحماية نفسك في المستقبل.</li>
+      </ol>
+  </div>
+
+  <div class="section" id="link-differentiation">
+      <h2>
+          <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07L10 6.07a5 5 0 0 0-1.54 3.54"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07L14 17.93a5 5 0 0 0 1.54-3.54"/>
+          </svg>
+          كيف تميز بين الروابط الحقيقية والمزيفة؟
+      </h2>
+      <p>تُعد الروابط المزيفة (Phishing Links) من أخطر أساليب الاحتيال. إليك كيفية التعرف عليها:</p>
+      <ul>
+          <li>
+              <p>**فحص عنوان النطاق (Domain Name):**</p>
+              <p>الروابط المزيفة غالبًا ما تحتوي على أخطاء إملائية بسيطة أو أحرف زائدة أو أسماء نطاقات فرعية غير مألوفة.</p>
+              <div class="link-example real"><span class="icon-status">✅</span> <code>https://www.google.com</code></div>
+              <div class="link-example fake"><span class="icon-status">❌</span> <code>https://www.gooogle.com</code> (خطأ إملائي)</div>
+              <div class="link-example fake"><span class="icon-status">❌</span> <code>https://google.support.com</code> (نطاق فرعي مشبوه)</div>
+              <div class="link-example real"><span class="icon-status">✅</span> <code>https://www.amazon.com</code></div>
+              <div class="link-example fake"><span class="icon-status">❌</span> <code>https://amazon-offers.net</code> (نطاق مختلف)</div>
+          </li>
+          <li>
+              <p>**بروتوكول HTTPS والقفل الأخضر:**</p>
+              <p>ابحث عن "https://" وبجانبه أيقونة القفل في شريط العنوان. هذا يدل على أن الاتصال آمن، لكن تذكر أن بعض مواقع الاحتيال قد تستخدم HTTPS أيضاً.</p>
+              <div class="link-example real"><span class="icon-status">✅</span> <code>https://www.yourbank.com</code></div>
+              <div class="link-example fake"><span class="icon-status">⚠️</span> <code>http://fakewebsite.com</code> (لا يوجد S)</div>
+          </li>
+          <li>
+              <p>**الروابط المختصرة (Shortened Links):**</p>
+              <p>كن حذرًا جدًا من الروابط المختصرة (مثل Bit.ly، TinyURL) إذا لم تكن تتوقعها من مصدر موثوق. قد تخفي هذه الروابط وجهتها الحقيقية.</p>
+              <div class="link-example fake"><span class="icon-status">❌</span> <code>bit.ly/maliciouslink</code></div>
+          </li>
+          <li>
+              <p>**الضغط على الروابط بحذر (Hover Before Click):**</p>
+              <p>قبل النقر على أي رابط، ضع مؤشر الفأرة فوقه (دون النقر) وراقب عنوان URL الذي يظهر في أسفل المتصفح. إذا كان مختلفًا أو مشبوهًا، لا تنقر.</p>
+          </li>
+          <li>
+              <p>**جودة المحتوى والرسالة:**</p>
+              <p>غالبًا ما تحتوي رسائل الاحتيال على أخطاء إملائية أو نحوية، أو صيغ غريبة، أو طلبات ملحة وغير منطقية لإجراء فوري.</p>
+          </li>
+      </ul>
+  </div>
+
+<div class="section" id="link-checker-tool">
+    <h2>
+        <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.3-4.3"/>
+        </svg>
+        أداة فحص الروابط
+    </h2>
+    <p>أدخل رابطًا للتحقق مما إذا كان يبدو آمنًا أم مشبوهًا:</p>
+    <input type="text" id="linkCheckerInput" class="link-checker-input" placeholder="مثال: https://www.google.com أو http://gooogle.com"/>
+    <button class="link-checker-btn" onclick="checkLink()">افحص الرابط</button>
+    <div id="linkCheckerResult" class="link-checker-result"></div>
+</div>
+
+  <div class="section" id="quiz-section">
+      <h2>
+          <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+              <path d="M14 2v6h6"/>
+              <path d="M9 9h.01"/>
+              <path d="M9 12h.01"/>
+              <path d="M9 15h.01"/>
+              <path d="M12 9h.01"/>
+              <path d="M12 12h.01"/>
+              <path d="M12 15h.01"/>
+              <path d="M15 9h.01"/>
+              <path d="M15 12h.01"/>
+              <path d="M15 15h.01"/>
+          </svg>
+          اختبر معلوماتك
+      </h2>
+      <p>اختبر مدى فهمك لطرق الاحتيال وكيفية تجنبها. أجب على الأسئلة التالية:</p>
+      <div id="quiz-container">
+          </div>
+      <div id="quiz-feedback-message" class="quiz-feedback"></div>
+  </div>
+
+  <div class="feedback-section">
+      <h2>📩 شاركنا ملاحظاتك</h2>
+      <p>ساعدنا في تحسين الوعي بأساليب الاحتيال.</p>
+      <textarea id="feedbackText" placeholder="اكتب ملاحظاتك أو اقتراحاتك هنا..."></textarea>
+      <button onclick="submitFeedback()">إرسال الملاحظات</button>
+      <div id="feedbackMessage" class="success-message"></div>
+  </div>
+
+  <footer class="footer">
+      <p>آخر تحديث: 18 يونيو 2025</p>
+      <p>جميع الحقوق محفوظة © 2025</p>
+  </footer>
+
+  <button id="aiAssistantButton" class="ai-assistant-button">
+      <svg class="icon-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2a7 7 0 0 0-7 7v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a7 7 0 0 0-7-7z"/>
+          <path d="M8 18v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2"/>
+          <circle cx="12" cy="7" r="2"/>
+      </svg>
+  </button>
+
+  <div id="aiAssistantModal" class="ai-modal-overlay">
+      <div class="ai-modal-content">
+          <span class="close-button" onclick="closeAIAssistantModal()">×</span>
+          <h2>المساعد الذكي 🤖</h2>
+          <div class="ai-options">
+              <button onclick="getAIResponse('code_purpose')">شرح فائدة هذا الكود</button>
+              <button onclick="getAIResponse('prevent_hacking')">نصائح لمنع الاختراق</button>
+          </div>
+          <div class="ai-input-area">
+              <textarea id="aiScenarioInput" placeholder="صف موقفاً مشبوهاً تواجهه (مثال: وصلتني رسالة من رقم غريب تقول أنني ربحت سيارة)..."></textarea>
+              <button onclick="getAIResponse('user_scenario')">اسأل المساعد الذكي ✨</button>
+          </div>
+          <div class="loading-spinner" id="aiLoadingSpinner"></div>
+          <div id="aiResponseArea" class="ai-response-area">
+              <p>أهلاً بك! اختر موضوعاً لأشرحه لك، أو صف موقفاً مشبوهاً لأقوم بتحليله.</p>
+          </div>
+      </div>
+  </div>
+
+</body>
+</html>

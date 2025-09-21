@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة مساعدة تلغرام</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        header { text-align: center; padding: 1rem; width: 100%; }
+        header h1 {
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+        }
+        .card { 
+            background: rgba(0, 0, 0, 0.8); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 600px; 
+            width: 95%;
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+            text-align: center; 
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 10px; font-size: 1.2em; font-family: 'Cairo', sans-serif; }
+        input[type="text"], select {
+            width: 95%;
+            padding: 0.8rem;
+            margin: 0 auto 1rem auto;
+            display: block;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #000;
+            color: #0f0;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        select { cursor: pointer; }
+        .output-section {
+            display: none;
+            background: rgba(0, 0, 0, 0.85); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 600px; 
+            width: 95%;
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4);
+            text-align: right;
+        }
+        .output-section h2 {
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            text-align: center;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
+        }
+        textarea {
+            width: 95%;
+            padding: 0.8rem;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #111;
+            color: #0f0;
+            font-size: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            resize: vertical;
+            margin-top: 10px;
+            direction: ltr;
+            text-align: left;
+        }
+        .copy-btn {
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 10px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s;
+            float: left;
+            margin-left: 10px;
+        }
+        .copy-btn:hover { background-color: #fff; }
+        .main-btn {
+            background: #0f0;
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-family: 'Cairo', sans-serif;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        .logo-container { flex-shrink: 0; }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #FFD700;
+            object-fit: cover;
+            animation: spin 8s linear infinite;
+        }
+        .title-container {
+            margin-right: 20px;
+            overflow: hidden;
+            flex-grow: 1;
+            position: relative;
+            height: 40px;
+        }
+        .moving-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f1f1f1;
+            white-space: nowrap;
+            position: absolute;
+            animation: move-right-to-left 10s linear infinite;
+        }
+360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .main-btn:hover { background: #111; color: #0f0; border: 2px solid #0f0; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .main-btn:hover { background: #111; color: #0f0; border: 2px solid #0f0; }
+        .warning {
+            color: #ff4136;
+            background-color: rgba(255, 65, 54, 0.1);
+            border: 1px solid #ff4136;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        .step { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #0f0; }
+        .step:last-child { border-bottom: none; }
+        ul, ol { padding-right: 20px; }
+        li { margin-bottom: 10px; }
+        a { color: #39cccc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <header class="main-hesader">
+        <div class="logo-container">
+            <img src="telegram.png" alt="Telegram" class="profile-pic">
+        </div>
+        <div class="title-container">
+            <h1 class="moving-text">ثغرات لل  Telegram</h1>
+        </div>
+    </header>
+
+    <div class="card">
+        <div class="form-group">
+            <label for="taskType">اختر المهمة المطلوبة:</label>
+            <select id="taskType" onchange="handleSelection()">
+                <option value="" disabled selected>-- الرجاء الاختيار --</option>
+                <optgroup label="الإبلاغ والتخريب">
+                    <option value="ban_channel_virus">🔥 فيروس تطير القنوات</option>
+                    <option value="scramble_status">🌀 كود خربطة الحالة</option>
+                    <option value="report_channel_email">📧 تطهير القنوات (مراسلة)</option>
+                    <option value="internal_channel_ban">📄 كود تطير قناة (داخلي)</option>
+                    <option value="ban_account_number">💣 رقم تطيير الحسابات</option>
+                    <option value="report_bot_email">🤖 تطير البوتات (مراسلة)</option>
+                    <option value="social_engineering_ban">🎭 تطير الحسابات (هندسة اجتماعية)</option>
+                    <option value="external_report">📤 تطير القنوات (خارجي)</option>
+                    <option value="impersonation_report">👤 الإبلاغ عن انتحال شخصية</option>
+                </optgroup>
+                <optgroup label="صيانة الحساب والمجموعات">
+                    <option value="unban_spam">🔓 فك حظر المراسلة (طريقة 1)</option>
+                    <option value="unban_spam_2">🔑 فك حظر المراسلة (طريقة 2)</option>
+                    <option value="unban_number">📱 فك حظر الرقم</option>
+                    <option value="unban_group">👥 فك حظر المجموعات</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <!-- Input sections for tasks that need user data -->
+        <div id="report_channel_email-inputs" class="sub-inputs" style="display:none;">
+            <label for="channelLink">رابط القناة المستهدفة:</label>
+            <input type="text" id="channelLink" placeholder="https://t.me/examplechannel">
+            <button class="main-btn" onclick="generateContent('report_channel_email')">إنشاء محتوى الإبلاغ</button>
+        </div>
+        
+        <div id="report_bot_email-inputs" class="sub-inputs" style="display:none;">
+            <label for="botLink">رابط البوت المستهدف:</label>
+            <input type="text" id="botLink" placeholder="https://t.me/example_bot">
+            <button class="main-btn" onclick="generateContent('report_bot_email')">إنشاء محتوى الإبلاغ</button>
+        </div>
+
+        <div id="external_report-inputs" class="sub-inputs" style="display:none;">
+            <label for="extChannelLink">رابط القناة المستهدفة:</label>
+            <input type="text" id="extChannelLink" placeholder="https://t.me/examplechannel">
+            <label for="extPornLink" style="margin-top:15px;">رابط المحتوى المخالف داخل القناة:</label>
+            <input type="text" id="extPornLink" placeholder="رابط رسالة أو صورة محددة">
+            <button class="main-btn" onclick="generateContent('external_report')">إنشاء رسالة الإبلاغ</button>
+        </div>
+
+        <div id="impersonation_report-inputs" class="sub-inputs" style="display:none;">
+            <label for="victimName">اسم الضحية:</label>
+            <input type="text" id="victimName" placeholder="الاسم الكامل للحساب">
+            <label for="victimUsername" style="margin-top:15px;">معرف الضحية:</label>
+            <input type="text" id="victimUsername" placeholder="@username">
+            <label for="victimBio" style="margin-top:15px;">نبذة الضحية:</label>
+            <input type="text" id="victimBio" placeholder="النبذة التعريفية للحساب">
+            <button class="main-btn" onclick="generateContent('impersonation_report')">إنشاء صيغة الإبلاغ</button>
+        </div>
+
+        <div id="unban_number-inputs" class="sub-inputs" style="display:none;">
+            <label for="userEmail">بريدك الإلكتروني:</label>
+            <input type="text" id="userEmail" placeholder="example@gmail.com">
+            <label for="bannedNumber" style="margin-top:15px;">رقمك المحظور:</label>
+            <input type="text" id="bannedNumber" placeholder="+964...">
+            <button class="main-btn" onclick="generateContent('unban_number')">عرض الطريقة</button>
+        </div>
+
+        <div id="unban_group-inputs" class="sub-inputs" style="display:none;">
+            <label for="groupLink">رابط المجموعة المحظورة:</label>
+            <input type="text" id="groupLink" placeholder="https://t.me/joinchat/...">
+            <label for="groupId" style="margin-top:15px;">آيدي المجموعة (اختياري):</label>
+            <input type="text" id="groupId" placeholder="-100123456789">
+            <button class="main-btn" onclick="generateContent('unban_group')">إنشاء رسالة الدعم</button>
+        </div>
+    </div>
+
+    <!-- أقسام المخرجات -->
+    <div id="ban_channel_virus-output" class="output-section"></div>
+    <div id="scramble_status-output" class="output-section"></div>
+    <div id="report_channel_email-output" class="output-section"></div>
+    <div id="ban_account_number-output" class="output-section"></div>
+    <div id="report_bot_email-output" class="output-section"></div>
+    <div id="social_engineering_ban-output" class="output-section"></div>
+    <div id="external_report-output" class="output-section"></div>
+    <div id="internal_channel_ban-output" class="output-section"></div>
+    <div id="unban_spam-output" class="output-section"></div>
+    <div id="impersonation_report-output" class="output-section"></div>
+    <div id="unban_spam_2-output" class="output-section"></div>
+    <div id="unban_number-output" class="output-section"></div>
+    <div id="unban_group-output" class="output-section"></div>
+
+    <script>
+    // Matrix effect script
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const letters = 'TelegramMatrixHacking0101';
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    function drawMatrix() {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#0F0';
+        ctx.font = fontSize + 'px monospace';
+        for (let i = 0; i < drops.length; i++) {
+            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 40);
+
+    // Tool logic
+    function handleSelection() {
+        const taskType = document.getElementById('taskType').value;
+        
+        document.querySelectorAll('.sub-inputs').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.output-section').forEach(el => el.style.display = 'none');
+
+        // This condition now includes the new section 'external_report'
+        if (taskType === 'report_channel_email' || taskType === 'report_bot_email' || taskType === 'external_report') {
+            const inputsToShow = document.getElementById(taskType + '-inputs');
+            if (inputsToShow) {
+                inputsToShow.style.display = 'block';
+            }
+        } else {
+            generateContent(taskType);
+        }
+    }
+
+    function generateContent(taskType) {
+        document.querySelectorAll('.output-section').forEach(el => el.style.display = 'none');
+        
+        let container;
+        switch (taskType) {
+            case 'ban_channel_virus':
+                container = document.getElementById('ban_channel_virus-output');
+                container.innerHTML = `
+                    <h2 style="color: #d32f2f;">فيروس تطير قنوات تلغرام</h2>
+                    <div class="warning"><strong>تحذير:</strong> هذه الطريقة تعتمد على إرسال نص بلغة أجنبية يوحي بوجود محتوى إباحي، ثم الإبلاغ عنه. استخدام هذه الطريقة قد ينتهك سياسات تلغرام ويعرض حسابك للخطر. استخدمها على مسؤوليتك.</div>
+                    <div class="step"><h3>التعليمات</h3><ol><li>انسخ الكود التالي.</li><li>أرسله عدة مرات داخل القناة أو المجموعة المستهدفة.</li><li>اطلب من عدة أشخاص الإبلاغ عن القناة بتهمة <strong>"محتوى إباحي" (Pornography)</strong>.</li></ol></div>
+                    <div class="step"><h3>الكود (لغة خميرية)</h3><textarea id="ban-channel-code" style="height: 200px;" readonly>ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបิទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបิទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សايរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបิទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស សូមបិទគណនី🔞🔞🔞🔞❓️ការផ្សាយរឿងអាសអាភាស</textarea><button class="copy-btn" onclick="copyToClipboard(document.getElementById('ban-channel-code'))">نسخ الكود</button></div>`;
+                break;
+            
+            case 'scramble_status':
+                container = document.getElementById('scramble_status-output');
+                container.innerHTML = `
+                    <h2>كود خربطة الحالة (Bio)</h2>
+                    <div class="warning"><strong>ملاحظة:</strong> هذه الطريقة قد لا تعمل على جميع الأجهزة أو إصدارات تلغرام. تأثيرها يعتمد على كيفية عرض التطبيق للأحرف الخاصة.</div>
+                    <div class="step"><h3>التعليمات</h3><ol><li>انسخ الكود التالي.</li><li>احذف الفواصل (النقطتين) من الكود ليصبح "monaloworkgd".</li><li>الصق النص الناتج في خانة "النبذة التعريفية" (Bio) في ملفك الشخصي على تلغرام.</li></ol></div>
+                    <div class="step"><h3>الكود الأساسي</h3><textarea id="scramble-code" readonly>monalo. work. gd</textarea><button class="copy-btn" onclick="copyToClipboard(document.getElementById('scramble-code'))">نسخ الكود</button></div>`;
+                break;
+
+            case 'report_channel_email':
+                const channelLink = document.getElementById('channelLink').value;
+                if (!channelLink) { alert('الرجاء إدخال رابط القناة المستهدفة أولاً.'); return; }
+                container = document.getElementById('report_channel_email-output');
+                container.innerHTML = `
+                    <h2 style="color: #d32f2f;">تطهير القنوات عبر المراسلة</h2>
+                    <div class="warning"><strong>تعليمات هامة:</strong> لزيادة فرصة نجاح الإبلاغ، يجب الإبلاغ عن القناة من داخل التطبيق أولاً (من 30 حسابًا مختلفًا حسب التوصية)، ثم إرسال هذه الرسالة عبر البريد الإلكتروني.</div>
+                    <div class="step"><h3>الخطوة 1: نسخ بريد الدعم</h3><textarea readonly>abuse@telegram.org</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ البريد</button></div>
+                    <div class="step" style="clear:both; padding-top:10px;"><h3>الخطوة 2: نسخ موضوع الرسالة</h3><textarea readonly>The channel publishes violent content</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الموضوع</button></div>
+                    <div class="step" style="clear:both; padding-top:10px;"><h3>الخطوة 3: نسخ نص الرسالة</h3><p>تم تضمين رابط القناة الذي أدخلته تلقائيًا في الرسالة.</p><textarea id="report-email-body" style="height: 150px;" readonly>This channel published porn pictures and pictures of girls and delegations of pornographic +18 and publish pictures of families and expose and intimidate women in exchange for material amounts I hope from the company Telegram and cadre respect to shut the channel at a time and thank you very much.\n\nLink: ${channelLink}</textarea><button class="copy-btn" onclick="copyToClipboard(document.getElementById('report-email-body'))">نسخ الرسالة</button></div>`;
+                break;
+            
+            case 'ban_account_number':
+                container = document.getElementById('ban_account_number-output');
+                container.innerHTML = `
+                    <h2 style="color: #d32f2f;">رقم تطيير الحسابات</h2>
+                    <div class="warning"><strong>تحذير:</strong> هذه الطريقة تعتمد على استخدام رقم قد يكون مرتبطًا بأنشطة مخالفة. وضع هذا الرقم في حسابك قد يؤدي إلى تقييده أو حظره. استخدمه على مسؤوليتك الكاملة.</div>
+                    <div class="step"><h3>التعليمات</h3><ol><li>انسخ الرقم التالي.</li><li>ضعه في النبذة التعريفية (البايو) للحساب المستهدف.</li><li>يمكنك أيضًا محاولة وضعه في اسم الحساب أو إرساله كرسالة.</li></ol></div>
+                    <div class="step"><h3>الرقم</h3><textarea id="ban-number-code" readonly>+4240005</textarea><button class="copy-btn" onclick="copyToClipboard(document.getElementById('ban-number-code'))">نسخ الرقم</button></div>`;
+                break;
+
+            case 'report_bot_email':
+                const botLink = document.getElementById('botLink').value;
+                if (!botLink) { alert('الرجاء إدخال رابط البوت المستهدف أولاً.'); return; }
+                container = document.getElementById('report_bot_email-output');
+                container.innerHTML = `
+                    <h2 style="color: #d32f2f;">تطير البوتات عبر المراسلة</h2>
+                    <div class="warning"><strong>تعليمات:</strong> استخدم هذه الطريقة للإبلاغ عن البوتات التي تنشر محتوى مخالفًا لسياسات تلغرام.</div>
+                    <div class="step"><h3>الخطوة 1: نسخ بريدات الدعم</h3><p>أرسل الرسالة إلى كل هذه البريدات لزيادة فرصة الاستجابة.</p><textarea readonly>stopCA@telegram.org, abuse@telegram.org, Support_Team@telegram.org</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ البريدات</button></div>
+                    <div class="step" style="clear:both; padding-top:10px;"><h3>الخطوة 2: نسخ موضوع الرسالة</h3><textarea readonly>Illegal image +18</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الموضوع</button></div>
+                    <div class="step" style="clear:both; padding-top:10px;"><h3>الخطوة 3: نسخ نص الرسالة</h3><p>تم تضمين رابط البوت الذي أدخلته تلقائيًا في الرسالة.</p><textarea id="report-bot-body" style="height: 120px;" readonly>This robot hurts the Telegram community as it spreads porn.\n\nlink bot: ${botLink}</textarea><button class="copy-btn" onclick="copyToClipboard(document.getElementById('report-bot-body'))">نسخ الرسالة</button></div>`;
+                break;
+
+            case 'social_engineering_ban':
+                container = document.getElementById('social_engineering_ban-output');
+                container.innerHTML = `
+                    <h2 style="color: #d32f2f;">تطير الحسابات بالهندسة الاجتماعية</h2>
+                    <div class="warning"><strong>تحذير شديد:</strong> هذه الطريقة تعتمد على خداع المستخدمين. نجاحها غير مضمون وقد تفشل إذا كان الشخص الآخر حذرًا. أنت المسؤول عن كيفية استخدام هذه المعلومات.</div>
+                    <div class="step"><h3>المرحلة الأولى: خداع الضحية</h3><ol><li>تواصل مع الشخص المستهدف.</li><li>أقنعه بالانضمام إلى قناة معينة بحجة أنها "قناة ملحدين" ويجب الإبلاغ عنها.</li><li><strong>معرف القناة لإرساله للضحية:</strong><textarea readonly>@molheden</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ المعرف</button></li></ol></div>
+                    <div class="step" style="clear:both; padding-top:10px;"><h3>المرحلة الثانية: توجيه الضحية للإبلاغ</h3><ol><li>بعد أن ينضم الضحية للقناة، اطلب منه الإبلاغ عنها.</li><li>أخبره أن يختار سبب الإبلاغ <strong>"إباحي" (Pornography)</strong>.</li><li>اطلب منه تحديد آخر 3 صور أو منشورات في القناة كدليل.</li><li>أعطه الكود التالي ليضعه في تفاصيل الإبلاغ.</li></ol></div>
+                    <div class="step"><h3>الكود الذي سيستخدمه الضحية في الإبلاغ</h3><textarea id="se-ban-code" style="height: 150px;" readonly>Peace be upon you we Talagram of programmers and enthusiasts Talagram want to tell you that this channel takfiri and it trades in drugs and sell illegal weapons this channel violate standards Talegram Please shut down the channel as soon as</textarea><button class="copy-btn" onclick="copyToClipboard(document.getElementById('se-ban-code'))">نسخ الكود</button></div>
+                    <p style="clear:both; padding-top:10px;"><strong>النتيجة المتوقعة:</strong> عندما يقوم الضحية بالإبلاغ باستخدام هذا النص، قد يتعرف نظام تلغرام على أن الإبلاغ نفسه كاذب أو خبيث، مما قد يؤدي إلى تقييد حساب الضحية بدلاً من القناة.</p>`;
+                break;
+
+            case 'external_report':
+                const extChannelLink = document.getElementById('extChannelLink').value;
+                const extPornLink = document.getElementById('extPornLink').value;
+                if (!extChannelLink || !extPornLink) {
+                    alert('الرجاء إدخال رابط القناة ورابط المحتوى المخالف.');
+                    return;
+                }
+                container = document.getElementById('external_report-output');
+                container.innerHTML = `
+                    <h2 style="color: #d32f2f;">تطير القنوات (إبلاغ خارجي)</h2>
+                    <div class="warning"><strong>تعليمات:</strong> استخدم هذه الطريقة للإبلاغ عن قناة تنشر محتوى مخالفًا عبر البريد الإلكتروني. يجب توفير رابط القناة ورابط مباشر للمحتوى المخالف كدليل.</div>
+                    <div class="step">
+                        <h3>الخطوة 1: نسخ بريد الدعم</h3>
+                        <textarea readonly>abuse@telegram.org</textarea>
+                        <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ البريد</button>
+                    </div>
+                    <div class="step" style="clear:both; padding-top:10px;">
+                        <h3>الخطوة 2: نسخ نص الرسالة</h3>
+                        <p>تم تضمين الروابط التي أدخلتها تلقائيًا في الرسالة.</p>
+                        <textarea id="external-report-body" style="height: 180px;" readonly>Hello, Telegram company, there is a channel that violates your standards and laws by violating it. Its moderators have published pornographic content +18 that spoils the Telegram community. Please remove the channel permanently and as soon as possible.\n\nChannel link: ${extChannelLink}\nPorn Link inside channel: ${extPornLink}</textarea>
+                        <button class="copy-btn" onclick="copyToClipboard(document.getElementById('external-report-body'))">نسخ الرسالة</button>
+                    </div>
+                `;
+                break;
+                              case 'impersonation_report':
+                const victimName = document.getElementById('victimName').value;
+                const victimUsername = document.getElementById('victimUsername').value;
+                const victimBio = document.getElementById('victimBio').value;
+                if (!victimName || !victimUsername || !victimBio) {
+                    alert('الرجاء ملء جميع حقول معلومات الضحية.');
+                    return;
+                }
+                container = document.getElementById('impersonation_report-output');
+                container.innerHTML = `
+                    <h2 style="color: #d32f2f;">الإبلاغ عن انتحال شخصية</h2>
+                    <div class="warning"><strong>تنويه:</strong> قبل البدء، يجب أن يكون حسابك مطابقًا لحساب الضحية (الصورة، النبذة) مع تغيير بسيط في اسم المستخدم. لا تقم بتعديل حسابك حتى يتم حظر الحساب الآخر.</div>
+                    <div class="step"><h3>الخطوة 1: مراسلة بوت الدعم</h3><p>افتح تلغرام وابحث عن البوت <a href="https://t.me/notoscam" target="_blank">@notoscam</a> واضغط <strong>Start</strong>.</p></div>
+                    <div class="step"><h3>الخطوة 2: إرسال الرسالة الأولى</h3><p>أرسل هذه الرسالة إلى البوت لبدء عملية الإبلاغ.</p><textarea id="impersonation-msg1" readonly>Hello I would like to inform you of a problem that happened to me. Someone has impersonated me. I woud like you to close his account I will attach his information to you .</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرسالة</button></div>
+                    <div class="step" style="clear:both; padding-top:10px;"><h3>الخطوة 3: إرسال معلومات المنتحل</h3><p>بعد ذلك، أرسل هذه الصيغة التي تحتوي على معلومات الضحية (المنتحل).</p><textarea id="impersonation-msg2" style="height:120px;" readonly>Name: ${victimName}\nUser name: ${victimUsername}\nOverview: ${victimBio}</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ المعلومات</button></div>
+                    <div class="step"><h3>الخطوة 4: إرسال الدليل</h3><p>قم بأخذ لقطة شاشة لحساب الضحية وأرسلها إلى البوت بعد إرسال المعلومات النصية.</p></div>`;
+                break;
+
+            case 'unban_spam_2':
+                container = document.getElementById('unban_spam_2-output');
+                container.innerHTML = `
+                    <h2 style="color: #00ff00;">فك حظر المراسلة (طريقة 2)</h2>
+                    <p>هذه طريقة أخرى لاستخدام البوت <strong>@SpamBot</strong> مع رسالة مختلفة.</p>
+                    <div class="step"><h3>الخطوات</h3><ol><li>اذهب إلى البوت <a href="https://t.me/spambot" target="_blank">@spambot</a> واضغط <strong>Start</strong>.</li><li>اختر: <strong>"هذا خطأ"</strong>.</li><li>اختر: <strong>"نعم"</strong>.</li><li>اختر: <strong>"لم أقم بهذا قط"</strong>.</li><li>عندما يطلب تفاصيل، أرسل له الرسالة التالية (مرة واحدة فقط).</li></ol></div>
+                    <div class="step"><h3>الرسالة</h3><textarea id="unban-spam2-msg" style="height: 140px;" readonly>Hello, i can t contact with users on telegram, only if ihave their phone numbers so i think i have been limited from Telegram by accident and i really on t know why telegram did that to me so you can check my account for that Iuse my phone number</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرسالة</button></div>`;
+                break;
+
+            case 'unban_number':
+                const userEmail = document.getElementById('userEmail').value;
+                const bannedNumber = document.getElementById('bannedNumber').value;
+                if (!userEmail || !bannedNumber) {
+                    alert('الرجاء إدخال بريدك الإلكتروني ورقمك المحظور.');
+                    return;
+                }
+                container = document.getElementById('unban_number-output');
+                container.innerHTML = `
+                    <h2 style="color: #00ff00;">فك حظر الرقم</h2>
+                    <p>هذه الطريقة تعتمد على ملء نموذج الدعم الرسمي لتلغرام.</p>
+                    <div class="step"><h3>الخطوة 1: الذهاب إلى صفحة الدعم</h3><p>افتح الرابط التالي في متصفحك: <a href="https://telegram.org/support?setln=ar" target="_blank">صفحة دعم تلغرام</a>.</p></div>
+                    <div class="step"><h3>الخطوة 2: ملء النموذج</h3><ol><li><strong>الحقل الأول (Please describe your problem):</strong> الصق الرسالة التالية.</li><li><strong>الحقل الثاني (Your email):</strong> أدخل بريدك الإلكتروني: <code>${userEmail}</code>.</li><li><strong>الحقل الثالث (Your phone number):</strong> أدخل رقمك المحظور: <code>${bannedNumber}</code>.</li><li>اضغط على <strong>"إرسال" (Submit)</strong>.</li></ol></div>
+                    <div class="step"><h3>الرسالة لوصف المشكلة</h3><textarea id="unban-num-msg" style="height: 180px;" readonly>Hello, Telegram administration I cannot log into my account nor create an account on Telegram. When I log in the message comes to telegram. This number is blocked on telegram, so I think I am banned from restricted use of Telegram by accident and I really don’t know why Telegram did this for me so you can verify From my account for that. I am using my phone number</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرسالة</button></div>`;
+                break;
+
+            case 'unban_group':
+                const groupLink = document.getElementById('groupLink').value;
+                const groupId = document.getElementById('groupId').value; // Optional
+                if (!groupLink) {
+                    alert('الرجاء إدخال رابط المجموعة المحظورة.');
+                    return;
+                }
+                let unbanGroupMsg = `Hello Telegram support team, I understand your situation in order to protect the reputation of the famous Telegram. Unfortunately, the support team suspended my group by mistake because one of the vandals and haters published pornographic pictures and pornographic videos, but I added the group from all pictures and I promise you that we will abide by your conditions, please cancel the restrictions About my group. I want to restore it. I have a lot of works, and the group is now being removed from all illegal content. You must restore it. Thank you.\n\nAnd here is the group link: ${groupLink}`;
+                if (groupId) {
+                    unbanGroupMsg += `\nid the Grup: ${groupId}`;
+                }
+                container = document.getElementById('unban_group-output');
+                container.innerHTML = `
+                    <h2 style="color: #00ff00;">فك حظر المجموعات</h2>
+                    <p>هذه الطريقة تعتمد على مراسلة دعم تلغرام عبر البريد الإلكتروني.</p>
+                    <div class="step"><h3>الخطوة 1: نسخ بريد الدعم</h3><textarea readonly>abuse@telegram.org</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ البريد</button></div>
+                    <div class="step" style="clear:both; padding-top:10px;"><h3>الخطوة 2: نسخ موضوع الرسالة</h3><textarea readonly>My group has been reported without any reason please open it as soon as possible</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الموضوع</button></div>
+                    <div class="step" style="clear:both; padding-top:10px;"><h3>الخطوة 3: نسخ نص الرسالة</h3><p>تم تضمين رابط المجموعة (والـ ID إن وجد) تلقائيًا.</p><textarea id="unban-group-msg" style="height: 220px;" readonly>${unbanGroupMsg}</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرسالة</button></div>`;
+                break;
+        }
+        if(container) container.style.display = 'block';
+    }
+
+    function copyToClipboard(element) {
+        element.select();
+        element.setSelectionRange(0, 99999);
+        try {
+            document.execCommand('copy');
+            const originalBtn = event.target;
+            const originalText = originalBtn.textContent;
+            originalBtn.textContent = 'تم النسخ!';
+            setTimeout(() => { originalBtn.textContent = originalText; }, 2000);
+        } catch (err) {
+            alert('عذرًا، حدث خطأ أثناء النسخ.');
+        }
+    }
+</script>
+
+</body>
+</html>
+

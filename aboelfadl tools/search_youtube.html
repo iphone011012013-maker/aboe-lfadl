@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>فيديوهات الصيانة والابتكارات</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: white;
+      direction: rtl;
+      text-align: right;
+      padding: 0;
+      margin: 0;
+    }
+
+    /* الشريط العلوي */
+    .header {
+      background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+      color: white;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header h1 {
+      font-size: 1.4em;
+      font-weight: 700;
+    }
+    .nav-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    /* جزء البحث */
+    .search-box {
+      background: #1f2937;
+      padding: 15px;
+      margin: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .search-box input {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #374151;
+      color: white;
+      font-size: 1.1em;
+      outline: none;
+    }
+    .search-box button {
+      margin-top: 10px;
+      padding: 12px 20px;
+      background: #ec4899;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    .search-box button:hover {
+      background: #db2777;
+    }
+
+    /* قوائم الفيديوهات */
+    .videos-container, #favoritesContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .video-card {
+      background: #1f2937;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+    .video-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      height: 0;
+      padding-bottom: 56.25%; /* 16:9 */
+      background: #000;
+      overflow: hidden;
+    }
+    .video-frame.short {
+      padding-bottom: 100%; /* 9:16 */
+    }
+    .video-frame iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .video-thumbnail {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      cursor: pointer;
+      border-bottom: 1px solid #374151;
+    }
+    .short-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ec4899;
+      color: white;
+      padding: 4px 8px;
+      font-size: 0.7em;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .info {
+      padding: 16px;
+    }
+    .info h3 {
+      font-size: 1.1em;
+      margin: 0 0 8px 0;
+      font-weight: 600;
+      color: #f9fafb;
+      line-height: 1.3;
+    }
+    .info p {
+      font-size: 0.9em;
+      color: #d1d5db;
+      margin: 5px 0;
+    }
+
+    .favorite-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .favorite-btn.liked {
+      color: #ec4899;
+    }
+
+    .section-title {
+      color: #ec4899;
+      font-size: 1.2em;
+      margin: 20px 0 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 2px solid #ec4899;
+    }
+
+    .loading {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 1.1em;
+      margin: 30px 0;
+    }
+
+    .error {
+      color: #ef4444;
+      text-align: center;
+      padding: 20px;
+      background: #1f2937;
+      border-radius: 12px;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- الشريط العلوي -->
+  <div class="header">
+    <h1> Search 🎬 YouTube  🔎</h1>
+    <button class="nav-btn" onclick="document.getElementById('favoritesContainer').scrollIntoView({behavior: 'smooth'})">❤️</button>
+  </div>
+
+  <!-- جزء البحث -->
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="ابحث عن: صيانة موبايل، ابتكارات كهربائية..." value="صيانة ابتكارات">
+    <button onclick="searchVideos()">بحث</button>
+  </div>
+
+  <!-- نتائج البحث -->
+  <div class="videos-container" id="videosContainer">
+    <p class="loading">اكتب كلمة وابحث لعرض الفيديوهات...</p>
+  </div>
+
+  <!-- المفضلة -->
+  <div class="videos-container" id="favoritesContainer">
+    <p class="loading">لم تُضف أي فيديو للمفضلة بعد.</p>
+  </div>
+
+  <script>
+    // ⚠️ استبدل المفتاح ده بمفتاحك الجديد
+    const API_KEY = 'AIzaSyDp4ux6JzvOHvVBOaMuIQY56VGE0xcdpOw'; // ← غيره!
+
+    const MAX_RESULTS = 12;
+
+    // استخراج videoId من أي رابط يوتيوب
+    function extractVideoId(url) {
+      const regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = url.match(regExp);
+      return match ? match[1] : null;
+    }
+
+    async function searchVideos() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) return alert('من فضلك اكتب كلمة بحث');
+
+      const container = document.getElementById('videosContainer');
+      container.innerHTML = '<p class="loading">جاري التحميل...</p>';
+
+      // التحقق إذا كان المدخل رابط يوتيوب
+      const videoId = extractVideoId(query);
+      if (videoId) {
+        try {
+          // جلب بيانات الفيديو مباشرة من API
+          const response = await fetch(
+            `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${API_KEY}`
+          );
+          const data = await response.json();
+
+          if (data.items && data.items.length > 0) {
+            const item = data.items[0];
+            displaySingleVideo(item);
+          } else {
+            container.innerHTML = '<p class="error">لم يتم العثور على الفيديو.</p>';
+          }
+        } catch (error) {
+          container.innerHTML = `<p class="error">فشل تحميل الفيديو: ${error.message}</p>`;
+        }
+        return;
+      }
+
+      // إذا لم يكن رابطًا، نستخدم البحث العادي
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=${MAX_RESULTS}&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}&order=date&relevanceLanguage=ar`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+          displayVideos(data.items, query);
+        } else {
+          container.innerHTML = '<p style="text-align:center">لم يتم العثور على فيديوهات.</p>';
+        }
+      } catch (error) {
+        console.error('خطأ:', error);
+        container.innerHTML = `<p class="error">فشل التحميل: ${error.message}</p>`;
+      }
+    }
+
+    function displaySingleVideo(video) {
+      const container = document.getElementById('videosContainer');
+      container.innerHTML = '<p style="text-align:center;margin:10px;">الفيديو المطلوب مباشرة:</p>';
+
+      const id = video.id;
+      const title = video.snippet.title;
+      const thumb = video.snippet.thumbnails.high.url;
+      const channel = video.snippet.channelTitle;
+      const publishedAt = new Date(video.snippet.publishedAt).toLocaleDateString('ar-EG');
+      const isShort = /short|قصير|reels|ريلز/i.test(title);
+      const isFav = isFavorite(id);
+
+      const card = document.createElement('div');
+      card.className = 'video-card';
+
+      card.innerHTML = `
+        <div class="video-frame ${isShort ? 'short' : ''}" style="display: none;"></div>
+        <img src="${thumb}" alt="${title}" class="video-thumbnail" onclick="playVideo(this, '${id}', ${isShort})">
+        ${isShort ? '<span class="short-badge">Short</span>' : ''}
+        <div class="info">
+          <button class="favorite-btn ${isFav ? 'liked' : ''}" onclick="toggleFavorite('${id}', '${title}', '${thumb}', '${channel}', '${publishedAt}')">
+            ${isFav ? '❤️' : '🤍'}
+          </button>
+          <h3>${title}</h3>
+          <p>القناة: ${channel}</p>
+          <p>تاريخ النشر: ${publishedAt}</p>
+        </div>
+      `;
+      container.appendChild(card);
+    }
+
+    function displayVideos(videos, query) {
+      const container = document.getElementById('videosContainer');
+      container.innerHTML = `<p style="text-align:center;margin:10px;">نتائج البحث عن: "<strong>${query}</strong>"</p>`;
+
+      videos.forEach(video => {
+        const id = video.id.videoId;
+        const title = video.snippet.title;
+        const thumb = video.snippet.thumbnails.high.url.trim();
+        const channel = video.snippet.channelTitle;
+        const publishedAt = new Date(video.snippet.publishedAt).toLocaleDateString('ar-EG');
+
+        const isShort = /short|قصير|reels|ريلز/i.test(title);
+        const isFav = isFavorite(id);
+
+        const card = document.createElement('div');
+        card.className = 'video-card';
+
+        card.innerHTML = `
+          <div class="video-frame ${isShort ? 'short' : ''}" style="display: none;"></div>
+          <img src="${thumb}" alt="${title}" class="video-thumbnail" onclick="playVideo(this, '${id}', ${isShort})">
+          ${isShort ? '<span class="short-badge">Short</span>' : ''}
+          <div class="info">
+            <button class="favorite-btn ${isFav ? 'liked' : ''}" onclick="toggleFavorite('${id}', '${title}', '${thumb}', '${channel}', '${publishedAt}')">
+              ${isFav ? '❤️' : '🤍'}
+            </button>
+            <h3>${title}</h3>
+            <p>القناة: ${channel}</p>
+            <p>تاريخ النشر: ${publishedAt}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function playVideo(img, videoId, isShort = false) {
+      const card = img.closest('.video-card');
+      const frame = card.querySelector('.video-frame');
+      const thumbnail = card.querySelector('.video-thumbnail');
+
+      thumbnail.style.display = 'none';
+      frame.style.display = 'block';
+
+      // تأكد من عدم وجود مسافات في الرابط
+      const src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+      frame.innerHTML = `<iframe src="${src}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    }
+
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem('youtubeFavorites') || '[]');
+    }
+
+    function isFavorite(videoId) {
+      return getFavorites().some(v => v.id === videoId);
+    }
+
+    function toggleFavorite(id, title, thumb, channel, date) {
+      let favorites = getFavorites();
+      const index = favorites.findIndex(v => v.id === id);
+
+      if (index === -1) {
+        favorites.push({ id, title, thumb, channel, date });
+        alert('تمت الإضافة للمفضلة ❤️');
+      } else {
+        favorites.splice(index, 1);
+        alert('تم الحذف من المفضلة 🤍');
+      }
+
+      localStorage.setItem('youtubeFavorites', JSON.stringify(favorites));
+      displayFavorites();
+    }
+
+    function displayFavorites() {
+      const container = document.getElementById('favoritesContainer');
+      const favorites = getFavorites();
+
+      if (favorites.length === 0) {
+        container.innerHTML = '<p class="loading">لم تُضف أي فيديو للمفضلة بعد.</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      favorites.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      favorites.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'video-card';
+
+        const isShort = /short|قصير|reels|ريلز/i.test(item.title);
+
+        card.innerHTML = `
+          <div class="video-frame ${isShort ? 'short' : ''}" style="display: none;"></div>
+          <img src="${item.thumb}" alt="${item.title}" class="video-thumbnail" onclick="playVideo(this, '${item.id}', ${isShort})">
+          ${isShort ? '<span class="short-badge">Short</span>' : ''}
+          <div class="info">
+            <button class="favorite-btn liked" onclick="toggleFavorite('${item.id}', '${item.title}', '${item.thumb}', '${item.channel}', '${item.date}')">❤️</button>
+            <h3>${item.title}</h3>
+            <p>القناة: ${item.channel}</p>
+            <p>تاريخ النشر: ${item.date}</p>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    window.onload = function () {
+      displayFavorites();
+    };
+  </script>
+</body>
+</html>

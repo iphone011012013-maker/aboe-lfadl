@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker Bot Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header h1 {
+            font-family: 'Cairo', sans-serif;
+            font-size: 2.8em;
+            text-shadow: 0 0 15px #0f0;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-family: 'Cairo', sans-serif;
+            color: #ccc;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 15px 20px;
+            background-color: #000;
+            border: 1px solid #0f0;
+            border-radius: 8px;
+            color: #0f0;
+            font-size: 1.1em;
+            box-sizing: border-box;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        /* --- تصميم الأقسام --- */
+        .category-tabs {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+        .category-tabs button {
+            background: transparent;
+            border: 1px solid #0f0;
+            color: #0f0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        .category-tabs button:hover, .category-tabs button.active {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 15px #0f0;
+        }
+
+        .bots-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .bot-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #0f0;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .bot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+        }
+        .bot-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #0f0;
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+        .bot-card h2 {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.5em;
+            margin: 0 0 10px 0;
+            color: #fff;
+        }
+        .username-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            background-color: #111;
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #222;
+        }
+        .username-wrapper span { color: #0f0; font-size: 1em; }
+        .copy-icon {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            filter: brightness(0) invert(1) sepia(1) hue-rotate(80deg) saturate(5);
+        }
+        .start-btn {
+            display: inline-block;
+            width: 100%;
+            background: #0f0;
+            color: #000;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+        .start-btn:hover {
+            background-color: #111;
+            color: #0f0;
+            border: 1px solid #0f0;
+        }
+        .copy-feedback {
+            color: #0f0;
+            font-weight: bold;
+            font-size: 0.9em;
+            height: 15px;
+            margin-top: 5px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .copy-feedback.show { visibility: visible; opacity: 1; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) {
+            .bots-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 2.2em; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="header">
+        <h1>مكتبة البوتات</h1>
+        <p>مجموعة من أفضل البوتات الخدمية على تليجرام</p>
+        <div class="search-wrapper">
+            <input type="search" id="searchInput" placeholder="ابحث عن بوت...">
+        </div>
+    </div>
+
+    <div class="category-tabs">
+        <button class="active" data-filter="all">الكل</button>
+        <button data-filter="hacking">بوتات اختراق</button>
+        <button data-filter="maker">مصنع بوتات</button>
+        <button data-filter="tools">أدوات</button>
+    </div>
+
+    <div class="bots-grid">
+        
+   <div class="bot-card" data-category="hacking">
+            <img src="logo/@my_aboelfadl_helper_bot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>hacker</h2>
+            <div class="username-wrapper">
+                <span class="username">@my_aboelfadl_helper_bot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/my_aboelfadl_helper_bot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@BotFather.jpg" alt="صورة البوت" class="bot-image">
+            <h2>BotFather</h2>
+            <div class="username-wrapper">
+                <span class="username">@BotFather</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/BotFather" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@hackfreeusrbot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>FREEUSER</h2>
+            <div class="username-wrapper">
+                <span class="username">@hackfreeusrbot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/@hackfreeusrbot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@Hackertobot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>بوت اختراق الهاتف</h2>
+            <div class="username-wrapper">
+                <span class="username">@Hackertobot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/Hackertobot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@Ss1_5_bot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>HACKER VIP</h2>
+            <div class="username-wrapper">
+                <span class="username">@Ss1_5_bot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/Ss1_5_bot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@Ss1_55_bot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>HACKER VIP 2</h2>
+            <div class="username-wrapper">
+                <span class="username">@Ss1_55_bot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/@Ss1_55_bot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@QR_l4229BOT.jpg" alt="صورة البوت" class="bot-image">
+            <h2>بوت هكر مجاني</h2>
+            <div class="username-wrapper">
+                <span class="username">@QR_l4229BOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/QR_l4229BOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@Elmaesro_bot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>بوت تعليم الهكر</h2>
+            <div class="username-wrapper">
+                <span class="username">@Elmaesro_bot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/Elmaesro_bot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@DARK1X_org_BOT.jpg" alt="صورة البوت" class="bot-image">
+            <h2>سحب معلومات الحساب</h2>
+            <div class="username-wrapper">
+                <span class="username">@DARK1X_org_BOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/@DARK1X_org_BOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@CODEVYXBOT.jpg" alt="صورة البوت" class="bot-image">
+            <h2>CODEVYX BOT</h2>
+            <div class="username-wrapper">
+                <span class="username">@CODEVYXBOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/CODEVYXBOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@C0p0bot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>القلعة الإلكترونية هكر x10</h2>
+            <div class="username-wrapper">
+                <span class="username">@C0p0bot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/C0p0bot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@CASTELMKBOT.jpg" alt="صورة البوت" class="bot-image">
+            <h2>HACKER MAX X10</h2>
+            <div class="username-wrapper">
+                <span class="username">@CASTELMKBOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/CASTELMKBOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="hacking">
+            <img src="logo/@YusKing_Rat_BOT.jpg" alt="صورة البوت" class="bot-image">
+            <h2>بوت تطبيقات الاختراق</h2>
+            <div class="username-wrapper">
+                <span class="username">@YusKing_Rat_BOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/@YusKing_Rat_BOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        
+        <!-- بوت 2 - قسم خدمات -->
+        <div class="bot-card" data-category="maker">
+            <img src="logo/@makerBotss_bot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>صانع البوتات بدون حقوق</h2>
+            <div class="username-wrapper">
+                <span class="username">@makerBotss_bot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/makerBotss_bot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+
+        <div class="bot-card" data-category="maker">
+            <img src="logo/@Kingmdbot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>صانع بوتات</h2>
+            <div class="username-wrapper">
+                <span class="username">@Kingmdbot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/Kingmdbot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+
+        <div class="bot-card" data-category="maker">
+            <img src="logo/@e_n_u2BOT.jpg" alt="صورة البوت" class="bot-image">
+            <h2>مصنع البوتات بدون حقوق</h2>
+            <div class="username-wrapper">
+                <span class="username">@e_n_u2BOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/e_n_u2BOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+
+        <div class="bot-card" data-category="maker">
+            <img src="logo/@LEGO_v2_bot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>مصنع بوتات ليجو</h2>
+            <div class="username-wrapper">
+                <span class="username">@LEGO_v2_bot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/LEGO_v2_bot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+
+        <div class="bot-card" data-category="maker">
+            <img src="logo/@mkfrbot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>Echo Bots Maker</h2>
+            <div class="username-wrapper">
+                <span class="username">@mkfrbot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/@mkfrbot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+
+        <div class="bot-card" data-category="maker">
+            <img src="logo/@makerHbot.jpg" alt="صورة البوت" class="bot-image">
+            <h2>MAKER BOT</h2>
+            <div class="username-wrapper">
+                <span class="username">@makerHbot</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/makerHbot" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="tools">
+            <img src="logo/@ABOELFADLPROIBOT.jpeg" alt="صورة البوت" class="bot-image">
+            <h2>TEMP MAIL</h2>
+            <div class="username-wrapper">
+                <span class="username">@ABOELFADLPROIBOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/ABOELFADLPROIBOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="tools">
+            <img src="logo/@Ph0t0T0AnimeBOT.jpeg" alt="صورة البوت" class="bot-image">
+            <h2>Photo To PDF</h2>
+            <div class="username-wrapper">
+                <span class="username">@Ph0t0T0AnimeBOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/Ph0t0T0AnimeBOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="tools">
+            <img src="logo/@ABOELFADLPROAI00BOT.jpeg" alt="صورة البوت" class="bot-image">
+            <h2>زخرفه</h2>
+            <div class="username-wrapper">
+                <span class="username">@ABOELFADLPROAI00BOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/ABOELFADLPROAI00BOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="tools">
+            <img src="logo/@AboElfadlMedia212BOT.png" alt="صورة البوت" class="bot-image">
+            <h2>Voice To Text</h2>
+            <div class="username-wrapper">
+                <span class="username">@AboElfadlMedia212BOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/AboElfadlMedia212BOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="tools">
+            <img src="logo/@AboElfadlAiBOT.jpeg" alt="صورة البوت" class="bot-image">
+            <h2>كتابه الحقوق على الصوره</h2>
+            <div class="username-wrapper">
+                <span class="username">@AboElfadlAiBOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/AboElfadlAiBOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="tools">
+            <img src="logo/@AboElfadlLOGOBOT.jpeg" alt="صورة البوت" class="bot-image">
+            <h2>Image to improve </h2>
+            <div class="username-wrapper">
+                <span class="username">@AboElfadlLOGOBOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/AboElfadlLOGOBOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="tools">
+            <img src="logo/@TALKT0PH0T0BOT.png" alt="صورة البوت" class="bot-image">
+            <h2>Translation</h2>
+            <div class="username-wrapper">
+                <span class="username">@TALKT0PH0T0BOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/TALKT0PH0T0BOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الثاني === -->
+        <!-- === بطاقة البوت الثاني (مثال) === -->
+        <div class="bot-card" data-category="tools">
+            <img src="logo/@AboElfadlMedia208BOT.jpg" alt="صورة البوت" class="bot-image">
+            <h2>AboElfadl Madia</h2>
+            <div class="username-wrapper">
+                <span class="username">@AboElfadlMedia208BOT</span>
+                <img src="https://cdn-icons-png.flaticon.com/512/1621/1621635.png" alt="Copy" class="copy-icon" title="نسخ اليوزرنيم">
+            </div>
+            <div class="copy-feedback">تم النسخ!</div>
+            <a href="https://t.me/AboElfadlMedia208BOT" target="_blank" class="start-btn">بدء المحادثة</a>
+        </div>
+        <!-- === نهاية بطاقة البوت الأول === -->
+
+        
+
+        <!-- *** يمكنك إضافة المزيد من البطاقات هنا بنفس الطريقة *** -->
+
+    </div>
+
+    <script>
+        // Matrix Effect
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        const letters = "01";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        function draw() {
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+
+        // --- Logic for Tabs, Search, and Copy ---
+        const categoryTabs = document.querySelector('.category-tabs');
+        const searchInput = document.getElementById('searchInput');
+        const botCards = document.querySelectorAll('.bot-card');
+
+        let currentFilter = 'all';
+
+        // فلترة حسب القسم
+        categoryTabs.addEventListener('click', (e) => {
+            if (e.target.tagName === 'BUTTON') {
+                // تحديث الزر النشط
+                categoryTabs.querySelector('.active').classList.remove('active');
+                e.target.classList.add('active');
+                
+                currentFilter = e.target.getAttribute('data-filter');
+                filterAndSearch();
+            }
+        });
+
+        // البحث
+        searchInput.addEventListener('input', filterAndSearch);
+
+        function filterAndSearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+
+            botCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                const botName = card.querySelector('h2').textContent.toLowerCase();
+                const botUsername = card.querySelector('.username').textContent.toLowerCase();
+
+                const categoryMatch = (currentFilter === 'all' || cardCategory === currentFilter);
+                const searchMatch = (botName.includes(searchTerm) || botUsername.includes(searchTerm));
+
+                if (categoryMatch && searchMatch) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // النسخ
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('copy-icon')) {
+                const wrapper = e.target.parentElement;
+                const usernameSpan = wrapper.querySelector('.username');
+                const feedbackDiv = wrapper.nextElementSibling;
+
+                if (usernameSpan && feedbackDiv) {
+                    navigator.clipboard.writeText(usernameSpan.textContent).then(() => {
+                        feedbackDiv.classList.add('show');
+                        setTimeout(() => {
+                            feedbackDiv.classList.remove('show');
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
+

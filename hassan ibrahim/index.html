@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الصفحة الرئيسية | أبو الفضل</title>
+                    <style>/* General Styling */
+body {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f7f6; /* Light mode background */
+    color: #333; /* Light mode text color */
+    transition: background-color 0.3s ease, color 0.3s ease, direction 0.3s ease, text-align 0.3s ease; /* Smooth transition */
+    padding-bottom: 60px; /* IMPORTANT: Add padding to prevent content hiding behind fixed footer */
+}
+
+html[lang="ar"] body {
+    direction: rtl;
+    text-align: right;
+}
+
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    background: #fff; /* Light mode container background */
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative; /* Needed for absolute positioning of toggle button */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* --- Dark Mode Styles --- */
+body.dark-mode {
+    background-color: #1a1a2e; /* Darker background */
+    color: #e0e0e0; /* Lighter text */
+}
+
+body.dark-mode .container {
+    background: #16213e; /* Darker container background */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .header h1,
+body.dark-mode .section h2,
+body.dark-mode .job-item h3,
+body.dark-mode .edu-item h3 {
+    color: #e0e0e0; /* Lighter headings */
+}
+
+body.dark-mode .header .title,
+body.dark-mode .contact-info p,
+body.dark-mode .job-item .company,
+body.dark-mode .job-item .dates,
+body.dark-mode .job-item .location,
+body.dark-mode .job-item ul li,
+body.dark-mode .edu-item .institution {
+    color: #c0c0c0; /* Lighter sub-text */
+}
+
+body.dark-mode .contact-info a {
+    color: #8ab4f8; /* Lighter link color */
+}
+
+body.dark-mode .section {
+    border-bottom: 1px solid #334050; /* Darker border */
+}
+
+body.dark-mode .section h2 {
+    border-left-color: #8ab4f8; /* Highlight color for headings */
+}
+
+/* Adjust border for RTL in dark mode */
+html[lang="ar"] body.dark-mode .section h2 {
+    border-left-color: transparent; /* Remove left border */
+    border-right: 5px solid #8ab4f8; /* Add right border */
+    padding-left: 0;
+    padding-right: 10px;
+}
+
+
+body.dark-mode .job-item {
+    border-bottom: 1px dashed #334050; /* Darker dashed border */
+}
+
+body.dark-mode .skills-list li {
+    background-color: #2b3a50; /* Darker skill tag background */
+    color: #e0e0e0; /* Lighter skill tag text */
+}
+
+body.dark-mode .footer {
+    background-color: #16213e; /* Darker background */
+    border-top: 1px solid #334050; /* Darker border */
+    color: #c0c0c0; /* Lighter text */
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.4); /* Darker shadow */
+}
+
+body.dark-mode .slideshow-container {
+    border: 1px solid #334050;
+    background-color: #1a2a3a;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .dot {
+    background-color: #555;
+}
+
+body.dark-mode .dot.active,
+body.dark-mode .dot:hover {
+    background-color: #a0a0a0;
+}
+
+
+/* --- Dark/Light Mode Toggle Button Styles --- */
+#mode-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: #007bff; /* Primary button color */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Circular button */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+    z-index: 20; /* Ensure it's above other elements */
+}
+
+#mode-toggle:hover {
+    background-color: #0056b3; /* Darker on hover */
+    transform: translateY(-2px);
+}
+
+body.dark-mode #mode-toggle {
+    background-color: #8ab4f8; /* Lighter blue in dark mode */
+    color: #16213e; /* Darker icon color in dark mode */
+}
+
+body.dark-mode #mode-toggle:hover {
+    background-color: #c4dafd;
+}
+
+/* --- Language Toggle Button Styles --- */
+#lang-toggle {
+    position: absolute;
+    top: 70px; /* Position below mode-toggle (20px + 40px button height + 10px spacing) */
+    right: 20px; /* Align with mode-toggle */
+    background-color: #28a745; /* Green for language button */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Circular button */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: background-color 0.3s ease, transform 0.3s ease, color 0.3s ease;
+    z-index: 20;
+}
+
+#lang-toggle:hover {
+    background-color: #218838; /* Darker green on hover */
+    transform: translateY(-2px);
+}
+
+body.dark-mode #lang-toggle {
+    background-color: #6c757d; /* Different color in dark mode */
+    color: #f8f9fa;
+}
+
+body.dark-mode #lang-toggle:hover {
+    background-color: #5a6268;
+}
+
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 20px;
+    transition: border-color 0.3s ease;
+}
+
+/* Profile Section for Image and Name */
+.profile-section {
+    display: flex;
+    flex-direction: column; /* Stack image and name vertically */
+    align-items: center; /* Center horizontally */
+    margin-bottom: 15px; /* Space below the profile section */
+}
+
+.profile-pic {
+    width: 150px; /* Adjust size as needed */
+    height: 150px; /* Should be equal to width for perfect circle */
+    border-radius: 50%; /* Makes the image circular */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    border: 4px solid #007bff; /* A nice border around the image */
+    margin-bottom: 15px; /* Space between image and name */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .profile-pic {
+    border-color: #8ab4f8; /* Lighter border in dark mode */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.header h1 {
+    font-size: 2.8em;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+.header .title {
+    font-size: 1.3em;
+    color: #555;
+    margin-top: 0;
+    transition: color 0.3s ease;
+}
+
+.contact-info {
+    margin-top: 20px;
+    font-size: 0.95em;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.contact-info p {
+    margin: 5px 0;
+}
+
+/* Social Buttons */
+.social-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Space between buttons */
+}
+
+.social-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px; /* Size of the button */
+    height: 45px; /* Size of the button */
+    border-radius: 50%; /* Make it circular */
+    color: white;
+    font-size: 1.5em; /* Icon size */
+    text-decoration: none;
+    transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.social-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Specific button colors (unchanged by dark mode for consistency with brand) */
+.social-button.whatsapp {
+    background-color: #25D366; /* WhatsApp Green */
+}
+
+.social-button.facebook {
+    background-color: #1877F2; /* Facebook Blue */
+}
+
+.social-button.phone {
+    background-color: #007bff; /* A general blue for phone */
+}
+
+.social-button.linkedin {
+    background-color: #0A66C2; /* LinkedIn Blue */
+}
+
+
+/* Sections */
+.section {
+    margin-bottom: 30px;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+    transition: border-color 0.3s ease;
+}
+
+.section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section h2 {
+    font-size: 2em;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    border-left: 5px solid #007bff;
+    padding-left: 10px;
+    transition: color 0.3s ease, border-left-color 0.3s ease;
+}
+
+html[lang="ar"] .section h2 {
+    border-left: none; /* Remove left border */
+    border-right: 5px solid #007bff; /* Add right border */
+    padding-left: 0;
+    padding-right: 10px;
+}
+
+/* Work Experience */
+.job-item {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #eee;
+    transition: border-color 0.3s ease;
+}
+
+.job-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.job-item h3 {
+    font-size: 1.4em;
+    color: #34495e;
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+.job-item .company {
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+    font-size: 1.1em;
+    transition: color 0.3s ease;
+}
+
+.job-item .dates {
+    font-style: italic;
+    color: #777;
+    margin-bottom: 10px;
+    transition: color 0.3s ease;
+}
+
+.job-item .location {
+    color: #777;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+.job-item ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    padding-left: 0;
+    color: #444;
+    transition: color 0.3s ease;
+}
+
+html[lang="ar"] .job-item ul {
+    list-style-type: arabic-indic; /* Arabic bullets */
+    margin-left: 0;
+    margin-right: 20px;
+}
+
+.job-item ul li {
+    margin-bottom: 5px;
+}
+
+/* Skills */
+.skills-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.skills-list li {
+    background-color: #e9ecef;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    color: #333;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Education */
+.edu-item {
+    margin-bottom: 15px;
+}
+
+.edu-item h3 {
+    font-size: 1.2em;
+    color: #34495e;
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+.edu-item .institution {
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 5px;
+    transition: color 0.3s ease;
+}
+
+/* Footer - FIXED TO BOTTOM */
+.footer {
+    text-align: center;
+    padding: 15px 0; /* Adjusted padding */
+    font-size: 0.85em;
+    color: #777;
+    transition: background-color 0.3s ease, color 0.3s ease, border-top 0.3s ease;
+
+    /* --- New styles for fixed footer --- */
+    position: fixed; /* Make the element fixed relative to the viewport */
+    bottom: 0;       /* Pin to the bottom of the viewport */
+    left: 0;         /* Extend from the left */
+    width: 100%;     /* Full width */
+    background-color: #fff; /* Background to cover content */
+    border-top: 1px solid #eee; /* Top border */
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1); /* Shadow to make it pop */
+    z-index: 100; /* Ensure it's above other content */
+}
+
+/* Dark mode adjustments for fixed footer */
+body.dark-mode .footer {
+    background-color: #16213e; /* Darker background */
+    border-top: 1px solid #334050; /* Darker border */
+    color: #c0c0c0; /* Lighter text */
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.4); /* Darker shadow */
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 20px;
+    }
+
+    .header h1 {
+        font-size: 2.2em;
+    }
+
+    .header .title {
+        font-size: 1.1em;
+    }
+
+    .section h2 {
+        font-size: 1.8em;
+    }
+
+    .job-item h3 {
+        font-size: 1.2em;
+    }
+    
+    .social-buttons {
+        gap: 10px;
+    }
+
+    .profile-pic {
+        width: 120px;
+        height: 120px;
+    }
+
+    #mode-toggle {
+        top: 10px;
+        right: 10px;
+        width: 35px;
+        height: 35px;
+        font-size: 1em;
+    }
+    #lang-toggle {
+        top: 55px; /* Adjust for smaller screens */
+        right: 10px;
+        width: 35px;
+        height: 35px;
+        font-size: 1em;
+    }
+
+    /* Adjust padding-bottom for smaller screens if footer height changes */
+    body {
+        padding-bottom: 60px; /* Keep consistent or adjust if footer height changes */
+    }
+}
+
+
+/* --- Image Gallery Specific Styles --- */
+.image-gallery {
+    /* Styles for the section containing the gallery */
+    border-bottom: 1px solid #eee;
+    padding-bottom: 30px;
+    transition: border-color 0.3s ease;
+}
+
+.slideshow-container {
+    max-width: 700px; /* Adjust max width of the slideshow */
+    position: relative;
+    margin: auto;
+    border: 1px solid #ddd; /* A subtle border around the gallery */
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background-color: #fcfcfc;
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mySlides {
+    display: none; /* Hide slides by default */
+}
+
+.mySlides img {
+    vertical-align: middle;
+    width: 100%; /* Ensure image fills its container */
+    height: 400px; /* Fixed height for consistency, adjust as needed */
+    object-fit: cover; /* Cover the area, cropping if necessary */
+}
+
+/* Next & previous buttons */
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 16px;
+    margin-top: -22px;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+    transition: 0.6s ease;
+    border-radius: 0 3px 3px 0;
+    user-select: none;
+    background-color: rgba(0,0,0,0.5); /* Semi-transparent background */
+    z-index: 10; /* Ensure buttons are above images */
+}
+
+/* Position the "next button" to the right */
+.next {
+    right: 0;
+    border-radius: 3px 0 0 3px;
+}
+
+/* On hover, add a black background with a little more opacity */
+.prev:hover, .next:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+/* The dots/bullets/indicators */
+.dot {
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    margin: 0 2px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+}
+
+.active, .dot:hover {
+    background-color: #717171;
+}
+
+/* Fading animation */
+.fade {
+    animation-name: fade;
+    animation-duration: 1.5s;
+}
+
+@keyframes fade {
+    from {opacity: .4}
+    to {opacity: 1}
+}
+
+/* Responsive adjustment for gallery height on smaller screens */
+@media (max-width: 600px) {
+    .slideshow-container {
+        max-width: 100%;
+    }
+    .mySlides img {
+        height: 250px; /* Adjust height for smaller screens */
+    }
+}
+
+/* --- Contact Form Section --- */
+.contact-form {
+    padding-top: 30px;
+    margin-top: 30px; /* Add some space above the form section */
+    border-top: 1px solid #eee;
+    transition: border-color 0.3s ease;
+}
+
+body.dark-mode .contact-form {
+    border-top-color: #334050;
+}
+
+.contact-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between form groups */
+}
+
+.contact-form .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-form label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+body.dark-mode .contact-form label {
+    color: #e0e0e0;
+}
+
+.contact-form input[type="text"],
+.contact-form input[type="tel"],
+.contact-form input[type="email"],
+.contact-form textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+    width: 100%; /* Full width */
+    box-sizing: border-box; /* Include padding in width */
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode .contact-form input,
+body.dark-mode .contact-form textarea {
+    background-color: #2b3a50;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+body.dark-mode .contact-form input:focus,
+body.dark-mode .contact-form textarea:focus {
+    border-color: #8ab4f8;
+    box-shadow: 0 0 5px rgba(138, 180, 248, 0.5);
+}
+
+.contact-form textarea {
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 100px;
+}
+
+.contact-form button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    align-self: flex-start; /* Align button to the start of the form */
+}
+
+html[lang="ar"] .contact-form button[type="submit"] {
+    align-self: flex-end; /* Align button to the end (left) in RTL */
+}
+
+.contact-form button[type="submit"]:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+body.dark-mode .contact-form button[type="submit"] {
+    background-color: #8ab4f8;
+    color: #16213e;
+}
+
+body.dark-mode .contact-form button[type="submit"]:hover {
+    background-color: #c4dafd;
+}
+
+.form-message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.form-message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+body.dark-mode .form-message.success {
+    background-color: #28a74550;
+    color: #c3e6cb;
+    border-color: #218838;
+}
+
+.form-message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+body.dark-mode .form-message.error {
+    background-color: #dc354550;
+    color: #f5c6cb;
+    border-color: #be2e3b;
+}</style>
+                </head>
+                <body>
+                    
+ 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-en="Hassan Ibrahim - Resume" data-ar="حسن إبراهيم - السيرة الذاتية">Hassan Ibrahim - Resume</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+
+    <div class="container">
+        <button id="mode-toggle" aria-label="Toggle dark and light mode">
+            <i class="fas fa-moon"></i>
+        </button>
+        <button id="lang-toggle" aria-label="Toggle language to Arabic/English">
+            <i class="fas fa-language"></i>
+        </button>
+
+        <header class="header">
+            <div class="profile-section">
+                <img src="hassan.png" alt="Hassan Ibrahim Profile Picture" class="profile-pic">
+                <h1>Hassan Ibrahim</h1> </div>
+            <p class="title" data-en="Experienced Real Estate Sales Professional" data-ar="محترف مبيعات عقارية ذو خبرة">Experienced Real Estate Sales Professional</p>
+            <div class="contact-info">
+                <p><span data-en="Phone" data-ar="الهاتف">Phone</span>: +20 109 712 3179</p>
+                <p><span data-en="Location" data-ar="الموقع">Location</span>: New Cairo, Egypt</p>
+                <div class="social-buttons">
+                    <a href="https://wa.me/201097123179" target="_blank" class="social-button whatsapp" aria-label="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.facebook.com/share/1AWhZ5JeKf/?mibextid=qi2Omg" target="_blank" class="social-button facebook" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="tel:+201097123179" class="social-button phone" aria-label="Call">
+                        <i class="fas fa-phone"></i>
+                    </a>
+                    <a href="#" target="_blank" class="social-button linkedin" aria-label="LinkedIn">
+                         <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <section class="section summary">
+            <h2 data-en="Summary" data-ar="ملخص">Summary</h2>
+            <p data-en="Highly motivated and results-driven Sales Professional with extensive experience in the real estate sector across various prominent companies in Egypt. Proven ability to lead sales teams, drive revenue growth, and build strong client relationships. Adept at navigating dynamic market conditions and achieving ambitious sales targets." data-ar="محترف مبيعات متحفز للغاية وموجه نحو النتائج مع خبرة واسعة في قطاع العقارات عبر العديد من الشركات البارزة في مصر. قدرة مثبتة على قيادة فرق المبيعات، ودفع نمو الإيرادات، وبناء علاقات قوية مع العملاء. بارع في التعامل مع ظروف السوق الديناميكية وتحقيق أهداف مبيعات طموحة.">Highly motivated and results-driven Sales Professional with extensive experience in the real estate sector across various prominent companies in Egypt. Proven ability to lead sales teams, drive revenue growth, and build strong client relationships. Adept at navigating dynamic market conditions and achieving ambitious sales targets.</p>
+        </section>
+
+        <section class="section image-gallery">
+            <h2 data-en="Project Gallery" data-ar="معرض المشاريع">Project Gallery</h2>
+            <div class="slideshow-container">
+
+                <div class="mySlides fade" style="display: none;">
+                    <img src="hassan1.png" style="width:100%" alt="Project Image 1">
+                </div>
+
+                <div class="mySlides fade" style="display: block;">
+                    <img src="hassan2.png" style="width:100%" alt="Project Image 2">
+                </div>
+
+                <div class="mySlides fade" style="display: none;">
+                    <img src="hassan3.png" style="width:100%" alt="Project Image 3">
+                </div>
+
+                <div class="mySlides fade" style="display: none;">
+                    <img src="hassan4.png" style="width:100%" alt="Project Image 4">
+                </div>
+
+                <div class="mySlides fade" style="display: none;">
+                    <img src="hassan5.png" style="width:100%" alt="Project Image 5">
+                </div>
+
+                <a class="prev" onclick="plusSlides(-1)">❮</a>
+                <a class="next" onclick="plusSlides(1)">❯</a>
+            </div>
+            <br>
+
+            <div style="text-align:center">
+                <span class="dot" onclick="currentSlide(1)"></span>
+                <span class="dot active" onclick="currentSlide(2)"></span>
+                <span class="dot" onclick="currentSlide(3)"></span>
+                <span class="dot" onclick="currentSlide(4)"></span>
+                <span class="dot" onclick="currentSlide(5)"></span>
+            </div>
+        </section>
+        <section class="section experience">
+            <h2 data-en="Work Experience" data-ar="الخبرة العملية">Work Experience</h2>
+
+            <div class="job-item">
+                <h3 data-en="Sales Team Leader" data-ar="قائد فريق مبيعات">Sales Team Leader</h3>
+                <p class="company">ASSET TAP</p>
+                <p class="dates">October 2024 – Present</p>
+                <ul>
+                    <li data-en="Led sales initiatives and managed a team to achieve set targets." data-ar="قاد مبادرات المبيعات وأدار فريقًا لتحقيق الأهداف المحددة.">Led sales initiatives and managed a team to achieve set targets.</li>
+                    <li data-en="Developed strategies to enhance sales performance and customer acquisition." data-ar="طور استراتيجيات لتعزيز أداء المبيعات واكتساب العملاء.">Developed strategies to enhance sales performance and customer acquisition.</li>
+                </ul>
+            </div>
+
+            <div class="job-item">
+                <h3 data-en="Senior Sales" data-ar="مبيعات أول">Senior Sales</h3>
+                <p class="company">Taskeen</p>
+                <p class="dates">March 2024 – Present</p>
+                <ul>
+                    <li data-en="Responsible for high-value real estate sales and client portfolio management." data-ar="مسؤول عن مبيعات العقارات ذات القيمة العالية وإدارة محافظ العملاء.">Responsible for high-value real estate sales and client portfolio management.</li>
+                    <li data-en="Successfully closed deals and contributed to significant revenue growth." data-ar="أبرم صفقات بنجاح وساهم في نمو الإيرادات بشكل كبير.">Successfully closed deals and contributed to significant revenue growth.</li>
+                </ul>
+            </div>
+            
+            <div class="job-item">
+                <h3 data-en="Sales Team Leader" data-ar="قائد فريق مبيعات">Sales Team Leader</h3>
+                <p class="company">Master Mark For Real Estate</p>
+                <p class="dates">September 2022 – Present</p>
+                <ul>
+                    <li data-en="Managed and mentored a sales team to exceed targets in real estate projects." data-ar="أدار ووجه فريق مبيعات لتجاوز الأهداف في مشاريع العقارات.">Managed and mentored a sales team to exceed targets in real estate projects.</li>
+                    <li data-en="Developed and implemented effective sales techniques and client engagement strategies." data-ar="طور ونفذ تقنيات مبيعات فعالة واستراتيجيات جذب العملاء.">Developed and implemented effective sales techniques and client engagement strategies.</li>
+                </ul>
+            </div>
+
+            <div class="job-item">
+                <h3 data-en="Senior Sales" data-ar="مبيعات أول">Senior Sales</h3>
+                <p class="company">Cratos Real Estate Investment</p>
+                <p class="dates">October 2022 – February 2024</p>
+                <ul>
+                    <li data-en="Handled key accounts and managed complex sales cycles." data-ar="تعامل مع الحسابات الرئيسية وأدار دورات المبيعات المعقدة.">Handled key accounts and managed complex sales cycles.</li>
+                    <li data-en="Achieved consistent sales performance and maintained strong client relationships." data-ar="حقق أداء مبيعات ثابتًا وحافظ على علاقات قوية مع العملاء.">Achieved consistent sales performance and maintained strong client relationships.</li>
+                </ul>
+            </div>
+
+            <div class="job-item">
+                <h3 data-en="Sales Team Leader" data-ar="قائد فريق مبيعات">Sales Team Leader</h3>
+                <p class="company">[Confidential Company]</p>
+                <p class="dates">March 2022 – October 2022</p>
+                <ul>
+                    <li data-en="Led a sales team, focusing on achieving immediate sales objectives." data-ar="قاد فريق مبيعات، مع التركيز على تحقيق أهداف المبيعات الفورية.">Led a sales team, focusing on achieving immediate sales objectives.</li>
+                    <li data-en="Coordinated with marketing teams to optimize sales campaigns." data-ar="نسق مع فرق التسويق لتحسين حملات المبيعات.">Coordinated with marketing teams to optimize sales campaigns.</li>
+                </ul>
+            </div>
+
+            <div class="job-item">
+                <h3 data-en="Senior Sales Consultant" data-ar="مستشار مبيعات أول">Senior Sales Consultant</h3>
+                <p class="company">Majd</p>
+                <p class="dates">June 2021 – Present</p>
+                <p class="location" data-en="New Cairo, Egypt" data-ar="القاهرة الجديدة، مصر">New Cairo, Egypt</p>
+                <ul>
+                    <li data-en="Provided expert consultation to clients on real estate investments." data-ar="قدم استشارات متخصصة للعملاء حول الاستثمارات العقارية.">Provided expert consultation to clients on real estate investments.</li>
+                    <li data-en="Successfully negotiated and finalized property deals." data-ar="نجح في التفاوض وإبرام صفقات العقارات.">Successfully negotiated and finalized property deals.</li>
+                </ul>
+            </div>
+
+            <div class="job-item">
+                <h3 data-en="Senior Sales Consultant" data-ar="مستشار مبيعات أول">Senior Sales Consultant</h3>
+                <p class="company">Byotat Real Estate</p>
+                <p class="dates">April 2021 – Present</p>
+                <ul>
+                    <li data-en="Managed a portfolio of high-net-worth clients seeking real estate opportunities." data-ar="أدار محفظة من العملاء ذوي الملاءة العالية الباحثين عن فرص عقارية.">Managed a portfolio of high-net-worth clients seeking real estate opportunities.</li>
+                    <li data-en="Achieved and consistently exceeded sales targets." data-ar="حقق وتجاوز أهداف المبيعات باستمرار.">Achieved and consistently exceeded sales targets.</li>
+                </ul>
+            </div>
+
+            <div class="job-item">
+                <h3 data-en="Senior Sales" data-ar="مبيعات أول">Senior Sales</h3>
+                <p class="company">[Confidential Company]</p>
+                <p class="dates">February 2021 – August 2022</p>
+                <ul>
+                    <li data-en="Contributed to sales growth and market expansion." data-ar="ساهم في نمو المبيعات وتوسيع السوق.">Contributed to sales growth and market expansion.</li>
+                    <li data-en="Built and maintained strong customer relationships." data-ar="بنى وحافظ على علاقات قوية مع العملاء.">Built and maintained strong customer relationships.</li>
+                </ul>
+            </div>
+
+            <div class="job-item">
+                <h3 data-en="Sales" data-ar="مبيعات">Sales</h3>
+                <p class="company">First Orbit</p>
+                <p class="dates">October 2020 – Present</p>
+                <ul>
+                    <li data-en="Initiated and closed various sales transactions." data-ar="بدأ وأبرم معاملات مبيعات مختلفة.">Initiated and closed various sales transactions.</li>
+                    <li data-en="Supported the sales department in achieving overall objectives." data-ar="دعم قسم المبيعات في تحقيق الأهداف العامة.">Supported the sales department in achieving overall objectives.</li>
+                </ul>
+            </div>
+
+            <div class="job-item">
+                <h3 data-en="Various Roles" data-ar="أدوار مختلفة">Various Roles</h3>
+                <p class="company">Amer Group Golf</p>
+                <p class="dates">August 2017 – Present</p>
+                <ul>
+                    <li data-en="Gained foundational experience in the real estate and hospitality sectors." data-ar="اكتسب خبرة تأسيسية في قطاعي العقارات والضيافة.">Gained foundational experience in the real estate and hospitality sectors.</li>
+                    <li data-en="Developed key sales and customer service skills." data-ar="طور مهارات المبيعات وخدمة العملاء الرئيسية.">Developed key sales and customer service skills.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section skills">
+            <h2 data-en="Skills" data-ar="المهارات">Skills</h2>
+            <ul class="skills-list">
+                <li data-en="Real Estate Sales" data-ar="مبيعات عقارية">Real Estate Sales</li>
+                <li data-en="Team Leadership" data-ar="قيادة فريق">Team Leadership</li>
+                <li data-en="Customer Relationship Management (CRM)" data-ar="إدارة علاقات العملاء (CRM)">Customer Relationship Management (CRM)</li>
+                <li data-en="Negotiation" data-ar="تفاوض">Negotiation</li>
+                <li data-en="Market Analysis" data-ar="تحليل السوق">Market Analysis</li>
+                <li data-en="Lead Generation" data-ar="توليد العملاء المحتملين">Lead Generation</li>
+                <li data-en="Property Sales" data-ar="مبيعات العقارات">Property Sales</li>
+                <li data-en="Client Acquisition" data-ar="استقطاب العملاء">Client Acquisition</li>
+                <li data-en="Consulting" data-ar="استشارات">Consulting</li>
+            </ul>
+        </section>
+
+        <section class="section education">
+            <h2 data-en="Education" data-ar="التعليم">Education</h2>
+            <div class="edu-item">
+                <h3 data-en="Diploma in Commerce" data-ar="دبلوم تجارة">Diploma in Commerce</h3>
+                <p class="institution" data-en="Commerce Institute" data-ar="معهد التجارة">Commerce Institute</p>
+            </div>
+            <div class="edu-item">
+                <h3 data-en="SocialWork" data-ar="الخدمة الاجتماعية">SocialWork</h3>
+                <p class="institution" data-en="Social Work Institute" data-ar="معهد الخدمة الاجتماعية">Social Work Institute</p>
+            </div>
+            <div class="edu-item">
+                <h3 data-en="University Studies" data-ar="دراسات جامعية">University Studies</h3>
+                <p class="institution" data-en="Helwan University" data-ar="جامعة حلوان">Helwan University</p>
+            </div>
+        </section>
+
+        <section class="section contact-form">
+            <h2 data-en="Contact Me" data-ar="تواصل معي">Contact Me</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="name" data-en="Name" data-ar="الاسم">Name</label>
+                    <input type="text" id="name" name="name" required="" data-en-placeholder="Your Name" data-ar-placeholder="اسمك" placeholder="Your Name">
+                </div>
+                <div class="form-group">
+                    <label for="phone" data-en="Phone Number" data-ar="رقم الهاتف">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required="" data-en-placeholder="Your Phone Number" data-ar-placeholder="رقم هاتفك" placeholder="Your Phone Number">
+                </div>
+                <div class="form-group">
+                    <label for="email" data-en="Email" data-ar="البريد الإلكتروني">Email</label>
+                    <input type="email" id="email" name="email" required="" data-en-placeholder="Your Email" data-ar-placeholder="بريدك الإلكتروني" placeholder="Your Email">
+                </div>
+                <div class="form-group">
+                    <label for="subject" data-en="Regarding What?" data-ar="بخصوص ماذا؟">Regarding What?</label>
+                    <textarea id="subject" name="subject" rows="5" required="" data-en-placeholder="Briefly describe your inquiry" data-ar-placeholder="وصف مختصر لاستفسارك" placeholder="Briefly describe your inquiry"></textarea>
+                </div>
+                <button type="submit" data-en="Send Message" data-ar="إرسال الرسالة">Send Message</button>
+                <p id="form-message" class="form-message"></p>
+            </form>
+        </section>
+
+    </div> <footer class="footer">
+        <p data-en="© 2025 Hassan Ibrahim. All rights reserved." data-ar="© 2025 حسن إبراهيم. جميع الحقوق محفوظة.">© 2025 Hassan Ibrahim. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+
+                    <script>console.log("Resume website loaded!");
+
+// --- Image Gallery JavaScript ---
+let slideIndex = 1;
+showSlides(slideIndex);
+
+// Next/previous controls
+function plusSlides(n) {
+  showSlides(slideIndex += n);
+}
+
+// Thumbnail image controls
+function currentSlide(n) {
+  showSlides(slideIndex = n);
+}
+
+function showSlides(n) {
+  let i;
+  let slides = document.getElementsByClassName("mySlides");
+  let dots = document.getElementsByClassName("dot");
+  if (n > slides.length) {slideIndex = 1}
+  if (n < 1) {slideIndex = slides.length}
+  for (i = 0; i < slides.length; i++) {
+    slides[i].style.display = "none";
+  }
+  for (i = 0; i < dots.length; i++) {
+    dots[i].className = dots[i].className.replace(" active", "");
+  }
+  slides[slideIndex-1].style.display = "block";
+  dots[slideIndex-1].className += " active";
+}
+
+// --- Automatic Slideshow Functionality ---
+function autoSlideshow() {
+    plusSlides(1); // Move to the next slide
+    setTimeout(autoSlideshow, 5000); // Change image every 5 seconds (5000 milliseconds)
+}
+autoSlideshow(); // Start the automatic slideshow when the page loads
+
+
+// --- Dark/Light Mode Toggle JavaScript ---
+const modeToggle = document.getElementById('mode-toggle');
+const body = document.body;
+const currentMode = localStorage.getItem('theme'); // Get saved theme
+
+// Apply saved theme on load
+if (currentMode) {
+    body.classList.add(currentMode);
+    if (currentMode === 'dark-mode') {
+        modeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+    } else {
+        modeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
+    }
+} else {
+    // Default to light mode if no preference is saved
+    body.classList.remove('dark-mode');
+    modeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
+}
+
+// Toggle function
+modeToggle.addEventListener('click', () => {
+    if (body.classList.contains('dark-mode')) {
+        body.classList.remove('dark-mode');
+        modeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
+        localStorage.setItem('theme', 'light-mode'); // Save preference
+    } else {
+        body.classList.add('dark-mode');
+        modeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+        localStorage.setItem('theme', 'dark-mode'); // Save preference
+    }
+});
+
+
+// --- Language Toggle JavaScript ---
+const langToggle = document.getElementById('lang-toggle');
+const htmlElement = document.documentElement; // The <html> tag
+
+// Elements that have data-en and data-ar attributes for translation
+// This also includes elements with data-en-placeholder, data-ar-placeholder
+const translatableElements = document.querySelectorAll('[data-en], [data-ar], [data-en-placeholder], [data-ar-placeholder]');
+
+function setLanguage(lang) {
+    console.log("Setting language to:", lang); // Debugging line
+    htmlElement.lang = lang;
+    localStorage.setItem('lang', lang); // Save language preference
+
+    translatableElements.forEach(element => {
+        // Translate text content
+        if (element.dataset.en && element.dataset.ar) {
+            element.textContent = lang === 'ar' ? element.dataset.ar : element.dataset.en;
+        }
+        // Translate placeholder text for input/textarea
+        if (element.dataset.enPlaceholder && element.dataset.arPlaceholder) {
+            element.placeholder = lang === 'ar' ? element.dataset.arPlaceholder : element.dataset.enPlaceholder;
+        }
+    });
+
+    // Translate form submission messages
+    const formMessage = document.getElementById('form-message');
+    if (formMessage) {
+        // If a message is currently displayed, re-translate it
+        if (formMessage.classList.contains('success')) {
+            formMessage.textContent = htmlElement.lang === 'ar' ? 'تم الإرسال بنجاح! شكرًا لك.' : 'Message sent successfully! Thank you.';
+        } else if (formMessage.classList.contains('error')) {
+            formMessage.textContent = htmlElement.lang === 'ar' ? 'حدث خطأ أثناء الإرسال. الرجاء المحاولة مرة أخرى.' : 'Error sending message. Please try again.';
+        } else if (formMessage.textContent.includes('Sending') || formMessage.textContent.includes('جاري الإرسال')) {
+            // If it's a "sending" message, update it too
+            formMessage.textContent = htmlElement.lang === 'ar' ? 'جاري الإرسال...' : 'Sending...';
+        }
+    }
+}
+
+// Load saved language preference on page load
+const savedLang = localStorage.getItem('lang') || 'en'; // Default to English
+setLanguage(savedLang);
+
+// Toggle language on button click
+langToggle.addEventListener('click', () => {
+    const currentLang = htmlElement.lang;
+    const newLang = currentLang === 'en' ? 'ar' : 'en';
+    setLanguage(newLang);
+});
+
+
+// --- Google Sheet Form Submission JavaScript ---
+// هذا هو رابط تطبيق الويب الخاص بك الذي تم إنشاؤه من Google Apps Script
+// تم تحديث الرابط هنا ليتطابق مع الرابط الذي قدمته بالضبط.
+const GOOGLE_SHEET_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwBsMr5ZjDJbGHHa5WcEEpjyoycqsEP0k_dnRAwKyc79bVF3xVrQ8yaiE9x4LzlSaqO/exec';
+const contactForm = document.getElementById('contactForm');
+const formMessage = document.getElementById('form-message');
+
+if (contactForm) {
+    console.log("Contact form found, adding event listener."); // Debugging line
+    contactForm.addEventListener('submit', function(event) {
+        console.log("Form submission initiated."); // Debugging line
+        event.preventDefault(); // منع إرسال النموذج بالطريقة الافتراضية - هذا السطر حاسم
+
+        formMessage.textContent = htmlElement.lang === 'ar' ? 'جاري الإرسال...' : 'Sending...';
+        formMessage.className = 'form-message'; // إعادة تعيين الفئات لإزالة أي أنماط نجاح/خطأ سابقة
+
+        const formData = new FormData(this);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = value;
+        });
+
+        // تحويل كائن البيانات إلى سلسلة URL-encoded لإرسالها إلى Google Apps Script
+        const queryString = new URLSearchParams(data).toString();
+        console.log("Form data for submission:", data); // Debugging line
+
+        fetch(GOOGLE_SHEET_WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors', // مطلوب لـ Google Apps Script لأنه لا يرسل رؤوس CORS
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: queryString
+        })
+        .then(response => {
+            console.log("Fetch request sent (no-cors mode)."); // Debugging line
+            // بسبب 'no-cors'، لا يمكننا قراءة الاستجابة مباشرة.
+            // نفترض النجاح إذا لم يحدث خطأ في الشبكة.
+            // Google Apps Script سيقوم بإلحاق البيانات.
+            formMessage.textContent = htmlElement.lang === 'ar' ? 'تم الإرسال بنجاح! شكرًا لك.' : 'Message sent successfully! Thank you.';
+            formMessage.className = 'form-message success';
+            contactForm.reset(); // مسح النموذج
+        })
+        .catch(error => {
+            console.error('Error submitting form:', error); // Debugging line
+            formMessage.textContent = htmlElement.lang === 'ar' ? 'حدث خطأ أثناء الإرسال. الرجاء المحاولة مرة أخرى.' : 'Error sending message. Please try again.';
+            formMessage.className = 'form-message error';
+        });
+    });
+} else {
+    console.error("Contact form element not found!"); // Debugging if form ID is wrong
+}</script>
+                
+                </body></html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>أداة تحميل الوسائط</title>
+  <style>
+    /* Base Styles */
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e, #16213e); /* Darker, more elegant gradient */
+      color: #e0e0e0; /* Softer white text */
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      padding: 1.5rem; /* More padding */
+      max-width: 450px; /* Slightly narrower for mobile app feel */
+      width: 95%; /* Fluid width */
+      margin: 1rem auto; /* Center with some margin */
+      box-sizing: border-box;
+    }
+
+    /* Form Elements */
+    input[type="text"],
+    input[type="password"],
+    input[type="date"], /* Added for date input */
+    select {
+      width: calc(100% - 20px); /* Adjust for padding */
+      margin: 0.75rem 0;
+      padding: 0.9rem;
+      border: 1px solid #3a3a5e;
+      border-radius: 8px;
+      background-color: #2a2a4e;
+      color: #e0e0e0;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="date"]:focus,
+    select:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff; /* Primary button color */
+      color: white;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background-color: #0056b3; /* Darker on hover */
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background-color: #6c757d; /* Secondary button color */
+    }
+
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    /* Modals */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 1000;
+    }
+
+    .modal.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: #1e1e3f; /* Darker modal background */
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      transform: translateY(-20px);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    .modal.visible .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #3a3a5e;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      color: #e0e0e0;
+      font-size: 1.75rem;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      color: #e0e0e0;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .close-button:hover {
+      color: #dc3545;
+    }
+
+    /* Specific Modal Adjustments */
+    #download-modal .modal-content {
+      text-align: center;
+    }
+
+    #download-modal img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 1rem;
+      border-radius: 8px;
+    }
+
+    #download-modal .download-options button {
+      margin-top: 0.75rem;
+    }
+
+    /* Admin Panel styles */
+    .admin-nav button {
+      margin: 0.5rem;
+      width: auto;
+      padding: 0.75rem 1.25rem;
+      display: inline-block;
+    }
+
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-card {
+      background-color: #2a2a4e;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-card h3 {
+      color: #007bff;
+      margin-top: 0;
+      font-size: 1.2rem;
+    }
+
+    .stat-card p {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #e0e0e0;
+    }
+
+    /* User List table */
+    .user-table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 1.5rem;
+      border-radius: 8px;
+      border: 1px solid #3a3a5e;
+    }
+
+    .user-table {
+      width: 100%;
+      border-collapse: collapse;
+      color: #e0e0e0;
+    }
+
+    .user-table th, .user-table td {
+      padding: 0.75rem;
+      text-align: right;
+      border-bottom: 1px solid #3a3a5e;
+    }
+
+    .user-table th {
+      background-color: #1a1a2e;
+      font-weight: bold;
+      position: sticky;
+      top: 0;
+    }
+
+    .user-table tr:hover {
+      background-color: #2a2a4e;
+    }
+
+    .user-table button {
+      width: auto;
+      padding: 0.5rem 0.8rem;
+      margin: 0 0.2rem;
+      font-size: 0.9rem;
+    }
+
+    /* Usage Stats Chart */
+    #usageStatsChartContainer {
+        position: relative;
+        height: 300px;
+        width: 100%;
+        margin-top: 1.5rem;
+    }
+
+    /* Event Logs */
+    .event-log-entry {
+        background-color: #2a2a4e;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        word-break: break-all;
+    }
+
+    .event-log-entry span {
+        display: block;
+        margin-bottom: 0.2rem;
+    }
+
+    .event-log-entry .timestamp {
+        color: #9e9e9e;
+        font-size: 0.8rem;
+    }
+
+    .event-log-entry .type {
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .event-log-entry .user {
+        color: #7986cb;
+    }
+
+    .event-log-entry .description {
+        color: #e0e0e0;
+    }
+
+
+    /* Toast Notification */
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 8px;
+      padding: 16px;
+      position: fixed;
+      z-index: 1001;
+      left: 50%;
+      bottom: 30px;
+      transform: translateX(-50%);
+      font-size: 17px;
+      opacity: 0;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .toast.show {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Setting Toggles */
+    .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #2a2a4e;
+        padding: 0.8rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+    }
+
+    .setting-item label {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #e0e0e0;
+    }
+
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+    }
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 28px;
+    }
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .slider {
+        background-color: #007bff;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #007bff;
+    }
+
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+
+    /* Styles for the "Go to Main Screen" button */
+    .go-to-main-button {
+        display: block; /* Make it a block element */
+        width: 100%; /* Take full width */
+        padding: 10px 15px; /* Add some padding */
+        margin-top: 20px; /* Space from elements above */
+        background-color: #007bff; /* Primary button color */
+        color: white; /* White text */
+        border: none; /* No border */
+        border-radius: 8px; /* Rounded corners */
+        font-size: 1.1rem; /* Larger font size */
+        font-weight: bold; /* Bold text */
+        cursor: pointer; /* Pointer on hover */
+        transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+        text-align: center; /* Center the text */
+    }
+
+    .go-to-main-button:hover {
+        background-color: #0056b3; /* Darker on hover */
+        transform: translateY(-2px); /* Slight lift effect */
+    }
+
+    /* Link styling for "نسيت كلمة السر؟" and "تفعيل الأداة" */
+    .forgot-password-link, .activation-link {
+        display: block;
+        text-align: center;
+        margin-top: 1rem;
+        color: #007bff;
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.2s ease;
+    }
+
+    .forgot-password-link:hover, .activation-link:hover {
+        color: #0056b3;
+        text-decoration: underline;
+    }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div id="main-screen" class="container">
+    <div class="modal-header">
+      <h2>أداة تحميل الوسائط</h2>
+    </div>
+    <div class="modal-body">
+      <input type="text" id="media-url" placeholder="الرجاء إدخال رابط الوسائط هنا" />
+      <button onclick="checkAndDownload()">تحميل</button>
+      <div id="download-message" style="margin-top: 1rem; color: #dc3545; text-align: center;"></div>
+    </div>
+  </div>
+
+  <div id="download-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="download-modal-title"></h2>
+        <button class="close-button" onclick="closeModal('download-modal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="download-item-title"></p>
+        <img id="download-item-thumbnail" src="" alt="Thumbnail" style="display: none;">
+        <div id="download-options" class="download-options">
+          </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const WHATSAPP_NUMBER = "201090150997"; // Replace with your WhatsApp number
+
+    function showToast(message, duration = 3000) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, duration);
+    }
+
+    function showModal(modalId, pushToStack = true) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.add('visible');
+      }
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('visible');
+      }
+    }
+
+    function openWhatsAppChat(type) {
+        let message = '';
+        if (type === 'forgot_password') {
+            message = encodeURIComponent("قمت بنسيان كلمة السر الرجاء إرسال كلمة السر الخاصة بي");
+        } else if (type === 'activation') {
+            message = encodeURIComponent("أرغب في تفعيل أداة AboElfadl Download");
+        }
+        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${message}`, '_blank');
+    }
+
+    // --- Main Application Logic ---
+
+    // Simplified checkAndDownload for direct download without user management
+    async function checkAndDownload() {
+      const url = document.getElementById("media-url").value.trim();
+      const messageDiv = document.getElementById("download-message");
+
+      if (!url) {
+        messageDiv.textContent = "الرجاء إدخال رابط صالح.";
+        return;
+      }
+
+      messageDiv.textContent = "جاري جلب معلومات الوسائط...";
+
+      try {
+        const response = await fetch(`https://aboelfadldownload.000webhostapp.com/api/fetch_info.php?url=${encodeURIComponent(url)}`);
+        const data = await response.json();
+
+        if (data.error) {
+          messageDiv.textContent = `خطأ: ${data.error}`;
+          showToast(`خطأ: ${data.error}`, 5000);
+        } else {
+          messageDiv.textContent = "";
+          displayDownloadOptions(data);
+        }
+      } catch (error) {
+        console.error("Error fetching media info:", error);
+        messageDiv.textContent = "حدث خطأ أثناء جلب معلومات الوسائط. الرجاء المحاولة مرة أخرى.";
+        showToast("خطأ في الاتصال بالخادم. الرجاء التحقق من اتصالك بالإنترنت.", 5000);
+      }
+    }
+
+    function displayDownloadOptions(data) {
+      const downloadModal = document.getElementById("download-modal");
+      const downloadModalTitle = document.getElementById("download-modal-title");
+      const downloadItemTitle = document.getElementById("download-item-title");
+      const downloadItemThumbnail = document.getElementById("download-item-thumbnail");
+      const downloadOptionsDiv = document.getElementById("download-options");
+
+      downloadOptionsDiv.innerHTML = ""; // Clear previous options
+
+      downloadModalTitle.textContent = data.source || "معلومات التحميل";
+      downloadItemTitle.textContent = data.title || "عنوان غير متاح";
+
+      if (data.thumbnail) {
+        downloadItemThumbnail.src = data.thumbnail;
+        downloadItemThumbnail.style.display = "block";
+      } else {
+        downloadItemThumbnail.style.display = "none";
+      }
+
+      if (data.links && data.links.length > 0) {
+        data.links.forEach((link, index) => {
+          const button = document.createElement("button");
+          button.textContent = `${link.quality || "جودة غير معروفة"} (${link.format || "صيغة غير معروفة"})`;
+          button.onclick = () => window.open(link.url, '_blank');
+          downloadOptionsDiv.appendChild(button);
+        });
+      } else {
+        downloadOptionsDiv.innerHTML = "<p>لا توجد روابط تحميل متاحة لهذه الوسائط.</p>";
+      }
+
+      showModal("download-modal");
+    }
+
+    // --- Initial Load ---\
+    window.onload = () => {
+      // Directly show the main screen as there's no login
+      document.getElementById("main-screen").classList.add("visible");
+    };
+  </script>
+</body>
+</html>

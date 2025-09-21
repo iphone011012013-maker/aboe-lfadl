@@ -1,0 +1,186 @@
+<!DOCTYPE html><html lang="ar"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مولد روابط HTML</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f2f2;
+      margin: 20px;
+      padding: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      direction: rtl;
+    }
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: #ffffff;
+      padding: 10px;
+      margin: 20px 0;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 16px;
+    }
+    h2 {
+      text-align: center;
+      color: #3f51b5;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 8px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      resize: none;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #3f51b5;
+      color: #fff;
+      font-size: 17px;
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #303f9f;
+    }
+    iframe {
+      width: 100%;
+      height: 320px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 15px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>تطبيق مولد روابط</h2>
+    <textarea id="input" placeholder="أدخل النص يحتوي على روابط فقط وسيتم استخراجها"></textarea>
+    <button onclick="generateHTML()">معاينة الملف</button>
+    <button onclick="downloadHTML()">تحميل الملف</button>
+    <iframe id="preview"></iframe>
+  </div>  <script>
+    function extractLinks(text) {
+      const regex = /(https?:\/\/)?[\w.-]+\.[a-z]{2,}(\/\S*)?/gi;
+      const matches = text.match(regex);
+      if (!matches) return [];
+      return [...new Set(matches.map(link => link.trim()))];
+    }
+
+    function generateHTML() {
+      const rawText = document.getElementById("input").value.trim();
+      const links = extractLinks(rawText);
+
+      const searchBar = `<input type='text' placeholder='ابحث عن رابط...' onkeyup='searchLinks(this.value)' style='width:100%;padding:12px;font-size:16px;margin-bottom:15px;border-radius:8px;border:1px solid #ccc;'>`;
+
+      const script = `
+        <script>
+          function searchLinks(query) {
+            const buttons = document.querySelectorAll('button.link-btn');
+            buttons.forEach(btn => {
+              if (btn.innerText.toLowerCase().includes(query.toLowerCase())) {
+                btn.style.display = 'block';
+              } else {
+                btn.style.display = 'none';
+              }
+            });
+          }
+          function saveButton() {
+            const url = prompt('أدخل الرابط الجديد:');
+            if (!url) return;
+            let fixedUrl = url.trim();
+            if (!fixedUrl.startsWith('http')) fixedUrl = 'https://' + fixedUrl;
+            const name = fixedUrl.replace(/https?:\/\//, '').replace(/\/.*$/, '');
+            const btn = document.createElement('button');
+            btn.className = 'link-btn';
+            btn.innerText = name;
+            btn.onclick = () => window.open(fixedUrl, '_blank');
+            document.body.insertBefore(btn, document.getElementById('add-btn'));
+            const saved = JSON.parse(localStorage.getItem('customLinks') || '[]');
+            saved.push(fixedUrl);
+            localStorage.setItem('customLinks', JSON.stringify(saved));
+          }
+          window.onload = function() {
+            const saved = JSON.parse(localStorage.getItem('customLinks') || '[]');
+            saved.forEach(fixedUrl => {
+              const name = fixedUrl.replace(/https?:\/\//, '').replace(/\/.*$/, '');
+              const btn = document.createElement('button');
+              btn.className = 'link-btn';
+              btn.innerText = name;
+              btn.onclick = () => window.open(fixedUrl, '_blank');
+              document.body.insertBefore(btn, document.getElementById('add-btn'));
+            });
+          }
+        <\/script>
+      `;
+
+      const style = `
+        <style>
+          body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #000;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+          }
+          input[type="text"] {
+            font-size: 16px;
+          }
+          button.link-btn {
+            width: 100%;
+            margin: 6px 0;
+            padding: 14px;
+            background: linear-gradient(to right, #ffba00, #ffb700);
+            border: none;
+            color: #000;
+            font-size: 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          }
+          .add-btn {
+            background: #2196f3;
+            margin-top: 15px;
+          }
+        </style>`;let buttons = "";
+  links.forEach(url => {
+    if (!url.startsWith("http")) url = "https://" + url;
+    let name = url.replace(/https?:\/\//, "").replace(/\/.*$/, "");
+    buttons += `<button class='link-btn' onclick='window.open("${url}", "_blank")'>${name}</button>`;
+  });
+
+  buttons += `<button class='add-btn' onclick='saveButton()'>إضافة رابط يدويًا</button>`;
+
+  const htmlCode = `<!DOCTYPE html><html lang='ar'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width, initial-scale=1.0'>${style}</head><body>${searchBar}${buttons}${script}</body></html>`;
+
+  const blob = new Blob([htmlCode], { type: "text/html" });
+  const previewFrame = document.getElementById("preview");
+  previewFrame.src = URL.createObjectURL(blob);
+  localStorage.setItem("generatedHTML", htmlCode);
+}
+
+function downloadHTML() {
+  const html = localStorage.getItem("generatedHTML");
+  if (!html) return alert("يرجى إنشاء الملف أولاً");
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "mobile_links_app.html";
+  a.click();
+}
+
+  </script>
+</body>
+</html>

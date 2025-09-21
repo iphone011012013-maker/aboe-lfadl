@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر الصور - AboElfadl</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow: hidden; /* Prevent body scroll, layout managed by flexbox */
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background-color: #ffffff;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            flex-shrink: 0; /* Prevent it from shrinking */
+            /* Add a fixed height or min-height for consistent calculation */
+            min-height: 50px; /* Example fixed height */
+        }
+
+        .top-bar .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e91e63; /* PicsArt-like color */
+        }
+
+        .top-bar .icons button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            margin-left: 15px;
+            cursor: pointer;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+
+        .top-bar .icons button:hover {
+            color: #e91e63;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            display: flex;
+            flex-grow: 1; /* Allows it to take remaining vertical space */
+            justify-content: center;
+            align-items: center;
+            padding: 20px; /* Padding around the editor container */
+            overflow: hidden; /* This container should not scroll, the editor-canvas-area will */
+            position: relative;
+        }
+
+        .image-editor-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            /* width/height will be set by JS dynamically */
+            overflow: hidden; /* Prevents shadow clipping if canvas is too big for container */
+        }
+
+        .editor-canvas-area {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e0e0e0; /* Light gray background for canvas area */
+            position: relative;
+            overflow: auto; /* Allows scrolling within this area if canvas is larger */
+        }
+
+        #imageCanvas {
+            border: 1px dashed #ccc;
+            display: block; /* Ensure canvas takes up space */
+        }
+
+        .placeholder-text {
+            position: absolute;
+            color: #888;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        /* Bottom Toolbar */
+        .bottom-toolbar {
+            background-color: #ffffff;
+            padding: 10px 0;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            overflow-x: auto; /* Allows horizontal scrolling of tools */
+            white-space: nowrap;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            z-index: 999;
+            flex-shrink: 0; /* Prevent it from shrinking vertically */
+            /* Add a fixed height or min-height for consistent calculation */
+            min-height: 80px; /* Example fixed height (icon + text + padding) */
+        }
+
+        .bottom-toolbar::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .bottom-toolbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .bottom-toolbar::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+
+        .bottom-toolbar::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .bottom-toolbar .tool-item {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 15px;
+            cursor: pointer;
+            color: #555;
+            transition: color 0.3s ease;
+            min-width: 80px; /* Ensure consistent spacing */
+        }
+
+        .bottom-toolbar .tool-item:hover {
+            color: #e91e63;
+        }
+
+        .bottom-toolbar .tool-item i {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .bottom-toolbar .tool-item span {
+            font-size: 12px;
+        }
+
+        /* Overlay Menus (for Text, Shapes, Stickers, New Project) */
+        .overlay-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            display: none; /* Hidden by default */
+        }
+
+        .overlay-menu-content {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .overlay-menu-content h3 {
+            margin-top: 0;
+            color: #e91e63;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .overlay-menu-content .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #777;
+        }
+
+        /* Specific Menu Styles */
+        #textOptions label, #textOptions input, #textOptions select,
+        #newProjectOptions label, #newProjectOptions input, #newProjectOptions select {
+            display: block;
+            margin-bottom: 10px;
+            width: calc(100% - 20px);
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #textOptions .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        #textOptions input[type="color"] {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+
+        .shapes-grid, .stickers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+
+        .shapes-grid div, .stickers-grid img {
+            width: 100%;
+            height: 80px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 30px;
+            color: #777;
+            cursor: pointer;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .stickers-grid img {
+            object-fit: contain;
+            background-color: #f9f9f9;
+        }
+
+        .shapes-grid div:hover, .stickers-grid img:hover {
+            transform: scale(1.05);
+            border-color: #e91e63;
+        }
+
+        /* Home Page */
+        .home-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex-grow: 1;
+            padding: 20px;
+            background-color: #f8f8f8;
+        }
+
+        .home-page h1 {
+            color: #e91e63;
+            font-size: 3em;
+            margin-bottom: 30px;
+        }
+
+        .home-buttons button {
+            background-color: #e91e63;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .home-buttons button:hover {
+            background-color: #d81b60;
+            transform: translateY(-2px);
+        }
+
+        /* Project History */
+        #projectHistorySection {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            display: none; /* Hidden by default */
+        }
+
+        #projectHistorySection h3 {
+            text-align: center;
+            color: #e91e63;
+            margin-bottom: 20px;
+        }
+
+        #projectHistoryList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .project-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .project-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-item img {
+            max-width: 100%;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            border-radius: 3px;
+        }
+
+        .project-item p {
+            font-size: 0.9em;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Share Menu */
+        .share-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            display: none; /* Hidden by default */
+        }
+
+        .share-menu-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+
+        .share-menu-content h3 {
+            color: #e91e63;
+            margin-bottom: 25px;
+        }
+
+        .share-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .share-option:hover {
+            transform: translateY(-5px);
+        }
+
+        .share-option i {
+            font-size: 40px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .share-option span {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .share-download-options button {
+            background-color: #4CAF50; /* Green for download */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .share-download-options button:hover {
+            background-color: #45a049;
+        }
+
+        .share-footer-note {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 20px;
+        }
+
+        /* General Utility */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="homePage" class="home-page">
+        <h1>محرر الصور AboElfadl</h1>
+        <div class="home-buttons">
+            <button id="startNewProjectBtn"><i class="fas fa-file-alt"></i> مشروع جديد</button>
+            <button id="startEditBtn"><i class="fas fa-magic"></i> تعديل صورة</button>
+            <button id="removeBgBtnHome"><i class="fas fa-cut"></i> إزالة خلفية</button>
+            <button id="removeWatermarkBtnHome"><i class="fas fa-eraser"></i> إزالة علامة مائية</button>
+            <button id="viewProjectsBtnHome"><i class="fas fa-folder-open"></i> المشروعات السابقة</button>
+        </div>
+    </div>
+
+    <div id="editorInterface" class="hidden">
+        <div class="top-bar">
+            <div class="logo">AboElfadl Editor</div>
+            <div class="icons">
+                <button id="saveManualBtn" title="حفظ يدوي"><i class="fas fa-save"></i></button>
+                <button id="undoBtn" title="تراجع"><i class="fas fa-undo"></i></button>
+                <button id="redoBtn" title="تقدم"><i class="fas fa-redo"></i></button>
+                <button id="shareBtn" title="مشاركة"><i class="fas fa-share-alt"></i></button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="image-editor-container">
+                <div class="editor-canvas-area">
+                    <canvas id="imageCanvas"></canvas>
+                    <p id="canvasPlaceholder" class="placeholder-text">قم بتحميل صورة أو ابدأ مشروعاً جديداً</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-toolbar">
+            <label for="imageUpload" class="tool-item">
+                <i class="fas fa-upload"></i>
+                <span>تحميل الصورة</span>
+                <input type="file" id="imageUpload" accept="image/*" class="hidden">
+            </label>
+
+            <div class="tool-item" id="addTextTool">
+                <i class="fas fa-font"></i>
+                <span>إضافة نص</span>
+            </div>
+
+            <div class="tool-item" id="addShapeTool">
+                <i class="fas fa-shapes"></i>
+                <span>إضافة أشكال</span>
+            </div>
+
+            <div class="tool-item" id="addStickerTool">
+                <i class="fas fa-sticker-mule"></i>
+                <span>ملصقات</span>
+            </div>
+
+            <div class="tool-item" id="cropTool">
+                <i class="fas fa-crop"></i>
+                <span>قص الصورة</span>
+            </div>
+
+            <div class="tool-item" id="removeBgTool">
+                <i class="fas fa-cut"></i>
+                <span>إزالة خلفية</span>
+            </div>
+
+            <div class="tool-item" id="removeWatermarkTool">
+                <i class="fas fa-eraser"></i>
+                <span>إزالة علامة مائية</span>
+            </div>
+
+            <div class="tool-item" id="deleteElementTool">
+                <i class="fas fa-trash-alt"></i>
+                <span>حذف عنصر</span>
+            </div>
+
+             <div class="tool-item" id="extractColorTool">
+                <i class="fas fa-eye-dropper"></i>
+                <span>استخراج لون</span>
+            </div>
+
+            <div class="tool-item" id="changeColorTool">
+                <i class="fas fa-palette"></i>
+                <span>تغيير الألوان</span>
+            </div>
+
+            <div class="tool-item" id="viewProjectsTool">
+                <i class="fas fa-folder-open"></i>
+                <span>المشروعات</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="textOptionsOverlay" class="overlay-menu">
+        <div class="overlay-menu-content">
+            <span class="close-btn" onclick="closeOverlay('textOptionsOverlay')">×</span>
+            <h3>إضافة نص</h3>
+            <div id="textOptions">
+                <label for="textInput">النص:</label>
+                <input type="text" id="textInput" placeholder="أدخل نصاً هنا...">
+
+                <label for="textColor">اللون:</label>
+                <div class="color-picker-container">
+                    <input type="color" id="textColor" value="#000000">
+                    <input type="text" id="textColorHex" value="#000000" readonly>
+                </div>
+
+
+                <label for="fontFamily">الخط:</label>
+                <select id="fontFamily">
+                    <option value="Arial">Arial</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Lucida Console">Lucida Console</option>
+                    <option value="Cairo">Cairo</option>
+                    <option value="Almarai">Almarai</option>
+                    <option value="Amiri">Amiri</option>
+                    <option value="Lateef">Lateef</option>
+                    <option value="Scheherazade New">Scheherazade New</option>
+                </select>
+
+                <label for="fontSize">حجم الخط:</label>
+                <input type="range" id="fontSize" min="10" max="100" value="30">
+                <span id="fontSizeValue">30px</span>
+
+                <button onclick="applyTextChanges()" style="background-color: #e91e63; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-top: 20px; cursor: pointer;">إضافة/تطبيق</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="shapesOptionsOverlay" class="overlay-menu">
+        <div class="overlay-menu-content">
+            <span class="close-btn" onclick="closeOverlay('shapesOptionsOverlay')">×</span>
+            <h3>إضافة أشكال</h3>
+            <div class="shapes-grid">
+                <div data-shape="square"><i class="fas fa-square"></i></div>
+                <div data-shape="circle"><i class="fas fa-circle"></i></div>
+                <div data-shape="triangle"><i class="fas fa-caret-up"></i></div>
+                <div data-shape="star"><i class="fas fa-star"></i></div>
+                <div data-shape="heart"><i class="fas fa-heart"></i></div>
+                <div data-shape="arrow-right"><i class="fas fa-arrow-right"></i></div>
+                <div data-shape="cloud"><i class="fas fa-cloud"></i></div>
+                <div data-shape="sun"><i class="fas fa-sun"></i></div>
+                <div data-shape="moon"><i class="fas fa-moon"></i></div>
+                <div data-shape="lightning"><i class="fas fa-bolt"></i></div>
+                </div>
+             <div style="margin-top: 20px;">
+                <label for="shapeColor">لون الشكل:</label>
+                <input type="color" id="shapeColor" value="#FF0000">
+            </div>
+        </div>
+    </div>
+
+    <div id="stickersOptionsOverlay" class="overlay-menu">
+        <div class="overlay-menu-content">
+            <span class="close-btn" onclick="closeOverlay('stickersOptionsOverlay')">×</span>
+            <h3>الملصقات</h3>
+            <div class="stickers-grid">
+                <img src="https://via.placeholder.com/80x80?text=Sticker1" alt="Sticker 1">
+                <img src="https://via.placeholder.com/80x80?text=Sticker2" alt="Sticker 2">
+                <img src="https://via.placeholder.com/80x80?text=Sticker3" alt="Sticker 3">
+                <img src="https://via.placeholder.com/80x80?text=Sticker4" alt="Sticker 4">
+                <img src="https://via.placeholder.com/80x80?text=Sticker5" alt="Sticker 5">
+                <img src="https://via.placeholder.com/80x80?text=Sticker6" alt="Sticker 6">
+                <img src="https://via.placeholder.com/80x80?text=Sticker7" alt="Sticker 7">
+                <img src="https://via.placeholder.com/80x80?text=Sticker8" alt="Sticker 8">
+                </div>
+        </div>
+    </div>
+
+    <div id="shareMenuOverlay" class="overlay-menu">
+        <div class="share-menu-content">
+            <span class="close-btn" onclick="closeOverlay('shareMenuOverlay')">×</span>
+            <h3>مشاركة وتنزيل الصورة</h3>
+            <div class="share-options">
+                <div class="share-option" onclick="shareOnSocial('whatsapp')">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>واتساب</span>
+                </div>
+                <div class="share-option" onclick="shareOnSocial('facebook')">
+                    <i class="fab fa-facebook"></i>
+                    <span>فيسبوك</span>
+                </div>
+                <div class="share-option" onclick="shareOnSocial('twitter')">
+                    <i class="fab fa-twitter"></i>
+                    <span>تويتر</span>
+                </div>
+                <div class="share-option" onclick="shareOnSocial('instagram')">
+                    <i class="fab fa-instagram"></i>
+                    <span>انستجرام</span>
+                </div>
+                <div class="share-option" onclick="shareOnSocial('telegram')">
+                    <i class="fab fa-telegram"></i>
+                    <span>تليجرام</span>
+                </div>
+                <div class="share-option" onclick="shareOnSocial('email')">
+                    <i class="fas fa-envelope"></i>
+                    <span>بريد إلكتروني</span>
+                </div>
+            </div>
+            <div class="share-download-options">
+                <button onclick="downloadImage('png')">تنزيل PNG</button>
+                <button onclick="downloadImage('jpeg')">تنزيل JPEG</button>
+                <button onclick="downloadImage('webp')">تنزيل WebP</button>
+            </div>
+            <p class="share-footer-note">تم تعديل هذه الصورة في ابلكيشن AboElfadl</p>
+        </div>
+    </div>
+
+    <div id="projectHistorySection" class="overlay-menu">
+        <div class="overlay-menu-content">
+            <span class="close-btn" onclick="closeOverlay('projectHistorySection')">×</span>
+            <h3>المشروعات السابقة</h3>
+            <div id="projectHistoryList">
+                <p>لا توجد مشروعات سابقة حالياً.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="newProjectOverlay" class="overlay-menu">
+        <div class="overlay-menu-content">
+            <span class="close-btn" onclick="closeOverlay('newProjectOverlay')">×</span>
+            <h3>بدء مشروع جديد</h3>
+            <div id="newProjectOptions">
+                <label for="newProjectWidth">العرض (بكسل):</label>
+                <input type="number" id="newProjectWidth" value="1080" min="100" max="8000">
+
+                <label for="newProjectHeight">الارتفاع (بكسل):</label>
+                <input type="number" id="newProjectHeight" value="1080" min="100" max="8000">
+
+                <label for="presetSizes">أبعاد جاهزة:</label>
+                <select id="presetSizes">
+                    <option value="custom">مخصص</option>
+                    <option value="1080x1080">مربع (1080x1080)</option>
+                    <option value="1920x1080">Full HD (1920x1080)</option>
+                    <option value="1080x1920">قصة (1080x1920)</option>
+                    <option value="2000x2000">افتراضي (2000x2000)</option>
+                </select>
+
+                <button onclick="createNewProject()" style="background-color: #e91e63; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-top: 20px; cursor: pointer;">إنشاء</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script>
+        // --- API Keys ---
+        const REMOVE_BG_API_KEY = "y3sDHeAessQoZ4R4t8kG2pve";
+        const REMOVE_WATERMARK_API_KEY = "cc14da63cbf2f1818f15e61f945c25e9cc567cb5ef72c25e044b84fc3861642a2026d7d3c02dfde2a7e22a36a0b09d4e";
+
+        // --- DOM Elements ---
+        const homePage = document.getElementById('homePage');
+        const editorInterface = document.getElementById('editorInterface');
+        const startNewProjectBtn = document.getElementById('startNewProjectBtn');
+        const startEditBtn = document.getElementById('startEditBtn');
+        const removeBgBtnHome = document.getElementById('removeBgBtnHome');
+        const removeWatermarkBtnHome = document.getElementById('removeWatermarkBtnHome');
+        const viewProjectsBtnHome = document.getElementById('viewProjectsBtnHome');
+
+        const imageUpload = document.getElementById('imageUpload');
+        const imageCanvas = document.getElementById('imageCanvas');
+        const canvasPlaceholder = document.getElementById('canvasPlaceholder');
+        const topBar = document.querySelector('.top-bar');
+        const bottomToolbar = document.querySelector('.bottom-toolbar');
+        const mainContent = document.querySelector('.main-content');
+        const imageEditorContainer = document.querySelector('.image-editor-container');
+
+
+        // Initialize Fabric.js canvas
+        let canvas = new fabric.Canvas('imageCanvas');
+
+        const saveManualBtn = document.getElementById('saveManualBtn');
+        const undoBtn = document.getElementById('undoBtn');
+        const redoBtn = document.getElementById('redoBtn');
+        const shareBtn = document.getElementById('shareBtn');
+
+        const addTextTool = document.getElementById('addTextTool');
+        const addShapeTool = document.getElementById('addShapeTool');
+        const addStickerTool = document.getElementById('addStickerTool');
+        const cropTool = document.getElementById('cropTool');
+        const removeBgTool = document.getElementById('removeBgTool');
+        const removeWatermarkTool = document.getElementById('removeWatermarkTool');
+        const deleteElementTool = document.getElementById('deleteElementTool');
+        const extractColorTool = document.getElementById('extractColorTool');
+        const changeColorTool = document.getElementById('changeColorTool');
+        const viewProjectsTool = document.getElementById('viewProjectsTool');
+
+
+        const textOptionsOverlay = document.getElementById('textOptionsOverlay');
+        const textInput = document.getElementById('textInput');
+        const textColor = document.getElementById('textColor');
+        const textColorHex = document.getElementById('textColorHex');
+        const fontFamily = document.getElementById('fontFamily');
+        const fontSize = document.getElementById('fontSize');
+        const fontSizeValue = document.getElementById('fontSizeValue');
+        const shapesOptionsOverlay = document.getElementById('shapesOptionsOverlay');
+        const shapesGrid = document.querySelector('.shapes-grid');
+        const shapeColor = document.getElementById('shapeColor');
+        const stickersOptionsOverlay = document.getElementById('stickersOptionsOverlay');
+        const stickersGrid = document.querySelector('.stickers-grid');
+        const shareMenuOverlay = document.getElementById('shareMenuOverlay');
+        const projectHistorySection = document.getElementById('projectHistorySection');
+        const projectHistoryList = document.getElementById('projectHistoryList');
+
+        const newProjectOverlay = document.getElementById('newProjectOverlay');
+        const newProjectWidthInput = document.getElementById('newProjectWidth');
+        const newProjectHeightInput = document.getElementById('newProjectHeight');
+        const presetSizesSelect = document.getElementById('presetSizes');
+
+        let currentState = []; // For undo/redo
+        let historyIndex = -1; // For undo/redo
+        let autoSaveInterval; // For auto-save feature
+
+        // Keep track of current canvas dimensions if set by image or new project
+        let currentCanvasOriginalWidth = 0; // Original width of the content (image or new project)
+        let currentCanvasOriginalHeight = 0; // Original height of the content
+
+
+        // --- Initial Setup ---
+        window.onload = () => {
+            showHomePage();
+            loadAutoSavedProject(); // Try to load last session
+
+            // If no auto-save, set a default canvas size for the placeholder
+            // This is important for the initial empty canvas state
+            if (canvas.isEmpty() && editorInterface.classList.contains('hidden')) {
+                // If we are on home page and no auto-save, we don't need to setup canvas size immediately.
+                // It will be set when user clicks "New Project" or "Edit Image".
+            } else if (canvas.isEmpty() && !editorInterface.classList.contains('hidden')) {
+                // If we are already in editor but canvas is empty, set a default size.
+                currentCanvasOriginalWidth = 1080;
+                currentCanvasOriginalHeight = 720;
+                setupCanvasSize(currentCanvasOriginalWidth, currentCanvasOriginalHeight);
+            }
+        };
+
+        // Recalculate canvas size on window resize to ensure toolbar visibility
+        window.addEventListener('resize', () => {
+            // Only adjust if editor is visible and a project/image is loaded
+            if (!editorInterface.classList.contains('hidden') && (currentCanvasOriginalWidth > 0 || currentCanvasOriginalHeight > 0)) {
+                setupCanvasSize(currentCanvasOriginalWidth, currentCanvasOriginalHeight); // Pass original dimensions
+            } else if (!editorInterface.classList.contains('hidden') && canvas.isEmpty()) {
+                // If editor is visible but canvas is empty, use default placeholder size
+                currentCanvasOriginalWidth = 1080;
+                currentCanvasOriginalHeight = 720;
+                setupCanvasSize(currentCanvasOriginalWidth, currentCanvasOriginalHeight);
+            }
+        });
+
+
+        // Modified setupCanvasSize to prioritize toolbar visibility
+        function setupCanvasSize(targetWidth, targetHeight) {
+            const MAX_DIMENSION = 8000;
+            targetWidth = Math.min(targetWidth, MAX_DIMENSION);
+            targetHeight = Math.min(targetHeight, MAX_DIMENSION);
+
+            // Get computed styles for accurate height calculation
+            const topBarComputedStyle = getComputedStyle(topBar);
+            const bottomToolbarComputedStyle = getComputedStyle(bottomToolbar);
+            const mainContentComputedStyle = getComputedStyle(mainContent);
+            const imageEditorContainerComputedStyle = getComputedStyle(imageEditorContainer);
+
+            // Calculate heights including padding/margins where applicable
+            const topBarHeight = topBar.offsetHeight; // Includes padding and border if any
+            const bottomToolbarHeight = bottomToolbar.offsetHeight; // Includes padding and border if any
+
+            // mainContent padding
+            const mainContentPaddingTop = parseFloat(mainContentComputedStyle.paddingTop);
+            const mainContentPaddingBottom = parseFloat(mainContentComputedStyle.paddingBottom);
+            const mainContentPaddingLeft = parseFloat(mainContentComputedStyle.paddingLeft);
+            const mainContentPaddingRight = parseFloat(mainContentComputedStyle.paddingRight);
+            const mainContentVerticalPadding = mainContentPaddingTop + mainContentPaddingBottom;
+            const mainContentHorizontalPadding = mainContentPaddingLeft + mainContentPaddingRight;
+
+            // imageEditorContainer padding and border (if any, as it has box-shadow which is not size affecting)
+            const editorContainerBorderWidth = 2; // Roughly for the dashed border of canvas area, and editor container shadow
+            const editorContainerVerticalPadding = 20; // Example buffer for internal spacing/shadow.
+            const editorContainerHorizontalPadding = 20; // Example buffer for internal spacing/shadow.
+
+
+            // Calculate available space for the actual canvas area (inside image-editor-container)
+            // Total viewport height - top bar - bottom toolbar - main content vertical padding
+            const availableHeightForCanvasArea = window.innerHeight - topBarHeight - bottomToolbarHeight - mainContentVerticalPadding - (editorContainerVerticalPadding * 2);
+            const availableWidthForCanvasArea = window.innerWidth - mainContentHorizontalPadding - (editorContainerHorizontalPadding * 2);
+
+            let finalCanvasWidth = targetWidth;
+            let finalCanvasHeight = targetHeight;
+
+            // Maintain aspect ratio while fitting within available space
+            const aspectRatio = targetWidth / targetHeight;
+
+            // Check if scaling is needed at all
+            if (targetWidth > availableWidthForCanvasArea || targetHeight > availableHeightForCanvasArea) {
+                const widthScale = availableWidthForCanvasArea / targetWidth;
+                const heightScale = availableHeightForCanvasArea / targetHeight;
+
+                if (widthScale < heightScale) {
+                    finalCanvasWidth = availableWidthForCanvasArea;
+                    finalCanvasHeight = availableWidthForCanvasArea / aspectRatio;
+                } else {
+                    finalCanvasHeight = availableHeightForCanvasArea;
+                    finalCanvasWidth = availableHeightForCanvasArea * aspectRatio;
+                }
+            }
+
+            // Ensure canvas is at least a minimum size
+            const MIN_CANVAS_SIZE = 100;
+            finalCanvasWidth = Math.max(finalCanvasWidth, MIN_CANVAS_SIZE);
+            finalCanvasHeight = Math.max(finalCanvasHeight, MIN_CANVAS_SIZE);
+
+            canvas.setWidth(finalCanvasWidth);
+            canvas.setHeight(finalCanvasHeight);
+            canvas.calcOffset(); // Recalculate object positions
+            positionPlaceholder();
+
+            // Set the dimensions of the image-editor-container to wrap the canvas
+            // Adding a small buffer for the container's own padding/border/shadow visually
+            imageEditorContainer.style.width = `${finalCanvasWidth + (editorContainerHorizontalPadding * 2)}px`;
+            imageEditorContainer.style.height = `${finalCanvasHeight + (editorContainerVerticalPadding * 2)}px`;
+
+            // Make sure the container itself doesn't cause overflow on the main-content
+            // This ensures it fits within the horizontal and vertical space allocated for main-content after toolbars
+            imageEditorContainer.style.maxWidth = `${window.innerWidth - mainContentHorizontalPadding}px`;
+            imageEditorContainer.style.maxHeight = `${availableHeightForCanvasArea + (editorContainerVerticalPadding * 2)}px`;
+
+            const editorCanvasArea = document.querySelector('.editor-canvas-area');
+            editorCanvasArea.style.overflow = 'auto'; // Enable scrolling for the canvas area if canvas is larger than its container due to padding
+        }
+
+
+        function positionPlaceholder() {
+            if (canvas.isEmpty()) {
+                canvasPlaceholder.style.display = 'block';
+                // Center placeholder based on current canvas size
+                canvasPlaceholder.style.left = `${canvas.getWidth() / 2}px`;
+                canvasPlaceholder.style.top = `${canvas.getHeight() / 2}px`;
+                canvasPlaceholder.style.transform = 'translate(-50%, -50%)';
+            } else {
+                canvasPlaceholder.style.display = 'none';
+            }
+        }
+
+        // --- Home Page Functions ---
+        function showHomePage() {
+            homePage.classList.remove('hidden');
+            editorInterface.classList.add('hidden');
+            closeAllOverlays();
+        }
+
+        function showEditorInterface() {
+            homePage.classList.add('hidden');
+            editorInterface.classList.remove('hidden');
+            // If the editor is shown, and canvas is empty, set a default size.
+            // If there's an auto-saved project, that will handle sizing.
+            if (canvas.isEmpty() && currentCanvasOriginalWidth === 0) {
+                currentCanvasOriginalWidth = 1080;
+                currentCanvasOriginalHeight = 720;
+                setupCanvasSize(currentCanvasOriginalWidth, currentCanvasOriginalHeight);
+            }
+        }
+
+        startEditBtn.addEventListener('click', () => {
+            showEditorInterface();
+            // Show upload dialog or prompt to upload image
+            alert('الرجاء تحميل صورة للبدء في التعديل.');
+            imageUpload.click(); // Programmatically click the file input
+        });
+
+        startNewProjectBtn.addEventListener('click', () => {
+            showOverlay('newProjectOverlay');
+            // Reset to default values for new project
+            newProjectWidthInput.value = 1080;
+            newProjectHeightInput.value = 1080;
+            presetSizesSelect.value = '1080x1080';
+        });
+
+        presetSizesSelect.addEventListener('change', () => {
+            const selectedValue = presetSizesSelect.value;
+            if (selectedValue !== 'custom') {
+                const [width, height] = selectedValue.split('x').map(Number);
+                newProjectWidthInput.value = width;
+                newProjectHeightInput.value = height;
+            }
+        });
+
+        function createNewProject() {
+            const width = parseInt(newProjectWidthInput.value);
+            const height = parseInt(newProjectHeightInput.value);
+
+            if (isNaN(width) || isNaN(height) || width <= 0 || height <= 0 || width > 8000 || height > 8000) {
+                alert('الرجاء إدخال أبعاد صحيحة للكانفاس (100-8000 بكسل).');
+                return;
+            }
+
+            showEditorInterface();
+            canvas.clear(); // Clear any existing content
+            currentCanvasOriginalWidth = width; // Store original dimensions
+            currentCanvasOriginalHeight = height; // Store original dimensions
+            setupCanvasSize(width, height); // Set canvas to new dimensions and scale if needed
+            canvas.setBackgroundColor('#ffffff', () => { // Set white background for empty canvas
+                canvas.renderAll();
+                saveState(); // Save initial empty state
+                positionPlaceholder();
+            });
+
+            closeOverlay('newProjectOverlay');
+            alert(`تم إنشاء مشروع جديد بأبعاد: ${width}x${height} بكسل.`);
+        }
+
+
+        viewProjectsBtnHome.addEventListener('click', () => {
+            showEditorInterface(); // Go to editor first, then show projects
+            showOverlay('projectHistorySection');
+            loadProjectHistory();
+        });
+
+        // --- Core Editor Functions ---
+
+        // Image Upload
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image(); // Create a native Image object
+                    img.onload = () => {
+                        // Get original image dimensions
+                        currentCanvasOriginalWidth = img.width; // Store for setupCanvasSize
+                        currentCanvasOriginalHeight = img.height; // Store for setupCanvasSize
+
+                        fabric.Image.fromURL(event.target.result, (fabricImg) => {
+                            canvas.clear(); // Clear existing content
+                            
+                            // Temporarily set canvas to original image size to add image correctly
+                            canvas.setWidth(currentCanvasOriginalWidth);
+                            canvas.setHeight(currentCanvasOriginalHeight);
+
+                            canvas.add(fabricImg);
+                            // Scale fabricImg to fit the canvas (which is currently its original size)
+                            fabricImg.scaleToWidth(canvas.getWidth());
+                            if (fabricImg.getScaledHeight() > canvas.getHeight()) {
+                                fabricImg.scaleToHeight(canvas.getHeight());
+                            }
+                            canvas.centerObject(fabricImg);
+                            canvas.renderAll();
+                            saveState(); // Save initial state
+                            positionPlaceholder(); // Hide placeholder
+
+                            // Now, call setupCanvasSize to scale the canvas itself to fit the viewport
+                            setupCanvasSize(currentCanvasOriginalWidth, currentCanvasOriginalHeight);
+                        }, { crossOrigin: 'Anonymous' }); // Ensure crossOrigin for potential image manipulation
+                    };
+                    img.src = event.target.result; // Set src to trigger onload
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Undo/Redo
+        canvas.on('object:modified', saveState);
+        canvas.on('object:added', saveState);
+        canvas.on('object:removed', saveState);
+
+        function saveState() {
+            if (historyIndex < currentState.length - 1) {
+                currentState = currentState.slice(0, historyIndex + 1);
+            }
+            currentState.push(JSON.stringify(canvas));
+            historyIndex = currentState.length - 1;
+            console.log('State saved. History length:', currentState.length);
+            startAutoSave(); // Restart auto-save timer
+        }
+
+        undoBtn.addEventListener('click', () => {
+            if (historyIndex > 0) {
+                historyIndex--;
+                canvas.loadFromJSON(currentState[historyIndex], () => {
+                    canvas.renderAll();
+                    positionPlaceholder(); // Re-evaluate placeholder visibility
+                    console.log('Undo');
+                });
+            }
+        });
+
+        redoBtn.addEventListener('click', () => {
+            if (historyIndex < currentState.length - 1) {
+                historyIndex++;
+                canvas.loadFromJSON(currentState[historyIndex], () => {
+                    canvas.renderAll();
+                    positionPlaceholder(); // Re-evaluate placeholder visibility
+                    console.log('Redo');
+                });
+            }
+        });
+
+        // Manual Save
+        saveManualBtn.addEventListener('click', () => {
+            if (canvas.isEmpty()) {
+                alert('لا توجد صورة لحفظها.');
+                return;
+            }
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1.0,
+                enableRetinaScaling: true // For high-res download
+            });
+            const link = document.createElement('a');
+            link.download = 'edited_image.png';
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert('تم حفظ الصورة بنجاح!');
+            saveProjectToHistory(); // Save to local project history
+        });
+
+        // Auto Save (Local Storage)
+        function startAutoSave() {
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+            autoSaveInterval = setInterval(() => {
+                if (!canvas.isEmpty()) {
+                    localStorage.setItem('autoSavedProject', JSON.stringify(canvas.toJSON()));
+                    localStorage.setItem('autoSavedProjectCanvasOriginalWidth', currentCanvasOriginalWidth); // Save original dimensions
+                    localStorage.setItem('autoSavedProjectCanvasOriginalHeight', currentCanvasOriginalHeight); // Save original dimensions
+                    console.log('Auto-saved project.');
+                }
+            }, 5000); // Save every 5 seconds
+        }
+
+        function loadAutoSavedProject() {
+            const savedProject = localStorage.getItem('autoSavedProject');
+            const savedOriginalWidth = localStorage.getItem('autoSavedProjectCanvasOriginalWidth');
+            const savedOriginalHeight = localStorage.getItem('autoSavedProjectCanvasOriginalHeight');
+
+            if (savedProject && savedOriginalWidth && savedOriginalHeight) {
+                if (confirm('هل تريد استئناف مشروعك الأخير الذي تم حفظه تلقائياً؟')) {
+                    showEditorInterface();
+                    currentCanvasOriginalWidth = parseInt(savedOriginalWidth); // Load original dimensions
+                    currentCanvasOriginalHeight = parseInt(savedOriginalHeight); // Load original dimensions
+                    canvas.loadFromJSON(savedProject, () => {
+                        setupCanvasSize(currentCanvasOriginalWidth, currentCanvasOriginalHeight); // Set canvas size based on original
+                        canvas.renderAll();
+                        saveState(); // Add to undo history
+                        positionPlaceholder();
+                        console.log('Auto-saved project loaded.');
+                    });
+                }
+            }
+        }
+
+        // --- Overlay Management ---
+        function showOverlay(overlayId) {
+            document.getElementById(overlayId).style.display = 'flex';
+        }
+
+        function closeOverlay(overlayId) {
+            document.getElementById(overlayId).style.display = 'none';
+        }
+
+        function closeAllOverlays() {
+            document.querySelectorAll('.overlay-menu').forEach(overlay => {
+                overlay.style.display = 'none';
+            });
+        }
+
+        // --- Text Tool ---
+        addTextTool.addEventListener('click', () => {
+            showOverlay('textOptionsOverlay');
+            // Set current text properties if an existing text object is selected
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && activeObject.type === 'i-text') {
+                textInput.value = activeObject.text;
+                textColor.value = activeObject.fill;
+                textColorHex.value = activeObject.fill;
+                fontFamily.value = activeObject.fontFamily;
+                fontSize.value = activeObject.fontSize;
+                fontSizeValue.textContent = `${activeObject.fontSize}px`;
+            } else {
+                // Reset to default for new text
+                textInput.value = 'أدخل نصاً';
+                textColor.value = '#000000';
+                textColorHex.value = '#000000';
+                fontFamily.value = 'Arial';
+                fontSize.value = '30';
+                fontSizeValue.textContent = '30px';
+            }
+        });
+
+        textColor.addEventListener('input', (e) => {
+            textColorHex.value = e.target.value;
+        });
+        textColorHex.addEventListener('input', (e) => {
+             // Basic validation for hex color
+            const hex = e.target.value;
+            if (/^#([0-9A-F]{3}){1,2}$/i.test(hex)) {
+                textColor.value = hex;
+            }
+        });
+
+        fontSize.addEventListener('input', (e) => {
+            fontSizeValue.textContent = `${e.target.value}px`;
+        });
+
+        function applyTextChanges() {
+            const text = textInput.value;
+            const color = textColor.value;
+            const font = fontFamily.value;
+            const size = parseInt(fontSize.value);
+
+            const activeObject = canvas.getActiveObject();
+
+            if (activeObject && activeObject.type === 'i-text') {
+                // Update existing text object
+                activeObject.set({
+                    text: text,
+                    fill: color,
+                    fontFamily: font,
+                    fontSize: size
+                });
+                activeObject.setCoords(); // Update object's coordinates
+                canvas.renderAll();
+                saveState();
+            } else {
+                // Add new text object
+                if (text.trim() === '') {
+                    alert('الرجاء إدخال نص.');
+                    return;
+                }
+                const textObject = new fabric.IText(text, {
+                    left: 50,
+                    top: 50,
+                    fill: color,
+                    fontFamily: font,
+                    fontSize: size,
+                    padding: 7,
+                    cornerSize: 10,
+                    transparentCorners: false
+                });
+                canvas.add(textObject);
+                canvas.setActiveObject(textObject);
+                canvas.centerObject(textObject); // Center new text
+                canvas.renderAll();
+                saveState();
+            }
+            closeOverlay('textOptionsOverlay');
+        }
+
+        // --- Shapes Tool ---
+        addShapeTool.addEventListener('click', () => {
+            showOverlay('shapesOptionsOverlay');
+        });
+
+        shapesGrid.addEventListener('click', (e) => {
+            const shapeDiv = e.target.closest('div[data-shape]');
+            if (shapeDiv) {
+                const shapeType = shapeDiv.dataset.shape;
+                const color = shapeColor.value;
+                let shape;
+                switch (shapeType) {
+                    case 'square':
+                        shape = new fabric.Rect({
+                            width: 100, height: 100, fill: color, left: 50, top: 50
+                        });
+                        break;
+                    case 'circle':
+                        shape = new fabric.Circle({
+                            radius: 50, fill: color, left: 50, top: 50
+                        });
+                        break;
+                    case 'triangle':
+                        shape = new fabric.Triangle({
+                            width: 100, height: 100, fill: color, left: 50, top: 50
+                        });
+                        break;
+                     case 'star':
+                        // A simple star path is more complex for direct Fabric.js use.
+                        // For demonstration, let's use a polygon as a simpler star approximation or add a custom SVG path.
+                        // For a real star: you'd need to define precise points or load an SVG.
+                        // Example using a simple polygon for demonstration:
+                        shape = new fabric.Polygon([
+                            {x: 50, y: 0}, {x: 60, y: 35}, {x: 95, y: 35}, {x: 65, y: 60}, {x: 75, y: 95},
+                            {x: 50, y: 75}, {x: 25, y: 95}, {x: 35, y: 60}, {x: 5, y: 35}, {x: 40, y: 35}
+                        ], {
+                            fill: color,
+                            left: 50,
+                            top: 50,
+                            scaleX: 0.8,
+                            scaleY: 0.8
+                        });
+                        break;
+                    case 'heart':
+                        // A basic heart shape path
+                        shape = new fabric.Path('M 50 20 C 10 0, 0 60, 50 100 C 100 60, 90 0, 50 20 Z', {
+                            fill: color, left: 50, top: 50, scaleX: 0.8, scaleY: 0.8
+                        });
+                        break;
+                    case 'arrow-right':
+                        shape = new fabric.Path('M 0 50 L 80 50 L 60 30 L 100 50 L 60 70 L 80 50 Z', {
+                            fill: color, left: 50, top: 50, scaleX: 0.8, scaleY: 0.8
+                        });
+                        break;
+                    case 'cloud':
+                        shape = new fabric.Path('M 65.5 0.5 C 50.5 -1.5 35.5 4.5 25.5 14.5 C 15.5 24.5 9.5 40.5 15.5 55.5 C 21.5 70.5 37.5 75.5 50.5 70.5 C 63.5 65.5 70.5 50.5 65.5 35.5 C 70.5 20.5 85.5 15.5 85.5 30.5 C 85.5 45.5 70.5 50.5 65.5 50.5 C 60.5 50.5 55.5 55.5 55.5 60.5 C 55.5 65.5 60.5 70.5 65.5 70.5 C 70.5 70.5 75.5 65.5 75.5 60.5 C 75.5 55.5 80.5 50.5 85.5 50.5 C 90.5 50.5 95.5 55.5 95.5 60.5 C 95.5 65.5 90.5 70.5 85.5 70.5 L 65.5 0.5 Z', {
+                            fill: color, left: 50, top: 50, scaleX: 0.8, scaleY: 0.8
+                        });
+                        break;
+                    case 'sun':
+                        shape = new fabric.Circle({
+                            radius: 40, fill: 'yellow', left: 50, top: 50
+                        });
+                        // For rays, you'd add more objects or use a custom path.
+                        break;
+                    case 'moon':
+                         shape = new fabric.Circle({
+                            radius: 50, fill: 'lightgray', left: 50, top: 50
+                        });
+                        // For crescent, you'd need to combine/subtract shapes or use a path.
+                        break;
+                    case 'lightning':
+                        shape = new fabric.Path('M 50 0 L 20 60 L 40 60 L 10 100 L 80 40 L 60 40 Z', {
+                            fill: 'yellow', left: 50, top: 50, scaleX: 0.8, scaleY: 0.8
+                        });
+                        break;
+                    default:
+                        console.warn('Unknown shape type:', shapeType);
+                        return;
+                }
+                if (shape) {
+                    canvas.add(shape);
+                    canvas.setActiveObject(shape);
+                    canvas.centerObject(shape);
+                    canvas.renderAll();
+                    saveState();
+                }
+                closeOverlay('shapesOptionsOverlay');
+            }
+        });
+
+        // --- Stickers Tool ---
+        addStickerTool.addEventListener('click', () => {
+            showOverlay('stickersOptionsOverlay');
+        });
+
+        stickersGrid.addEventListener('click', (e) => {
+            if (e.target.tagName === 'IMG') {
+                const stickerSrc = e.target.src;
+                fabric.Image.fromURL(stickerSrc, (img) => {
+                    img.scaleToWidth(100); // Default sticker size
+                    canvas.add(img);
+                    canvas.setActiveObject(img);
+                    canvas.centerObject(img);
+                    canvas.renderAll();
+                    saveState();
+                });
+                closeOverlay('stickersOptionsOverlay');
+            }
+        });
+
+        // --- Crop Tool ---
+        cropTool.addEventListener('click', () => {
+            alert('خاصية القص تتطلب مكتبة متقدمة وتطبيق معقد. هذا مجرد مكان لميزتها.');
+            // Implement cropping using Fabric.js crop functionality or a dedicated library
+            // Example: https://github.com/react-konva/react-konva-image-crop
+        });
+
+        // --- Remove Background (Remove.bg API) ---
+        removeBgBtnHome.addEventListener('click', () => {
+            showEditorInterface();
+            alert('الرجاء تحميل صورة أولاً ثم استخدام زر "إزالة خلفية" من شريط الأدوات السفلي.');
+        });
+
+        removeBgTool.addEventListener('click', async () => {
+            if (canvas.isEmpty()) {
+                alert('الرجاء تحميل صورة أولاً لإزالة الخلفية.');
+                return;
+            }
+
+            const activeObject = canvas.getActiveObject();
+            let imageToProcess = null;
+
+            if (activeObject && activeObject.type === 'image') {
+                // If an image is selected, process that specific image
+                imageToProcess = activeObject;
+            } else {
+                // If no specific image is selected, assume the main background image or first image
+                const imagesOnCanvas = canvas.getObjects('image');
+                if (imagesOnCanvas.length > 0) {
+                    imageToProcess = imagesOnCanvas[0];
+                } else {
+                    alert('لا توجد صورة على الكانفاس لإزالة الخلفية منها.');
+                    return;
+                }
+            }
+
+            const dataURL = imageToProcess.toDataURL({
+                format: 'png', // Always use PNG for transparency
+                multiplier: 1 // No scaling for API upload
+            });
+
+            // Convert Data URL to Blob
+            const blob = await (await fetch(dataURL)).blob();
+            const formData = new FormData();
+            formData.append('image_file', blob, 'image.png');
+            formData.append('size', 'auto');
+
+            try {
+                const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+                    method: 'POST',
+                    headers: {
+                        'X-Api-Key': REMOVE_BG_API_KEY
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Remove.bg API error: ${response.status} - ${errorText}`);
+                }
+
+                const resultBlob = await response.blob();
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    fabric.Image.fromURL(reader.result, (img) => {
+                        // Replace the original image with the new one
+                        canvas.remove(imageToProcess);
+                        canvas.add(img);
+                        // Scale to fit the current canvas dimensions
+                        img.scaleToWidth(canvas.getWidth());
+                        if (img.getScaledHeight() > canvas.getHeight()) {
+                            img.scaleToHeight(canvas.getHeight());
+                        }
+                        canvas.centerObject(img);
+                        canvas.renderAll();
+                        saveState();
+                        alert('تمت إزالة الخلفية بنجاح!');
+                    });
+                };
+                reader.readAsDataURL(resultBlob);
+
+            } catch (error) {
+                console.error('Error removing background:', error);
+                alert('فشل في إزالة الخلفية: ' + error.message);
+            }
+        });
+
+
+        // --- Remove Watermark (ClipDrop API) ---
+        removeWatermarkBtnHome.addEventListener('click', () => {
+            showEditorInterface();
+            alert('الرجاء تحميل الصورة أولاً ثم استخدام زر "إزالة علامة مائية" من شريط الأدوات السفلي.');
+        });
+
+        removeWatermarkTool.addEventListener('click', async () => {
+            if (canvas.isEmpty()) {
+                alert('الرجاء تحميل صورة أولاً لإزالة العلامة المائية.');
+                return;
+            }
+
+            const activeObject = canvas.getActiveObject();
+            let imageToProcess = null;
+
+            if (activeObject && activeObject.type === 'image') {
+                imageToProcess = activeObject;
+            } else {
+                const imagesOnCanvas = canvas.getObjects('image');
+                if (imagesOnCanvas.length > 0) {
+                    imageToProcess = imagesOnCanvas[0];
+                } else {
+                    alert('لا توجد صورة على الكانفاس لإزالة العلامة المائية منها.');
+                    return;
+                }
+            }
+
+            const dataURL = imageToProcess.toDataURL({
+                format: 'jpeg', // Or png, ClipDrop supports both
+                quality: 0.9 // For good quality upload
+            });
+
+            const blob = await (await fetch(dataURL)).blob();
+            const formData = new FormData();
+            formData.append('image_file', blob, 'image.jpeg');
+
+            try {
+                const response = await fetch('https://clipdrop-api.co/clean/v1', {
+                    method: 'POST',
+                    headers: {
+                        'x-api-key': REMOVE_WATERMARK_API_KEY
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`ClipDrop API error: ${response.status} - ${errorText}`);
+                }
+
+                const resultBlob = await response.blob();
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    fabric.Image.fromURL(reader.result, (img) => {
+                        canvas.remove(imageToProcess);
+                        canvas.add(img);
+                        // Scale to fit the current canvas dimensions
+                        img.scaleToWidth(canvas.getWidth());
+                        if (img.getScaledHeight() > canvas.getHeight()) {
+                            img.scaleToHeight(canvas.getHeight());
+                        }
+                        canvas.centerObject(img);
+                        canvas.renderAll();
+                        saveState();
+                        alert('تمت إزالة العلامة المائية بنجاح (إذا تم اكتشافها)!');
+                    });
+                };
+                reader.readAsDataURL(resultBlob);
+
+            } catch (error) {
+                console.error('Error removing watermark:', error);
+                alert('فشل في إزالة العلامة المائية: ' + error.message + '\nملاحظة: قد لا تتم إزالة العلامات المائية المعقدة أو الصغيرة جداً بشكل كامل.');
+            }
+        });
+
+
+        // --- Delete Element ---
+        deleteElementTool.addEventListener('click', () => {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject) {
+                canvas.remove(activeObject);
+                canvas.renderAll();
+                saveState();
+                if (canvas.isEmpty()) {
+                    positionPlaceholder();
+                }
+            } else {
+                alert('الرجاء تحديد عنصر للحذف.');
+            }
+        });
+
+        // --- Extract Color (Eyedropper) ---
+        extractColorTool.addEventListener('click', () => {
+            alert('خاصية استخراج اللون تتطلب تفاعلاً مباشراً مع الكانفاس (مثلاً، نقرة الماوس).');
+            // This would require a separate tool mode for the canvas
+            // Example:
+            // let isExtractingColor = false;
+            // if (extractColorTool.classList.contains('active')) {
+            //    // Deactivate
+            //    canvas.off('mouse:down', handleColorExtraction);
+            //    extractColorTool.classList.remove('active');
+            //    isExtractingColor = false;
+            // } else {
+            //    // Activate
+            //    alert('انقر على أي جزء من الصورة لاستخراج اللون.');
+            //    canvas.on('mouse:down', handleColorExtraction);
+            //    extractColorTool.classList.add('active');
+            //    isExtractingColor = true;
+            // }
+
+            // function handleColorExtraction(options) {
+            //     if (!options.target && options.e) { // Clicked on canvas background
+            //         const pointer = canvas.getPointer(options.e);
+            //         const pixel = canvas.getContext().getImageData(pointer.x, pointer.y, 1, 1).data;
+            //         const color = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+            //         console.log('Extracted Color:', color);
+            //         alert(`اللون المستخرج: ${color}`);
+            //         // You can then use this color, e.g., to set a text color picker
+            //         textColor.value = rgbToHex(pixel[0], pixel[1], pixel[2]); // Convert rgb to hex if needed
+            //         textColorHex.value = rgbToHex(pixel[0], pixel[1], pixel[2]);
+            //     } else if (options.target) { // Clicked on an object
+            //         alert('الرجاء النقر على خلفية الكانفاس لاستخراج اللون من الصورة الأصلية.');
+            //     }
+            //     // Deactivate after one use or keep active until user clicks again
+            //     canvas.off('mouse:down', handleColorExtraction);
+            //     extractColorTool.classList.remove('active');
+            //     isExtractingColor = false;
+            // }
+            //
+            // function rgbToHex(r, g, b) {
+            //     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+            // }
+        });
+
+        // --- Change Colors (Basic) ---
+        changeColorTool.addEventListener('click', () => {
+            const activeObject = canvas.getActiveObject();
+            if (activeObject && (activeObject.type === 'rect' || activeObject.type === 'circle' || activeObject.type === 'triangle' || activeObject.type === 'path' || activeObject.type === 'polygon' || activeObject.type === 'i-text')) {
+                const newColor = prompt('أدخل لوناً جديداً (مثال: red أو #FF0000):', activeObject.fill);
+                if (newColor) {
+                    activeObject.set('fill', newColor);
+                    canvas.renderAll();
+                    saveState();
+                }
+            } else if (activeObject && activeObject.type === 'image') {
+                alert('تغيير الألوان للصور يتطلب فلاتر متقدمة. هذه الميزة تعمل بشكل أفضل مع الأشكال والنصوص.');
+                // For images, you'd need Fabric.js filters or custom pixel manipulation.
+            } else {
+                alert('الرجاء تحديد شكل أو نص لتغيير لونه.');
+            }
+        });
+
+        // --- Project History ---
+        viewProjectsTool.addEventListener('click', () => {
+            showOverlay('projectHistorySection');
+            loadProjectHistory();
+        });
+
+        function saveProjectToHistory() {
+            if (canvas.isEmpty()) {
+                return; // Don't save empty projects
+            }
+            const projects = JSON.parse(localStorage.getItem('aboelfadlProjects') || '[]');
+            const timestamp = new Date().toLocaleString('ar-EG', {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+            });
+
+            // Get a thumbnail (optional, might be heavy)
+            const thumbnail = canvas.toDataURL({
+                format: 'jpeg',
+                quality: 0.5,
+                width: 150,
+                height: 100,
+                enableRetinaScaling: false // Prevent too large thumbnails
+            });
+
+            const newProject = {
+                id: Date.now(),
+                name: `مشروع ${timestamp}`,
+                data: JSON.stringify(canvas.toJSON()),
+                thumbnail: thumbnail,
+                timestamp: timestamp,
+                canvasWidth: currentCanvasOriginalWidth, // Save original canvas dimensions
+                canvasHeight: currentCanvasOriginalHeight
+            };
+            projects.unshift(newProject); // Add to the beginning
+            localStorage.setItem('aboelfadlProjects', JSON.stringify(projects));
+            console.log('Project saved to history.');
+        }
+
+        function loadProjectHistory() {
+            const projects = JSON.parse(localStorage.getItem('aboelfadlProjects') || '[]');
+            projectHistoryList.innerHTML = ''; // Clear previous list
+
+            if (projects.length === 0) {
+                projectHistoryList.innerHTML = '<p>لا توجد مشروعات سابقة حالياً.</p>';
+                return;
+            }
+
+            projects.forEach(project => {
+                const projectItem = document.createElement('div');
+                projectItem.classList.add('project-item');
+                projectItem.innerHTML = `
+                    <img src="${project.thumbnail || 'https://via.placeholder.com/150x100?text=No+Preview'}" alt="Project Thumbnail">
+                    <p>${project.name}</p>
+                `;
+                projectItem.onclick = () => {
+                    if (confirm(`هل أنت متأكد أنك تريد فتح مشروع "${project.name}"؟ سيتم فقدان أي تعديلات غير محفوظة.`)) {
+                        showEditorInterface();
+                        currentCanvasOriginalWidth = project.canvasWidth || 1080; // Load original dimensions
+                        currentCanvasOriginalHeight = project.canvasHeight || 1080;
+                        canvas.loadFromJSON(project.data, () => {
+                            setupCanvasSize(currentCanvasOriginalWidth, currentCanvasOriginalHeight); // Set canvas size
+                            canvas.renderAll();
+                            saveState(); // Add to current undo history
+                            positionPlaceholder();
+                            closeOverlay('projectHistorySection');
+                            alert(`تم تحميل المشروع: ${project.name}`);
+                        });
+                    }
+                };
+                projectHistoryList.appendChild(projectItem);
+            });
+        }
+
+
+        // --- Share Functionality ---
+        shareBtn.addEventListener('click', () => {
+            if (canvas.isEmpty()) {
+                alert('لا توجد صورة لمشاركتها.');
+                return;
+            }
+            showOverlay('shareMenuOverlay');
+        });
+
+        function shareOnSocial(platform) {
+            const imageDataUrl = canvas.toDataURL({
+                format: 'jpeg',
+                quality: 0.9
+            });
+            const text = encodeURIComponent('تم تعديل هذه الصورة في ابلكيشن AboElfadl');
+            let url = '';
+
+            switch (platform) {
+                case 'whatsapp':
+                    alert('للمشاركة عبر واتساب، يرجى حفظ الصورة أولاً ثم مشاركتها يدوياً. الرسالة: ' + decodeURIComponent(text));
+                    break;
+                case 'facebook':
+                    alert('للمشاركة على فيسبوك، يرجى تنزيل الصورة ثم تحميلها يدوياً على فيسبوك. الرسالة: ' + decodeURIComponent(text));
+                    break;
+                case 'twitter':
+                    url = `https://twitter.com/intent/tweet?text=${text}`;
+                    window.open(url, '_blank');
+                    break;
+                case 'instagram':
+                    alert('للمشاركة على انستجرام، يرجى حفظ الصورة أولاً ثم مشاركتها يدوياً عبر تطبيق انستجرام.');
+                    break;
+                case 'telegram':
+                    url = `https://t.me/share/url?url=&text=${text}`;
+                    window.open(url, '_blank');
+                    break;
+                case 'email':
+                    url = `mailto:?subject=صورة تم تعديلها في AboElfadl&body=${text}`;
+                    window.location.href = url;
+                    break;
+                default:
+                    console.warn('Unknown sharing platform:', platform);
+            }
+        }
+
+        function downloadImage(format) {
+            if (canvas.isEmpty()) {
+                alert('لا توجد صورة لتنزيلها.');
+                return;
+            }
+            const dataURL = canvas.toDataURL({
+                format: format,
+                quality: 1.0,
+                enableRetinaScaling: true // For high-res download
+            });
+            const link = document.createElement('a');
+            link.download = `aboelfadl_image.${format}`;
+            link.href = dataURL;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            alert(`تم تنزيل الصورة بصيغة ${format.toUpperCase()}!`);
+            saveProjectToHistory(); // Save to local project history on download
+            closeOverlay('shareMenuOverlay');
+        }
+
+        // Add event listeners for home page buttons to direct to specific features
+        removeBgBtnHome.addEventListener('click', () => {
+            showEditorInterface();
+            alert('الرجاء تحميل الصورة ثم النقر على "إزالة خلفية" في شريط الأدوات السفلي.');
+        });
+
+        removeWatermarkBtnHome.addEventListener('click', () => {
+            showEditorInterface();
+            alert('الرجاء تحميل الصورة ثم النقر على "إزالة علامة مائية" في شريط الأدوات السفلي.');
+        });
+
+    </script>
+</body>
+</html>

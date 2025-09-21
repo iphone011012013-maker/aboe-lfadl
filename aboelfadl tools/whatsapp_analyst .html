@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محلل محادثات واتساب</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 { color: #075e54; margin-bottom: 10px; }
+        p { color: #555; margin-bottom: 20px; }
+
+        #upload-area {
+            border: 3px dashed #128c7e;
+            border-radius: 10px;
+            padding: 40px;
+            background-color: #e6f8f5;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #upload-area.drag-over { background-color: #d1f0eb; }
+        #upload-area p { margin: 0; font-size: 1.2rem; font-weight: 700; color: #075e54; }
+        #file-input { display: none; }
+
+        #actions-area { margin-top: 20px; display: none; }
+        #results-area { margin-top: 20px; text-align: right; display: none; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chart-card, .memory-lane-card { grid-column: 1 / -1; }
+        .stat-card h3 { margin: 0 0 10px 0; color: #128c7e; font-size: 1.1rem; }
+        .stat-card .value { font-size: 1.8rem; font-weight: 700; color: #075e54; }
+        .stat-card ol, .stat-card div { padding-right: 20px; text-align: right; }
+        .stat-card li, .stat-card p { margin-bottom: 8px; }
+        #longest-message-text { font-size: 0.9rem; background-color: #e9ecef; padding: 10px; border-radius: 5px; margin-top: 10px; word-wrap: break-word; text-align: right; }
+        
+        .memory-item { border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
+        .memory-item:last-child { border-bottom: none; }
+        .memory-item strong { color: #075e54; }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; background-color: #128c7e; color: white; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📊 محلل محادثات واتساب</h1>
+        <p>ارفع ملف .txt الخاص بمحادثتك لتحليله بالكامل. خصوصيتك مضمونة 100%.</p>
+        
+        <div id="upload-area">
+            <input type="file" id="file-input" accept=".txt">
+            <p>اضغط هنا أو اسحب ملف المحادثة</p>
+        </div>
+        
+        <div id="actions-area">
+            <button id="export-btn" class="btn">📤 تصدير التقرير</button>
+        </div>
+
+        <div id="results-area">
+            <div id="stats-grid" class="stats-grid">
+                <div class="stat-card"><h3>إجمالي الرسائل</h3><div id="total-messages" class="value">0</div></div>
+                <div class="stat-card"><h3>المشاركون بالرسائل</h3><div id="participants-list"></div></div>
+                <div class="stat-card"><h3>أكثر 5 كلمات</h3><ol id="top-words"></ol></div>
+                <div class="stat-card"><h3>أكثر 5 إيموجي</h3><ol id="top-emojis"></ol></div>
+                <div class="stat-card"><h3>إحصائيات أخرى</h3><div id="media-stats"></div></div>
+                <div class="stat-card"><h3>اليوم الأكثر نشاطًا</h3><div id="active-day" class="value"></div></div>
+                <div class="stat-card"><h3>🏆 أطول رسالة</h3><div id="longest-message"></div></div>
+                <div class="stat-card"><h3>🥇 بادئ المحادثات</h3><div id="convo-starter" class="value"></div></div>
+                <div class="stat-card"><h3>⏱️ متوسط وقت الرد</h3><div id="response-time"></div></div>
+                <div class="stat-card"><h3>📊 مقياس "الدับل تكست"</h3><div id="double-text"></div></div>
+                <div class="stat-card"><h3>❓ تحليل الأسئلة</h3><div id="question-analysis"></div></div>
+                <div class="stat-card chart-card"><h3>النشاط على مدار الشهور</h3><canvas id="activity-chart"></canvas></div>
+                <div class="stat-card memory-lane-card"><h3>🎞️ شريط ذكريات</h3><div id="memory-lane"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const resultsArea = document.getElementById('results-area');
+        const actionsArea = document.getElementById('actions-area');
+        const exportBtn = document.getElementById('export-btn');
+        
+        let activityChart;
+        let currentStats = {};
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+
+        function handleFile(file) {
+            if (!file || file.type !== 'text/plain') { alert('الرجاء رفع ملف .txt صحيح.'); return; }
+            const reader = new FileReader();
+            reader.onload = (e) => analyzeChat(e.target.result);
+            reader.readAsText(file, 'UTF-8');
+        }
+        
+        function analyzeChat(text) {
+            try {
+                const lines = text.split(/\r?\n/);
+                const messages = [];
+                const messageRegex = /^([\d\u0660-\u0669]+[\u200f]?\/[\d\u0660-\u0669]+[\u200f]?\/[\d\u0660-\u0669]+)،\s([\d\u0660-\u0669]+:[\d\u0660-\u0669]+\s[صم])\s-\s[\u200f]?([^:]+):\s(.*)$/;
+                
+                lines.forEach(line => {
+                    const match = line.match(messageRegex);
+                    if (match) {
+                        const dateParts = toWesternNumerals(match[1].replace(/‏/g, '')).split('/');
+                        const timeString = match[2];
+                        const timePartsMatch = toWesternNumerals(timeString).match(/(\d+):(\d+)/);
+                        if (!timePartsMatch) return;
+
+                        let hour = parseInt(timePartsMatch[1], 10);
+                        const minute = parseInt(timePartsMatch[2], 10);
+
+                        if (timeString.includes('م') && hour !== 12) hour += 12;
+                        if (timeString.includes('ص') && hour === 12) hour = 0;
+
+                        const date = new Date(dateParts[2], dateParts[1] - 1, dateParts[0], hour, minute);
+                        
+                        if (!isNaN(date)) {
+                            messages.push({
+                                date: date,
+                                author: match[3].trim(),
+                                message: match[4].trim()
+                            });
+                        }
+                    }
+                });
+
+                if(messages.length === 0) {
+                    alert("لم يتم العثور على أي رسائل بالتنسيق المتوقع.");
+                    return;
+                }
+                
+                currentStats = processMessages(messages);
+                displayResults(currentStats);
+            } catch (error) {
+                alert('حدث خطأ غير متوقع أثناء تحليل الملف:\n\n' + error);
+            }
+        }
+
+        function processMessages(messages) {
+            const participants = {}; const wordCount = {}; const hourCount = {}; const emojiCount = {};
+            const dayCount = Array(7).fill(0); let mediaCount = 0; let linkCount = 0;
+            let longestMessage = { author: '', text: '', length: 0 };
+            const conversationStarters = {}; let lastDate = null;
+            const monthlyActivity = {};
+            const responseTimes = {}; const doubleTexts = {}; const questionCounts = {};
+
+            for (let i = 0; i < messages.length; i++) {
+                const msg = messages[i];
+                participants[msg.author] = (participants[msg.author] || 0) + 1;
+                msg.message.split(/[\s\uFEFF\xA0]+/).forEach(word => {
+                    const cleanWord = word.toLowerCase().replace(/[.,!?؟<>]/g, '');
+                    if (cleanWord && cleanWord.length > 2 && !isStopWord(cleanWord) && isNaN(cleanWord)) {
+                        wordCount[cleanWord] = (wordCount[cleanWord] || 0) + 1;
+                    }
+                });
+                hourCount[msg.date.getHours()] = (hourCount[msg.date.getHours()] || 0) + 1;
+                const emojis = msg.message.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu);
+                if (emojis) emojis.forEach(emoji => emojiCount[emoji] = (emojiCount[emoji] || 0) + 1);
+                if (msg.message.includes('<تم استبعاد الوسائط>')) mediaCount++;
+                if (msg.message.includes('http')) linkCount++;
+                const messageDate = msg.date.toDateString();
+                if (messageDate !== lastDate) {
+                    conversationStarters[msg.author] = (conversationStarters[msg.author] || 0) + 1;
+                    lastDate = messageDate;
+                }
+                dayCount[msg.date.getDay()]++;
+                if (msg.message.length > longestMessage.length) {
+                    longestMessage = { author: msg.author, text: msg.message, length: msg.message.length };
+                }
+                const monthYear = `${msg.date.getFullYear()}-${(msg.date.getMonth() + 1).toString().padStart(2, '0')}`;
+                monthlyActivity[monthYear] = (monthlyActivity[monthYear] || 0) + 1;
+                if (i > 0) {
+                    const prevMsg = messages[i-1];
+                    if (msg.author !== prevMsg.author) {
+                        const diff = (msg.date - prevMsg.date) / 1000;
+                        if (!responseTimes[msg.author]) responseTimes[msg.author] = { total: 0, count: 0 };
+                        responseTimes[msg.author].total += diff;
+                        responseTimes[msg.author].count++;
+                    } else {
+                        doubleTexts[msg.author] = (doubleTexts[msg.author] || 0) + 1;
+                    }
+                }
+                if (msg.message.includes('؟') || msg.message.includes('?')) {
+                    questionCounts[msg.author] = (questionCounts[msg.author] || 0) + 1;
+                }
+            }
+
+            const avgResponseTimes = {};
+            for(const author in responseTimes) { avgResponseTimes[author] = responseTimes[author].total / responseTimes[author].count; }
+            return {totalMessages: messages.length, messages, participants, wordCount, hourCount, emojiCount, mediaCount, linkCount, dayCount, longestMessage, conversationStarters, avgResponseTimes, doubleTexts, questionCounts, monthlyActivity};
+        }
+        
+        function displayResults(stats) {
+            document.getElementById('total-messages').textContent = stats.totalMessages;
+            const participantsList = document.getElementById('participants-list');
+            participantsList.innerHTML = '';
+            Object.entries(stats.participants).sort((a,b) => b[1] - a[1]).forEach(([author, count]) => {
+                const p = document.createElement('p'); p.textContent = `${author}: ${count} رسالة`; p.style.margin = '5px 0'; participantsList.appendChild(p);
+            });
+            displayList('top-words', Object.entries(stats.wordCount).sort((a,b) => b[1] - a[1]), (item) => `${item[0]} (${item[1]} مرة)`);
+            displayList('top-emojis', Object.entries(stats.emojiCount).sort((a,b) => b[1] - a[1]), (item) => `${item[0]} (${item[1]} مرة)`);
+            document.getElementById('media-stats').innerHTML = `<p>الوسائط: <span class="value">${stats.mediaCount}</span></p><p>الروابط: <span class="value">${stats.linkCount}</span></p>`;
+            const dayNames = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            document.getElementById('active-day').textContent = dayNames[stats.dayCount.indexOf(Math.max(...stats.dayCount))];
+            document.getElementById('longest-message').innerHTML = `<p><strong>بواسطة:</strong> ${stats.longestMessage.author}</p><div id="longest-message-text">${stats.longestMessage.text}</div>`;
+            const topStarter = Object.entries(stats.conversationStarters).sort((a,b) => b[1] - a[1])[0];
+            document.getElementById('convo-starter').textContent = topStarter ? topStarter[0] : 'N/A';
+            const responseTimeDiv = document.getElementById('response-time');
+            responseTimeDiv.innerHTML = '';
+            Object.entries(stats.avgResponseTimes).sort((a,b)=>a[1]-b[1]).forEach(([author, avg]) => {
+                const p = document.createElement('p'); p.textContent = `${author}: ${formatTime(avg)}`; p.style.margin = '5px 0'; responseTimeDiv.appendChild(p);
+            });
+            const doubleTextDiv = document.getElementById('double-text');
+            doubleTextDiv.innerHTML = '';
+            Object.entries(stats.doubleTexts).sort((a,b) => b[1] - a[1]).forEach(([author, count]) => {
+                const p = document.createElement('p'); p.textContent = `${author}: ${count} مرة`; p.style.margin = '5px 0'; doubleTextDiv.appendChild(p);
+            });
+            const questionDiv = document.getElementById('question-analysis');
+            questionDiv.innerHTML = '';
+            Object.entries(stats.questionCounts).sort((a,b) => b[1] - a[1]).forEach(([author, count]) => {
+                const p = document.createElement('p'); p.textContent = `${author}: ${count} سؤال`; p.style.margin = '5px 0'; questionDiv.appendChild(p);
+            });
+
+            renderActivityChart(stats.monthlyActivity);
+            renderMemoryLane(stats.messages, stats.longestMessage);
+            resultsArea.style.display = 'block';
+            actionsArea.style.display = 'block';
+        }
+        
+        function displayList(elementId, items, formatter) {
+            const list = document.getElementById(elementId); list.innerHTML = '';
+            items.slice(0, 5).forEach(item => {
+                const li = document.createElement('li'); li.textContent = formatter(item); list.appendChild(li);
+            });
+        }
+        
+        function renderActivityChart(monthlyActivity) {
+            const ctx = document.getElementById('activity-chart').getContext('2d');
+            const sortedMonths = Object.keys(monthlyActivity).sort();
+            if (activityChart) activityChart.destroy();
+            activityChart = new Chart(ctx, { type: 'bar', data: { labels: sortedMonths, datasets: [{ label: 'عدد الرسائل', data: sortedMonths.map(month => monthlyActivity[month]), backgroundColor: '#128c7e' }] }, options: { scales: { y: { beginAtZero: true } } } });
+        }
+
+        function renderMemoryLane(messages, longestMsg) {
+            const memoryLaneDiv = document.getElementById('memory-lane');
+            memoryLaneDiv.innerHTML = '';
+            if (messages.length === 0) return;
+
+            const memories = [
+                { title: 'أول رسالة', msg: messages[0] },
+                { title: 'رسالة عشوائية', msg: messages[Math.floor(Math.random() * messages.length)] },
+                { title: 'أطول رسالة', msg: { author: longestMsg.author, message: longestMsg.text, date: messages.find(m => m.message === longestMsg.text)?.date } }
+            ];
+
+            memories.forEach(mem => {
+                if(!mem.msg) return;
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'memory-item';
+                itemDiv.innerHTML = `
+                    <p><strong>${mem.title} (${mem.msg.date ? mem.msg.date.toLocaleDateString('ar-EG') : ''}):</strong></p>
+                    <p>"${mem.msg.message}" - <em>${mem.msg.author}</em></p>
+                `;
+                memoryLaneDiv.appendChild(itemDiv);
+            });
+        }
+
+        exportBtn.addEventListener('click', () => {
+            if (!currentStats.totalMessages) return;
+            let report = `تقرير محادثة واتساب\n====================\n\n`;
+            report += `إجمالي الرسائل: ${currentStats.totalMessages}\n\n`;
+            report += `المشاركون:\n`;
+            Object.entries(currentStats.participants).sort((a,b) => b[1] - a[1]).forEach(([author, count]) => report += `- ${author}: ${count} رسالة\n`);
+            const dayNames = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            const activeDay = dayNames[currentStats.dayCount.indexOf(Math.max(...currentStats.dayCount))];
+            report += `\nاليوم الأكثر نشاطًا: ${activeDay}\n`;
+            // ... add more stats to export ...
+            
+            const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'chat_report.txt';
+            a.click(); URL.revokeObjectURL(url);
+        });
+
+        function formatTime(seconds) {
+            if (seconds < 60) return `${Math.round(seconds)} ثانية`;
+            if (seconds < 3600) return `${Math.round(seconds / 60)} دقيقة`;
+            if (seconds < 86400) return `${Math.round(seconds / 3600)} ساعة`;
+            return `${Math.round(seconds / 86400)} يوم`;
+        }
+
+        function toWesternNumerals(str) { return str.replace(/[\u0660-\u0669]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)); }
+        function isStopWord(word) { const stopWords = new Set(['في', 'من', 'على', 'هو', 'هي', 'انا', 'انت', 'انتي', 'كان', 'يكون', 'هذا', 'هذه', 'كل', 'شيء', 'او', 'و', 'يا', 'الي', 'عن', 'ما', 'مع', 'بس', 'طيب', 'ايه', 'ده', 'دي', 'لو', 'ان', 'اليوم']); return stopWords.has(word); }
+    });
+    </script>
+</body>
+</html>
+

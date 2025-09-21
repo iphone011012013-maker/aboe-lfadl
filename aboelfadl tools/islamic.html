@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خدمات اسلامية</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 20px;
+            text-align: center;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 1);
+            margin-bottom: 20px;
+            width: 95%;
+            max-width: 450px;
+        }
+        h2 {
+            color: #ffffff;
+            border-bottom: 2px solid #00bcd4;
+            padding-bottom: 10px;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .time {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00bcd4;
+            letter-spacing: 2px;
+            margin: 10px 0 5px 0;
+        }
+        .date {
+            font-size: 1.1em;
+            color: #b0b0b0;
+        }
+        .timer-display {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin: 15px 0;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #stopwatch-display { color: #ff9800; }
+        #countdown-display { color: #4caf50; }
+
+        .buttons button {
+            background-color: #00bcd4;
+            color: #121212;
+            border: none;
+            padding: 12px 22px;
+            margin: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.2s ease-in-out;
+        }
+        .buttons button:hover:not(:disabled) {
+            background-color: #0097a7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 1);
+        }
+        .buttons button:disabled {
+            background-color: #444;
+            color: #888;
+            cursor: not-allowed;
+        }
+        #stop-stopwatch-btn, #pause-timer-btn { background-color: #ff9800; }
+        #reset-stopwatch-btn, #cancel-timer-btn { background-color: #f44336; }
+        
+        .timer-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .timer-inputs label {
+            display: flex;
+            flex-direction: column;
+        }
+        .timer-inputs span {
+            font-size: 0.8em;
+            color: #aaa;
+            margin-bottom: 4px;
+        }
+        .timer-inputs input {
+            width: 70px;
+            padding: 10px;
+            font-size: 1.4em;
+            text-align: center;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+            border-radius: 8px;
+            -moz-appearance: textfield;
+        }
+        .timer-inputs input::-webkit-outer-spin-button,
+        .timer-inputs input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+/* style.css */
+
+.calculator-container {
+    font-family: 'Cairo', sans-serif; /* تأكد من استيراد الخط في ملفك الرئيسي */
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 1);
+    color: gold
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    margin: 4px auto; /* يضمن توسط العنصر في الصفحة */
+}
+
+.calculator-container h2 {
+    color: #ffba00;
+    margin-bottom: 20px;
+}
+
+.calculator-container label {
+    display: white;
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: #ffba00;
+}
+
+.calculator-container input[type="date"] {
+    width: calc(100% - 8px);
+    padding: 4px;
+    border: 1px solid #ffba00;
+    border-radius: 15px;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.calculator-container button {
+    width: 100%;
+    padding: 4px;
+    background: linear-gradient(45deg, #1877f2, #166fe5);
+    color: gold;
+    border: none;
+    border-radius: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.calculator-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 1);
+}
+
+#result {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid #dddfe2;
+    text-align: right;
+    line-height: 1.8;
+    color: #1c1e21;
+}
+
+#result h3 {
+    color: #ffba00;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#result .motto {
+    font-style: italic;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 4px;
+    background-color: #000;
+    border-radius: 8px;
+}
+/* كود تصميم التاريخ الهجري */
+
+#hijri-date-container {
+    font-family: 'Cairo', sans-serif;
+    color: #ffba00
+    background-color: #1e1e1e;
+    border: 1px solid #ffba00;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 1);  
+    width: 95%;
+    padding: 10px 15px;
+    max-width: 450px;
+    margin: 4px auto;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+/* كود تصميم مواقيت الصلاة */
+
+.prayer-times-container {
+    font-family: 'Cairo', sans-serif;
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 1);  
+    width: 95%;
+    padding: 10px 15px;
+    max-width: 450px;
+    margin: 4px auto;
+}
+
+.prayer-times-container h2 {
+    color: gold;
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+#prayer-times-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* عمودين */
+    gap: 10px; /* مسافة بين العناصر */
+}
+
+.prayer-item {
+    background-color: black;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: gold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.prayer-item.loading span {
+    color: #999; /* لون باهت أثناء التحميل */
+}
+/* كود تصميم بوصلة القبلة */
+
+.qibla-container {
+    font-family: 'Cairo', sans-serif;
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 1);  
+    width: 95%;
+    padding: 10px 15px;
+    max-width: 450px;
+    margin: 4px auto;
+    text-align: center;
+    
+}
+
+.qibla-container h2 {
+    color: #1c1e21;
+    margin-bottom: 20px;
+}
+
+#qibla-compass {
+    width: 200px;
+    height: 200px;
+    background-image: url('https://i.imgur.com/sC9f2oH.png'); /* صورة خلفية للبوصلة */
+    background-size: cover;
+    border-radius: 50%;
+    margin: 20px auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#compass-arrow {
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 90px solid #d93025; /* لون السهم أحمر */
+    position: absolute;
+    top: 10px;
+    transition: transform 0.5s ease-out; /* حركة دوران ناعمة */
+}
+
+#qibla-status {
+    font-size: 16px;
+    color: #606770;
+    font-weight: bold;
+    min-height: 24px;
+}
+
+/* كود تصميم أدوات تخصيص الموقع والإشعارات */
+
+.settings-container, .notifications-container {
+    font-family: 'Cairo', sans-serif;
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 1);  
+    width: 95%;
+    padding: 10px 15px;
+    max-width: 450px;
+    margin: 4px auto;
+    text-align: center;
+    
+}
+.settings-container label {
+    font-weight: bold;
+    color: #333;
+    margin-left: 10px;
+}
+
+#city-select {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-family: 'Cairo', sans-serif;
+    font-size: 16px;
+}
+
+#notifications-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(45deg, #28a745, #218838);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+#notifications-btn:hover {
+    transform: translateY(-2px);
+}
+
+#notifications-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
+
+#notifications-status {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #606770;
+}
+/* كود تصميم حالة الطقس */
+
+.weather-container {
+    font-family: 'Cairo', sans-serif;
+    background: linear-gradient(135deg, #6dd5ed, #2193b0);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    margin: 40px auto;
+}
+
+.weather-container h2 {
+    margin-bottom: 20px;
+    font-size: 22px;
+}
+
+#weather-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#weather-location {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#weather-temp {
+    font-size: 48px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+#weather-desc {
+    font-size: 18px;
+    text-transform: capitalize; /* لجعل أول حرف كبير */
+}
+
+/* كود تصميم لوحة الأخبار */
+
+.news-container {
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 1);  
+    width: 95%;
+    padding: 10px 15px;
+    max-width: 450px;
+    margin: 4px auto;
+    text-align: center;
+}
+
+.news-container h2 {
+    text-align: center;
+    color: #ffba00;
+    margin-bottom: 20px;
+}
+
+#news-articles {
+    max-height: 400px; /* تحديد أقصى ارتفاع لجعل اللوحة قابلة للتمرير */
+    overflow-y: auto; /* إضافة شريط تمرير عمودي عند الحاجة */
+    padding-right: 10px; /* مسافة لشريط التمرير */
+}
+
+.article {
+    border: 1px solid #dddfe2;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.article img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.article h3 {
+    font-size: 16px;
+    margin: 0 0 10px 0;
+    color: #ffba00;
+}
+
+.article .source {
+    font-size: 12px;
+    color: #fff;
+    margin-bottom: 15px;
+}
+
+.article a {
+    text-decoration: none;
+    color: white;
+    background-color: #1877f2;
+    padding: 8px 12px;
+    border-radius: 6px;
+    text-align: center;
+    font-weight: bold;
+    align-self: flex-start; /* محاذاة الزر للبداية */
+    transition: background-color 0.2s;
+}
+
+.article a:hover {
+    background-color: #166fe5;
+}
+
+/* كود تصميم صندوق أدوات الكلام المدمج */
+
+.unified-speech-tool {
+    font-family: 'Cairo', sans-serif;
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 188, 212, 0.3);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    margin: 40px auto;
+    border: 1px solid #00bcd4;
+}
+
+.unified-speech-tool h2 {
+    color: #00bcd4;
+    margin-bottom: 10px;
+}
+
+.unified-speech-tool .description {
+    color: #b0b0b0;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+#shared-textarea {
+    width: calc(100% - 22px);
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border: 1px solid #007a8a;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 16px;
+    resize: vertical;
+    margin-bottom: 20px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.main-controls, .extra-tools {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.main-controls button {
+    flex: 1; /* لجعل الزرين يملآن المساحة بالتساوي */
+    padding: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+#listen-btn {
+    background-color: #00bcd4;
+    color: #121212;
+}
+#listen-btn:hover {
+    background-color: #0097a7;
+}
+#listen-btn.listening {
+    background-color: #f44336;
+    color: white;
+    animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+}
+
+#speak-btn {
+    background-color: #4caf50;
+    color: white;
+}
+#speak-btn:hover {
+    background-color: #43a047;
+}
+
+.extra-tools button {
+    flex: 1;
+    padding: 10px;
+    font-size: 0.9em;
+    border-radius: 6px;
+    border: 1px solid #607d8b;
+    background-color: transparent;
+    color: #607d8b;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.extra-tools button:hover:not(:disabled) {
+    background-color: #607d8b;
+    color: white;
+}
+
+.extra-tools button:disabled {
+    border-color: #444;
+    color: #444;
+    cursor: not-allowed;
+}
+
+.status {
+    color: #ff9800;
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 20px;
+}
+/*
+ * CSS Code for Voice Recorder
+ * by Gemini
+ */
+
+/* حاوية مسجل الصوت الرئيسية */
+.voice-recorder-container {
+    font-family: 'Cairo', sans-serif;
+    background-color: #1e1e1e;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 1);  
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    margin: 40px auto;
+    border: 1px solid #00bcd4;
+    text-align: center;
+    border: 1px solid #d1d9e6;
+}
+
+/* عنوان المسجل */
+.voice-recorder-container h2 {
+    color: #334e68; /* لون نص داكن */
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+/* حاوية أزرار التحكم */
+.voice-recorder-container .recorder-controls {
+    margin-bottom: 30px;
+}
+
+/* نص حالة المسجل */
+#recorder-status {
+    color: #627d98;
+    font-size: 16px;
+    min-height: 24px; /* حجز مساحة لتجنب اهتزاز الصفحة */
+    margin-bottom: 20px;
+}
+
+/* تصميم الأزرار (البدء والإيقاف) */
+.recorder-controls button {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%; /* لجعل الزر دائريًا بالكامل */
+    border: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 28px; /* لتكبير حجم الأيقونة */
+    color: #ff4757; /* لون أيقونة التسجيل */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin: 0 10px; /* مسافة بين الأزرار إذا ظهروا معًا */
+}
+
+/* تأثير عند مرور الماوس فوق الأزرار */
+.recorder-controls button:hover {
+    transform: scale(1.1); /* تكبير بسيط للزر */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* زر الإيقاف */
+#stop-record-btn {
+    color: #4b4b4b; /* لون أيقونة الإيقاف */
+}
+
+/* قائمة التسجيلات المحفوظة */
+.voice-recorder-container .recordings-list {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* عنوان قائمة التسجيلات */
+.recordings-list h3 {
+    color: #334e68;
+    border-bottom: 2px solid #d1d9e6; /* خط للفصل */
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* (اختياري) يمكنك إضافة هذا الكود لتنسيق كل تسجيل عند إضافته لاحقًا بالجافاسكريبت */
+.recording-item {
+    background-color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+.recording-item audio {
+    flex-grow: 1; /* لجعل شريط الصوت يأخذ المساحة المتاحة */
+    height: 40px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+
+<div id="hijri-date-container"></div>
+
+<div class="settings-container">
+    <label for="city-select">اختر مدينتك:</label>
+    <select id="city-select">
+        <option value="Cairo">القاهرة</option>
+        <option value="Alexandria">الإسكندرية</option>
+        <option value="Giza">الجيزة</option>
+        <option value="Port Said">بور سعيد</option>
+        <option value="Suez">السويس</option>
+        <option value="Luxor">الأقصر</option>
+        <option value="Aswan">أسوان</option>
+        <option value="Asyut">أسيوط</option>
+        <option value="Tanta">طنطا</option>
+    </select>
+</div>
+<div class="prayer-times-container">
+    <h2 id="prayer-city-title">🕌 مواقيت الصلاة (القاهرة)</h2>
+    <div id="prayer-times-grid">
+        <div class="prayer-item loading">الفجر <span id="fajr-time">...</span></div>
+        <div class="prayer-item loading">الشروق <span id="sunrise-time">...</span></div>
+        <div class="prayer-item loading">الظهر <span id="dhuhr-time">...</span></div>
+        <div class="prayer-item loading">العصر <span id="asr-time">...</span></div>
+        <div class="prayer-item loading">المغرب <span id="maghrib-time">...</span></div>
+        <div class="prayer-item loading">العشاء <span id="isha-time">...</span>
+</div>
+<div class="notifications-container">
+    <button id="notifications-btn">🔔 تفعيل إشعارات الأذان</button>
+    <p id="notifications-status">اضغط على الزر لتلقي تنبيه عند كل صلاة.</p>
+</div>
+</div>
+    </div>
+</div>
+</div>
+
+<audio id="adhan-audio" src="https://www.islamcan.com/audio/adhan/azan2.mp3" preload="auto"></audio>
+
+
+
+<div class="qibla-container">
+    <h2>🕋 اتجاه القبلة</h2>
+    <div id="qibla-compass">
+        <div id="compass-arrow"></div>
+    </div>
+    <p id="qibla-status">جاري طلب إذن الوصول إلى الموقع...</p>
+</div>
+
+    <div class="container">
+        <h2>📍 توقيت القاهرة، مصر</h2>
+        <p id="egypt-time" class="time">--:--:--</p>
+        <p id="egypt-date" class="date">---، -- --- ----</p>
+    </div>
+
+    <div class="container">
+        <h2>🇺🇸 توقيت نيويورك، أمريكا</h2>
+        <p id="usa-time" class="time">--:--:--</p>
+        <p id="usa-date" class="date">---، -- --- ----</p>
+    </div>
+
+<div class="weather-container">
+    <h2>☀️ حالة الطقس</h2>
+    <div id="weather-info">
+        <div id="weather-location">جاري تحديد الموقع...</div>
+        <div id="weather-temp">--°C</div>
+        <div id="weather-desc">--</div>
+    </div>
+</div>
+
+
+<div class="calculator-container">
+    <h2>✨ حاسبة العمر والبرج الفلكي ✨</h2>
+    <label for="birthdate">أدخل تاريخ ميلادك:</label>
+    <input type="date" id="birthdate">
+    <button onclick="calculate()">احسب</button>
+    <div id="result">
+        </div>
+</div>
+
+
+<div class="news-container">
+    <h2>📰 آخر الأخبار من مصر</h2>
+    <div id="news-articles">
+        <p>جاري تحميل الأخبار...</p>
+    </div>
+</div>
+
+
+<div class="voice-recorder-container">
+    <h2>🎙️ مسجل الذكريات الصوتية</h2>
+    <div class="recorder-controls">
+        <p id="recorder-status">اضغط على الزر لبدء التسجيل</p>
+        <button id="record-btn" title="بدء التسجيل">🔴</button>
+        <button id="stop-record-btn" title="إيقاف التسجيل" style="display: none;">⬛</button>
+    </div>
+    <div class="recordings-list" id="recordings-list">
+        <h3>التسجيلات المحفوظة</h3>
+        </div>
+</div>
+
+<div class="unified-speech-tool">
+    <h2>🎙️ صندوق أدوات الكلام 🗣️</h2>
+    <p class="description">استخدم الأزرار للتحدث أو للاستماع إلى النص المكتوب.</p>
+    
+    <textarea id="shared-textarea" rows="8" placeholder="تحدث ليتم كتابة النص هنا، أو اكتب نصًا لتستمع إليه..."></textarea>
+    
+    <div class="main-controls">
+        <button id="listen-btn" title="التعرف على الصوت">🎤 استمع الآن</button>
+        <button id="speak-btn" title="نطق النص">🔊 انطق النص</button>
+    </div>
+
+    <div class="extra-tools">
+        <button id="share-btn" title="مشاركة النص" disabled>🔗 مشاركة</button>
+        <button id="download-btn" title="تحميل النص" disabled>💾 تحميل</button>
+    </div>
+
+    <p id="tool-status" class="status"></p>
+</div>
+
+
+
+
+
+
+    <div class="container">
+        <h2>⏱️ مؤقت العد التنازلي (Timer)</h2>
+        <div class="timer-inputs">
+            <label><span>ساعات</span><input type="number" id="hours-input" min="0" max="99" value="0"></label>
+            <label><span>دقائق</span><input type="number" id="minutes-input" min="0" max="59" value="0"></label>
+            <label><span>ثواني</span><input type="number" id="seconds-input" min="0" max="59" value="5"></label>
+        </div>
+        <div id="countdown-display" class="timer-display">00:00:00</div>
+        <div class="buttons">
+            <button id="start-timer-btn">بدء</button>
+            <button id="pause-timer-btn">إيقاف مؤقت</button>
+            <button id="cancel-timer-btn">إلغاء</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>⏲️ ساعة الإيقاف (Stopwatch)</h2>
+        <div id="stopwatch-display" class="timer-display">00:00:00.000</div>
+        <div class="buttons">
+            <button id="start-stopwatch-btn">بدء</button>
+            <button id="stop-stopwatch-btn">إيقاف</button>
+            <button id="reset-stopwatch-btn">إعادة تعيين</button>
+        </div>
+    </div>
+    
+    <audio id="alarm-sound" preload="auto">
+        <source src="data:audio/mpeg;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YUIAAABvT1//PyGE9f/6/ff/5/7n/9j/5f/1+AD3APsA+gD4APkA9ADzAPMA8wDzAPEA8ADuAOgA5gDfANMAzwC/AKoAogCRAJAAfgB1AGgAXgBSAEcAPwAuACgAIQAbABQADgAJAAMAAwABAP7/+P7p/eT+3P3Q/cr9x/28/br9t/22/bL9sv2x/bX9uP28/cD9yv3R/dz96P72/vL+8v7v/u3+6f7o/uj+5/7o/un+6v7t/vL+9v77//z//f/9//z//P/8//z//P/8//z//f/8/wD//AD//AD//P/8/wD//AD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/wD/AP8A/w" type="audio/mpeg">
+    </audio>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // --- منطقة العناصر ---
+    const elements = {
+        egyptTime: document.getElementById('egypt-time'),
+        egyptDate: document.getElementById('egypt-date'),
+        usaTime: document.getElementById('usa-time'),
+        usaDate: document.getElementById('usa-date'),
+        stopwatch: {
+            display: document.getElementById('stopwatch-display'),
+            startBtn: document.getElementById('start-stopwatch-btn'),
+            stopBtn: document.getElementById('stop-stopwatch-btn'),
+            resetBtn: document.getElementById('reset-stopwatch-btn')
+        },
+        countdown: {
+            display: document.getElementById('countdown-display'),
+            inputs: {
+                hours: document.getElementById('hours-input'),
+                minutes: document.getElementById('minutes-input'),
+                seconds: document.getElementById('seconds-input')
+            },
+            startBtn: document.getElementById('start-timer-btn'),
+            pauseBtn: document.getElementById('pause-timer-btn'),
+            cancelBtn: document.getElementById('cancel-timer-btn'),
+            alarm: document.getElementById('alarm-sound')
+        }
+    };
+
+    // --- قسم الساعة والتاريخ ---
+    function updateClocks() {
+        const now = new Date();
+        const options = { hour12: true, hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        
+        elements.egyptTime.textContent = now.toLocaleTimeString('ar-EG', { timeZone: 'Africa/Cairo', ...options });
+        elements.egyptDate.textContent = now.toLocaleDateString('ar-EG', { timeZone: 'Africa/Cairo', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        elements.usaTime.textContent = now.toLocaleTimeString('ar-EG', { timeZone: 'America/New_York', ...options });
+        elements.usaDate.textContent = now.toLocaleDateString('ar-EG', { timeZone: 'America/New_York', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    
+    // --- قسم ساعة الإيقاف (Stopwatch) ---
+    let swState = { startTime: 0, elapsedTime: 0, intervalId: null, isRunning: false };
+
+    function formatStopwatchTime(ms) {
+        const d = new Date(ms);
+        return `${String(d.getUTCMinutes()).padStart(2, '0')}:${String(d.getUTCSeconds()).padStart(2, '0')}.${String(d.getUTCMilliseconds()).padStart(3, '0')}`;
+    }
+
+    function updateStopwatchUI(isRunning) {
+        elements.stopwatch.startBtn.disabled = isRunning;
+        elements.stopwatch.stopBtn.disabled = !isRunning;
+    }
+
+    elements.stopwatch.startBtn.addEventListener('click', () => {
+        if (swState.isRunning) return;
+        swState.isRunning = true;
+        swState.startTime = Date.now() - swState.elapsedTime;
+        localStorage.setItem('sw_startTime', swState.startTime);
+        localStorage.setItem('sw_isRunning', 'true');
+        swState.intervalId = setInterval(() => {
+            swState.elapsedTime = Date.now() - swState.startTime;
+            elements.stopwatch.display.textContent = formatStopwatchTime(swState.elapsedTime);
+        }, 10);
+        updateStopwatchUI(true);
+    });
+
+    elements.stopwatch.stopBtn.addEventListener('click', () => {
+        if (!swState.isRunning) return;
+        swState.isRunning = false;
+        clearInterval(swState.intervalId);
+        localStorage.setItem('sw_elapsedTime', swState.elapsedTime);
+        localStorage.setItem('sw_isRunning', 'false');
+        updateStopwatchUI(false);
+    });
+    
+    elements.stopwatch.resetBtn.addEventListener('click', () => {
+        if(swState.isRunning) elements.stopwatch.stopBtn.click();
+        swState.elapsedTime = 0;
+        elements.stopwatch.display.textContent = formatStopwatchTime(0);
+        localStorage.removeItem('sw_startTime');
+        localStorage.removeItem('sw_elapsedTime');
+        localStorage.removeItem('sw_isRunning');
+    });
+
+    // --- قسم مؤقت العد التنازلي (Timer) ---
+    let cdState = { endTime: 0, remainingTime: 0, intervalId: null, isPaused: false };
+
+    function formatCountdownTime(ms) {
+        if (ms < 0) ms = 0;
+        const s = Math.floor(ms / 1000);
+        return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+    }
+
+    function updateCountdownUI({isRunning, isPaused}) {
+        elements.countdown.startBtn.disabled = isRunning || isPaused;
+        elements.countdown.pauseBtn.disabled = !isRunning;
+        elements.countdown.cancelBtn.disabled = !isRunning && !isPaused;
+        Object.values(elements.countdown.inputs).forEach(input => input.disabled = isRunning || isPaused);
+        elements.countdown.startBtn.textContent = isPaused ? "استئناف" : "بدء";
+    }
+
+    function runCountdown() {
+        cdState.remainingTime = cdState.endTime - Date.now();
+        elements.countdown.display.textContent = formatCountdownTime(cdState.remainingTime);
+        if (cdState.remainingTime <= 0) {
+            elements.countdown.alarm.play();
+            elements.countdown.cancelBtn.click();
+            elements.countdown.display.textContent = "انتهى الوقت!";
+        }
+    }
+
+    elements.countdown.startBtn.addEventListener('click', () => {
+        // *** الجزء الذي تم تعديله ***
+        // نقوم بتشغيل الصوت وإيقافه فورًا عند النقر على "بدء"
+        // هذا "يُهيئ" الصوت ويسمح للمتصفح بتشغيله لاحقًا
+        elements.countdown.alarm.play();
+        elements.countdown.alarm.pause();
+        elements.countdown.alarm.currentTime = 0; // إعادة الصوت للبداية
+        // *** نهاية الجزء المعدل ***
+
+        let totalMs;
+        if (cdState.isPaused) {
+            cdState.isPaused = false;
+            cdState.endTime = Date.now() + cdState.remainingTime;
+        } else {
+            totalMs = (parseInt(elements.countdown.inputs.hours.value) * 3600 + 
+                       parseInt(elements.countdown.inputs.minutes.value) * 60 + 
+                       parseInt(elements.countdown.inputs.seconds.value)) * 1000;
+            if (totalMs <= 0) return;
+            cdState.endTime = Date.now() + totalMs;
+        }
+        
+        localStorage.setItem('cd_endTime', cdState.endTime);
+        localStorage.removeItem('cd_remainingTime');
+        
+        cdState.intervalId = setInterval(runCountdown, 200);
+        updateCountdownUI({isRunning: true, isPaused: false});
+    });
+
+    elements.countdown.pauseBtn.addEventListener('click', () => {
+        clearInterval(cdState.intervalId);
+        cdState.isPaused = true;
+        cdState.remainingTime = cdState.endTime - Date.now();
+        localStorage.setItem('cd_remainingTime', cdState.remainingTime);
+        localStorage.removeItem('cd_endTime');
+        updateCountdownUI({isRunning: false, isPaused: true});
+    });
+
+    elements.countdown.cancelBtn.addEventListener('click', () => {
+        clearInterval(cdState.intervalId);
+        Object.assign(cdState, { endTime: 0, remainingTime: 0, intervalId: null, isPaused: false });
+        localStorage.removeItem('cd_endTime');
+        localStorage.removeItem('cd_remainingTime');
+        elements.countdown.display.textContent = "00:00:00";
+        updateCountdownUI({isRunning: false, isPaused: false});
+    });
+
+    // --- تحميل الحالات عند فتح الصفحة ---
+    function loadInitialState() {
+        // الساعات
+        updateClocks();
+        setInterval(updateClocks, 1000);
+
+        // ساعة الإيقاف
+        const swIsRunning = localStorage.getItem('sw_isRunning') === 'true';
+        if (swIsRunning) {
+            swState.elapsedTime = Date.now() - parseInt(localStorage.getItem('sw_startTime'));
+            elements.stopwatch.startBtn.click();
+        } else {
+            swState.elapsedTime = parseInt(localStorage.getItem('sw_elapsedTime')) || 0;
+            elements.stopwatch.display.textContent = formatStopwatchTime(swState.elapsedTime);
+        }
+        updateStopwatchUI(swState.isRunning);
+
+        // المؤقت
+        const cdEndTime = parseInt(localStorage.getItem('cd_endTime'));
+        const cdRemainingTime = parseInt(localStorage.getItem('cd_remainingTime'));
+        if (cdEndTime) {
+            cdState.endTime = cdEndTime;
+            cdState.intervalId = setInterval(runCountdown, 200);
+            updateCountdownUI({isRunning: true, isPaused: false});
+        } else if (cdRemainingTime) {
+            cdState.isPaused = true;
+            cdState.remainingTime = cdRemainingTime;
+            elements.countdown.display.textContent = formatCountdownTime(cdRemainingTime);
+            updateCountdownUI({isRunning: false, isPaused: true});
+        }
+        updateCountdownUI({isRunning: !!cdState.intervalId, isPaused: cdState.isPaused});
+    }
+
+    loadInitialState();
+});
+// script.js
+
+function calculate() {
+    const birthdateString = document.getElementById('birthdate').value;
+    const resultDiv = document.getElementById('result');
+
+    if (!birthdateString) {
+        resultDiv.innerHTML = '<p style="color: red; text-align: center;">الرجاء إدخال تاريخ ميلاد صحيح.</p>';
+        return;
+    }
+
+    const birthDate = new Date(birthdateString);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDifference = today.getMonth() - birthDate.getMonth();
+    if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+
+    const day = birthDate.getDate();
+    const month = birthDate.getMonth() + 1;
+    
+    const zodiacData = getZodiacData(day, month);
+
+    if (zodiacData) {
+        resultDiv.innerHTML = `
+            <h3>النتائج</h3>
+            <p style="color: Gold; text-align: center;"><strong>عمرك هو:</strong> ${age} سنة</p>
+            <p style="color: gold; text-align: center;"<strong>برجك الفلكي هو:</strong> ${zodiacData.name}</p>
+            <p class="motto">"${zodiacData.motto}"</p>
+            <p style="color: gold; text-align: center;"><strong>صفات برجك:</strong> ${zodiacData.info}</p>
+        `;
+    } else {
+        resultDiv.innerHTML = '<p style="color: red; text-align: center;">لا يمكن تحديد البرج، يرجى التحقق من التاريخ.</p>';
+    }
+}
+
+function getZodiacData(day, month) {
+    if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) {
+        return { 
+            name: "♈ الحمل", 
+            motto: "أنا أبادر، إذن أنا موجود.",
+            info: "يتميز مواليد برج الحمل بالشجاعة، الحماس، والثقة بالنفس. هم قادة بالفطرة ويحبون المغامرات والتحديات، ولا يخشون بدء المشاريع الجديدة." 
+        };
+    } else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) {
+        return { 
+            name: "♉ الثور", 
+            motto: "أنا أمتلك، إذن أنا مستقر.",
+            info: "يُعرف مواليد برج الثور بالصبر، الموثوقية، وحبهم للاستقرار والجمال. عمليون ويقدرون الراحة والأشياء المادية الجيدة في الحياة." 
+        };
+    } else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) {
+        return { 
+            name: "♊ الجوزاء", 
+            motto: "أنا أفكر، إذن أنا أتواصل.",
+            info: "مواليد الجوزاء فضوليون، اجتماعيون، وقادرون على التكيف. يحبون التواصل وتبادل الأفكار وهم سريعو البديهة ولديهم عقل نشط لا يهدأ." 
+        };
+    } else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) {
+        return { 
+            name: "♋ السرطان", 
+            motto: "أنا أشعر، إذن أنا أهتم.",
+            info: "يتميز مواليد السرطان بالعاطفة القوية، الولاء، وحبهم للأسرة. هم حساسون جداً، يمتلكون خيالاً واسعاً، ويوفرون الأمان لمن يحبون." 
+        };
+    } else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) {
+        return { 
+            name: "♌ الأسد", 
+            motto: "أنا أريد، إذن أنا أبدع.",
+            info: "مواليد الأسد كرماء، مبدعون، ويمتلكون شخصية قيادية. يحبون أن يكونوا مركز الاهتمام، فهم دافئون القلب ويسعون للتعبير عن أنفسهم." 
+        };
+    } else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) {
+        return { 
+            name: "♍ العذراء", 
+            motto: "أنا أحلل، إذن أنا أخدم.",
+            info: "يُعرف مواليد العذراء بالدقة، التحليل، والعمل الجاد. يهتمون بالتفاصيل، عمليون، ومخلصون، ويسعون دائماً للتحسين والكمال." 
+        };
+    } else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) {
+        return { 
+            name: "♎ الميزان", 
+            motto: "أنا أوازن، إذن أنا أنسجم.",
+            info: "يتميز مواليد الميزان بالدبلوماسية، العدل، وحبهم للانسجام. هم اجتماعيون، ساحرون، ويسعون دائماً لتحقيق التوازن في علاقاتهم ومحيطهم." 
+        };
+    } else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) {
+        return { 
+            name: "♏ العقرب", 
+            motto: "أنا أرغب، إذن أنا أتحول.",
+            info: "مواليد العقرب شجعان، عاطفيون، ويمتلكون قوة إرادة هائلة. هم أصدقاء أوفياء ولكنهم حذرون، ولديهم قدرة عميقة على فهم بواطن الأمور." 
+        };
+    } else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) {
+        return { 
+            name: "♐ القوس", 
+            motto: "أنا أرى، إذن أنا أستكشف.",
+            info: "يُعرف مواليد القوس بالكرم، التفاؤل، وحبهم للحرية والمغامرة. يمتلكون حس دعابة رائع ويعشقون السفر واستكشاف الفلسفات والثقافات المختلفة." 
+        };
+    } else if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) {
+        return { 
+            name: "♑ الجدي", 
+            motto: "أنا أستخدم، إذن أنا أنجح.",
+            info: "يتميز مواليد الجدي بالمسؤولية، الانضباط، والقدرة على التحكم بالنفس. هم جادون وطموحون، ويعملون بجد لتحقيق أهدافهم على المدى الطويل." 
+        };
+    } else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) {
+        return { 
+            name: "♒ الدلو", 
+            motto: "أنا أعرف، إذن أنا أغير.",
+            info: "مواليد الدلو مستقلون، مبدعون، وإنسانيون. يحبون مساعدة الآخرين ويمتلكون تفكيراً تقدمياً ومبتكراً، ويسعون لجعل العالم مكاناً أفضل." 
+        };
+    } else if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) {
+        return { 
+            name: "♓ الحوت", 
+            motto: "أنا أؤمن، إذن أنا أحلم.",
+            info: "يتميز مواليد الحوت بالتعاطف، الفن، والحكمة. هم حساسون، حالمون، يمتلكون حدساً قوياً، ومتصلون بعمق بعالمهم الداخلي وعواطف الآخرين." 
+        };
+    }
+    return null;
+}
+// ابدأ النسخ من هنا
+
+// دالة لجلب وعرض التاريخ الهجري
+function displayHijriDate() {
+    // نستخدم كائن التاريخ الدولي المدمج في المتصفح للحصول على التاريخ الهجري
+    // 'ar-SA' -> للغة العربية (السعودية) لضمان أسماء الشهور العربية
+    // '-u-ca-islamic' -> لتحديد أننا نريد التقويم الإسلامي
+    const hijriDateFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+
+    // نحصل على التاريخ الحالي ونقوم بتحويله
+    const today = new Date();
+    const hijriDate = hijriDateFormatter.format(today);
+
+    // نعرض التاريخ في المكان المخصص له في HTML
+    const hijriContainer = document.getElementById('hijri-date-container');
+    if (hijriContainer) {
+        hijriContainer.innerHTML = `🌙 ${hijriDate}`;
+    }
+}
+
+// نستدعي الدالة عند تحميل الصفحة ليعمل التاريخ بشكل تلقائي
+document.addEventListener('DOMContentLoaded', displayHijriDate);
+
+// انتهى النسخ
+
+// ابدأ النسخ من هنا
+
+// ابدأ النسخ من هنا
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- متغيرات عامة ---
+    const citySelect = document.getElementById('city-select');
+    const prayerCityTitle = document.getElementById('prayer-city-title');
+    const adhanAudio = document.getElementById('adhan-audio');
+    const notificationsBtn = document.getElementById('notifications-btn');
+    const notificationsStatus = document.getElementById('notifications-status');
+    let prayerTimesData = {}; // لتخزين مواقيت الصلاة
+    let notifiedPrayers = []; // لتتبع الإشعارات التي تم إرسالها
+
+    // --- 1. جلب وعرض مواقيت الصلاة ---
+    async function fetchPrayerTimes(city) {
+        // عرض حالة التحميل
+        document.querySelectorAll('.prayer-item').forEach(item => item.classList.add('loading'));
+        prayerCityTitle.textContent = `🕌 مواقيت الصلاة (${city})`;
+
+        const country = 'Egypt';
+        const method = 5; // الهيئة المصرية العامة للمساحة
+        const apiUrl = `https://api.aladhan.com/v1/timingsByCity?city=${city}&country=${country}&method=${method}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            if (data.code === 200) {
+                prayerTimesData = data.data.timings; // تخزين المواقيت
+                displayPrayerTimes(prayerTimesData);
+            }
+        } catch (error) {
+            console.error('فشل جلب المواقيت:', error);
+        }
+    }
+
+    function displayPrayerTimes(timings) {
+        const formatTime = (time) => {
+            const [hour, minute] = time.split(':');
+            const h = parseInt(hour, 10);
+            const suffix = h >= 12 ? 'م' : 'ص';
+            const formattedHour = ((h + 11) % 12 + 1);
+            return `${formattedHour}:${minute} ${suffix}`;
+        };
+
+        document.getElementById('fajr-time').textContent = formatTime(timings.Fajr);
+        document.getElementById('sunrise-time').textContent = formatTime(timings.Sunrise);
+        document.getElementById('dhuhr-time').textContent = formatTime(timings.Dhuhr);
+        document.getElementById('asr-time').textContent = formatTime(timings.Asr);
+        document.getElementById('maghrib-time').textContent = formatTime(timings.Maghrib);
+        document.getElementById('isha-time').textContent = formatTime(timings.Isha);
+        document.querySelectorAll('.prayer-item').forEach(item => item.classList.remove('loading'));
+    }
+
+    // --- 2. تخصيص الموقع ---
+    citySelect.addEventListener('change', () => {
+        fetchPrayerTimes(citySelect.value);
+    });
+
+    // --- 3. إشعارات الأذان ---
+    notificationsBtn.addEventListener('click', () => {
+        if (!('Notification' in window)) {
+            notificationsStatus.textContent = 'عذراً، متصفحك لا يدعم الإشعارات.';
+            return;
+        }
+
+        Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                notificationsStatus.textContent = 'تم تفعيل الإشعارات بنجاح. سيتم تنبيهك عند كل أذان.';
+                notificationsBtn.disabled = true;
+                notificationsBtn.textContent = '✅ تم التفعيل';
+                // بدء التحقق من الوقت كل دقيقة
+                setInterval(checkPrayerTime, 60000);
+            } else {
+                notificationsStatus.textContent = 'تم رفض الإذن. لا يمكن إرسال الإشعارات.';
+            }
+        });
+    });
+
+    function checkPrayerTime() {
+        const now = new Date();
+        const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        
+        // قائمة الصلوات التي نريد إشعارًا لها
+        const prayerCheckList = {
+            'Fajr': 'الفجر',
+            'Dhuhr': 'الظهر',
+            'Asr': 'العصر',
+            'Maghrib': 'المغرب',
+            'Isha': 'العشاء'
+        };
+
+        for (const [prayerKey, prayerName] of Object.entries(prayerCheckList)) {
+            // إذا حان وقت الصلاة ولم يتم إرسال إشعار لها اليوم
+            if (prayerTimesData[prayerKey] === currentTime && !notifiedPrayers.includes(prayerKey)) {
+                showNotification(prayerName);
+                notifiedPrayers.push(prayerKey); // إضافة الصلاة إلى قائمة الإشعارات المرسلة
+                break; // إيقاف التحقق بعد العثور على أول صلاة
+            }
+        }
+        
+        // إعادة تعيين القائمة بعد منتصف الليل
+        if (currentTime === "00:01") {
+            notifiedPrayers = [];
+        }
+    }
+
+    function showNotification(prayerName) {
+        const notification = new Notification('حان الآن وقت الأذان', {
+            body: `حان الآن موعد أذان صلاة ${prayerName} حسب توقيت ${citySelect.value}.`,
+            icon: 'https://i.imgur.com/Cefk42h.png' // أيقونة إسلامية
+        });
+
+        // تشغيل صوت الأذان
+        adhanAudio.play().catch(e => console.error("لا يمكن تشغيل الصوت:", e));
+    }
+
+    // --- التشغيل الأولي ---
+    fetchPrayerTimes(citySelect.value); // جلب المواقيت للمدينة الافتراضية عند تحميل الصفحة
+});
+
+// انتهى النسخ
+
+// ابدأ النسخ من هنا
+
+// نستدعي الدالة عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', () => {
+    const statusElement = document.getElementById('qibla-status');
+    const arrowElement = document.getElementById('compass-arrow');
+
+    if (!navigator.geolocation) {
+        statusElement.textContent = 'المتصفح لا يدعم خدمة تحديد الموقع.';
+        return;
+    }
+
+    // طلب الموقع الجغرافي للمستخدم
+    navigator.geolocation.getCurrentPosition(locationSuccess, locationError);
+
+    function locationSuccess(position) {
+        const { latitude, longitude } = position.coords;
+        statusElement.textContent = 'تم تحديد الموقع، يرجى توجيه الجهاز.';
+
+        // إحداثيات الكعبة المشرفة
+        const kaabaLat = 21.4225;
+        const kaabaLng = 39.8262;
+
+        // حساب زاوية القبلة
+        const qiblaAngle = calculateQiblaAngle(latitude, longitude, kaabaLat, kaabaLng);
+
+        // البدء في الاستماع لحساسات الجهاز (البوصلة)
+        // ملاحظة: تحتاج إلى تفعيل هذه الميزة على بعض المتصفحات مثل سفاري
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', (event) => {
+                // event.alpha هو اتجاه الجهاز بالنسبة للشمال (0-360)
+                // webkitCompassHeading هو بديل لبعض المتصفحات
+                const heading = event.webkitCompassHeading || event.alpha;
+                if (heading !== null) {
+                    // تحديث اتجاه السهم
+                    // نطرح اتجاه الجهاز من زاوية القبلة لنحصل على الاتجاه الصحيح
+                    arrowElement.style.transform = `rotate(${qiblaAngle - heading}deg)`;
+                } else {
+                     statusElement.textContent = 'لا يمكن الوصول إلى بوصلة الجهاز.';
+                }
+            });
+        } else {
+            statusElement.textContent = 'المتصفح لا يدعم خدمة البوصلة.';
+        }
+    }
+
+    function locationError() {
+        statusElement.textContent = 'تم رفض الوصول إلى الموقع. لا يمكن تحديد القبلة.';
+    }
+
+    // دالة رياضية لحساب زاوية القبلة
+    function calculateQiblaAngle(lat1, lon1, lat2, lon2) {
+        const toRadians = (deg) => deg * Math.PI / 180;
+        const latRad1 = toRadians(lat1);
+        const lonRad1 = toRadians(lon1);
+        const latRad2 = toRadians(lat2);
+        const lonRad2 = toRadians(lon2);
+
+        const y = Math.sin(lonRad2 - lonRad1);
+        const x = Math.cos(latRad1) * Math.tan(latRad2) - Math.sin(latRad1) * Math.cos(lonRad2 - lonRad1);
+        
+        let angle = Math.atan2(y, x) * 180 / Math.PI;
+        angle = (angle + 360) % 360; // تحويل الزاوية إلى نطاق 0-360
+        return angle;
+    }
+});
+
+// انتهى النسخ
+// ابدأ النسخ من هنا
+
+// =============== كود حالة الطقس (مع تحديد الموقع التلقائي) ===============
+
+// دالة لجلب وعرض حالة الطقس بناءً على موقع المستخدم
+async function fetchWeatherByLocation() {
+    const apiKey = "109091969fcb8ac4b87631fc1218f15c"; // مفتاح API الخاص بك
+
+    // التحقق من دعم المتصفح لخدمة تحديد الموقع
+    if (!navigator.geolocation) {
+        document.getElementById('weather-location').textContent = 'المتصفح لا يدعم تحديد الموقع';
+        return;
+    }
+
+    // طلب الموقع الجغرافي من المستخدم
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=ar`;
+
+        try {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (response.ok) {
+                displayWeather(data);
+            } else {
+                console.error('خطأ في جلب بيانات الطقس:', data.message);
+                document.getElementById('weather-location').textContent = 'لا يمكن جلب الطقس لهذا الموقع';
+            }
+        } catch (error) {
+            console.error('فشل الاتصال بخادم الطقس:', error);
+        }
+    }, () => {
+        // في حالة رفض المستخدم مشاركة الموقع
+        document.getElementById('weather-location').textContent = 'تم رفض الوصول للموقع';
+        document.getElementById('weather-temp').textContent = '🤷‍♂️';
+        document.getElementById('weather-desc').textContent = 'يرجى السماح بالوصول للموقع لعرض الطقس.';
+    });
+}
+
+// دالة لعرض بيانات الطقس في الصفحة (تبقى كما هي)
+function displayWeather(data) {
+    const locationElement = document.getElementById('weather-location');
+    const tempElement = document.getElementById('weather-temp');
+    const descElement = document.getElementById('weather-desc');
+
+    if (locationElement && tempElement && descElement) {
+        locationElement.textContent = data.name;
+        tempElement.textContent = `${Math.round(data.main.temp)}°C`;
+        descElement.textContent = data.weather[0].description;
+    }
+}
+
+// --- التشغيل عند تحميل الصفحة ---
+document.addEventListener('DOMContentLoaded', () => {
+    // استدعاء دالة الطقس الجديدة التي تعتمد على الموقع
+    fetchWeatherByLocation();
+
+    // ... باقي أكوادك الأخرى مثل مواقيت الصلاة واختيار المدينة يمكن أن تبقى كما هي
+    // ملاحظة: خاصية اختيار المدينة ستغير مواقيت الصلاة فقط الآن،
+    // بينما الطقس سيعتمد دائمًا على موقعك الفعلي.
+});
+
+
+// انتهى النسخ
+
+
+// ابدأ النسخ من هنا
+
+// ================= كود آخر الأخبار باستخدام GNews =================
+
+async function fetchNews() {
+    // تم إضافة مفتاح الـ API الخاص بك هنا
+    const apiKey = "680777e36302432ade57c19317448d08";
+    const apiUrl = `https://gnews.io/api/v4/top-headlines?country=eg&lang=ar&token=${apiKey}`;
+
+    const articlesContainer = document.getElementById('news-articles');
+
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (response.ok) {
+            articlesContainer.innerHTML = ""; // إفراغ رسالة التحميل
+            
+            data.articles.forEach(article => {
+                // تخطي المقالات بدون عنوان أو صورة
+                if (!article.title || !article.image) {
+                    return;
+                }
+
+                const articleElement = `
+                    <div class="article">
+                        <img src="${article.image}" alt="${article.title}">
+                        <h3>${article.title}</h3>
+                        <p class="source">المصدر: ${article.source.name}</p>
+                        <a href="${article.url}" target="_blank">اقرأ المزيد</a>
+                    </div>
+                `;
+                articlesContainer.innerHTML += articleElement;
+            });
+        } else {
+            articlesContainer.innerHTML = `<p>حدث خطأ أثناء جلب الأخبار.</p>`;
+        }
+    } catch (error) {
+        console.error("فشل جلب الأخبار:", error);
+        articlesContainer.innerHTML = "<p>فشل الاتصال بخادم الأخبار. يرجى المحاولة مرة أخرى.</p>";
+    }
+}
+
+// نستدعي الدالة عند تحميل الصفحة لجلب الأخبار تلقائيًا
+document.addEventListener('DOMContentLoaded', fetchNews);
+
+// انتهى النسخ
+
+// ابدأ النسخ من هنا
+
+
+
+
+// ================= كود آخر الأخبار باستخدام RSS =================
+
+async function fetchNewsFromRss() {
+    // 1. رابط RSS المستهدف (يمكنك تغييره لأي موقع آخر)
+    const rssUrl = "https://www.youm7.com/rss/SectionRss?SectionID=65";
+
+    // 2. استخدام خدمة rss2json لتحويله إلى JSON وتجاوز CORS
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+    const articlesContainer = document.getElementById('news-articles');
+
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+
+        if (data.status === 'ok') {
+            articlesContainer.innerHTML = ""; // إفراغ رسالة التحميل
+            
+            const articles = data.items;
+
+            articles.forEach(article => {
+                // تخطي المقالات بدون عنوان
+                if (!article.title) {
+                    return;
+                }
+
+                // محاولة استخراج صورة للمقال (قد لا تكون موجودة دائمًا في RSS)
+                // enclosure.link هو المكان الشائع للصورة في RSS
+                const imageUrl = article.enclosure.link || 'https://i.imgur.com/3VzYf7b.png'; // صورة افتراضية
+
+                const articleElement = `
+                    <div class="article">
+                        <img src="${imageUrl}" alt="${article.title}">
+                        <h3>${article.title}</h3>
+                        <p class="source">المصدر: ${data.feed.title}</p>
+                        <a href="${article.link}" target="_blank">اقرأ المزيد</a>
+                    </div>
+                `;
+                articlesContainer.innerHTML += articleElement;
+            });
+        } else {
+            articlesContainer.innerHTML = `<p>حدث خطأ أثناء جلب الأخبار من قناة RSS.</p>`;
+        }
+    } catch (error) {
+        console.error("فشل جلب الأخبار من RSS:", error);
+        articlesContainer.innerHTML = "<p>فشل الاتصال. يرجى المحاولة مرة أخرى.</p>";
+    }
+}
+
+// نستدعي الدالة عند تحميل الصفحة
+document.addEventListener('DOMContentLoaded', fetchNewsFromRss);
+
+
+// انتهى النسخ
+
+// ابدأ النسخ من هنا
+
+// ================ كود مسجل الذكريات الصوتية ================
+document.addEventListener('DOMContentLoaded', () => {
+    // --- عناصر الواجهة ---
+    const recordBtn = document.getElementById('record-btn');
+    const stopBtn = document.getElementById('stop-record-btn');
+    const statusEl = document.getElementById('recorder-status');
+    const recordingsList = document.getElementById('recordings-list');
+
+    let mediaRecorder;
+    let audioChunks = [];
+    let db;
+
+    // --- 1. إعداد قاعدة البيانات IndexedDB ---
+    const request = indexedDB.open('voiceMemosDB', 1);
+
+    request.onupgradeneeded = (event) => {
+        const dbInstance = event.target.result;
+        dbInstance.createObjectStore('recordings', { keyPath: 'id', autoIncrement: true });
+    };
+
+    request.onsuccess = (event) => {
+        db = event.target.result;
+        loadRecordings();
+    };
+
+    request.onerror = (event) => {
+        console.error("خطأ في قاعدة البيانات:", event.target.errorCode);
+    };
+
+    // --- 2. منطق التسجيل ---
+    async function startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                saveRecording(audioBlob);
+                audioChunks = []; // تفريغ الذاكرة للتسجيل التالي
+            };
+
+            mediaRecorder.start();
+            updateUI(true); // تحديث الواجهة لحالة التسجيل
+        } catch (err) {
+            console.error("خطأ في الوصول للميكروفون:", err);
+            statusEl.textContent = "يجب السماح بالوصول للميكروفون.";
+        }
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
+        updateUI(false); // تحديث الواجهة للحالة العادية
+    }
+
+    function updateUI(isRecording) {
+        recordBtn.style.display = isRecording ? 'none' : 'inline-block';
+        recordBtn.classList.toggle('recording', isRecording);
+        stopBtn.style.display = isRecording ? 'inline-block' : 'none';
+        statusEl.textContent = isRecording ? "جاري التسجيل..." : "اضغط على الزر لبدء التسجيل";
+    }
+    
+    recordBtn.addEventListener('click', startRecording);
+    stopBtn.addEventListener('click', stopRecording);
+
+    // --- 3. منطق الحفظ والعرض والحذف ---
+    function saveRecording(blob) {
+        const transaction = db.transaction(['recordings'], 'readwrite');
+        const store = transaction.objectStore('recordings');
+        const recording = {
+            timestamp: new Date(),
+            audio: blob
+        };
+        store.add(recording);
+
+        transaction.oncomplete = () => {
+            loadRecordings(); // إعادة تحميل القائمة بعد الحفظ
+        };
+    }
+
+    function loadRecordings() {
+        recordingsList.innerHTML = '<h3>التسجيلات المحفوظة</h3>'; // إعادة تعيين القائمة
+        const transaction = db.transaction(['recordings'], 'readonly');
+        const store = transaction.objectStore('recordings');
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+            const recordings = request.result.reverse(); // عرض الأحدث أولاً
+            recordings.forEach(rec => {
+                const recordingEl = createRecordingElement(rec);
+                recordingsList.appendChild(recordingEl);
+            });
+        };
+    }
+
+    function createRecordingElement(rec) {
+        const item = document.createElement('div');
+        item.className = 'recording-item';
+        
+        const audioURL = URL.createObjectURL(rec.audio);
+        const audioPlayer = new Audio(audioURL);
+        audioPlayer.controls = true;
+
+        const timestamp = document.createElement('span');
+        timestamp.className = 'timestamp';
+        timestamp.textContent = rec.timestamp.toLocaleString('ar-EG');
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.onclick = () => deleteRecording(rec.id);
+        
+        item.appendChild(timestamp);
+        item.appendChild(audioPlayer);
+        item.appendChild(deleteBtn);
+        return item;
+    }
+
+    function deleteRecording(id) {
+        const transaction = db.transaction(['recordings'], 'readwrite');
+        const store = transaction.objectStore('recordings');
+        store.delete(id);
+        transaction.oncomplete = () => {
+            loadRecordings(); // إعادة تحميل القائمة بعد الحذف
+        };
+    }
+});
+
+// انتهى النسخ
+
+// ابدأ النسخ من هنا
+
+// ================ كود صندوق أدوات الكلام المدمج (إصدار محدث) ================
+document.addEventListener('DOMContentLoaded', () => {
+    // --- عناصر الواجهة المشتركة ---
+    const sharedTextarea = document.getElementById('shared-textarea');
+    const statusEl = document.getElementById('tool-status');
+
+    // --- 1. خاصية نطق النص (Text to Speech) ---
+    const speakBtn = document.getElementById('speak-btn');
+    const synth = window.speechSynthesis;
+
+    speakBtn.addEventListener('click', () => {
+        if (synth.speaking) {
+            synth.cancel(); // إيقاف أي نطق حالي
+        }
+        if (sharedTextarea.value.trim() !== '') {
+            const utterThis = new SpeechSynthesisUtterance(sharedTextarea.value);
+            const arabicVoice = synth.getVoices().find(voice => voice.lang.startsWith('ar'));
+            if (arabicVoice) {
+                utterThis.voice = arabicVoice;
+            }
+            utterThis.lang = 'ar-EG';
+            synth.speak(utterThis);
+        }
+    });
+
+    // --- 2. خاصية التعرف على الصوت (Speech to Text) ---
+    const listenBtn = document.getElementById('listen-btn');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let final_transcript = ''; // ** متغير لتخزين النص النهائي المؤكد **
+
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ar-EG';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        listenBtn.addEventListener('click', () => {
+            if (listenBtn.classList.contains('listening')) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+
+        recognition.onstart = () => {
+            final_transcript = ''; // ** إعادة تعيين النص عند بدء جلسة استماع جديدة **
+            sharedTextarea.value = ''; // إفراغ المربع
+            listenBtn.classList.add('listening');
+            listenBtn.textContent = '🛑 إيقاف الاستماع';
+            statusEl.textContent = 'استمع الآن...';
+        };
+
+        // **** الجزء الذي تم تعديله بالكامل لحل مشكلة التكرار ****
+        recognition.onresult = (event) => {
+            let interim_transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    final_transcript += event.results[i][0].transcript;
+                } else {
+                    interim_transcript += event.results[i][0].transcript;
+                }
+            }
+            sharedTextarea.value = final_transcript + interim_transcript;
+            updateExtraButtonsState();
+        };
+        // **** نهاية الجزء المعدل ****
+        
+        recognition.onerror = (event) => {
+            statusEl.textContent = `خطأ: ${event.error}`;
+        };
+        
+        recognition.onend = () => {
+            listenBtn.classList.remove('listening');
+            listenBtn.textContent = '🎤 استمع الآن';
+            statusEl.textContent = '';
+        };
+
+    } else {
+        statusEl.textContent = "عذراً، متصفحك لا يدعم خاصية التعرف على الصوت.";
+        listenBtn.disabled = true;
+    }
+
+    // --- 3. الأدوات الإضافية (مشاركة وتحميل) ---
+    const shareBtn = document.getElementById('share-btn');
+    const downloadBtn = document.getElementById('download-btn');
+
+    function updateExtraButtonsState() {
+        const hasText = sharedTextarea.value.trim().length > 0;
+        shareBtn.disabled = !hasText;
+        downloadBtn.disabled = !hasText;
+    }
+
+    sharedTextarea.addEventListener('input', updateExtraButtonsState);
+
+    shareBtn.addEventListener('click', () => {
+        if (navigator.share && sharedTextarea.value) {
+            navigator.share({
+                title: 'نص من تطبيقي',
+                text: sharedTextarea.value,
+            }).catch(error => console.error('خطأ في المشاركة:', error));
+        }
+    });
+
+    downloadBtn.addEventListener('click', () => {
+        if (sharedTextarea.value) {
+            const blob = new Blob([sharedTextarea.value], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'النص_المحفوظ.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    });
+    
+    // التشغيل الأولي
+    updateExtraButtonsState();
+});
+
+// انتهى النسخ
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
+

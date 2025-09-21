@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بحث الألعاب والتطبيقات</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #2c3e50, #34495e);
+      color: white;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+    select {
+      background-color: #ecf0f1;
+      color: #2c3e50;
+    }
+    input {
+      background-color: #ecf0f1;
+      color: #2c3e50;
+    }
+    button {
+      background-color: #e74c3c;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>أداة بحث الألعاب والتطبيقات</h2>
+
+  <!-- نوع البحث -->
+  <select id="searchType">
+    <option value="game">لعبة</option>
+    <option value="app">تطبيق</option>
+  </select>
+
+  <!-- إدخال الاسم أو الرابط -->
+  <input type="text" id="inputText" placeholder="ادخل اسم اللعبة أو رابط Google Play">
+
+  <!-- اختيار الموقع -->
+  <select id="siteList">
+    <option value="apkcombo.com">apkcombo.com</option>
+    <option value="apkpure.com">apkpure.com</option>
+    <option value="revdl.com">revdl.com</option>
+    <option value="android1.com">android1.com</option>
+    <option value="moddroid.com">moddroid.com</option>
+    <option value="apkmirror.com">apkmirror.com</option>
+    <option value="rexdl.com">rexdl.com</option>
+    <option value="ihackedit.com">ihackedit.com</option>
+    <option value="apkdone.com">apkdone.com</option>
+    <option value="apkhome.net">apkhome.net</option>
+    <option value="allpcworld.com">allpcworld.com</option>
+    <option value="forum.ru‑board.com">forum.ru‑board.com</option>
+    <option value="warez-bb.org">warez-bb.org</option>
+    <option value="teamos-hkrg.com">teamos-hkrg.com</option>
+    <option value="serialbay.com">serialbay.com</option>
+    <option value="procrackerz.org">procrackerz.org</option>
+    <option value="4download.net">4download.net</option>
+    <option value="shareappscrack.com">shareappscrack.com</option>
+    <option value="appnee.com">appnee.com</option>
+    <option value="haxpc.net">haxpc.net</option>
+    <option value="startcrack.com">startcrack.com</option>
+    <option value="filecr.com">filecr.com</option>
+    <option value="getintopc.com">getintopc.com</option>
+    <option value="cracked.to">cracked.to</option>
+    <option value="getintopc.com">getintopc.com</option>
+    <option value="mob.org">mob.org</option>
+    <option value="3dmgame.com">3dmgame.com</option>
+    <option value="razor1911.com">razor1911.com</option>
+    <option value="nsw2u.com">nsw2u.com</option>
+    <option value="romsfun.com">romsfun.com</option>
+    <option value="emuparadise.me">emuparadise.me</option>
+    <option value="rarbg.to">rarbg.to</option>
+    <option value="katcr.to">katcr.to</option>
+    <option value="1337x.to">1337x.to</option>
+    <option value="thepiratebay.org">thepiratebay.org</option>
+    <option value="dodi-repacks.site">dodi-repacks.site</option>
+    <option value="repack-games.com">repack-games.com</option>
+    <option value="skidrow-games.com">skidrow-games.com</option>
+    <option value="cs.rin.ru">cs.rin.ru</option>
+    <option value="gamestorrents.nu">gamestorrents.nu</option>
+    <option value="steamunlocked.net">steamunlocked.net</option>
+    <option value="oceanofgames.com">oceanofgames.com</option>
+    <option value="igg-games.com">igg-games.com</option>
+    <option value="fitgirl-repacks.site">fitgirl-repacks.site</option>
+    <option value="skidrowreloaded.com">skidrowreloaded.com</option>
+    <option value="patchcracks.com">patchcracks.com</option>
+    <option value="licensekeys.net">licensekeys.net</option>
+    <option value="serials.ws">serials.ws</option>
+    <option value="zipcrack.com">zipcrack.com</option>
+    <option value="softasm.com">softasm.com</option>
+    <!-- ضيف باقي المواقع هنا لو عايزهم يوصلوا لـ 40 -->
+
+
+
+  </select>
+
+  <!-- اختيار الكلمة المضافة -->
+  <select id="extraWord">
+    <option value="">بدون إضافات</option>
+    <option value="plus">plus</option>
+    <option value="prime">prime</option>
+    <option value="free">free</option>
+    <option value="mod">mod</option>
+  </select>
+
+  <!-- زر البحث -->
+  <button onclick="generateSearch()">🔍 بحث</button>
+
+  <script>
+    function extractAppName(input) {
+      // لو الرابط من جوجل بلاي استخرج الاسم
+      const match = input.match(/id=([a-zA-Z0-9_.]+)/);
+      if (match) {
+        return match[1].replace(/\./g, ' ');
+      }
+      return input;
+    }
+
+    function generateSearch() {
+      const type = document.getElementById("searchType").value;
+      const extra = document.getElementById("extraWord").value;
+      const input = document.getElementById("inputText").value.trim();
+      const site = document.getElementById("siteList").value;
+
+      if (input === "") {
+        alert("من فضلك أدخل اسم أو رابط اللعبة.");
+        return;
+      }
+
+      const appName = extractAppName(input);
+      let query = `${searchType} ${appName} site:${site}`;
+      if (extra) {
+        query += ` ${extra}`;
+      }
+
+      const url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+      window.open(url, "_blank");
+    }
+  </script>
+
+</body>
+</html>

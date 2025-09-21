@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <title>تطبيق أدوات النصوص</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      max-width: 500px;
+      margin: auto;
+      padding: 15px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #ffd700;
+      margin: 20px 0;
+      font-size: 24px;
+    }
+
+    .tool-card {
+      background-color: #1a1a1a;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+    }
+
+    .tool-title {
+      background-color: #d4af37;
+      color: #000;
+      padding: 10px;
+      border-radius: 12px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    textarea, input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      background-color: #333;
+      color: #ffd700;
+      font-size: 16px;
+    }
+
+    .counter {
+      font-size: 13px;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    .btn-group {
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: #d4af37;
+      color: #000;
+      border: none;
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #c49b27;
+    }
+
+    .result {
+      background-color: #222;
+      color: #ffd700;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 15px;
+      position: relative;
+      font-size: 15px;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .action-buttons button {
+      flex: 1 1 calc(50% - 5px);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <h1>📱 أدوات النصوص</h1>
+
+  <!-- أداة المقارنة -->
+  <div class="tool-card">
+    <div class="tool-title">📝 مقارنة النصوص</div>
+    <textarea id="text1" placeholder="النص الأول" oninput="updateCounter('text1'); saveText('text1')"></textarea>
+    <div class="counter" id="counter-text1"></div>
+    <textarea id="text2" placeholder="النص الثاني" oninput="updateCounter('text2'); saveText('text2')"></textarea>
+    <div class="counter" id="counter-text2"></div>
+
+    <div class="btn-group">
+      <button onclick="compareText()">قارن</button>
+      <button onclick="pasteText('text1')">📋 لصق للنص الأول</button>
+      <button onclick="pasteText('text2')">📋 لصق للنص الثاني</button>
+      <button onclick="clearText('text1'); clearText('text2')">🗑️ حذف النصوص</button>
+    </div>
+
+    <div class="result" id="compareResult">النتيجة ستظهر هنا...</div>
+    <div class="action-buttons">
+      <button onclick="copyResult('compareResult')">📋 نسخ</button>
+      <button onclick="downloadResult('compareResult')">💾 تحميل</button>
+    </div>
+  </div>
+
+  <!-- منسق النص -->
+  <div class="tool-card">
+    <div class="tool-title">🎨 منسق النص</div>
+    <textarea id="textToFormat" placeholder="أدخل النص" oninput="updateCounter('textToFormat'); saveText('textToFormat')"></textarea>
+    <div class="counter" id="counter-textToFormat"></div>
+
+    <div class="btn-group">
+      <button onclick="formatText()">تنسيق</button>
+      <button onclick="pasteText('textToFormat')">📋 لصق</button>
+      <button onclick="clearText('textToFormat')">🗑️ حذف</button>
+    </div>
+
+    <div class="result" id="formatResult">النتيجة ستظهر هنا...</div>
+    <div class="action-buttons">
+      <button onclick="copyResult('formatResult')">📋 نسخ</button>
+      <button onclick="downloadResult('formatResult')">💾 تحميل</button>
+    </div>
+  </div>
+
+  <!-- تكرار النص -->
+  <div class="tool-card">
+    <div class="tool-title">🔁 تكرار النص</div>
+    <textarea id="textToRepeat" placeholder="النص" oninput="updateCounter('textToRepeat'); saveText('textToRepeat')"></textarea>
+    <div class="counter" id="counter-textToRepeat"></div>
+    <input type="number" id="repeatCount" placeholder="عدد التكرار" min="1" />
+
+    <div class="btn-group">
+      <button onclick="repeatText()">كرر</button>
+      <button onclick="pasteText('textToRepeat')">📋 لصق</button>
+      <button onclick="clearText('textToRepeat')">🗑️ حذف</button>
+    </div>
+
+    <div class="result" id="repeatResult">النتيجة ستظهر هنا...</div>
+    <div class="action-buttons">
+      <button onclick="copyResult('repeatResult')">📋 نسخ</button>
+      <button onclick="downloadResult('repeatResult')">💾 تحميل</button>
+    </div>
+  </div>
+
+  <!-- التشفير -->
+  <div class="tool-card">
+    <div class="tool-title">🔐 تشفير / فك تشفير</div>
+    <textarea id="textToEncrypt" placeholder="النص" oninput="updateCounter('textToEncrypt'); saveText('textToEncrypt')"></textarea>
+    <div class="counter" id="counter-textToEncrypt"></div>
+
+    <div class="btn-group">
+      <button onclick="encryptText()">تشفير (Base64)</button>
+      <button onclick="decryptText()">فك التشفير</button>
+      <button onclick="pasteText('textToEncrypt')">📋 لصق</button>
+      <button onclick="clearText('textToEncrypt')">🗑️ حذف</button>
+    </div>
+
+    <div class="result" id="encryptResult">النتيجة ستظهر هنا...</div>
+    <div class="action-buttons">
+      <button onclick="copyResult('encryptResult')">📋 نسخ</button>
+      <button onclick="downloadResult('encryptResult')">💾 تحميل</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function updateCounter(id) {
+    const text = document.getElementById(id).value;
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const chars = text.length;
+    document.getElementById("counter-" + id).textContent = `📄 الكلمات: ${words} | ✏️ الحروف: ${chars}`;
+  }
+
+  function compareText() {
+    const t1 = document.getElementById("text1").value.trim();
+    const t2 = document.getElementById("text2").value.trim();
+    document.getElementById("compareResult").textContent = t1 === t2 ? "✅ النصان متطابقان" : "❌ النصان غير متطابقين";
+  }
+
+  function formatText() {
+    let text = document.getElementById("textToFormat").value.trim();
+    text = text.replace(/\s+/g, ' ').replace(/([.,!؟])/g, '$1 ');
+    document.getElementById("formatResult").textContent = text;
+  }
+
+  function repeatText() {
+    const text = document.getElementById("textToRepeat").value;
+    const count = parseInt(document.getElementById("repeatCount").value);
+    document.getElementById("repeatResult").textContent =
+      isNaN(count) || count < 1 ? "❌ أدخل عددًا صحيحًا" : text.repeat(count);
+  }
+
+  function encryptText() {
+    const text = document.getElementById("textToEncrypt").value;
+    const encoded = btoa(unescape(encodeURIComponent(text)));
+    document.getElementById("encryptResult").textContent = "🔐 " + encoded;
+  }
+
+  function decryptText() {
+    try {
+      const text = document.getElementById("textToEncrypt").value;
+      const decoded = decodeURIComponent(escape(atob(text)));
+      document.getElementById("encryptResult").textContent = "🔓 " + decoded;
+    } catch {
+      document.getElementById("encryptResult").textContent = "❌ غير صالح لفك التشفير";
+    }
+  }
+
+  function copyResult(id) {
+    const result = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(result);
+    alert("✔ تم النسخ");
+  }
+
+  function pasteText(id) {
+    navigator.clipboard.readText().then(text => {
+      document.getElementById(id).value = text;
+      updateCounter(id);
+      saveText(id);
+    });
+  }
+
+  function clearText(id) {
+    document.getElementById(id).value = "";
+    updateCounter(id);
+    saveText(id);
+  }
+
+  function downloadResult(id) {
+    const text = document.getElementById(id).innerText;
+    const blob = new Blob([text], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.download = `${id}.txt`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+  }
+
+  function saveText(id) {
+    localStorage.setItem(id, document.getElementById(id).value);
+  }
+
+  window.onload = () => {
+    const fields = ['text1', 'text2', 'textToFormat', 'textToRepeat', 'textToEncrypt'];
+    fields.forEach(id => {
+      const saved = localStorage.getItem(id);
+      if (saved) {
+        document.getElementById(id).value = saved;
+        updateCounter(id);
+      }
+    });
+  };
+</script>
+
+</body>
+</html>

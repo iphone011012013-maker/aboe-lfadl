@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة مساعدة واتساب الشاملة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        header { text-align: center; padding: 1rem; width: 100%; }
+        header h1 {
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+        }
+        .card { 
+            background: rgba(0, 0, 0, 0.8); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 600px; 
+            width: 95%;
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+            text-align: center; 
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 10px; font-size: 1.2em; font-family: 'Cairo', sans-serif; }
+        input[type="text"], select {
+            width: 95%;
+            padding: 0.8rem;
+            margin: 0 auto 1rem auto;
+            display: block;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #000;
+            color: #0f0;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        input[type="text"] { text-align: left; direction: ltr; }
+        select { cursor: pointer; }
+        option { background-color: #000; border: none; }
+        
+        .output-section {
+            display: none;
+            background: rgba(0, 0, 0, 0.85); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 600px; 
+            width: 95%;
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4);
+            text-align: right;
+        }
+        .output-section h2, .output-section h3 {
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            text-align: center;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
+        }
+        .output-section p, .output-section li {
+            line-height: 1.8;
+        }
+        textarea {
+            width: 95%;
+            padding: 0.8rem;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #111;
+            color: #0f0;
+            font-size: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            resize: vertical;
+            margin-top: 10px;
+        }
+        .copy-btn {
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 10px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s;
+            float: left; /* لجعل الزر بجانب النص */
+            clear: both; /* لمنع التداخل */
+            margin-left: 10px;
+        }
+        .copy-btn:hover { background-color: #fff; }
+        .main-btn {
+            background: #0f0;
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-family: 'Cairo', sans-serif;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        .main-btn:hover {
+            background: #111;
+            color: #0f0;
+            border: 2px solid #0f0;
+        }
+        .warning {
+            color: #ff4136;
+            background-color: rgba(255, 65, 54, 0.1);
+            border: 1px solid #ff4136;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        .step {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #0f0;
+        }
+        .step:last-child { border-bottom: none; }
+        ul, ol { padding-right: 20px; }
+        li { margin-bottom: 10px; }
+
+        main-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        .logo-container { flex-shrink: 0; }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #FFD700;
+            object-fit: cover;
+            animation: spin 8s linear infinite;
+        }
+        .title-container {
+            margin-right: 20px;
+            overflow: hidden;
+            flex-grow: 1;
+            position: relative;
+            height: 40px;
+        }
+        .moving-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f1f1f1;
+            white-space: nowrap;
+            position: absolute;
+            animation: move-right-to-left 10s linear infinite;
+        }
+360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .main-btn:hover { background: #111; color: #0f0; border: 2px solid #0f0; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .social-follow {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <header class="main-hesader">
+        <div class="logo-container">
+            <img src="Whats.png" alt="صورة محمود الشخصية" class="profile-pic">
+        </div>
+        <div class="title-container">
+            <h1 class="moving-text">ثغرات لل  What'sApp</h1>
+        </div>
+    </header>
+
+    <div class="card">
+        <div class="form-group">
+            <label for="taskType">اختر المهمة:</label>
+            <select id="taskType" onchange="handleSelection()">
+                <option value="" disabled selected>-- الرجاء الاختيار --</option>
+                <option value="ban_reasons">معرفة أسباب الحظر</option>
+                <option value="transfer_backup">شرح نقل النسخة الاحتياطية</option>
+                <option value="unban">فك حظر رقم (انتهاك/إباحي)</option>
+                <option value="recover_code">استرجاع رقم (بعد حرق الكود)</option>
+                <option value="wait_hour">حل مشكلة طلب الكود بعد ساعة</option>
+                <option value="antivirus">نسخ كود مضاد الفيروسات</option>
+                <option value="ban">تفنيش رقم (طريقة 1)</option>
+                <option value="fly">تطيير رقم (طريقة 2 - حرق الكود)</option>
+                <option value="withdraw">سحب ارقام الوتساب</option>
+                <option value="account_theft">رسالة سرقة الحساب</option>
+            </select>
+        </div>
+
+        <div id="unban-inputs" class="sub-inputs" style="display:none;">
+            <label for="banType">نوع الحظر:</label>
+            <select id="banType">
+                <option value="violation">فك حظر انتهاك</option>
+                <option value="explicit">فك حظر إباحي</option>
+            </select>
+            <label for="unbanPhoneNumber" style="margin-top:15px;">رقمك (المحظور):</label>
+            <input type="text" id="unbanPhoneNumber" placeholder="+967777777777">
+            <button class="main-btn" onclick="generateContent('unban')">إنشاء رسالة فك الحظر</button>
+        </div>
+
+        <div id="recover_code-inputs" class="sub-inputs" style="display:none;">
+            <label for="recoverCodePhoneNumber">رقمك (الذي تم حرق كوده):</label>
+            <input type="text" id="recoverCodePhoneNumber" placeholder="+967777777777">
+            <button class="main-btn" onclick="generateContent('recover_code')">إنشاء رسالة الاسترجاع</button>
+        </div>
+
+        <div id="ban-inputs" class="sub-inputs" style="display:none;">
+            <label for="banPhoneNumber">رقمك الأساسي (للتواصل):</label>
+            <input type="text" id="banPhoneNumber" placeholder="رقمك أنت مع رمز الدولة">
+            <button class="main-btn" onclick="generateContent('ban')">إنشاء محتوى التفنيش</button>
+        </div>
+
+        <div id="fly-inputs" class="sub-inputs" style="display:none;">
+            <label for="victimPhoneNumber">رقم الضحية:</label>
+            <input type="text" id="victimPhoneNumber" placeholder="رقم الضحية المطلوب تطييره">
+            <button class="main-btn" onclick="generateContent('fly')">إنشاء محتوى التطيير</button>
+        </div>
+    </div>
+
+    <!-- أقسام المخرجات -->
+    <div id="ban-reasons-output" class="output-section"></div>
+    <div id="transfer-backup-output" class="output-section"></div>
+    <div id="antivirus-output" class="output-section"></div>
+    <div id="violation-output" class="output-section"></div>
+    <div id="explicit-output" class="output-section"></div>
+    <div id="recover-code-output" class="output-section"></div>
+    <div id="ban-output" class="output-section"></div>
+    <div id="fly-output" class="output-section"></div>
+    <div id="withdraw-output" class="output-section"></div>
+    <div id="account-theft-output" class="output-section"></div>
+    <div id="wait-hour-output" class="output-section"></div>
+
+    <script>
+    function handleSelection() {
+        const taskType = document.getElementById('taskType').value;
+        
+        document.querySelectorAll('.sub-inputs').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.output-section').forEach(el => el.style.display = 'none');
+
+        // ✅ التصحيح الأول: تمت إضافة الفاصلة (,) المفقودة
+        if (['ban_reasons', 'antivirus', 'transfer_backup', 'withdraw', 'account_theft', 'wait_hour'].includes(taskType)) {
+            generateContent(taskType);
+        } else {
+            const inputsToShow = document.getElementById(taskType + '-inputs');
+            if (inputsToShow) {
+                inputsToShow.style.display = 'block';
+            }
+        }
+    }
+
+    function generateContent(taskType) {
+        document.querySelectorAll('.output-section').forEach(el => el.style.display = 'none');
+        switch (taskType) {
+            case 'ban_reasons': showBanReasons(); break;
+            case 'transfer_backup': showTransferBackup(); break;
+            case 'antivirus': showAntivirus(); break;
+            case 'unban': generateUnbanMessages(); break;
+            case 'recover_code': generateRecoverCodeMessages(); break;
+            case 'ban': generateBanMessages(); break;
+            case 'fly': generateFlyMessages(); break;
+            case 'withdraw': showWithdraw(); break;
+            case 'account_theft': showAccountTheft(); break;
+            // ✅ التصحيح الثاني: تمت إزالة النقطة (.) الزائدة
+            case 'wait_hour': showWaitHourSolution(); break;
+        }
+    }
+
+    // ... (باقي الدوال تبقى كما هي بدون تغيير)
+
+    function showBanReasons() {
+        const container = document.getElementById('ban-reasons-output');
+        container.innerHTML = `
+            <h2>لماذا يتم حظر حسابك على واتساب؟</h2>
+            <p>إذا اعتبر واتساب أن نشاطك ينتهك شروط الخدمة، فقد يتم حظر حسابك. إليك بعض الأسباب الشائعة:</p>
+            <ol>
+                <li><strong>استخدام تطبيقات واتساب المعدلة:</strong> مثل (GBWhatsApp, WhatsApp Plus, YoWhatsApp)، حيث أن استخدام أي تطبيق غير رسمي يعرضك للحظر.</li>
+                <li><strong>إرسال رسائل جماعية أو إعلانية:</strong> خاصة إلى جهات اتصال غير مسجلة في هاتفك أو لا ترغب في استقبال رسائلك.</li>
+                <li><strong>مشاركة روابط مشبوهة:</strong> نشر روابط إعلانية مزعجة، أو روابط تصيد، أو برامج ضارة.</li>
+                <li><strong>إنشاء مجموعات ذات محتوى غير لائق:</strong> مثل المجموعات التي تنشر محتوى للبالغين (+18) أو محتوى عنيف.</li>
+                <li><strong>كثرة البلاغات ضدك:</strong> إذا قام عدد كبير من المستخدمين بالإبلاغ عن رقمك أو حظره.</li>
+            </ol>`;
+        container.style.display = 'block';
+    }
+
+    function showTransferBackup() {
+        const container = document.getElementById('transfer-backup-output');
+        container.innerHTML = `
+            <h2>شرح نقل النسخة الاحتياطية بين نسخ الواتساب</h2>
+            <p>إذا كنت ترغب في الانتقال من نسخة واتساب إلى أخرى (مثلاً من نسخة معدلة إلى الرسمية) مع الحفاظ على محادثاتك، اتبع الخطوات التالية:</p>
+            <div class="step">
+                <h3>❶ عمل نسخة احتياطية في النسخة القديمة</h3>
+                <p>اذهب إلى <strong>الإعدادات > الدردشات > نسخ احتياطي للدردشات</strong> في الواتساب الذي تستخدمه حاليًا، وقم بعمل نسخة احتياطية كاملة.</p>
+            </div>
+            <div class="step">
+                <h3>❷ نسخ مجلد البيانات</h3>
+                <p>اذهب إلى مدير الملفات ثم المسار <strong>Android > media</strong>. ابحث عن مجلد نسختك القديمة (مثلاً <code>com.yowhatsapp</code>). ادخل إليه وانسخ المجلد الذي بداخله (مثلاً <code>YoWhatsApp</code>) والصقه في مكان آمن بالذاكرة الداخلية.</p>
+            </div>
+            <div class="step">
+                <h3>❸ تثبيت وتفعيل النسخة الجديدة</h3>
+                <p>ثبت الواتساب الجديد، فعل رقمك، ثم قم بعمل نسخة احتياطية جديدة (حتى لو كانت فارغة) لإنشاء مجلدات التطبيق.</p>
+            </div>
+            <div class="step">
+                <h3>❹ استبدال المجلدات</h3>
+                <p>اذهب إلى إعدادات الهاتف وقم بـ <strong>"محو بيانات"</strong> الواتساب الجديد. بعد ذلك، اذهب إلى مدير الملفات وانسخ المجلد الذي حفظته في الخطوة ❷. الصقه في مسار النسخة الجديدة <strong>Android > media > com.whatsapp</strong>. احذف المجلد الأصلي المسمى <code>WhatsApp</code>، ثم أعد تسمية المجلد الذي لصقته (مثلاً <code>YoWhatsApp</code>) إلى <code>WhatsApp</code> (مع الانتباه للحرف الكبير W).</p>
+            </div>
+            <div class="step">
+                <h3>❺ الاستعادة النهائية</h3>
+                <p>افتح الواتساب الجديد وفعل رقمك. سيجد التطبيق النسخة الاحتياطية المحلية، اضغط على <strong>"استعادة"</strong>. بعد اكتمال العملية، يمكنك حذف النسخة القديمة.</p>
+            </div>
+            <div class="warning">
+                <h4>⚠️ ملاحظات هامة ⚠️</h4>
+                <ul>
+                    <li>❖ إذا كانت لديك محادثات مخفية، قم بإظهارها قبل عمل النسخة الاحتياطية.</li>
+                    <li>❖ ركز جيدًا في أسماء المجلدات. اسم مجلد الواتساب الرسمي هو <strong>WhatsApp</strong>.</li>
+                    <li>❖ إذا لم تجد المجلدات في <code>Android/media</code> (في الهواتف القديمة)، فستجدها مباشرة في الذاكرة الداخلية.</li>
+                </ul>
+            </div>`;
+        container.style.display = 'block';
+    }
+
+    function showAntivirus() {
+        const container = document.getElementById('antivirus-output');
+        container.innerHTML = `
+            <h2>كود مضاد الفيروسات (زخرفي)</h2>
+            <p class="warning"><strong>ملاحظة:</strong> هذا النص هو مجرد رموز زخرفية ولا يقوم بأي وظيفة حماية حقيقية. يتم استخدامه في واتساب كشكل من أشكال "فيروسات الشكل" التي قد تسبب بطئًا مؤقتًا في التطبيق عند البعض.</p>
+            <textarea id="antivirus-code" style="height: 200px;" readonly>▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓❀▒▓-</textarea>
+            <button class="copy-btn" onclick="copyToClipboard('antivirus-code')">نسخ الكود</button>`;
+        container.style.display = 'block';
+    }
+
+    function showWithdraw() {
+        const container = document.getElementById('withdraw-output');
+        container.innerHTML = `
+            <h2>طريقة سحب أرقام الواتساب</h2>
+            <p class="warning"><strong>تحذير:</strong> هذه الطريقة تعتمد على الهندسة الاجتماعية وخداع المستخدمين، وهي تنتهك خصوصيتهم وسياسات واتساب. استخدامها قد يعرضك للمساءلة القانونية وحظر أرقامك. استخدمها على مسؤوليتك الكاملة.</p>
+            <div class="step">
+                <h3>الخطوات:</h3>
+                <ol>
+                    <li>ابحث في جوجل عن صور "فريق دعم واتساب" واستخدم إحداها كصورة شخصية.</li>
+                    <li>استخدم رقمًا وهميًا (ويفضل أن يكون أمريكيًا) على نسخة واتساب ثانية.</li>
+                    <li>غير اسم الحساب إلى "فريق دعم واتساب" (WhatsApp Support Team) وضع في خانة "الأخبار" (About) البريد الإلكتروني الرسمي لدعم واتساب.</li>
+                    <li>أرسل رسالة للضحية تدعي فيها أنك من الدعم الفني.</li>
+                    <li>اطلب كود التحقق الخاص برقم الضحية على نسخة واتساب ثالثة.</li>
+                    <li>أرسل رسالة للضحية تطلب منه إرسال الكود الذي وصله عبر SMS، مع تهديده بحظر رقمه إذا لم يفعل.</li>
+                    <li>عندما يرسل الضحية الكود، اطلب منه إغلاق هاتفه لمدة 10 دقائق للتحقق من الرقم.</li>
+                    <li>استغل هذه الفترة لتفعيل الرقم على نسختك وحرق الكود لمنعه من استرجاعه فورًا.</li>
+                </ol>
+            </div>
+            <div class="step">
+                <h3>نص مقترح لإرساله للضحية:</h3>
+                <textarea id="withdraw-text" style="height: 150px;" readonly>مرحباً، نحن فريق الدعم الفني في واتساب. نرجو منك إرسال كود التحقق المكون من 6 أرقام الذي تم إرساله لك عبر رسالة SMS أو مكالمة هاتفية. هذا إجراء أمني روتيني للتحقق من حسابك. إذا لم يتم إرسال الكود خلال 5 دقائق، سيتم تعليق حسابك بشكل دائم لحمايته من الاستخدام غير المصرح به.</textarea>
+                <button class="copy-btn" onclick="copyToClipboard('withdraw-text')">نسخ النص</button>
+            </div>`;
+        container.style.display = 'block';
+    }
+
+    function generateUnbanMessages() {
+        const phoneNumber = document.getElementById('unbanPhoneNumber').value;
+        if (!phoneNumber || !/^\+\d+$/.test(phoneNumber)) {
+            alert("الرجاء إدخال رقم هاتف صحيح (لفك الحظر) يبدأ برمز الدولة.");
+            return;
+        }
+        const banType = document.getElementById('banType').value;
+        if (banType === 'violation') {
+            const container = document.getElementById('violation-output');
+            container.innerHTML = `
+                <h2>فك حظر "انتهاك"</h2>
+                <p><strong>التعليمات:</strong> أرسل هذه الرسالة إلى فريق دعم واتساب من 5 حسابات Gmail مختلفة.</p>
+                <textarea id="v-msg" readonly>مرحبآ فريق الدعم لقد قد تم حظر الرقم الخاص بي في الواتساب بدون سبب حيث انه أنا لم أنتهك ايا من سياسات وخصوصيات الواتساب وقام شخص يهدنني ان يقوم بحظر رقمي وقام هذا الشخص بتشغيل نسخه واتساب معدله وارسال صوره اباحيه وقام بعمل اعاده توجيه وهذا النسخه قامت بعمل ان انا الذي ارسل الصورة الاباحية وانا لم ارسل شئ قط ولقد قام هذا الشخص بعمل حظر وابلاغ لرقم الواتساب الخاص بي وقد حظر رقمي الواتساب وانا لم اقوم بعمل شئ أرجاء ازاله الحظر عن رقمي الواتساب لكي اتواصل مع اقربائي واصدقائي الرقم الخاص بي :${phoneNumber}</textarea>
+                <button class="copy-btn" onclick="copyToClipboard('v-msg')">نسخ</button>`;
+            container.style.display = 'block';
+        } else {
+            const container = document.getElementById('explicit-output');
+            container.innerHTML = `
+                <h2>فك حظر "إباحي"</h2>
+                <div class="step">
+                    <h3>الخطوة 1:</h3>
+                    <p><strong>الموضوع:</strong></p>
+                    <textarea id="e-sub1" readonly>Пожалуйста, деактивируйте мою учетную запись: ${phoneNumber}</textarea><button class="copy-btn" onclick="copyToClipboard('e-sub1')">نسخ</button>
+                    <p style="clear:both; padding-top:10px;"><strong>الرسالة:</strong></p>
+                    <textarea id="e-msg1" readonly>Здравствуйте, пожалуйста, помогите мне. Я потерял свою личную карту, и у меня есть кое-что особенное в WhatsApp о банковских счетах и личной информации.  Пожалуйста, удалите мою учетную запись или закройте мой номер WhatsApp.  Я потерял документ, подтверждающий право собственности на мой личный номер.  Пожалуйста, помогите немедленно: Это мой номер: ${phoneNumber}</textarea><button class="copy-btn" onclick="copyToClipboard('e-msg1')">نسخ</button>
+                </div>
+                <div class="step">
+                    <h3>الخطوة 2 (بعد ردهم):</h3>
+                    <textarea id="e-msg2" readonly>Здравствуйте, служба поддержки WhatsApp, я украл свой телефон и прошу вас закрыть мою учетную запись, чтобы вор не нарушил условия вашего условного номера: ${phoneNumber}</textarea><button class="copy-btn" onclick="copyToClipboard('e-msg2')">نسخ</button>
+                </div>`;
+            container.style.display = 'block';
+        }
+    }
+
+    function generateRecoverCodeMessages() {
+        const phoneNumber = document.getElementById('recoverCodePhoneNumber').value;
+        if (!phoneNumber || !/^\+\d+$/.test(phoneNumber)) {
+            alert("الرجاء إدخال رقمك الصحيح مع رمز الدولة.");
+            return;
+        }
+        const container = document.getElementById('recover-code-output');
+        container.innerHTML = `
+            <h2>استرجاع رقم بعد حرق الكود (تخمين)</h2>
+            <p><strong>التعليمات:</strong> أرسل إحدى الرسائل التالية إلى البريد الإلكتروني لدعم واتساب. أرفق لقطة شاشة للمشكلة إن أمكن.</p>
+            <p><strong>البريد الإلكتروني للدعم:</strong></p>
+            <textarea id="rc-email" readonly>support@support.whatsapp.com</textarea>
+            <button class="copy-btn" onclick="copyToClipboard('rc-email')">نسخ البريد</button>
+            
+            <div class="step" style="clear:both; padding-top:20px;">
+                <h3>الرسالة الأولى (عربي)</h3>
+                <textarea id="rc-msg1" readonly>مرحبا شركة واتساب، المرجو منكم الغاء حظر رقمي. لقد تم تخمين أكواد التحقق عدة مرات من طرف ابني الصغير. المرجو منكم الغاء حظر رقمي بأسرع وقت ممكن للتواصل مع عائلتي واصدقائي وشكرا لتعاونكم. رقم هاتفي هو: ${phoneNumber}</textarea>
+                <button class="copy-btn" onclick="copyToClipboard('rc-msg1')">نسخ الرسالة</button>
+            </div>
+            <div class="step" style="clear:both; padding-top:20px;">
+                <h3>الرسالة الثانية (إنجليزي)</h3>
+                <textarea id="rc-msg2" readonly>One of the hackers guessed the verification code without my knowledge, which is the reason for the number disabling. Please remove the guessing from my phone number so that I can send a message or phone call to receive the code and return to the Whatsapp and thank you. My number: ${phoneNumber}</textarea>
+                <button class="copy-btn" onclick="copyToClipboard('rc-msg2')">نسخ الرسالة</button>
+            </div>`;
+        container.style.display = 'block';
+    }
+
+    function generateBanMessages() {
+        const phoneNumber = document.getElementById('banPhoneNumber').value;
+        if (!phoneNumber || !/^\+\d+$/.test(phoneNumber)) {
+            alert("الرجاء إدخال رقمك الأساسي الصحيح مع رمز الدولة.");
+            return;
+        }
+        const phoneWithoutPlus = phoneNumber.replace('+', '');
+        const container = document.getElementById('ban-output');
+        container.innerHTML = `
+            <h2 style="color: #d32f2f;">تفنيش رقم (الطريقة 1)</h2>
+            <p class="warning"><strong>تحذير:</strong> هذه الطريقة تنتهك سياسات واتساب وقد تؤدي لحظر أرقامك. استخدمها على مسؤوليتك.</p>
+            <div class="step">
+                <h3>الخطوة 1: تجهيز الرسالة</h3>
+                <textarea id="b-msg" readonly>مرحبا. فريق الدعم الشهير لقد تم حظر الارقام بشكل عشوائي. لجميع البلدان و المدن انا اتسائل لماذا شركة واتساب اصبحت تعمل بمستخدميها هكذا انا احد الضحايا الرجا فك ارقام اليمن وشكرا\nلتواصل عبر رقمي لاجابه علا سؤلي :👇\nhttps://api.whatsapp.com/send?phone=${phoneWithoutPlus}</textarea>
+                <button class="copy-btn" onclick="copyToClipboard('b-msg')">نسخ</button>
+            </div>
+            <div class="step" style="clear:both; padding-top:20px;">
+                <h3>الخطوة 2: التعليمات الكاملة</h3>
+                <ol><li>تأكد من أن لديك رقم في واتساب أعمال ورقمك الأساسي قديم.</li><li>أنشئ مجموعة واتساب وأضف كل أرقامك.</li><li>لمدة 10 دقائق، أرسل "نص تفجيري" بكثافة من كل أرقامك (ما عدا رقم الضحية).</li><li>أرسل الرسالة التي نسختها في الأعلى إلى شركة واتساب.</li><li>انتظر 40 دقيقة، ثم عد للمجموعة وأرسل "نص تفجيري" لمدة 5 دقائق.</li><li>اذهب لبريدك، وقم بعمل "رد على الكل" على نفس الرسالة السابقة وأعد إرسالها.</li><li>انتظر 10 دقائق، ثم عد للمجموعة وأرسل "نص تفجيري" ثم "بند الحظر" مع رقم الضحية.</li><li>قم بعمل بلاغ واحد فقط على رقم الضحية.</li></ol>
+            </div>`;
+        container.style.display = 'block';
+    }
+
+    function generateFlyMessages() {
+        const victimPhoneNumber = document.getElementById('victimPhoneNumber').value;
+        if (!victimPhoneNumber || !/^\+\d+$/.test(victimPhoneNumber)) {
+            alert("الرجاء إدخال رقم الضحية الصحيح مع رمز الدولة.");
+            return;
+        }
+        const container = document.getElementById('fly-output');
+        container.innerHTML = `
+            <h2 style="color: #d32f2f;">تطيير رقم (الطريقة 2: حرق الكود)</h2>
+            <p class="warning"><strong>تحذير شديد:</strong> هذه الطريقة معقدة وتنتهك سياسات واتساب بشكل خطير. قد يتم حظر أرقامك أنت بشكل دائم. المسؤولية تقع عليك بالكامل.</p>
+            <div class="step">
+                <h3>المرحلة الأولى: حرق كود التحقق</h3>
+                <ol><li>ضع رقم الضحية في نسخة واتساب فارغة واطلب الكود.</li><li>أدخل كود تحقق عشوائي (خاطئ) 5 إلى 6 مرات متتالية.</li><li>بين كل محاولة، اطلب الكود مجدداً عبر "إرسال رسالة نصية" أو "اتصل بي" ثم أدخل كوداً خاطئاً مرة أخرى.</li><li>استمر حتى تظهر لك رسالة تطلب منك الانتظار 12 ساعة.</li><li>بعد 12 ساعة، عد واطلب الكود ثم أدخل كوداً خاطئاً لآخر مرة حتى تصل لرسالة "الاتصال بفريق الدعم".</li></ol>
+            </div>
+            <div class="step">
+                <h3>المرحلة الثانية: الإبلاغ عن السرقة</h3>
+                <p>بعد نجاح حرق الكود، اذهب إلى بريدك الإلكتروني وأنشئ رسالة جديدة بالبيانات التالية:</p>
+                <ul>
+                    <li><strong>إلى:</strong> <textarea id="f-email" readonly>support@whatsapp.com</textarea><button class="copy-btn" onclick="copyToClipboard('f-email')">نسخ</button></li>
+                    <li style="clear:both; padding-top:10px;"><strong>الموضوع:</strong> <textarea id="f-subj" readonly>مسروق أو مفقود الرجاء تعطيل حسابي</textarea><button class="copy-btn" onclick="copyToClipboard('f-subj')">نسخ</button></li>
+                    <li style="clear:both; padding-top:10px;"><strong>نص الرسالة:</strong> <textarea id="f-body" readonly>مسروق أو مفقود الرجاء تعطيل حسابي (${victimPhoneNumber})</textarea><button class="copy-btn" onclick="copyToClipboard('f-body')">نسخ</button></li>
+                </ul>
+            </div>`;
+        container.style.display = 'block';
+    }
+    
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        element.select();
+        element.setSelectionRange(0, 99999);
+        try {
+            document.execCommand('copy');
+            alert('تم نسخ النص بنجاح!');
+        } catch (err) {
+            alert('عذراً، حدث خطأ أثناء النسخ.');
+        }
+    }
+
+    function showAccountTheft() {
+        const container = document.getElementById('account-theft-output');
+        container.innerHTML = `
+            <h2 style="color: #d32f2f;">طريقة سحب حسابات واتساب (سرقة الحساب)</h2>
+            <p class="warning"><strong>تحذير شديد:</strong> هذه الطريقة تعتمد على انتحال الهوية وخداع المستخدمين لسرقة حساباتهم. هذا الفعل غير قانوني وينتهك شروط خدمة واتساب بشكل خطير، وقد يؤدي إلى عواقب قانونية وحظر دائم لأرقامك. أنت وحدك المسؤول عن استخدام هذه المعلومات.</p>
+            
+            <div class="step">
+                <h3>الخطوة 1: تجهيز حساب واتساب أعمال</h3>
+                <ol>
+                    <li>قم بتنزيل <strong>واتساب أعمال</strong>.</li>
+                    <li>استخدم رقمًا غير مصري (أمريكي، بولندي، إلخ).</li>
+                    <li><strong>الصورة الشخصية:</strong> استخدم شعار واتساب الأخضر الرسمي (صورة فريق الدعم).</li>
+                    <li><strong>الاسم:</strong> فريق دعم واتساب</li>
+                    <li><strong>الأخبار (About):</strong> حساب واتساب الرسمي</li>
+                    <li><strong>وصف النشاط التجاري:</strong>
+                        <textarea id="at-desc" readonly>هذه الدردشة الرسمية من فريق دعم واتساب. يستخدم أكثر من ملياري شخص في أكثر من ١٨٠ بلدًا واتساب للتواصل مع أصدقائهم وأفراد أسرهم من أي مكان وفي أي وقت. إن واتساب تطبيق مجاني، وهو وسيلة بسيطة وآمنة وموثوقة للمراسلة والاتصال، ويتوفر على الهواتف المحمولة في كافة أنحاء العالم.</textarea>
+                        <button class="copy-btn" onclick="copyToClipboard('at-desc')">نسخ</button>
+                    </li>
+                    <li style="clear:both; padding-top:10px;"><strong>عنوان النشاط التجاري:</strong> الولايات المتحدة</li>
+                    <li><strong>ساعات العمل:</strong> مفتوح دائمًا</li>
+                    <li><strong>البريد الإلكتروني:</strong> whatsapp.com@gmail.com</li>
+                    <li><strong>موقع الويب:</strong> https://www.whatsapp.com/</li>
+                </ol>
+            </div>
+
+            <div class="step">
+                <h3>الخطوة 2: خداع الضحية</h3>
+                <ol>
+                    <li>افتح نسخة واتساب أخرى فارغة.</li>
+                    <li>أدخل رقم هاتف الضحية واطلب كود التحقق عبر رسالة نصية.</li>
+                    <li>من حساب واتساب أعمال الذي جهزته، أرسل الرسالة التالية إلى الضحية:</li>
+                </ol>
+                <textarea id="at-msg" style="height: 180px;" readonly>مرحبا بك عزيزي المستخدم شركة WhatsApp. بعد النظر إلى سجلات الخادم الخاصة بنا وجدنا ان حسابك الشخصي تم الابلاغ عليه من شخص مجهول يدعي انه حسابه, ولكننا قمنا بإرسال رمز التحقق إلى رقمك ونتأكد انك مالك الحقيقي للحساب فيرجى ارسال الرمز إلى هذه المحادثه لتأمين حسابك وتأكيده, عدا ذالك سيتم اقفال حسابك بعد مدة 24 ساعه لإجراء الإجراءات اللازمه لتحقيق شروط الاستخدام. وشكرا فريق دعم الواتساب support@support.whatsapp.com</textarea>
+                <button class="copy-btn" onclick="copyToClipboard('at-msg')">نسخ الرسالة</button>
+            </div>
+            <p style="clear:both; padding-top:10px;">بمجرد أن يرسل لك الضحية الكود، يمكنك استخدامه لتسجيل الدخول إلى حسابه.</p>
+        `;
+        container.style.display = 'block';
+    }
+
+    function showWaitHourSolution() {
+        const container = document.getElementById('wait-hour-output');
+        container.innerHTML = `
+            <h2>حل مشكلة "طلب الكود بعد ساعة"</h2>
+            <p>عندما تطلب كود التحقق بشكل متكرر، قد يطلب منك واتساب الانتظار لمدة ساعة أو أكثر. إليك بعض الحلول المقترحة لهذه المشكلة:</p>
+            
+            <div class="step">
+                <h3>الحل الأول: خدعة وضع الطيران ✈️</h3>
+                <p>هذه الطريقة تعتمد على السرعة وقد تنجح في إعادة ضبط عداد الوقت.</p>
+                <ol>
+                    <li>أدخل رقمك في واتساب (يفضل واتساب أعمال) وتوقف عند شاشة تأكيد الرقم (قبل الضغط على "التالي" أو "متابعة").</li>
+                    <li>قم بتفعيل <strong>وضع الطيران</strong> ✈️ على هاتفك.</li>
+                    <li>انتظر لمدة 10 ثوانٍ.</li>
+                    <li>بأسرع ما يمكن، قم بإلغاء وضع الطيران ثم اضغط فوراً على <strong>"التالي"</strong> لطلب الكود.</li>
+                </ol>
+                <p>إذا نجحت الطريقة، من المفترض أن يعود العداد إلى وضعه الطبيعي (دقيقتين) بدلاً من ساعة.</p>
+            </div>
+
+            <div class="step">
+                <h3>الحل الثاني: استخدام VPN 🌐</h3>
+                <p>أحياناً تكون المشكلة متعلقة بالشبكة أو بعنوان IP الخاص بك. استخدام VPN قد يساعد في حلها.</p>
+                <ol>
+                    <li>قم بتحميل تطبيق VPN موثوق (مثلاً: Kuto VPN كما اقترحت، أو أي تطبيق آخر ذو تقييم جيد).</li>
+                    <li>اتصل بأحد الخوادم (السيرفرات) المتاحة في التطبيق، ويفضل أن يكون خادماً لدولة أخرى.</li>
+                    <li>بعد التأكد من أن الـ VPN يعمل، افتح واتساب وحاول طلب الكود مجدداً.</li>
+                </ol>
+            </div>
+            <div class="warning">
+                <strong>ملاحظة هامة:</strong> هذه الحلول هي حلول مجتمعية (من تجارب المستخدمين) وليست حلولاً رسمية من واتساب. قد تنجح مع البعض وقد لا تنجح مع آخرين. الحل الرسمي دائماً هو الانتظار حتى انتهاء المدة المحددة.
+            </div>
+        `;
+        container.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

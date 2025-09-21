@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacker's Message Arsenal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        .main-title {
+            text-align: center;
+            padding: 1rem;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin-bottom: 20px;
+        }
+        .card { 
+            background: rgba(0, 0, 0, 0.85); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 900px; 
+            margin: 2rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+        }
+        .card h2 {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.8em;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 10px #0f0;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
+        }
+        .message-list {
+            list-style: none;
+            padding: 0;
+        }
+        .message-item {
+            background: #111;
+            border: 1px solid #222;
+            border-left: 4px solid #0f0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+            flex-wrap: wrap;
+        }
+        .message-item:hover {
+            background-color: #1a1a1a;
+        }
+        .message-text {
+            color: #e0e0e0;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.1em;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+        .copy-btn {
+            padding: 8px 15px;
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Cairo', sans-serif;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .copy-btn:hover {
+            background: #fff;
+            box-shadow: 0 0 10px #fff;
+        }
+        .copy-feedback {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #0f0;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+            animation: fadeUp 0.5s ease-out;
+        }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+        @keyframes fadeUp { from {opacity: 0; bottom: 0;} to {opacity: 1; bottom: 20px;} }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <h1 class="main-title">☠️ ترسانة رسائل الهندسة الاجتماعية ☠️</h1>
+
+    <!-- قسم الطمع والمكافآت -->
+    <div class="card">
+        <h2>💰 رسائل الطمع والمكافآت</h2>
+        <ul class="message-list">
+            <li class="message-item">
+                <span class="message-text">مبروك! لقد تم اختيار رقمك للفوز بـ 1000 دولار. لاستلام جائزتك فوراً، قم بتأكيد بياناتك عبر الرابط التالي قبل انتهاء العرض: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">عاجل: تم إيداع مبلغ 500 دولار كدعم مؤقت في محفظتك. لتفعيل المبلغ وسحبه، يرجى تحديث بياناتك من خلال الرابط الرسمي: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">مطلوب للعمل فوراً من المنزل براتب يومي 50 دولار. لا يشترط الخبرة. الأماكن محدودة. للتسجيل والبدء فوراً، اضغط على الرابط: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">لقد حصلت على 50 جيجابايت إنترنت مجاناً من شركة [اسم شركة الاتصالات]. فعّل الهدية الآن قبل انتهاء العرض: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+             <li class="message-item">
+                <span class="message-text">أنت مؤهل للحصول على قرض شخصي بقيمة 5000 دولار بدون فوائد. قدم طلبك الآن من خلال الرابط: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- قسم الخوف والتهديد -->
+    <div class="card">
+        <h2>⚠️ رسائل الخوف والتهديد</h2>
+        <ul class="message-list">
+            <li class="message-item">
+                <span class="message-text">تنبيه أمني: تم رصد محاولة تسجيل دخول مشبوهة إلى حسابك على فيسبوك من جهاز غير معروف. إذا لم تكن أنت، قم بتأمين حسابك فوراً عبر الرابط التالي: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">عزيزي العميل، تم تجميد بطاقتك البنكية مؤقتاً. لإعادة تفعيلها وتجنب الإيقاف الدائم، يرجى التحقق من هويتك الآن: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">لقد تم نشر صور خاصة بك في هذه المجموعة. شاهد بنفسك قبل أن يتم حذفها: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">تحذير: مساحة تخزين iCloud/Google Drive الخاصة بك ممتلئة تقريبًا. سيتم حذف ملفاتك خلال 24 ساعة. قم بزيادة المساحة مجانًا من هنا: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">تم إصدار فاتورة غير مدفوعة بقيمة [مبلغ] على حسابك. لتجنب الغرامات، يرجى مراجعة الفاتورة وتسويتها عبر الرابط: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- قسم الفضول والثقة -->
+    <div class="card">
+        <h2>❓ رسائل الفضول والثقة</h2>
+        <ul class="message-list">
+            <li class="message-item">
+                <span class="message-text">هل هذه صورتك في الفيديو؟ انتشرت بشكل كبير ولا أستطيع تصديق ذلك! الرابط: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">لديك شحنة معلقة من Aramex. فشلت محاولة التسليم بسبب خطأ في العنوان. يرجى تحديث عنوانك ودفع رسوم رمزية لإعادة الجدولة: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">حصرياً: قم بتنزيل النسخة الذهبية من واتساب مع ميزات جديدة مثل معرفة من زار بروفايلك. التحديث غير متوفر في المتجر الرسمي. قم بالتحميل الآن: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">صوّت لصديقك [اسم] في المسابقة ليفوز. تصويتك يمكن أن يحدث فرقًا! رابط التصويت: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">لقد تمت الإشارة إليك في منشور. اضغط على الرابط لرؤية المنشور: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- قسم الرسائل التقنية -->
+    <div class="card">
+        <h2>⚙️ رسائل تقنية وإدارية</h2>
+        <ul class="message-list">
+            <li class="message-item">
+                <span class="message-text">تحديث سياسة الخصوصية: لقد قمنا بتحديث شروط الخدمة. لمواصلة استخدام خدماتنا، يرجى مراجعة الشروط والموافقة عليها من هنا: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">إشعار من فريق الدعم الفني: يتطلب حسابك إجراء تحقق أمني روتيني. يرجى إكمال التحقق خلال 48 ساعة لتجنب تعليق الحساب: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+            <li class="message-item">
+                <span class="message-text">فشلت عملية المزامنة الأخيرة لجهات الاتصال الخاصة بك. لإعادة المزامنة وتجنب فقدان البيانات، يرجى تسجيل الدخول مرة أخرى: [أدخل الرابط هنا]</span>
+                <button class="copy-btn">نسخ</button>
+            </li>
+        </ul>
+    </div>
+
+    <div id="copyFeedback" class="copy-feedback"></div>
+
+    <script>
+        // Matrix Effect
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        const letters = "01";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        function draw() {
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+
+        // Copy Logic
+        const copyButtons = document.querySelectorAll('.copy-btn');
+        const copyFeedback = document.getElementById('copyFeedback');
+
+        copyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const textToCopy = button.previousElementSibling.textContent.trim();
+                
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    copyFeedback.textContent = '✅ تم النسخ بنجاح!';
+                    copyFeedback.style.display = 'block';
+                    setTimeout(() => {
+                        copyFeedback.style.display = 'none';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert('فشل النسخ.');
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
+

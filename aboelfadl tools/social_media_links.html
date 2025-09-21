@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>واتساب وماسنجر تيليجرام بريد بوت</title>
+<style>
+  body {
+    background: #121212;
+    color: #d4af37;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+  }
+  .container {
+    max-width: 480px;
+    margin: auto;
+    background: #1e1e1e;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 15px #d4af37aa;
+  }
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
+  }
+  input[type="text"], select, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1.5px solid #d4af37;
+    border-radius: 6px;
+    background: #121212;
+    color: #d4af37;
+    font-size: 1rem;
+    resize: vertical;
+  }
+  /* ستايل خاص للقائمة المنسدلة للخدمات */
+  #serviceSelector {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px; /* مسافة أكبر بعد القائمة */
+    border: 2px solid #d4af37;
+    border-radius: 8px;
+    background: #1e1e1e;
+    color: #d4af37;
+    font-size: 1.1rem;
+    cursor: pointer;
+    -webkit-appearance: none; /* إزالة الستايل الافتراضي في الويب كيت */
+    -moz-appearance: none;    /* إزالة الستايل الافتراضي في موزيلا */
+    appearance: none;         /* إزالة الستايل الافتراضي */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23d4af37%22%20d%3D%22M208.5%2C74.5L128%2C155L47.5%2C74.5Z%22%2F%3E%3C%2Fsvg%3E'); /* سهم مخصص */
+    background-repeat: no-repeat;
+    background-position: left 10px center;
+    background-size: 16px;
+    padding-right: 30px; /* مسافة للسهم */
+  }
+  #serviceSelector:focus {
+    outline: none;
+    box-shadow: 0 0 5px #d4af37;
+  }
+  button {
+    background: #d4af37;
+    color: #121212;
+    border: none;
+    padding: 12px 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background 0.3s ease;
+  }
+  button:hover {
+    background: #b08e21;
+  }
+  .flex-row {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .flex-row > * {
+    margin-bottom: 10px;
+  }
+  .icon {
+    width: 26px;
+    height: 26px;
+    vertical-align: middle;
+    margin-left: 8px;
+    filter: drop-shadow(0 0 1px #d4af37);
+  }
+  #iframeContainer {
+    margin-top: 15px;
+    display: none;
+  }
+  iframe {
+    width: 100%;
+    height: 350px;
+    border: none;
+    border-radius: 10px;
+  }
+  /* ستايل حقوق الملكية الجديد */
+  .footer-copyright {
+    margin-top: 30px;
+    padding: 15px;
+    border: 2px solid #d4af37; /* إطار ذهبي */
+    border-radius: 10px;
+    text-align: center;
+    background: #1e1e1e; /* نفس خلفية الـ container */
+    box-shadow: 0 0 10px #d4af37aa; /* ظل ذهبي خفيف */
+  }
+  .footer-copyright a {
+    color: #d4af37; /* لون النص ذهبي */
+    text-decoration: none; /* إزالة الخط السفلي */
+    font-weight: bold;
+    transition: color 0.3s ease;
+  }
+  .footer-copyright a:hover {
+    color: #f0d363; /* لون أفتح عند التحويم */
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <label for="serviceSelector">اختر خدمة التواصل:</label>
+  <select id="serviceSelector" aria-label="اختر خدمة التواصل">
+    <option value="whatsappSection">واتساب</option>
+    <option value="messengerSection">ماسنجر</option>
+    <option value="telegramSection">تيليجرام</option>
+    <option value="emailSection">بريد إلكتروني</option>
+  </select>
+
+  <div id="whatsappSection">
+    <label for="countryCode">كود الدولة (مثلاً: 20 لمصر)</label>
+    <select id="countryCode" aria-label="اختر كود الدولة">
+      <option value="20">+20 مصر</option>
+      <option value="966">+966 السعودية</option>
+      <option value="1">+1 أمريكا</option>
+      <option value="971">+971 الإمارات</option>
+      <option value="44">+44 بريطانيا</option>
+    </select>
+
+    <label for="whatsappNumber">رقم الهاتف (بدون الصفر)</label>
+    <input type="text" id="whatsappNumber" placeholder="مثلاً: 1093650351" aria-describedby="whatsappHelp" />
+
+    <label for="whatsappMessage">نص الرسالة (اختياري)</label>
+    <textarea id="whatsappMessage" placeholder="اكتب رسالتك هنا"></textarea>
+
+    <div class="flex-row">
+      <button id="generateWhatsapp">إنشاء رابط واتساب</button>
+      <button id="copyWhatsapp" disabled>نسخ الرابط</button>
+      <button id="openWhatsapp" disabled>فتح المحادثة</button>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="واتساب" class="icon" />
+    </div>
+
+    <p id="whatsappLink" style="word-break: break-all; margin-top: 10px; color: #f0d363;"></p>
+
+    <div style="margin-top: 20px; text-align: center;">
+      <label style="margin-bottom: 10px;">رمز QR للرابط:</label>
+      <img id="whatsappQrCode" src="" alt="رمز QR" style="max-width: 200px; height: auto; display: none; border: 1px solid #d4af37; border-radius: 5px;"/>
+      <br>
+      <button id="downloadWhatsappQr" style="margin-top: 10px; display: none;">تحميل رمز QR</button>
+    </div>
+  </div>
+
+  <div id="messengerSection" style="display:none;">
+    <label for="messengerLink">رابط ملف فيسبوك الشخصي الكامل</label>
+    <input type="text" id="messengerLink" placeholder="مثلاً: https://www.facebook.com/share/12JwWtS736Y/?mibextid=qi2Omg" aria-describedby="messengerHelp" />
+
+    <label for="messengerMessage">نص الرسالة (اختياري)</label>
+    <textarea id="messengerMessage" placeholder="اكتب رسالتك هنا"></textarea>
+
+    <div class="flex-row">
+      <button id="generateMessenger">إنشاء رابط ماسنجر</button>
+      <button id="copyMessenger" disabled>نسخ الرابط</button>
+      <button id="openMessenger" disabled>فتح المحادثة</button>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Messenger_logo_2020.svg" alt="ماسنجر" class="icon" />
+    </div>
+
+    <p id="messengerResult" style="word-break: break-all; margin-top: 10px; color: #f0d363;"></p>
+
+    <div id="iframeContainer">
+      <iframe id="messengerIframe" sandbox="allow-scripts allow-same-origin"></iframe>
+    </div>
+
+    <div style="margin-top: 20px; text-align: center;">
+      <label style="margin-bottom: 10px;">رمز QR للرابط:</label>
+      <img id="messengerQrCode" src="" alt="رمز QR" style="max-width: 200px; height: auto; display: none; border: 1px solid #d4af37; border-radius: 5px;"/>
+      <br>
+      <button id="downloadMessengerQr" style="margin-top: 10px; display: none;">تحميل رمز QR</button>
+    </div>
+  </div>
+
+  <div id="telegramSection" style="display:none;">
+    <label for="telegramCountryCode">كود الدولة (مثلاً: 20 لمصر)</label>
+    <select id="telegramCountryCode" aria-label="اختر كود الدولة لتليجرام">
+      <option value="20">+20 مصر</option>
+      <option value="966">+966 السعودية</option>
+      <option value="1">+1 أمريكا</option>
+      <option value="971">+971 الإمارات</option>
+      <option value="44">+44 بريطانيا</option>
+      </select>
+
+    <label for="telegramNumber">رقم الهاتف (بدون الصفر)</label>
+    <input type="text" id="telegramNumber" placeholder="مثلاً: 1234567890" aria-describedby="telegramHelp" />
+
+    <label for="telegramMessage">نص الرسالة (اختياري)</label>
+    <textarea id="telegramMessage" placeholder="اكتب رسالتك هنا"></textarea>
+
+    <div class="flex-row">
+      <button id="generateTelegram">إنشاء رابط تيليجرام</button>
+      <button id="copyTelegram" disabled>نسخ الرابط</button>
+      <button id="openTelegram" disabled>فتح المحادثة</button>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="تيليجرام" class="icon" />
+    </div>
+
+    <p id="telegramLink" style="word-break: break-all; margin-top: 10px; color: #f0d363;"></p>
+
+    <div style="margin-top: 20px; text-align: center;">
+      <label style="margin-bottom: 10px;">رمز QR للرابط:</label>
+      <img id="telegramQrCode" src="" alt="رمز QR" style="max-width: 200px; height: auto; display: none; border: 1px solid #d4af37; border-radius: 5px;"/>
+      <br>
+      <button id="downloadTelegramQr" style="margin-top: 10px; display: none;">تحميل رمز QR</button>
+    </div>
+  </div>
+
+  <div id="emailSection" style="display:none;">
+    <label for="emailAddress">عنوان البريد الإلكتروني</label>
+    <input type="text" id="emailAddress" placeholder="مثلاً: example@domain.com" aria-describedby="emailHelp" />
+
+    <label for="emailSubject">الموضوع (اختياري)</label>
+    <input type="text" id="emailSubject" placeholder="مثلاً: استفسار عن الخدمة" />
+
+    <label for="emailBody">نص الرسالة (اختياري)</label>
+    <textarea id="emailBody" placeholder="اكتب رسالتك هنا"></textarea>
+
+    <div class="flex-row">
+      <button id="generateEmail">إنشاء رابط بريد إلكتروني</button>
+      <button id="copyEmail" disabled>نسخ الرابط</button>
+      <button id="openEmail" disabled>فتح البريد</button>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg" alt="بريد إلكتروني" class="icon" />
+    </div>
+
+    <p id="emailLink" style="word-break: break-all; margin-top: 10px; color: #f0d363;"></p>
+
+    <div style="margin-top: 20px; text-align: center;">
+      <label style="margin-bottom: 10px;">رمز QR للرابط:</label>
+      <img id="emailQrCode" src="" alt="رمز QR" style="max-width: 200px; height: auto; display: none; border: 1px solid #d4af37; border-radius: 5px;"/>
+      <br>
+      <button id="downloadEmailQr" style="margin-top: 10px; display: none;">تحميل رمز QR</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer-copyright">
+  <a href="https://mahmoud-aboelfadl.my.canva.site" target="_blank">صنعت هذا الموقع بواسطة 𝐀𝐛𝐨𝐄𝐥𝐟𝐚𝐝𝐥</a>
+</div>
+
+<script>
+  // عناصر الأقسام
+  const whatsappSection = document.getElementById('whatsappSection');
+  const messengerSection = document.getElementById('messengerSection');
+  const telegramSection = document.getElementById('telegramSection');
+  const emailSection = document.getElementById('emailSection');
+
+  // أزرار الـ QR
+  const whatsappQrCodeImg = document.getElementById('whatsappQrCode');
+  const downloadWhatsappQrBtn = document.getElementById('downloadWhatsappQr');
+  const messengerQrCodeImg = document.getElementById('messengerQrCode');
+  const downloadMessengerQrBtn = document.getElementById('downloadMessengerQr');
+  const telegramQrCodeImg = document.getElementById('telegramQrCode');
+  const downloadTelegramQrBtn = document.getElementById('downloadTelegramQr');
+  const emailQrCodeImg = document.getElementById('emailQrCode');
+  const downloadEmailQrBtn = document.getElementById('downloadEmailQr');
+
+  // عنصر القائمة المنسدلة للخدمات
+  const serviceSelector = document.getElementById('serviceSelector');
+
+  // دالة لإظهار قسم واحد وإخفاء الباقي
+  function showSection(sectionIdToShow) {
+    // إخفاء جميع الأقسام
+    document.querySelectorAll('.container > div[id$="Section"]').forEach(section => {
+      section.style.display = 'none';
+    });
+
+    // إظهار القسم المطلوب
+    document.getElementById(sectionIdToShow).style.display = 'block';
+
+    // إخفاء الـ QR عند التبديل بين الأقسام
+    hideQr(whatsappQrCodeImg, downloadWhatsappQrBtn);
+    hideQr(messengerQrCodeImg, downloadMessengerQrBtn);
+    hideQr(telegramQrCodeImg, downloadTelegramQrBtn);
+    hideQr(emailQrCodeImg, downloadEmailQrBtn);
+  }
+
+  // إضافة Event Listener لتغيير القائمة المنسدلة للخدمات
+  serviceSelector.addEventListener('change', () => {
+    const selectedSectionId = serviceSelector.value;
+    showSection(selectedSectionId);
+  });
+
+  // إظهار القسم الأول عند التحميل (واتساب)
+  showSection(serviceSelector.value);
+
+  // دالة مساعدة لإنشاء وعرض وتحميل الـ QR
+  function generateAndDisplayQr(url, qrImgElement, downloadBtnElement, filenamePrefix) {
+    const qrBaseUrl = "https://api.qrserver.com/v1/create-qr-code/";
+    const size = "1000x1000"; // المقاس المطلوب
+    const color = "d4af37";   // لون ذهبي (نفس لون الـ branding بتاعك)
+    const bgcolor = "121212";  // لون أسود (خلفية سوداء)
+
+    // التأكد من أن الـ URL موجود قبل إنشاء الـ QR
+    if (!url) {
+      hideQr(qrImgElement, downloadBtnElement);
+      return;
+    }
+
+    // التأكد من صيغة PNG
+    const qrImageUrl = `${qrBaseUrl}?data=${encodeURIComponent(url)}&size=${size}&color=${color}&bgcolor=${bgcolor}&format=png`;
+
+    qrImgElement.src = qrImageUrl;
+    qrImgElement.style.display = 'block'; // إظهار الصورة
+
+    downloadBtnElement.style.display = 'block'; // إظهار زر التحميل
+    downloadBtnElement.onclick = () => {
+      fetch(qrImageUrl) // جلب بيانات الصورة
+        .then(response => response.blob()) // تحويلها إلى Blob (كائن بيانات ثنائية)
+        .then(blob => {
+          const objectUrl = URL.createObjectURL(blob); // إنشاء URL مؤقت للكائن الثنائي
+          const a = document.createElement('a');
+          a.href = objectUrl;
+          a.download = `${filenamePrefix}_QR.png`; // اسم الملف بصيغة PNG
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(objectUrl); // إزالة الـ URL المؤقت بعد التحميل
+        })
+        .catch(e => console.error('خطأ في تحميل أو تنزيل رمز QR:', e));
+    };
+  }
+
+  // دالة لإخفاء الـ QR Code وزر التحميل
+  function hideQr(qrImgElement, downloadBtnElement) {
+    qrImgElement.src = '';
+    qrImgElement.style.display = 'none';
+    downloadBtnElement.style.display = 'none';
+  }
+
+  // واتساب: إنشاء رابط
+  const generateWhatsappBtn = document.getElementById('generateWhatsapp');
+  const copyWhatsappBtn = document.getElementById('copyWhatsapp');
+  const openWhatsappBtn = document.getElementById('openWhatsapp');
+  const whatsappLinkP = document.getElementById('whatsappLink');
+
+  generateWhatsappBtn.onclick = () => {
+    const code = document.getElementById('countryCode').value.trim();
+    const number = document.getElementById('whatsappNumber').value.trim();
+    const message = encodeURIComponent(document.getElementById('whatsappMessage').value.trim());
+
+    if (!number.match(/^\d+$/)) {
+      alert('يرجى إدخال رقم هاتف صحيح بدون أصفار أو رموز.');
+      whatsappLinkP.textContent = '';
+      copyWhatsappBtn.disabled = true;
+      openWhatsappBtn.disabled = true;
+      hideQr(whatsappQrCodeImg, downloadWhatsappQrBtn);
+      return;
+    }
+
+    let url = `https://wa.me/${code}${number}`;
+    if (message) url += `?text=${message}`;
+
+    whatsappLinkP.textContent = url;
+    copyWhatsappBtn.disabled = false;
+    openWhatsappBtn.disabled = false;
+
+    generateAndDisplayQr(url, whatsappQrCodeImg, downloadWhatsappQrBtn, 'whatsapp');
+  };
+
+  copyWhatsappBtn.onclick = () => {
+    const text = whatsappLinkP.textContent;
+    if (text) navigator.clipboard.writeText(text);
+  };
+
+  openWhatsappBtn.onclick = () => {
+    const url = whatsappLinkP.textContent;
+    if (url) window.open(url, '_blank');
+  };
+
+  document.getElementById('countryCode').oninput = () => hideQr(whatsappQrCodeImg, downloadWhatsappQrBtn);
+  document.getElementById('whatsappNumber').oninput = () => hideQr(whatsappQrCodeImg, downloadWhatsappQrBtn);
+  document.getElementById('whatsappMessage').oninput = () => hideQr(whatsappQrCodeImg, downloadWhatsappQrBtn);
+
+  // ماسنجر: تنظيف رابط + إنشاء رابط محادثة
+  const generateMessengerBtn = document.getElementById('generateMessenger');
+  const copyMessengerBtn = document.getElementById('copyMessenger');
+  const openMessengerBtn = document.getElementById('openMessenger');
+  const messengerResultP = document.getElementById('messengerResult');
+  const iframeContainer = document.getElementById('iframeContainer');
+  const messengerIframe = document.getElementById('messengerIframe');
+
+  function cleanFacebookLink(rawLink) {
+    if (!rawLink) return '';
+    let cleanLink = rawLink.split('?')[0];
+    cleanLink = cleanLink.replace(/\/$/, '');
+    return cleanLink;
+  }
+
+  generateMessengerBtn.onclick = () => {
+    let rawLink = document.getElementById('messengerLink').value.trim();
+    const message = encodeURIComponent(document.getElementById('messengerMessage').value.trim());
+
+    if (!rawLink) {
+      alert('يرجى إدخال رابط ملف فيسبوك كامل');
+      messengerResultP.textContent = '';
+      copyMessengerBtn.disabled = true;
+      openMessengerBtn.disabled = true;
+      iframeContainer.style.display = 'none';
+      hideQr(messengerQrCodeImg, downloadMessengerQrBtn);
+      return;
+    }
+
+    let cleanLink = cleanFacebookLink(rawLink);
+
+    let idOrUsername = '';
+    try {
+      let urlObj = new URL(cleanLink);
+      if (urlObj.pathname === '/' && urlObj.searchParams.has('id')) {
+        idOrUsername = urlObj.searchParams.get('id');
+      } else {
+        let parts = urlObj.pathname.split('/').filter(Boolean);
+        idOrUsername = parts.length > 0 ? parts[parts.length - 1] : '';
+      }
+    } catch {
+      idOrUsername = '';
+    }
+
+    if (!idOrUsername) {
+      alert('تعذر استخراج ID أو اسم المستخدم من الرابط');
+      messengerResultP.textContent = '';
+      copyMessengerBtn.disabled = true;
+      openMessengerBtn.disabled = true;
+      iframeContainer.style.display = 'none';
+      hideQr(messengerQrCodeImg, downloadMessengerQrBtn);
+      return;
+    }
+
+    let messengerUrl = `https://m.me/${idOrUsername}`;
+    if (message) messengerUrl += `?ref=${message}`;
+
+    messengerResultP.textContent = messengerUrl;
+    copyMessengerBtn.disabled = false;
+    openMessengerBtn.disabled = false;
+    iframeContainer.style.display = 'block';
+    messengerIframe.src = messengerUrl;
+
+    generateAndDisplayQr(messengerUrl, messengerQrCodeImg, downloadMessengerQrBtn, 'messenger');
+  };
+
+  copyMessengerBtn.onclick = () => {
+    const text = messengerResultP.textContent;
+    if (text) navigator.clipboard.writeText(text);
+  };
+
+  openMessengerBtn.onclick = () => {
+    const url = messengerResultP.textContent;
+    if (url) window.open(url, '_blank');
+  };
+
+  document.getElementById('messengerLink').oninput = () => hideQr(messengerQrCodeImg, downloadMessengerQrBtn);
+  document.getElementById('messengerMessage').oninput = () => hideQr(messengerQrCodeImg, downloadMessengerQrBtn);
+
+
+  // وظائف تيليجرام (تم التعديل هنا)
+  const generateTelegramBtn = document.getElementById('generateTelegram');
+  const copyTelegramBtn = document.getElementById('copyTelegram');
+  const openTelegramBtn = document.getElementById('openTelegram');
+  const telegramLinkP = document.getElementById('telegramLink');
+
+  generateTelegramBtn.onclick = () => {
+    const countryCode = document.getElementById('telegramCountryCode').value.trim(); // كود الدولة الجديد
+    const number = document.getElementById('telegramNumber').value.trim();
+    const message = encodeURIComponent(document.getElementById('telegramMessage').value.trim());
+
+    if (!number.match(/^\d+$/)) {
+      alert('يرجى إدخال رقم هاتف تيليجرام صحيح (بدون الصفر في البداية).');
+      telegramLinkP.textContent = '';
+      copyTelegramBtn.disabled = true;
+      openTelegramBtn.disabled = true;
+      hideQr(telegramQrCodeImg, downloadTelegramQrBtn);
+      return;
+    }
+
+    // بناء الرابط مع كود الدولة
+    let url = `https://t.me/+${countryCode}${number}`;
+    if (message) url += `?text=${message}`;
+
+    telegramLinkP.textContent = url;
+    copyTelegramBtn.disabled = false;
+    openTelegramBtn.disabled = false;
+
+    generateAndDisplayQr(url, telegramQrCodeImg, downloadTelegramQrBtn, 'telegram');
+  };
+
+  copyTelegramBtn.onclick = () => {
+    const text = telegramLinkP.textContent;
+    if (text) navigator.clipboard.writeText(text);
+  };
+
+  openTelegramBtn.onclick = () => {
+    const url = telegramLinkP.textContent;
+    if (url) window.open(url, '_blank');
+  };
+
+  // إخفاء الـ QR إذا تم تغيير حقول الإدخال لتليجرام
+  document.getElementById('telegramCountryCode').oninput = () => hideQr(telegramQrCodeImg, downloadTelegramQrBtn);
+  document.getElementById('telegramNumber').oninput = () => hideQr(telegramQrCodeImg, downloadTelegramQrBtn);
+  document.getElementById('telegramMessage').oninput = () => hideQr(telegramQrCodeImg, downloadTelegramQrBtn);
+
+
+  // وظائف البريد الإلكتروني
+  const generateEmailBtn = document.getElementById('generateEmail');
+  const copyEmailBtn = document.getElementById('copyEmail');
+  const openEmailBtn = document.getElementById('openEmail');
+  const emailLinkP = document.getElementById('emailLink');
+
+  generateEmailBtn.onclick = () => {
+    const email = document.getElementById('emailAddress').value.trim();
+    const subject = encodeURIComponent(document.getElementById('emailSubject').value.trim());
+    const body = encodeURIComponent(document.getElementById('emailBody').value.trim());
+
+    if (!email) {
+      alert('يرجى إدخال عنوان بريد إلكتروني.');
+      emailLinkP.textContent = '';
+      copyEmailBtn.disabled = true;
+      openEmailBtn.disabled = true;
+      hideQr(emailQrCodeImg, downloadEmailQrBtn);
+      return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+      alert('يرجى إدخال عنوان بريد إلكتروني صحيح.');
+      emailLinkP.textContent = '';
+      copyEmailBtn.disabled = true;
+      openEmailBtn.disabled = true;
+      hideQr(emailQrCodeImg, downloadEmailQrBtn);
+      return;
+    }
+
+    let url = `mailto:${email}`;
+    let params = [];
+    if (subject) params.push(`subject=${subject}`);
+    if (body) params.push(`body=${body}`);
+
+    if (params.length > 0) {
+      url += `?${params.join('&')}`;
+    }
+
+    emailLinkP.textContent = url;
+    copyEmailBtn.disabled = false;
+    openEmailBtn.disabled = false;
+
+    generateAndDisplayQr(url, emailQrCodeImg, downloadEmailQrBtn, 'email');
+  };
+
+  copyEmailBtn.onclick = () => {
+    const text = emailLinkP.textContent;
+    if (text) navigator.clipboard.writeText(text);
+  };
+
+  openEmailBtn.onclick = () => {
+    const url = emailLinkP.textContent;
+    if (url) window.open(url, '_blank');
+  };
+
+  document.getElementById('emailAddress').oninput = () => hideQr(emailQrCodeImg, downloadEmailQrBtn);
+  document.getElementById('emailSubject').oninput = () => hideQr(emailQrCodeImg, downloadEmailQrBtn);
+  document.getElementById('emailBody').oninput = () => hideQr(emailQrCodeImg, downloadEmailQrBtn);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحويل النص إلى صوت</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #eef1f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #0056b3;
+            margin-bottom: 25px;
+        }
+
+        #text-to-speak {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #dbe2e9;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        
+        .controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 25px;
+            text-align: right;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 700;
+            color: #555;
+        }
+
+        .select, input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #dbe2e9;
+            background-color: #f8f9fa;
+            font-size: 1rem;
+        }
+        
+        .select:disabled, input:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+        }
+
+        input[type="range"] {
+            padding: 0;
+        }
+        
+        .main-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex-grow: 1;
+            background: linear-gradient(90deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+        
+        #record-btn {
+            background: linear-gradient(90deg, #dc3545, #a71d2a);
+        }
+        
+        .btn:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+        }
+        #record-btn:hover:not(:disabled) {
+            box-shadow: 0 4px 15px rgba(220,53,69,0.3);
+        }
+
+        #recording-status {
+            margin-top: 15px;
+            font-weight: 700;
+            color: #dc3545;
+            min-height: 24px;
+        }
+        #download-container a {
+            color: #0056b3;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        #download-container audio {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>🔊 تحويل النص إلى صوت</h1>
+        
+        <textarea id="text-to-speak" placeholder="اكتب النص الذي تريد تحويله إلى صوت هنا..."></textarea>
+        
+        <div class="controls-wrapper">
+            <div class="control-group">
+                <label for="voice-select">اختر الصوت:</label>
+                <select id="voice-select" class="select" disabled><option>جاري تحميل الأصوات...</option></select>
+            </div>
+            <div class="control-group">
+                <label for="rate">السرعة: <span id="rate-value">1</span></label>
+                <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1" disabled>
+            </div>
+            <div class="control-group">
+                <label for="pitch">حدة الصوت: <span id="pitch-value">1</span></label>
+                <input type="range" id="pitch" min="0" max="2" value="1" step="0.1" disabled>
+            </div>
+        </div>
+
+        <div class="main-buttons">
+            <button id="speak-btn" class="btn" disabled>استمع الآن</button>
+            <button id="record-btn" class="btn" disabled>🎤 تسجيل وتحميل</button>
+        </div>
+
+        <div id="recording-status"></div>
+        <div id="download-container"></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const textToSpeak = document.getElementById('text-to-speak');
+        const voiceSelect = document.getElementById('voice-select');
+        const rate = document.getElementById('rate');
+        const rateValue = document.getElementById('rate-value');
+        const pitch = document.getElementById('pitch');
+        const pitchValue = document.getElementById('pitch-value');
+        const speakBtn = document.getElementById('speak-btn');
+        const recordBtn = document.getElementById('record-btn');
+        const recordingStatus = document.getElementById('recording-status');
+        const downloadContainer = document.getElementById('download-container');
+        
+        let voices = [];
+        let voicesLoaded = false;
+
+        function populateVoiceList() {
+            if (voicesLoaded) return;
+            voices = speechSynthesis.getVoices();
+            if (voices.length === 0) return;
+            voicesLoaded = true;
+
+            voiceSelect.innerHTML = '';
+            
+            const arabicVoices = voices.filter(voice => voice.lang.startsWith('ar-'));
+            
+            if(arabicVoices.length === 0){
+                 voiceSelect.innerHTML = '<option>لا توجد أصوات عربية</option>';
+            } else {
+                 for (const voice of arabicVoices) {
+                    const option = document.createElement('option');
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    option.value = voice.name;
+                    voiceSelect.appendChild(option);
+                }
+                const egyptianVoice = arabicVoices.find(voice => voice.lang === 'ar-EG');
+                if (egyptianVoice) {
+                    voiceSelect.value = egyptianVoice.name;
+                }
+            }
+            
+            voiceSelect.disabled = false;
+            rate.disabled = false;
+            pitch.disabled = false;
+            speakBtn.disabled = false;
+            recordBtn.disabled = false;
+        }
+
+        function speak() {
+            if (speechSynthesis.speaking) speechSynthesis.cancel();
+            if (textToSpeak.value !== '') {
+                const utterance = new SpeechSynthesisUtterance(textToSpeak.value);
+                const selectedVoiceName = voiceSelect.value;
+                const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+                
+                utterance.voice = selectedVoice;
+                utterance.rate = rate.value;
+                utterance.pitch = pitch.value;
+                speechSynthesis.speak(utterance);
+            }
+        }
+        
+        async function recordAndSpeak() {
+            if (textToSpeak.value === '') {
+                alert('الرجاء كتابة نص أولاً.');
+                return;
+            }
+
+            downloadContainer.innerHTML = '';
+            recordingStatus.textContent = 'الرجاء منح إذن الوصول للميكروفون...';
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const recorder = new MediaRecorder(stream);
+                const chunks = [];
+
+                recorder.ondataavailable = e => chunks.push(e.data);
+                
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'audio/wav' });
+                    const audioURL = window.URL.createObjectURL(blob);
+                    
+                    const audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = audioURL;
+                    
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = audioURL;
+                    downloadLink.download = 'recording.wav';
+                    downloadLink.textContent = 'اضغط هنا لتحميل التسجيل';
+                    
+                    downloadContainer.innerHTML = '';
+                    downloadContainer.appendChild(audio);
+                    downloadContainer.appendChild(document.createElement('br'));
+                    downloadContainer.appendChild(downloadLink);
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                recorder.start();
+                recordingStatus.textContent = '🔴 يتم التسجيل الآن... الرجاء التزام الهدوء.';
+
+                const utterance = new SpeechSynthesisUtterance(textToSpeak.value);
+                const selectedVoiceName = voiceSelect.value;
+                const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
+                
+                utterance.voice = selectedVoice;
+                utterance.rate = rate.value;
+                utterance.pitch = pitch.value;
+                
+                utterance.onend = () => {
+                    recorder.stop();
+                    recordingStatus.textContent = 'اكتمل التسجيل، جاري المعالجة...';
+                };
+                
+                speechSynthesis.speak(utterance);
+
+            } catch (err) {
+                console.error("Error during recording:", err);
+                recordingStatus.textContent = 'حدث خطأ. لم يتم منح إذن الوصول للميكروفون.';
+            }
+        }
+
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+        const voiceCheckInterval = setInterval(() => {
+            populateVoiceList();
+            if (voicesLoaded) clearInterval(voiceCheckInterval);
+        }, 250);
+
+        rate.addEventListener('change', () => rateValue.textContent = rate.value);
+        pitch.addEventListener('change', () => pitchValue.textContent = pitch.value);
+        speakBtn.addEventListener('click', speak);
+        recordBtn.addEventListener('click', recordAndSpeak);
+    });
+    </script>
+</body>
+</html>
+

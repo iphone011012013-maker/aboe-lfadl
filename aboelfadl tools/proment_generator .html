@@ -1,0 +1,297 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>مولد برومبت HTML احترافي</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --main-bg: #000;
+      --main-text: #fff;
+    }
+    body {
+      background-color: var(--main-bg);
+      color: var(--main-text);
+      padding: 20px;
+      font-family: 'Cairo', sans-serif;
+    }
+    .form-control, .form-select, textarea {
+      background-color: #111;
+      color: #fff;
+      border: 1px solid #444;
+    }
+    .form-control::placeholder, textarea::placeholder {
+      color: #ccc;
+    }
+    .btn-dark {
+      background-color: #d4af37;
+      color: #000;
+      font-weight: bold;
+    }
+    .btn-secondary {
+      background-color: #dc3545;
+      color: #fff;
+    }
+    .btn-success {
+      background-color: #28a745;
+      color: #fff;
+    }
+    .btn-sm {
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+    .textarea-custom {
+      resize: vertical;
+      min-height: 120px;
+    }
+    .history-item {
+      background: #222;
+      border: 1px solid #555;
+      margin-bottom: 10px;
+      padding: 10px 40px 10px 10px;
+      border-radius: 5px;
+      white-space: pre-wrap;
+      position: relative;
+    }
+    .history-actions {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .shake {
+      animation: shake 0.3s;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    .settings-panel {
+      display: none;
+      background: #111;
+      border: 1px solid #444;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+<audio id="sound-copy" src="https://cdn.pixabay.com/audio/2022/03/15/audio_d1f3876003.mp3"></audio>
+<audio id="sound-generate" src="https://cdn.pixabay.com/audio/2022/03/15/audio_b00e5bfe25.mp3"></audio>
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">🎯 مولد برومبت احترافي</h2>
+    <button class="btn btn-secondary btn-sm" onclick="toggleSettings()">⚙️ الإعدادات</button>
+  </div>
+  <div class="settings-panel" id="settingsPanel">
+    <div class="mb-3">
+      <label class="form-label">الوضع:</label>
+      <select class="form-select" onchange="toggleTheme(this.value)">
+        <option value="dark">🌙 داكن</option>
+        <option value="light">☀️ فاتح</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">حجم الخط في النتيجة:</label>
+      <select class="form-select" onchange="changeFontSize(this.value)">
+        <option value="14px">صغير</option>
+        <option value="18px">متوسط</option>
+        <option value="22px">كبير</option>
+      </select>
+    </div>
+  </div>  <div class="mb-3">
+    <label class="form-label">اسم المشروع:</label>
+    <input type="text" id="projectName" class="form-control" placeholder="مثلاً: AboElfadl Store">
+  </div>
+  <div class="mb-3">
+    <label class="form-label">اختر نموذج جاهز:</label>
+    <select id="templateSelector" class="form-select">
+      <option value="">-- اختر نموذجاً --</option>
+      <option value="store">صفحة متجر</option>
+      <option value="landing">صفحة هبوط</option>
+      <option value="portfolio">سيرة ذاتية / بورتفوليو</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">ألوان الصفحة:</label>
+    <select id="colorSelector" class="form-select">
+      <option value="ذهبي وأسود">ذهبي وأسود</option>
+      <option value="أبيض وأزرق">أبيض وأزرق</option>
+      <option value="أحمر وأسود">أحمر وأسود</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">نوع التصميم:</label>
+    <select id="designType" class="form-select">
+      <option value="عصري مظلم">عصري مظلم</option>
+      <option value="كلاسيكي بسيط">كلاسيكي بسيط</option>
+      <option value="حديث ومضيء">حديث ومضيء</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">نوع الخط:</label>
+    <select id="fontSelector" class="form-select">
+      <option value="Cairo">Cairo</option>
+      <option value="Tajawal">Tajawal</option>
+      <option value="Roboto">Roboto</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">فكرتك:</label>
+    <textarea id="userInput" class="form-control textarea-custom" placeholder="مثلاً: صفحة فيها صور منتجات وروابط تواصل..."></textarea>
+  </div>
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <button onclick="generatePrompt()" class="btn btn-dark">🚀 توليد البرومبت</button>
+    <button onclick="copyPrompt()" class="btn btn-secondary">📋 نسخ البرومبت</button>
+    <a id="chatGPTLink" target="_blank" class="btn btn-success">📤 إرسال إلى ChatGPT</a>
+  </div>  <h2 class="mt-4">📋 البرومبت الجاهز:</h2>
+  <textarea id="output" class="form-control textarea-custom mb-4 fade-in" readonly></textarea>  <h2 class="mt-4">🕓 السجل (<span id="count">0</span>):</h2>
+  <button onclick="clearHistory()" class="btn btn-danger mb-2">🗑 حذف السجل بالكامل</button>
+  <div id="history"></div>
+</div><script>
+  window.onload = () => {
+    const saved = localStorage.getItem("promptHistory");
+    if (saved) document.getElementById("history").innerHTML = saved;
+    updateCount();
+  };
+
+  function toggleSettings() {
+    const panel = document.getElementById("settingsPanel");
+    panel.style.display = panel.style.display === "none" ? "block" : "none";
+  }
+
+  function toggleTheme(mode) {
+    if (mode === "light") {
+      document.documentElement.style.setProperty('--main-bg', '#fff');
+      document.documentElement.style.setProperty('--main-text', '#000');
+    } else {
+      document.documentElement.style.setProperty('--main-bg', '#000');
+      document.documentElement.style.setProperty('--main-text', '#fff');
+    }
+  }
+
+  function changeFontSize(size) {
+    document.getElementById("output").style.fontSize = size;
+  }
+
+  function generatePrompt() {
+    const idea = document.getElementById("userInput");
+    const project = document.getElementById("projectName");
+    const template = document.getElementById("templateSelector").value;
+    const colors = document.getElementById("colorSelector").value;
+    const design = document.getElementById("designType").value;
+    const font = document.getElementById("fontSelector").value;
+
+    if (!idea.value.trim() || !project.value.trim()) {
+      if (!idea.value.trim()) shakeElement(idea);
+      if (!project.value.trim()) shakeElement(project);
+      alert("من فضلك أدخل اسم المشروع والفكرة.");
+      return;
+    }
+
+    let details = "";
+    if (template === "store") details = "صفحة لعرض منتجات، صور، أسعار، وسلة مشتريات";
+    else if (template === "landing") details = "صفحة تعريفية فيها شرح، صور، وزر تواصل";
+    else if (template === "portfolio") details = "صفحة شخصية فيها سيرة ذاتية، مهارات، وأعمال سابقة";
+
+    const prompt = `اكتب لي كود HTML لصفحة باسم: ${project.value.trim()}
+🔹 وصف المشروع: ${idea.value.trim()}
+🔹 النموذج المختار: ${details || "---"}
+🔹 ألوان التصميم: ${colors}
+🔹 نوع التصميم: ${design}
+🔹 نوع الخط: ${font}
+🔹 الشروط:
+- يكون الكود منسق ونظيف
+- متجاوب مع جميع الأجهزة
+- يدعم RTL والعربية
+- استخدم Bootstrap و FontAwesome لو مناسب
+ارسل لي الكود كامل.`;
+
+    const output = document.getElementById("output");
+    output.classList.remove("fade-in");
+    void output.offsetWidth;
+    output.classList.add("fade-in");
+    output.style.fontFamily = font;
+    output.value = prompt;
+    document.getElementById("sound-generate").play();
+
+    addToHistory(prompt);
+    const chatGPTLink = `https://chat.openai.com/?model=gpt-4&prompt=${encodeURIComponent(prompt)}`;
+    document.getElementById("chatGPTLink").href = chatGPTLink;
+  }
+
+  function copyPrompt() {
+    const output = document.getElementById("output");
+    output.select();
+    document.execCommand("copy");
+    document.getElementById("sound-copy").play();
+    alert("✅ تم نسخ البرومبت!");
+  }
+
+  function addToHistory(prompt) {
+    const historyDiv = document.getElementById("history");
+    const div = document.createElement("div");
+    div.className = "history-item fade-in";
+    div.innerHTML = `<div class="history-actions">
+      <button class='btn btn-secondary btn-sm' onclick='copyFromHistory(this)'>📋</button>
+      <button class='btn btn-dark btn-sm' onclick='editFromHistory(this)'>✏️</button>
+      <button class='btn btn-danger btn-sm' onclick='deleteFromHistory(this)'>🗑</button>
+    </div>${prompt}`;
+    historyDiv.prepend(div);
+    localStorage.setItem("promptHistory", historyDiv.innerHTML);
+    updateCount();
+  }
+
+  function copyFromHistory(btn) {
+    const text = btn.parentElement.parentElement.textContent.replace(/[📋✏️🗑]/g, "").trim();
+    navigator.clipboard.writeText(text);
+    document.getElementById("sound-copy").play();
+    alert("✅ تم نسخ البرومبت من السجل!");
+  }
+
+  function editFromHistory(btn) {
+    const text = btn.parentElement.parentElement.textContent.replace(/[📋✏️🗑]/g, "").trim();
+    document.getElementById("output").value = text;
+    alert("تم تحميل البرومبت للتعديل.");
+  }
+
+  function deleteFromHistory(btn) {
+    btn.parentElement.parentElement.remove();
+    localStorage.setItem("promptHistory", document.getElementById("history").innerHTML);
+    updateCount();
+  }
+
+  function clearHistory() {
+    if (confirm("هل أنت متأكد من حذف السجل بالكامل؟")) {
+      document.getElementById("history").innerHTML = "";
+      localStorage.removeItem("promptHistory");
+      updateCount();
+    }
+  }
+
+  function updateCount() {
+    const count = document.querySelectorAll(".history-item").length;
+    document.getElementById("count").textContent = count;
+  }
+
+  function shakeElement(element) {
+    element.classList.add("shake");
+    setTimeout(() => {
+      element.classList.remove("shake");
+    }, 500);
+  }
+</script></body>
+</html>

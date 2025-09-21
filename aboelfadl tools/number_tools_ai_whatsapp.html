@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جدول التواصل</title>
+  <style>
+    body {
+      background-color: #000;
+      font-family: 'Cairo', sans-serif;
+      color: #fff;
+      margin: 0;
+      padding: 20px 10px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #444;
+      padding: 12px 8px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #111;
+      font-size: 18px;
+    }
+
+    .btn-whatsapp {
+      background-color: #25D366;
+      color: black;
+      border: none;
+      padding: 8px 12px;
+      margin: 3px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-call {
+      background-color: #FFD700;
+      color: black;
+      border: none;
+      padding: 8px 12px;
+      margin: 3px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-link {
+      background-color: #ff0000;
+      color: fff;
+      border: none;
+      padding: 8px 12px;
+      margin: 3px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .btn-telegram {
+      background-color: #ff0000;
+      color: fff;
+      border: none;
+      padding: 8px 12px;
+      margin: 3px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .copy-btn {
+      background-color: #333;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+     }
+
+.counter {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #ffba00;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.search-box {
+  width: 100%;
+  padding: 9px 5px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  background-color: #ffba00; /* ✅ خلفية ذهبية */
+  color: #ffba00; /* ✅ نص داكن */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* ✅ ظل ناعم */
+  outline: none;
+  transition: box-shadow 0.3s ease;
+}
+
+.search-box::placeholder {
+  color: #000; /* ✅ لون نص افتراضي واضح */
+}
+
+.search-box:focus {
+  box-shadow: 0 0 10px #ffdd33, 0 0 20px #ffcc00; /* ✅ توهج عند الكتابة */
+}
+
+.section-title {
+  font-size: 22px;
+  margin: 25px 0 15px;
+  color: #FFD700; /* اللون الذهبي */
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8); /* ظل ذهبي لامع */
+  border-bottom: 2px solid #FFD70066; /* خط سفلي ذهبي شفاف */
+  padding-bottom: 5px;
+  text-align: center; /* ✅ توسيط العنوان */
+}
+
+ .counter {
+   color: #000;
+   font-weight: bold;
+   font-size: 16px;
+  }
+
+.refresh-btn {
+  background-color: #ffba00;
+  color: #000;
+  border-radius: 12px;
+  border: none;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.refresh-btn:hover {
+  background-color: #2980b9;
+}
+   .copy-btn:hover {
+     background-color: #555;
+    }
+    .btn-whatsapp:hover {
+      background-color: #1ebc5b;
+    }
+
+    .btn-call:hover {
+      background-color: #e6c200;
+    }
+
+    .btn-link:hover {
+      background-color: #f08080;
+    }
+
+    .btn-telegram:hover {
+      background-color: #006699;
+    }
+
+    @media (max-width: 768px) {
+      th, td {
+        font-size: 14px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>جدول التواصل</h1>
+
+
+<input type="text" id="searchInput" placeholder="ابحث باسم الأداة..." onkeyup="searchTable()" class="search-box">
+
+<div id="counter"  class="counter"></div>
+
+<button onclick="location.reload()" class="refresh-btn">🔄 إعادة تحميل </button>
+
+  <table>
+    <thead>
+      <tr>
+        <th>الأداة أو الشركة</th>
+        <th>وسيلة التواصل</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Etisalat</td>
+        <td>
+          <a href="https://wa.me/201111234777" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://wa.me/+201111234551" target="_blank">
+            <button class="btn-whatsapp">Whatsapp</button>
+          </a>
+          <a href="tel:‏‪0235346333‬‏">
+            <button class="btn-call">Call خط الارضي</button>
+          </a>
+          <a href="tel:‏‪‏‪+201111234333‬‏">
+            <button class="btn-call">Call phone</button>
+          </a>
+          <a href="https://www.eand.com.eg/StaticFiles/portal2/etisalat/index.html">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Vodafone</td>
+        <td>
+          <a href="https://wa.me/201050888888" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="tel:‏‪16888‬‏">
+            <button class="btn-call">Call hot line</button>
+          </a>
+         <a href="tel:‏‪0225292888">
+            <button class="btn-call">Call landline </button>
+          </a>
+         <a href="tel:‏‪+201001888888">
+            <button class="btn-call">Call phone</button>
+          </a>
+          <a href="https://web.vodafone.com.eg/ar/home">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+       <tr>
+        <td>NBE</td>
+        <td>
+          <a href="https://wa.me/20219623" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="tel:‏‪19623">
+            <button class="btn-call">Call</button>
+          </a>
+          <a href="https://www.nbe.com.eg/NBE/E/#/AR/Home">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+       <tr>
+        <td>QNB bebasata</td>
+        <td>
+          <a href="https://wa.me/20216607" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="tel:‏‪16607">
+            <button class="btn-call">Call</button>
+          </a>
+          <a href="https://ib.bebasata.qnbalahli.com/Login/LoginPage.aspx?Lang=AR">
+            <button class="btn-link">LINK</button>
+          </a>
+           <tr>
+        <td>Elaraby Group</td>
+        <td>
+          <a href="https://wa.me/201101019319" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="tel:‏‪19319">
+            <button class="btn-call">Call</button>
+          </a>
+          <a href="https://www.elarabygroup.com/">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>     <tr>
+        <td>شركه العبد 
+White Point</td>
+        <td>
+          <a href="https://wa.me/201025122562" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="tel:‏‪19595">
+            <button class="btn-call">Hot Line</button>
+          </a>
+<a href="tel:‏‪023765530">
+            <button class="btn-call">خط ارضي ١</button>
+          </a>
+<a href="tel:‏‪0237605540">
+            <button class="btn-call">خط ارضي ٢</button>
+          </a>
+          <a href="https://t.me/Whitepoint2labd_bot">
+            <button class="btn-telegram"> Telegram Bot</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>Bosta.co</td>
+        <td>
+          <a href="tel:19043" target="_blank">
+            <button class="btn-call">خدمة عملاء </button>
+          </a>
+          <a href="https://bosta.co/ar-eg/home">
+            <button class="btn-link">تتبع الشحنة</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>Amazon</td>
+        <td>
+          <a href="tel:08000262966" target="_blank">
+            <button class="btn-call">خدمة العملاء</button>
+          </a>
+          <a href="tel:+442080447951">
+            <button class="btn-call">call</button>
+          </a>
+          <a href="https://www.amazon.eg/">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+    <thead>
+      <tr>
+        <th>AI</th>
+        <th>Tools What'sapp</th>
+      </tr>
+    </thead>
+     <tr>
+        <td>Chat GPT</td>
+        <td>
+          <a href="https://wa.me/1(800)242-8478" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://chatgpt.com">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>Perplexity</td>
+        <td>
+          <a href="https://wa.me/1(833)436-3285" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://www.perplexity.ai/">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>Meta ai</td>
+        <td>
+          <a href="https://wa.me/13135550002?s=5" target="_blank">
+            <button class="btn-whatsapp">Meta AI What'sapp</button>
+          </a>
+          <a href="https://wa.me/13135550202?s=5">
+            <button class="btn-whatsapp">Business assistant</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>chatchit.ai</td>
+        <td>
+          <a href="https://wa.me/905376449086" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://stockimg.ai/">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>Pi.AI</td>
+        <td>
+          <a href="https://wa.me/1(314)333-1111" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://pi.ai/talk">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>Mobile GPT</td>
+        <td>
+          <a href="https://wa.me/27767346284" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://mobile-gpt.io/">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>Copilot Microsoft</td>
+        <td>
+          <a href="https://wa.me/1(877)224-1042" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://copilot.microsoft.com/">
+            <button class="btn-link">LINK</button>
+          </a>
+      <a href="https://t.me/CopilotOfficialBot">
+            <button class="btn-telegram">TELEGRAM BOT</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>HeyPat.ai</td>
+        <td>
+          <a href="https://wa.me/1(844)243-9728" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://heypat.ai/">
+            <button class="btn-link">LINK</button>
+          </a>
+<a href="https://t.me/PatAssistantAIBot">
+            <button class="btn-telegram">TELEGRAM BOT</button>
+          </a>
+        </td>
+      </tr>
+           <tr>
+        <td>WIZ AI</td>
+        <td>
+          <a href="https://wa.me/4915151853491" target="_blank">
+            <button class="btn-whatsapp">WhatsApp</button>
+          </a>
+          <a href="https://www.getwiz.xyz/">
+            <button class="btn-link">LINK</button>
+          </a>
+        </td>
+      </tr>
+      <!-- يمكنك إضافة صفوف إضافية هنا -->
+    </tbody>
+  </table>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const allCells = document.querySelectorAll("td");
+
+  allCells.forEach(cell => {
+    const links = cell.querySelectorAll("a");
+
+    links.forEach(link => {
+      const href = link.getAttribute("href");
+      let value = '';
+      let type = '';
+      let icon = '';
+      let btnClass = '';
+
+      // تحديد نوع الرابط
+      if (href.startsWith('https://wa.me/')) {
+        value = href.replace('https://wa.me/', '');
+        type = 'whatsapp';
+        icon = '📨whatsapp📨';
+        btnClass = 'btn-whatsapp';
+      } else if (href.startsWith('https://t.me/')) {
+        value = href.replace('https://t.me/', '');
+        type = 'TELEGRAM BOT';
+        icon = '📨TELEGRAM BOT📨';
+        btnClass = 'btn-Telegram';
+      } else if (href.startsWith('tel:')) {
+        value = href.replace('tel:', '');
+        type = 'call';
+        icon = '📞___Call___📞';
+        btnClass = 'btn-call';
+      } else if (href.startsWith('http')) {
+        value = href;
+        type = 'link';
+        icon = '🌐___link___🌐';
+        btnClass = 'btn-link';
+      }
+
+      // إنشاء زر الوظيفة (واتساب / تيليجرام / اتصال / رابط)
+      const actionBtn = document.createElement("button");
+      actionBtn.className = `btn ${btnClass}`;
+      actionBtn.innerText = icon;
+      actionBtn.onclick = () => window.open(href, "_blank");
+
+      // إنشاء زر النسخ 📋
+      const copyBtn = document.createElement("button");
+      copyBtn.className = 'btn-copy';
+      copyBtn.innerText = '📋';
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(value).then(() => {
+          alert(`✅ تم النسخ: ${value}`);
+        }).catch(() => {
+          alert("❌ فشل النسخ");
+        });
+      };
+
+      // استبدال الرابط بالزرين
+      const wrapper = document.createElement("span");
+      wrapper.appendChild(actionBtn);
+      wrapper.appendChild(copyBtn);
+      link.replaceWith(wrapper);
+    });
+  });
+});
+</script>
+
+<script>
+  function searchTable() {
+    const input = document.getElementById("searchInput").value.toLowerCase();
+    const rows = document.querySelectorAll("table tbody tr");
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      row.style.display = text.includes(input) ? "" : "none";
+    });
+  }
+</script>
+
+
+<script>
+  function updateCounter() {
+    const rows = document.querySelectorAll("table tbody tr");
+    let count = 0;
+    rows.forEach(row => {
+      if (row.style.display !== "none") count++;
+    });
+    document.getElementById("counter").innerText = `عدد الأدوات المعروضة: ${count}`;
+  }
+
+  setInterval(updateCounter, 1000); // يحدث العدد كل ثانية
+</script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abu Al-Fadl</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* ... (جميع أكواد CSS الأخرى تبقى كما هي) ... */
+        body {
+            margin: 0;
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #141E30, #243B55);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .main-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        .logo-container { flex-shrink: 0; }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #FFD700;
+            object-fit: cover;
+            animation: spin 8s linear infinite;
+        }
+        .title-container {
+            margin-right: 20px;
+            overflow: hidden;
+            flex-grow: 1;
+            position: relative;
+            height: 40px;
+        }
+        .moving-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f1f1f1;
+            white-space: nowrap;
+            position: absolute;
+            animation: move-right-to-left 10s linear infinite;
+        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .social-follow {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        .social-follow a {
+            color: #ffffff;
+            font-size: 24px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .social-follow a:hover {
+            transform: scale(1.2);
+            color: #FFD700;
+        }
+        .url-opener-form {
+            display: flex;
+            width: 100%;
+            max-width: 550px;
+            margin-bottom: 25px;
+            box-sizing: border-box;
+            padding: 0 20px;
+        }
+        #url-input {
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 1px solid #4a5a70;
+            border-radius: 8px 0 0 8px;
+            background-color: #1c2a3e;
+            color: #ffffff;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 16px;
+            outline: none;
+        }
+        #url-input::placeholder { color: #8a9bb3; }
+        #url-submit-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 0 8px 8px 0;
+            background: linear-gradient(45deg, #00BCD4, #009688);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #url-submit-btn:hover { filter: brightness(1.2); }
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+        .btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .fake-test-heading {
+            color: #FFD700;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 7px rgba(255, 215, 0, 0.4);
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+        .comment-form-container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            box-sizing: border-box;
+            margin-top: 30px;
+        }
+        .comment-form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .comment-form h3 {
+            color: #FFD700;
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #4a5a70;
+            background-color: #1c2a3e;
+            color: #ffffff;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder { color: #8a9bb3; }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #FFC107, #FF9800);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(255, 193, 7, 0.4);
+        }
+        .share-section {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+        .share-section h4 {
+            color: #FFD700;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+        .share-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+        .share-icons a {
+            color: #fff;
+            font-size: 30px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+        .share-icons a:hover { transform: translateY(-5px); }
+        .share-icons .fa-facebook:hover { color: #1877F2; }
+        .share-icons .fa-facebook-messenger:hover { color: #00B2FF; }
+        .share-icons .fa-telegram:hover { color: #2AABEE; }
+        .share-icons .fa-whatsapp:hover { color: #25D366; }
+        .footer {
+            margin-top: 20px;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #aaa;
+            text-align: center;
+        }
+
+        /* --- ألوان الأزرار --- */
+        .btn-1 { background: linear-gradient(45deg, #f44336, #e91e63); } /* أحمر إلى وردي */
+        .btn-2 { background: linear-gradient(45deg, #00BCD4, #009688); } /* سماوي إلى تركواز */
+        .btn-3 { background: linear-gradient(45deg, #FFC107, #FF9800); } /* أصفر إلى برتقالي */
+        .btn-4 { background: linear-gradient(45deg, #4CAF50, #8BC34A); } /* أخضر إلى أخضر فاتح */
+        .btn-5 { background: linear-gradient(45deg, #9C27B0, #673AB7); } /* بنفسجي إلى بنفسجي داكن */
+        .btn-6 { background: linear-gradient(45deg, #3F51B5, #2196F3); } /* أزرق داكن إلى أزرق */
+        .btn-7 { background: linear-gradient(45deg, #FF5722, #FFEB3B); } /* برتقالي داكن إلى أصفر */
+        .btn-8 { background: linear-gradient(45deg, #26A69A, #66BB6A); } /* تركواز إلى أخضر عشبي */
+        .btn-9 { background: linear-gradient(45deg, #7E57C2, #EC407A); } /* بنفسجي إلى وردي فاقع */
+        .btn-10 { background: linear-gradient(45deg, #424242, #BDBDBD); } /* رمادي داكن إلى رمادي فاتح */
+        .btn-11 { background: linear-gradient(45deg, #FF1100, #FF0057); } /* أحمر ناري */
+        
+        /* ====== بداية الأزرار الجديدة ====== */
+        .btn-12 { background: linear-gradient(45deg, #00c6ff, #0072ff); } /* أزرق سماوي متدرج */
+        .btn-13 { background: linear-gradient(45deg, #f7971e, #ffd200); } /* برتقالي ذهبي */
+        .btn-14 { background: linear-gradient(45deg, #ED213A, #93291E); } /* أحمر دموي */
+        .btn-15 { background: linear-gradient(45deg, #A8E063, #56AB2F); } /* أخضر ليموني */
+        .btn-16 { background: linear-gradient(45deg, #DA4453, #89216B); } /* وردي إلى بنفسجي غامق */
+        .btn-17 { background: linear-gradient(45deg, #11998e, #38ef7d); } /* نعناعي منعش */
+        .btn-18 { background: linear-gradient(45deg, #4e54c8, #8f94fb); } /* أزرق بنفسجي فاتح */
+        .btn-19 { background: linear-gradient(45deg, #c31432, #240b36); } /* أحمر ليلي إلى أسود */
+        .btn-20 { background: linear-gradient(45deg, #ff4e50, #f9d423); } /* غروب الشمس */
+        /* ====== نهاية الأزرار الجديدة ====== */
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ... (جميع أكواد HTML والـ JavaScript تبقى كما هي بدون تغيير) ... -->
+    <header class="main-header">
+        <div class="logo-container">
+            <img src="AboElfadl Tools/icons/mahmoud.png" alt="صورة محمود الشخصية" class="profile-pic">
+        </div>
+        <div class="title-container">
+            <h1 class="moving-text">MR / AboElfadl</h1>
+        </div>
+    </header>
+
+    <div class="social-follow">
+        <a href="https://www.facebook.com/AboElfadl.Official" target="_blank" title="فيسبوك"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://t.me/MahmoudIbrahimAboElfadl" target="_blank" title="تليجرام"><i class="fab fa-telegram"></i></a>
+        <a href="https://wa.me/201093650351" target="_blank" title="واتساب"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://www.instagram.com/aboelfadl.official?igsh=NDMzMmk2cXlxY3c3" target="_blank" title="انستغرام"><i class="fab fa-instagram"></i></a>
+    </div>
+
+    <form id="urlOpenerForm" class="url-opener-form">
+        <input type="text" id="url-input" placeholder="أدخل رابط لفتحه..." required>
+        <button type="submit" id="url-submit-btn">اذهب</button>
+    </form>
+        
+    <div class="fake-test-heading">Web Site Test</div>
+
+    <main class="button-grid">
+        <a href="AboElfadl Tools/index.html" class="btn btn-1">AboElfadl Tools</a>
+        <a href="FREE TOOLS HACKER/index.html" class="btn btn-2">Free Tools Hacker</a>
+        <a href="Hassan Ibrahim/index.html" class="btn btn-4">Hassan Ibrahim</a>
+        <a href="محاكي/iphone.html" class="btn btn-5">Iphone</a>
+        <a href="محاكي/Mac_OS.html" class="btn btn-6">Mac OS</a>
+        <a href="https://sites.google.com/view/king-web-ai/HOME-PAGE?authuser=1" class="btn btn-7">King Web Ai</a>
+        <a href="https://sites.google.com/view/egypt-tech-news/home?authuser=1" class="btn btn-8">Egypt Tech News</a>
+        <a href="https://news-technolog-hack.blogspot.com/?m=1" class="btn btn-9">News Technolog Hack</a> 
+        <a href="https://ebnelnegm.com/" class="btn btn-10">معرف اسم المتصل </a>
+        <a href="Hacker What'sapp/ثغرات_واتساب.html" class="btn btn-4">ثغرات الواتساب</a>
+        <a href="Hacker_Facebook/ثغرات فيسبوك.html" class="btn btn-12">ثغرات لل Facebook</a>
+        <a href="Telegram Hacker/ثغرات التليجرام.html" class="btn btn-12">ثغرات لل Telegram</a>
+        <a href="lock.html" class="btn btn-10">شاشه القفل</a>
+         <a href="lock/indeex.html" class="btn btn-8">تذكر كلمات مرور القفل</a>
+         
+        <div class="fake-test-heading">📵HACKER TEST📵</div>
+        
+        <a href="Hacker_Facebook/index.html" class="btn btn-12">صفحه مزوره لل Facebook</a>
+        <a href="Hacker Instagram/index.html" class="btn btn-9"> صفحه مزورة Instagram</a>
+        <a href="Hacker What'sapp/index.html" class="btn btn-14"> صفحه مزورة What'sapp</a>
+        <a href="Telegram Hacker/index.html" class="btn btn-15"> صفحه مزوره Telegram</a>
+        <a href="اختراق ip/index.html" class="btn btn-16">اختراق IP</a>
+        <a href="اختراق الموقع و المايك والكاميرا/index.html" class="btn btn-17">اختراق الموقع و المايك والكاميرا</a>
+        <a href="kuwait.html" class="btn btn-18">تنزيل ملف بدون علمك</a>
+        <a href="بنك الاهلي/index.html" class="btn btn-11">بنك الاهلي المصري</a>
+  <a href="free tools hacker/to/index.html" class="btn btn-16">🔗تلغيم رابط🔗</a>
+        <div class="fake-test-heading">صفحات هبوط للمتاجر</div>
+
+        <a href="Accessories Egypt هبوط/index.html" class="btn btn-19">Accessories Egypt</a>
+        <a href="AboElfadl Store hapt/index.html" class="btn btn-20">AboElfadl Store</a>
+        <a href="ملابس ابو الفضل هبوط/index.html" class="btn btn-1">ملابس ابو الفضل</a>
+  
+        <div class="fake-test-heading">محادثه الذكاء الاصطناعي</div>
+
+        <a href="https://wa.me/1(800)242-8478" class="btn btn-4">Chat GPT</a>
+        <a href="https://wa.me/1(833)436-3285" class="btn btn-4">Perplexity.ai</a>
+        <a href="https://wa.me/1(877)224-1042" class="btn btn-4">Copilot</a>
+  
+        <div class="fake-test-heading">WebSite.Ai</div>
+
+        <a href="https://chat.qwen.ai/" class="btn btn-5">Qwen Ai</a>
+        <a href="https://www.perplexity.ai/" class="btn btn-5">Perplexity.ai</a>
+        <a href="https://chatgpt.com/" class="btn btn-5">CHATGPT</a>
+        <a href="https://manus.im/" class="btn btn-5">manus.im</a>
+    </main>
+
+    <div class="comment-form-container">
+        <form id="suggestionForm" class="comment-form">
+            <h3>أرسل اقتراحك</h3>
+            <div class="form-group">
+                <input type="text" id="username" name="username" placeholder="اسم المستخدم" required>
+            </div>
+            <div class="form-group">
+                <textarea id="suggestion" name="suggestion" placeholder="اكتب اقتراحك هنا..." required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">إرسال</button>
+        </form>
+    </div>
+
+    <div class="share-section">
+        <h4>شارك الموقع مع أصدقائك</h4>
+        <div class="share-icons" id="share-links"></div>
+    </div>
+
+    <footer class="footer">
+        جميع الحقوق محفوظة &copy; 2025
+    </footer>
+
+    <script>
+        // شيفرة مربع فتح الروابط
+        document.getElementById('urlOpenerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const urlInput = document.getElementById('url-input');
+            let url = urlInput.value.trim();
+            if (url) {
+                if (!/^https?:\/\//i.test(url)) {
+                    url = 'https://' + url;
+                }
+                window.location.href = url;
+            }
+        });
+
+        // شيفرة إرسال النموذج إلى تليجرام
+        document.getElementById('suggestionForm').addEventListener('submit', function(event) {
+            event.preventDefault(); 
+            const BOT_TOKEN = '8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4';
+            const ADMIN_CHAT_ID = '1431886140';
+            const username = document.getElementById('username').value;
+            const suggestion = document.getElementById('suggestion').value;
+            let message = `<b>اقتراح جديد من الموقع!</b>\n\n<b>اسم المستخدم:</b> ${username}\n<b>الاقتراح:</b>\n${suggestion}`;
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: message, parse_mode: 'HTML' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    alert('شكراً لك! تم إرسال اقتراحك بنجاح.');
+                    document.getElementById('suggestionForm').reset();
+                } else {
+                    alert('حدث خطأ أثناء إرسال الاقتراح. يرجى المحاولة مرة أخرى.');
+                }
+            })
+            .catch(error => {
+                alert('فشل الاتصال. يرجى التحقق من اتصالك بالإنترنت.');
+            });
+        });
+
+        // شيفرة توليد روابط المشاركة بنصوص جذابة
+        document.addEventListener('DOMContentLoaded', function() {
+            const shareContainer = document.getElementById('share-links');
+            const pageUrl = encodeURIComponent(window.location.href);
+            
+            const attractiveText = " اكتشفت موقعًا رهيبًا يحتوي على أدوات ومحاكيات واختبارات تقنية مذهلة! 💻🔥 عليك تجربته بنفسك والسماح له بالأذونات المطلوبة لتستفيد من كل الميزات. لا تفوت الفرصة! ";
+            const whatsappText = "👋 ألقِ نظرة على هذا الموقع المدهش! مليء بالأدوات التقنية المفيدة والمحاكيات الرائعة. جربه الآن واستكشف كل ما يقدمه! 🚀";
+            const telegramText = "✨ موقع استثنائي لازم تشوفه! يقدم مجموعة أدوات واختبارات تقنية فريدة. ادخل على الرابط وجرب بنفسك، التجربة تستحق! 👇";
+
+            const shareLinks = {
+                facebook: `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}&quote=${encodeURIComponent(attractiveText)}`,
+                messenger: `fb-messenger://share/?link=${pageUrl}`,
+                telegram: `https://t.me/share/url?url=${pageUrl}&text=${encodeURIComponent(telegramText)}`,
+                whatsapp: `https://api.whatsapp.com/send?text=${encodeURIComponent(whatsappText)}%20${pageUrl}`
+            };
+
+            shareContainer.innerHTML = `
+                <a href="${shareLinks.facebook}" target="_blank" title="مشاركة على فيسبوك"><i class="fab fa-facebook"></i></a>
+                <a href="${shareLinks.messenger}" target="_blank" title="مشاركة على ماسنجر"><i class="fab fa-facebook-messenger"></i></a>
+                <a href="${shareLinks.telegram}" target="_blank" title="مشاركة على تليجرام"><i class="fab fa-telegram"></i></a>
+                <a href="${shareLinks.whatsapp}" target="_blank" title="مشاركة على واتساب"><i class="fab fa-whatsapp"></i></a>
+            `;
+        });
+    </script>
+    
+   
+</body>
+</html>
+

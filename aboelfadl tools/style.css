@@ -1,0 +1,31 @@
+body {
+    margin: 0; /* مهم لإزالة الهوامش الافتراضية اللي ممكن تأثر على الموضع */
+    padding: 0; /* مهم لإزالة المسافات البادئة الافتراضية */
+    min-height: 100vh; /* يضمن أن الجسم يغطي كامل ارتفاع الشاشة */
+    position: relative; /* ده بيخلي الـ body المرجع لـ position: absolute للعناصر اللي جواه */
+}
+
+.button-container {
+    position: absolute; /* ده بيسمحلك تحرك العنصر بحرية بالنسبة لأقرب أب ليه بـ position: relative */
+    top: 20px; /* دي بتحدد المسافة من أعلى الصفحة (20 بكسل من الحافة العلوية) */
+    right: 20px; /* دي بتحدد المسافة من يمين الصفحة (20 بكسل من الحافة اليمنى) */
+    z-index: 1000; /* عشان الزرار يظهر فوق أي محتوى تاني */
+}
+
+.home-button {
+    background-color: #FFD700;
+    color: #000000;
+    padding: 10px 15px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.home-button:hover {
+    background-color: #E6C200;
+    box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+}

@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الدومينو</title>
+    <style>
+        /* CSS Styles for the Dominoes Game */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            /* Enhanced background for a more realistic feel */
+            background: linear-gradient(135deg, #a1d9d9 0%, #76a0a0 100%);
+            color: #333;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .game-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px; /* Slightly larger border-radius */
+            /* More prominent shadow for depth */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 90%; /* Responsive width */
+            border: 1px solid rgba(255, 255, 255, 0.5); /* Subtle white border */
+        }
+
+        .game-info {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        #game-board {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            /* Enhanced board appearance */
+            background-color: #388e3c; /* Darker green, like felt */
+            background-image: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1)), linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1));
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            border: 5px solid #5d4037; /* Wood-like border */
+            min-height: 150px;
+            width: 100%;
+            padding: 20px; /* Increased padding */
+            box-sizing: border-box;
+            border-radius: 8px;
+            overflow: auto;
+            gap: 8px; /* Increased gap */
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3); /* Inner shadow for depth */
+            position: relative; /* Added for absolute positioning of end targets */
+        }
+
+        .domino {
+            display: flex;
+            flex-direction: column;
+            width: 45px; /* Slightly larger domino */
+            height: 80px; /* Slightly larger domino */
+            border: 2px solid #666; /* More prominent border */
+            border-radius: 6px; /* Slightly more rounded corners */
+            background-color: #fcfcfc;
+            /* Enhanced box-shadow for a 3D look */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), /* Main shadow */
+                        0 0 0 1px rgba(255,255,255,0.8) inset, /* Inner highlight */
+                        0 0 0 2px rgba(0,0,0,0.1) inset; /* Inner shadow */
+            font-size: 1.2em; /* Slightly larger font */
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
+            user-select: none;
+            flex-shrink: 0;
+            position: relative; /* For dot positioning */
+        }
+
+        .domino.double {
+            width: 80px; /* Adjusted for larger domino */
+            height: 45px; /* Adjusted for larger domino */
+            flex-direction: row;
+        }
+
+        .domino-half {
+            display: flex; /* Use flexbox for centering numbers */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            width: 100%;
+            height: 50%;
+            font-size: 1.5em; /* Larger font size for numbers */
+            font-weight: bold;
+            color: #333;
+        }
+
+        .domino.double .domino-half {
+            width: 50%;
+            height: 100%;
+        }
+
+        .domino-line {
+            height: 2px; /* Thicker line */
+            width: 80%;
+            background-color: #555; /* Darker line */
+            border-radius: 1px;
+        }
+
+        .domino.double .domino-line {
+            width: 2px;
+            height: 80%;
+        }
+
+
+        #player-hand, #ai-hand-display {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 12px; /* Increased gap */
+            margin-top: 25px; /* Increased margin */
+            min-height: 120px; /* Slightly larger height */
+            width: 100%;
+            padding: 20px; /* Increased padding */
+            background-color: #ebf2fa;
+            border-radius: 10px;
+            box-sizing: border-box;
+            border: 1px solid #d4e0ee;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); /* Subtle inner shadow */
+        }
+
+        #ai-hand-display {
+            background-color: #f2ebee;
+            border: 1px solid #eed4d4;
+        }
+
+
+        .domino.selected {
+            transform: translateY(-8px) scale(1.05); /* More pronounced selection */
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4), /* Stronger shadow */
+                        0 0 0 3px #3498db; /* Clear blue border on select */
+            border-color: #3498db; /* Blue border on select */
+        }
+
+        /* Styles for the new chain end targets */
+        .chain-end-target {
+            position: absolute;
+            top: 0;
+            height: 100%; /* Height of the board */
+            width: 60px; /* Wider target area for easier clicking */
+            cursor: pointer;
+            z-index: 5; /* Below dominoes, but above board surface for clicks */
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            background-color: transparent; /* Transparent by default */
+            border: none;
+            transition: background-color 0.2s ease, border 0.2s ease;
+        }
+
+        #left-end-target {
+            left: 0;
+            border-top-left-radius: 8px; /* Match board radius */
+            border-bottom-left-radius: 8px;
+        }
+
+        #right-end-target {
+            right: 0;
+            border-top-right-radius: 8px; /* Match board radius */
+            border-bottom-right-radius: 8px;
+        }
+
+        .chain-end-target.active {
+            /* Show only when a domino is selected and it's a valid play area */
+            border: 2px dashed rgba(52, 152, 219, 0.5); /* Light blue dashed border */
+            background-color: rgba(52, 152, 219, 0.1); /* Very light blue tint */
+            display: flex; /* Make it visible */
+        }
+
+        .chain-end-target.active:hover {
+            background-color: rgba(52, 152, 219, 0.2); /* Slightly darker on hover */
+        }
+
+
+        #boneyard {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #555;
+            font-weight: bold;
+        }
+
+        #game-message {
+            color: #e74c3c;
+            font-weight: bold;
+            margin-top: 10px;
+            text-shadow: 0 0 3px rgba(231, 76, 60, 0.3);
+        }
+
+        .winner {
+            color: #28a745;
+            font-size: 1.6em; /* Larger winner message */
+            font-weight: bold;
+            text-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        }
+
+        .controls {
+            margin-top: 30px; /* More space */
+            display: flex;
+            gap: 20px; /* Larger gap between buttons */
+        }
+
+        .controls button {
+            padding: 14px 30px; /* Larger buttons */
+            font-size: 1.15em; /* Slightly larger font */
+            border: none;
+            border-radius: 8px; /* More rounded */
+            cursor: pointer;
+            /* Gradient background for buttons */
+            background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Button shadow */
+        }
+
+        .controls button:hover {
+            background: linear-gradient(180deg, #2980b9 0%, #3498db 100%); /* Subtle hover gradient */
+            transform: translateY(-2px); /* Lift button on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .controls button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.7); /* Darker overlay */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 35px; /* More padding */
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 450px; /* Slightly larger max-width */
+            border-radius: 12px; /* More rounded */
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); /* Stronger modal shadow */
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 32px; /* Larger close button */
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #new-game-confirm-modal button {
+            margin: 12px; /* More margin */
+            padding: 12px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        #confirm-new-game-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        #confirm-new-game-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        #cancel-new-game-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+        #cancel-new-game-btn:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .domino {
+                width: 38px; /* Slightly smaller on mobile */
+                height: 68px;
+            }
+            .domino.double {
+                width: 68px;
+                height: 38px;
+            }
+            .domino-half {
+                font-size: 1.3em; /* Adjust font size for numbers on mobile */
+            }
+            .controls button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+
+        /* Prevent text selection across browsers */
+        body * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة الدومينو</h1>
+    <div class="game-container">
+        <div class="game-info">
+            <p>الدور الحالي: <span id="current-turn">أنت</span></p>
+            <p id="game-message"></p>
+            <p id="boneyard">المخزن: <span id="boneyard-count">0</span> قطعة</p>
+        </div>
+
+        <div id="ai-hand-display">
+            <p>الكمبيوتر: <span id="ai-domino-count">0</span> قطعة</p>
+        </div>
+
+        <div id="game-board">
+            <!-- Played dominoes will be displayed here -->
+            <!-- New clickable areas for playing on ends -->
+            <div id="left-end-target" class="chain-end-target"></div>
+            <div id="right-end-target" class="chain-end-target"></div>
+        </div>
+
+        <div id="player-hand">
+            <!-- Player's dominoes will be displayed here -->
+        </div>
+
+        <div class="controls">
+            <button id="continue-game-btn">متابعة اللعب</button>
+            <button id="show-history-btn">سجل النتائج</button>
+            <button id="new-game-btn">لعبة جديدة</button>
+            <button id="draw-domino-btn" style="display:none;">اسحب قطعة</button>
+            <button id="pass-turn-btn" style="display:none;">تجاوز الدور</button>
+        </div>
+    </div>
+
+    <!-- Modal for Game History -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="history-close-btn">&times;</span>
+            <h2>سجل النتائج</h2>
+            <p>أنت: <span id="human-wins-count">0</span> فوز</p>
+            <p>الكمبيوتر: <span id="opponent-wins-count">0</span> فوز</p>
+        </div>
+    </div>
+
+    <!-- Modal for New Game Confirmation -->
+    <div id="new-game-confirm-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="new-game-close-btn">&times;</span>
+            <h2>بدء لعبة جديدة؟</h2>
+            <p>هل أنت متأكد أنك تريد مسح النتائج السابقة وبدء لعبة جديدة؟</p>
+            <button id="confirm-new-game-btn">نعم، ابدأ لعبة جديدة</button>
+            <button id="cancel-new-game-btn">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Logic for the Dominoes Game
+        const gameBoardElement = document.getElementById('game-board');
+        const playerHandElement = document.getElementById('player-hand');
+        const aiHandDisplayElement = document.getElementById('ai-hand-display');
+        const currentTurnSpan = document.getElementById('current-turn');
+        const gameMessage = document.getElementById('game-message');
+        const boneyardCountSpan = document.getElementById('boneyard-count');
+        const aiDominoCountSpan = document.getElementById('ai-domino-count');
+
+        // Control buttons
+        const continueGameBtn = document.getElementById('continue-game-btn');
+        const showHistoryBtn = document.getElementById('show-history-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const drawDominoBtn = document.getElementById('draw-domino-btn');
+        const passTurnBtn = document.getElementById('pass-turn-btn');
+
+        // History Modal elements
+        const historyModal = document.getElementById('history-modal');
+        const historyCloseBtn = document.getElementById('history-close-btn');
+        const humanWinsCountSpan = document.getElementById('human-wins-count');
+        const opponentWinsCountSpan = document.getElementById('opponent-wins-count'); 
+
+        // New Game Confirmation Modal elements
+        const newGameConfirmModal = document.getElementById('new-game-confirm-modal');
+        const newGameCloseBtn = document.getElementById('new-game-close-btn');
+        const confirmNewGameBtn = document.getElementById('confirm-new-game-btn');
+        const cancelNewGameBtn = document.getElementById('cancel-new-game-btn');
+
+        // New elements for chain ends
+        const leftEndTarget = document.getElementById('left-end-target');
+        const rightEndTarget = document.getElementById('right-end-target');
+
+        let allDominoes = [];
+        let boneyard = [];
+        let playerHand = [];
+        let opponentHand = []; // Always AI in this version
+        let playedDominoes = []; // The central chain of played dominoes
+
+        let selectedDomino = null; // The domino currently selected by the player
+        let currentPlayer = 'human'; // 'human' or 'opponent'
+        let gameEnded = false;
+        let gameMode = 'human-vs-ai'; // Always against AI
+
+        let humanWins = parseInt(localStorage.getItem('humanWins') || '0');
+        let opponentWins = parseInt(localStorage.getItem('opponentWins') || '0'); // Now always stores AI wins
+
+
+        // --- Dominoes Utility Functions ---
+
+        // Generate all 28 dominoes (0-0 to 6-6)
+        function generateAllDominoes() {
+            const dominoes = [];
+            for (let i = 0; i <= 6; i++) {
+                for (let j = i; j <= 6; j++) {
+                    dominoes.push({ val1: i, val2: j });
+                }
+            }
+            return dominoes;
+        }
+
+        // Shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+            }
+            return array;
+        }
+
+        // Render a single domino HTML element
+        function renderDomino(domino, isSelectable = false) {
+            const dominoElement = document.createElement('div');
+            dominoElement.classList.add('domino');
+            if (domino.val1 === domino.val2) {
+                dominoElement.classList.add('double');
+            }
+            dominoElement.dataset.val1 = domino.val1;
+            dominoElement.dataset.val2 = domino.val2;
+
+            const half1 = document.createElement('div');
+            half1.classList.add('domino-half');
+            half1.textContent = domino.val1; // Display number instead of dots
+            dominoElement.appendChild(half1);
+
+            const line = document.createElement('div');
+            line.classList.add('domino-line');
+            dominoElement.appendChild(line);
+
+            const half2 = document.createElement('div');
+            half2.classList.add('domino-half');
+            half2.textContent = domino.val2; // Display number instead of dots
+            dominoElement.appendChild(half2);
+
+            if (isSelectable) {
+                dominoElement.addEventListener('click', handleDominoSelect);
+            }
+            return dominoElement;
+        }
+
+        // --- Game Initialization ---
+
+        function initializeGame() {
+            allDominoes = generateAllDominoes();
+            boneyard = shuffleArray([...allDominoes]); // Create a shuffled copy for boneyard
+            playerHand = [];
+            opponentHand = [];
+            playedDominoes = [];
+            selectedDomino = null;
+            gameEnded = false;
+            gameMessage.textContent = '';
+            drawDominoBtn.style.display = 'none';
+            passTurnBtn.style.display = 'none';
+            hidePlayAreas(); // Ensure end targets are hidden on new game
+
+            // Deal initial hands
+            for (let i = 0; i < 7; i++) {
+                playerHand.push(boneyard.pop());
+                opponentHand.push(boneyard.pop());
+            }
+
+            // Determine who goes first (highest double, or random)
+            let firstPlayer = 'human'; // Default
+            let highestDouble = -1;
+
+            // Check human hand for highest double
+            playerHand.forEach(d => {
+                if (d.val1 === d.val2 && d.val1 > highestDouble) {
+                    highestDouble = d.val1;
+                    firstPlayer = 'human';
+                }
+            });
+
+            // Check opponent hand for highest double
+            opponentHand.forEach(d => {
+                if (d.val1 === d.val2 && d.val1 > highestDouble) {
+                    highestDouble = d.val1;
+                    firstPlayer = 'opponent';
+                }
+            });
+
+            currentPlayer = firstPlayer;
+
+            // If no doubles, pick a random player
+            if (highestDouble === -1) {
+                currentPlayer = Math.random() < 0.5 ? 'human' : 'opponent';
+            }
+
+            renderHands();
+            renderGameBoard();
+            updateTurnDisplay();
+            updateBoneyardCount();
+
+            // AI's first move if it's their turn
+            if (currentPlayer === 'opponent' && !gameEnded) {
+                gameMessage.textContent = 'الكمبيوتر يبدأ...';
+                disableBoardInput();
+                setTimeout(makeAIMove, 1500); // AI's first move
+            } else if (currentPlayer === 'human') {
+                gameMessage.textContent = 'دورك! ابدأ بوضع أي قطعة.';
+                enableBoardInput();
+            }
+        }
+
+        // --- Rendering Functions ---
+
+        function renderHands() {
+            playerHandElement.innerHTML = '';
+            playerHand.forEach(domino => {
+                const domElem = renderDomino(domino, true);
+                playerHandElement.appendChild(domElem);
+            });
+
+            aiHandDisplayElement.innerHTML = `<p>الكمبيوتر: <span id="ai-domino-count">${opponentHand.length}</span> قطعة</p>`;
+            aiDominoCountSpan.textContent = opponentHand.length; // Update AI count
+        }
+
+        function renderGameBoard() {
+            gameBoardElement.innerHTML = '';
+            // Re-append the target elements after clearing
+            gameBoardElement.appendChild(leftEndTarget);
+            gameBoardElement.appendChild(rightEndTarget);
+
+            if (playedDominoes.length > 0) {
+                playedDominoes.forEach(domino => {
+                    const domElem = renderDomino(domino);
+                    gameBoardElement.appendChild(domElem);
+                });
+            } else {
+                gameBoardElement.innerHTML = '<p style="color:#777;">لم يتم لعب أي قطع بعد.</p>';
+                // Ensure targets are still there if board is empty, but hidden
+                gameBoardElement.appendChild(leftEndTarget);
+                gameBoardElement.appendChild(rightEndTarget);
+            }
+        }
+
+        function updateBoneyardCount() {
+            boneyardCountSpan.textContent = boneyard.length;
+        }
+
+        function updateTurnDisplay() {
+            currentTurnSpan.textContent = currentPlayer === 'human' ? 'أنت' : 'الكمبيوتر';
+        }
+
+        // Switches the current player
+        function switchPlayer() {
+            currentPlayer = currentPlayer === 'human' ? 'opponent' : 'human';
+            updateTurnDisplay();
+            hidePlayAreas(); // Hide targets when player switches
+
+            if (currentPlayer === 'opponent' && !gameEnded) {
+                gameMessage.textContent = 'الكمبيوتر يفكر...';
+                disableBoardInput(); // Disable human input during AI's turn
+                setTimeout(makeAIMove, 1000); // Small delay for better user experience
+            } else if (currentPlayer === 'human' && !gameEnded) {
+                // When switching to human player, immediately check for actions (draw/pass)
+                checkPlayerActions();
+            }
+        }
+
+        // --- Game Logic ---
+
+        // Handles selecting a domino from hand
+        function handleDominoSelect(event) {
+            if (gameEnded) return;
+            if (currentPlayer !== 'human') {
+                gameMessage.textContent = 'ليس دورك!';
+                return;
+            }
+
+            // Clear previous selection
+            if (selectedDomino) {
+                document.querySelector('.domino.selected')?.classList.remove('selected');
+            }
+
+            const clickedDominoElement = event.currentTarget;
+            const val1 = parseInt(clickedDominoElement.dataset.val1);
+            const val2 = parseInt(clickedDominoElement.dataset.val2);
+            selectedDomino = { val1, val2 };
+
+            clickedDominoElement.classList.add('selected');
+            drawDominoBtn.style.display = 'none'; // Hide draw button if domino selected
+            passTurnBtn.style.display = 'none'; // Hide pass button if domino selected
+            showPlayAreas(); // Show relevant play areas
+        }
+
+        // Shows the left/right end target areas if moves are legal
+        function showPlayAreas() {
+            hidePlayAreas(); // Clear previous active states and listeners
+            if (!selectedDomino || gameEnded || currentPlayer !== 'human') return;
+
+            // If it's the first move, instruct to click anywhere on the board
+            if (playedDominoes.length === 0) {
+                gameMessage.textContent = 'انقر على منطقة اللعب لوضع أول قطعة.';
+                return;
+            }
+
+            const legalPlacements = getLegalPlacements(selectedDomino);
+            
+            let possibleToPlay = false;
+
+            if (legalPlacements.some(p => p.end === 'left')) {
+                leftEndTarget.classList.add('active');
+                leftEndTarget.onclick = () => playDominoOnBoard('left', selectedDomino);
+                possibleToPlay = true;
+            } else {
+                leftEndTarget.onclick = null; // Ensure no stale listener
+            }
+
+            if (legalPlacements.some(p => p.end === 'right')) {
+                rightEndTarget.classList.add('active');
+                rightEndTarget.onclick = () => playDominoOnBoard('right', selectedDomino);
+                possibleToPlay = true;
+            } else {
+                rightEndTarget.onclick = null; // Ensure no stale listener
+            }
+
+            if (possibleToPlay) {
+                gameMessage.textContent = 'انقر على الطرف الأيسر أو الأيمن من السلسلة لوضع القطعة.';
+            } else {
+                gameMessage.textContent = 'لا توجد حركات قانونية لهذه القطعة.';
+                // If no moves, deselect the domino
+                document.querySelector('.domino.selected')?.classList.remove('selected');
+                selectedDomino = null;
+                checkPlayerActions(); // Re-check if draw/pass is needed
+            }
+        }
+
+        // Hides the left/right end target areas
+        function hidePlayAreas() {
+            leftEndTarget.classList.remove('active');
+            rightEndTarget.classList.remove('active');
+            leftEndTarget.onclick = null; // Clear listener
+            rightEndTarget.onclick = null; // Clear listener
+        }
+
+
+        // Gets legal placement options for a domino
+        function getLegalPlacements(dominoToPlay) {
+            const placements = [];
+            if (playedDominoes.length === 0) {
+                // Any domino can be played as the first move
+                return [{ end: 'start' }];
+            }
+
+            const leftEnd = playedDominoes[0].val1;
+            const rightEnd = playedDominoes[playedDominoes.length - 1].val2;
+
+            // Check if domino can be played on the left end
+            if (dominoToPlay.val1 === leftEnd) {
+                placements.push({ end: 'left', orientation: 'normal' });
+            } else if (dominoToPlay.val2 === leftEnd) {
+                placements.push({ end: 'left', orientation: 'flip' });
+            }
+
+            // Check if domino can be played on the right end
+            if (dominoToPlay.val1 === rightEnd) {
+                placements.push({ end: 'right', orientation: 'normal' });
+            } else if (dominoToPlay.val2 === rightEnd) {
+                placements.push({ end: 'right', orientation: 'flip' });
+            }
+            return placements;
+        }
+
+        // Handles click on the board to play a domino (only for first move)
+        gameBoardElement.addEventListener('click', (event) => {
+            if (gameEnded || currentPlayer !== 'human' || !selectedDomino) {
+                return;
+            }
+            // Only handle first move here, subsequent moves must be on chain-end-target elements
+            if (playedDominoes.length === 0) {
+                playDominoOnBoard('start', selectedDomino);
+                return;
+            }
+            
+            // If it's not the first move and a general board area was clicked
+            // and it's not one of the specific end target elements.
+            if (event.target !== leftEndTarget && event.target !== rightEndTarget) {
+                gameMessage.textContent = 'الرجاء النقر على الطرف الأيسر أو الأيمن لوضع القطعة.';
+                document.querySelector('.domino.selected')?.classList.remove('selected');
+                selectedDomino = null;
+                hidePlayAreas(); 
+                checkPlayerActions();
+            }
+        });
+
+
+        // Plays the selected domino on the board
+        async function playDominoOnBoard(end, dominoToPlay) {
+            const currentHand = currentPlayer === 'human' ? playerHand : opponentHand;
+            const dominoIndex = currentHand.findIndex(d => d.val1 === dominoToPlay.val1 && d.val2 === dominoToPlay.val2);
+
+            if (dominoIndex === -1) {
+                gameMessage.textContent = 'القطعة المختارة ليست في يدك.'; // Should not happen
+                return;
+            }
+
+            const actualDomino = currentHand[dominoIndex];
+            const legalPlacements = getLegalPlacements(actualDomino);
+            const chosenPlacement = legalPlacements.find(p => p.end === end);
+
+            if (!chosenPlacement && end !== 'start') { // 'start' means first move, any end is valid
+                gameMessage.textContent = 'حركة غير قانونية.'; // Should not happen with prior checks
+                return;
+            }
+
+            // Perform the move
+            currentHand.splice(dominoIndex, 1); // Remove from hand
+
+            let dominoToPlace = { ...actualDomino }; // Copy to avoid modifying original in hand array
+
+            if (playedDominoes.length === 0) { // First move
+                playedDominoes.push(dominoToPlace);
+            } else {
+                const leftEnd = playedDominoes[0].val1;
+                const rightEnd = playedDominoes[playedDominoes.length - 1].val2;
+
+                if (end === 'left') {
+                    if (dominoToPlace.val1 === leftEnd) { // Normal orientation for matching left end
+                        playedDominoes.unshift({ val1: dominoToPlace.val2, val2: dominoToPlace.val1 }); // Flip visually
+                    } else { // Flipped orientation for matching left end
+                        playedDominoes.unshift(dominoToPlace);
+                    }
+                } else { // Right end
+                    if (dominoToPlace.val1 === rightEnd) { // Normal orientation for matching right end
+                        playedDominoes.push(dominoToPlace);
+                    } else { // Flipped orientation for matching right end
+                        playedDominoes.push({ val1: dominoToPlace.val2, val2: dominoToPlace.val1 }); // Flip visually
+                    }
+                }
+            }
+
+            selectedDomino = null; // Clear selection
+            renderHands();
+            renderGameBoard();
+            checkWinCondition();
+
+            if (!gameEnded) {
+                switchPlayer();
+            }
+        }
+
+        // Player draws a domino from the boneyard
+        function handleDrawDomino() {
+            if (gameEnded) return;
+            if (currentPlayer !== 'human') {
+                gameMessage.textContent = 'ليس دورك!';
+                return;
+            }
+            if (boneyard.length === 0) {
+                gameMessage.textContent = 'المخزن فارغ! لا يمكنك السحب.';
+                checkPlayerActions(); // Re-check if pass is available
+                return;
+            }
+
+            const drawnDomino = boneyard.pop();
+            playerHand.push(drawnDomino);
+            gameMessage.textContent = 'لقد سحبت قطعة.';
+            renderHands();
+            updateBoneyardCount();
+
+            // After drawing, check if player can now make a legal move
+            if (getPlayableDominoes(playerHand).length > 0) {
+                gameMessage.textContent += ' لديك حركة الآن. اختر قطعة.';
+                drawDominoBtn.style.display = 'none'; // Hide draw button
+                passTurnBtn.style.display = 'none'; // Hide pass button
+            } else {
+                gameMessage.textContent += ' لا توجد حركات متاحة، اسحب قطعة أخرى أو تجاوز الدور.';
+                checkPlayerActions(); // Allow drawing more or passing
+            }
+        }
+
+        // Player passes their turn
+        function handlePassTurn() {
+            if (gameEnded) return;
+            if (currentPlayer !== 'human') {
+                gameMessage.textContent = 'ليس دورك!';
+                return;
+            }
+
+            gameMessage.textContent = 'لقد تجاوزت دورك.';
+            switchPlayer();
+        }
+
+
+        // Get all playable dominoes from a hand
+        function getPlayableDominoes(hand) {
+            const playable = [];
+            if (playedDominoes.length === 0) {
+                return hand; // Any domino can be played as the first move
+            }
+            const leftEnd = playedDominoes[0].val1;
+            const rightEnd = playedDominoes[playedDominoes.length - 1].val2;
+
+            hand.forEach(domino => {
+                if (domino.val1 === leftEnd || domino.val2 === leftEnd ||
+                    domino.val1 === rightEnd || domino.val2 === rightEnd) {
+                    playable.push(domino);
+                }
+            });
+            return playable;
+        }
+
+        // Check if player needs to draw or pass
+        function checkPlayerActions() {
+            if (gameEnded) return;
+            const playable = getPlayableDominoes(currentPlayer === 'human' ? playerHand : opponentHand);
+
+            if (playable.length === 0) {
+                gameMessage.textContent = 'لا توجد حركات قانونية.';
+                if (boneyard.length > 0) {
+                    drawDominoBtn.style.display = 'inline-block';
+                    passTurnBtn.style.display = 'none'; // Cannot pass if boneyard available
+                } else {
+                    gameMessage.textContent += ' المخزن فارغ! تجاوز الدور.';
+                    drawDominoBtn.style.display = 'none';
+                    passTurnBtn.style.display = 'inline-block';
+                }
+            } else {
+                drawDominoBtn.style.display = 'none';
+                passTurnBtn.style.display = 'none';
+            }
+        }
+
+        // Calculate score of a hand
+        function calculateHandScore(hand) {
+            return hand.reduce((sum, domino) => sum + domino.val1 + domino.val2, 0);
+        }
+
+        // Win/Draw condition check
+        function checkWinCondition() {
+            let winner = null;
+            let humanScore = calculateHandScore(playerHand);
+            let opponentScore = calculateHandScore(opponentHand);
+
+            // 1. Check if a player played all their dominoes
+            if (playerHand.length === 0) {
+                winner = 'human';
+            } else if (opponentHand.length === 0) {
+                winner = 'opponent';
+            }
+
+            // 2. Check for blocked game (no legal moves for current player and boneyard empty)
+            if (!winner) {
+                const humanCanMove = getPlayableDominoes(playerHand).length > 0;
+                const opponentCanMove = getPlayableDominoes(opponentHand).length > 0;
+
+                if (boneyard.length === 0 && !humanCanMove && !opponentCanMove) {
+                    // Game is blocked for both players
+                    if (humanScore < opponentScore) {
+                        winner = 'human';
+                        gameMessage.textContent = `تعادل! أنت تفوز بأقل نقاط (${humanScore} vs ${opponentScore}).`;
+                    } else if (opponentScore < humanScore) {
+                        winner = 'opponent';
+                        gameMessage.textContent = `تعادل! الكمبيوتر يفوز بأقل نقاط (${opponentScore} vs ${humanScore}).`;
+                    } else {
+                        gameMessage.textContent = `تعادل! كلا اللاعبين لديهما نفس النقاط (${humanScore}).`;
+                        gameEnded = true;
+                        disableBoardInput();
+                        return;
+                    }
+                }
+            }
+
+
+            if (winner) {
+                gameEnded = true;
+                disableBoardInput();
+                drawDominoBtn.style.display = 'none';
+                passTurnBtn.style.display = 'none';
+
+                if (winner === 'human') {
+                    gameMessage.textContent = 'أنت فزت!';
+                    humanWins++;
+                    localStorage.setItem('humanWins', humanWins);
+                } else {
+                    gameMessage.textContent = `الكمبيوتر فاز!`;
+                    opponentWins++;
+                    localStorage.setItem('opponentWins', opponentWins);
+                }
+                gameMessage.classList.add('winner');
+            } else {
+                // If game not ended, check if current player needs to draw/pass
+                checkPlayerActions();
+            }
+        }
+
+        // --- AI Logic for Dominoes ---
+
+        async function makeAIMove() {
+            if (gameEnded) return;
+
+            const aiHand = opponentHand;
+            const playableDominoes = getPlayableDominoes(aiHand);
+
+            if (playableDominoes.length === 0) {
+                // AI cannot move, try to draw from boneyard
+                if (boneyard.length > 0) {
+                    const drawnDomino = boneyard.pop();
+                    aiHand.push(drawnDomino);
+                    gameMessage.textContent = 'الكمبيوتر يسحب قطعة.';
+                    renderHands();
+                    updateBoneyardCount();
+
+                    // After drawing, check if AI can now make a legal move
+                    if (getPlayableDominoes(aiHand).length > 0) {
+                        gameMessage.textContent += ' الكمبيوتر وجد حركة.';
+                        setTimeout(makeAIMove, 1000); // AI found a move, let it play
+                    } else {
+                        gameMessage.textContent += ' الكمبيوتر يسحب قطعة أخرى.';
+                        setTimeout(makeAIMove, 1000); // AI still no move, try to draw again
+                    }
+                } else {
+                    // Boneyard empty, AI must pass
+                    gameMessage.textContent = 'الكمبيوتر يتجاوز دوره (المخزن فارغ).';
+                    switchPlayer();
+                    enableBoardInput(); // Enable human input
+                }
+                return;
+            }
+
+            // Simple AI Strategy: Prioritize getting rid of doubles or pieces with few matches.
+            // A more advanced AI would consider board control, blocking, etc.
+            let bestMove = null;
+            // Higher score is better: a score can be defined as how "good" a move is.
+            // For now, let's prioritize moves that empty the hand faster.
+            let lowestRemainingScore = Infinity; // Aim for lowest score after playing a piece
+
+            for (const domino of playableDominoes) {
+                const placements = getLegalPlacements(domino);
+                for (const placement of placements) {
+                    // Simulate move
+                    let tempHand = [...aiHand];
+                    tempHand.splice(tempHand.indexOf(domino), 1); // Remove domino from simulated hand
+
+                    let currentRemainingScore = calculateHandScore(tempHand);
+
+                    // If it's a double, prioritize slightly
+                    if (domino.val1 === domino.val2) {
+                        currentRemainingScore -= 5; // Give a small bonus for playing doubles
+                    }
+
+                    // If this move makes the AI's hand empty, that's the best!
+                    if (tempHand.length === 0) {
+                        bestMove = { domino: domino, placement: placement };
+                        break; // Found the winning move, no need to check others
+                    }
+
+                    // Check if this move results in a lower score for the AI's hand (better)
+                    if (currentRemainingScore < lowestRemainingScore) {
+                        lowestRemainingScore = currentRemainingScore;
+                        bestMove = { domino: domino, placement: placement };
+                    }
+                }
+                if (bestMove && aiHand.length - 1 === 0) break; // If winning move found, stop looking
+            }
+
+            // If no "best" strategic move found (e.g., all moves result in similar scores),
+            // or if we found a winning move, execute it.
+            if (bestMove) {
+                selectedDomino = bestMove.domino; // Set selectedDomino for playDominoOnBoard
+                await playDominoOnBoard(bestMove.placement.end, bestMove.domino);
+            } else {
+                // Fallback to a random move if for some reason bestMove is still null
+                // This shouldn't happen if playableDominoes.length > 0.
+                const randomDomino = playableDominoes[Math.floor(Math.random() * playableDominoes.length)];
+                const randomPlacement = getLegalPlacements(randomDomino)[0]; // Just take the first legal placement
+                selectedDomino = randomDomino;
+                await playDominoOnBoard(randomPlacement.end, randomDomino);
+            }
+
+            enableBoardInput(); // Re-enable human input after AI's turn
+        }
+
+        // --- Board Input Control ---
+        function disableBoardInput() {
+            playerHandElement.style.pointerEvents = 'none';
+            drawDominoBtn.style.pointerEvents = 'none';
+            passTurnBtn.style.pointerEvents = 'none';
+        }
+
+        function enableBoardInput() {
+            playerHandElement.style.pointerEvents = 'auto';
+            drawDominoBtn.style.pointerEvents = 'auto';
+            passTurnBtn.style.pointerEvents = 'auto';
+        }
+
+
+        // --- Button and Modal Functions ---
+
+        // Continue Game button
+        continueGameBtn.addEventListener('click', () => {
+            initializeGame(); // Re-initialize the game
+        });
+
+        // Show History button
+        showHistoryBtn.addEventListener('click', () => {
+            humanWinsCountSpan.textContent = humanWins;
+            opponentWinsCountSpan.textContent = opponentWins;
+            historyModal.style.display = 'flex'; // Show modal
+        });
+
+        // Close History Modal
+        historyCloseBtn.addEventListener('click', () => {
+            historyModal.style.display = 'none'; // Hide modal
+        });
+
+        // New Game button (opens confirmation modal)
+        newGameBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'flex'; // Show confirmation modal
+        });
+
+        // Close New Game Confirmation Modal
+        newGameCloseBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'none'; // Hide confirmation modal
+        });
+
+        // Confirm New Game and clear history
+        confirmNewGameBtn.addEventListener('click', () => {
+            localStorage.clear(); // Clear all results from local storage
+            humanWins = 0;
+            opponentWins = 0;
+            initializeGame(); // Start a new game
+            newGameConfirmModal.style.display = 'none'; // Hide modal
+            gameMessage.textContent = 'تم بدء لعبة جديدة ومسح النتائج!';
+            gameMessage.classList.remove('winner'); // Remove winner class if present
+        });
+
+        // Cancel New Game
+        cancelNewGameBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'none'; // Hide confirmation modal
+        });
+
+        // Draw Domino button
+        drawDominoBtn.addEventListener('click', handleDrawDomino);
+
+        // Pass Turn button
+        passTurnBtn.addEventListener('click', handlePassTurn);
+
+        // Hide modals when clicking outside their content
+        window.addEventListener('click', (event) => {
+            if (event.target === historyModal) {
+                historyModal.style.display = 'none';
+            }
+            if (event.target === newGameConfirmModal) {
+                newGameConfirmModal.style.display = 'none';
+            }
+        });
+
+
+        // Start the game when the page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>

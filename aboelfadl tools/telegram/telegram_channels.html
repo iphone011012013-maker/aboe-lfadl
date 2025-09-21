@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 10px;
+      padding: 10px;
+      background-color: #0088cc;
+      font-family: 'Segoe UI', sans-serif;
+      color: white;
+    }
+
+    .app-container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* عنوان متحرك + شعار بيلف */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .logo-spin {
+      width: 40px;
+      height: 40px;
+      animation: spin 4s linear infinite;
+    }
+
+    @keyframes spin {
+      0%   { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .typewriter-box {
+      width: 100%;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .typewriter-text {
+      display: inline-block;
+      font-size: 24px;
+      font-weight: bold;
+      animation: scrollLeftToRight 10s linear infinite;
+    }
+
+    .gold {
+      color: #FFD700;
+    }
+
+    @keyframes scrollLeftToRight {
+      0%   { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* صف كل زر قناة */
+    .channel-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+
+    /* الزر نفسه */
+    .channel-btn {
+      flex-grow: 1;
+      background-color: white;
+      color: black;
+      padding: 5px 5px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      text-align: center;
+      transition: background-color 0.3s;
+      text-decoration: none;
+    }
+
+    .channel-btn:hover {
+      background-color: #e0f4ff;
+    }
+
+    .channel-img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      animation: spin 3s linear infinite;
+      flex-shrink: 0;
+    }
+
+    .copy-btn {
+      background-color: white;
+      color: #0088cc;
+      border: none;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+.search-box {
+  width: 100%;
+  padding: 9px 5px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  background-color: #0088cc; /* ✅ خلفية ذهبية */
+  color: #ffba00; /* ✅ نص داكن */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* ✅ ظل ناعم */
+  outline: none;
+  transition: box-shadow 0.3s ease;
+}
+
+.search-box::placeholder {
+  color: #ffb700; /* ✅ لون نص افتراضي واضح */
+}
+
+.search-box:focus {
+  box-shadow: 0 0 10px #ffdd33, 0 0 20px #ffcc00; /* ✅ توهج عند الكتابة */
+}
+
+.section-title {
+  font-size: 22px;
+  margin: 25px 0 15px;
+  color: #FFD700; /* اللون الذهبي */
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8); /* ظل ذهبي لامع */
+  border-bottom: 2px solid #FFD70066; /* خط سفلي ذهبي شفاف */
+  padding-bottom: 5px;
+  text-align: center; /* ✅ توسيط العنوان */
+}
+    
+    /* زر فتح */
+.qr-open-btn {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  background-color: white;        /* ✅ خلفية بيضاء */
+  color: black;                   /* ✅ نص أسود */
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  margin: 0 auto 25px auto;       /* ✅ توسيط الزر عموديًا */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.qr-open-btn:hover {
+  background-color: #f5f5f5;      /* ✅ تأثير عند المرور */
+}
+
+/* النافذة */
+.qr-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.6);
+}
+
+.qr-content {
+  background-color: white;
+  color: black;
+  max-width: 90%;
+  margin: 100px auto;
+  padding: 30px 20px;
+  border-radius: 10px;
+  text-align: center;
+  position: relative;
+}
+
+.qr-content input {
+  width: 90%;
+  padding: 10px;
+  margin: 15px 0;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc; 
+}
+
+.qr-content button {
+  background-color: #0088cc;
+  color: white;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px; right: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.channel-counter {
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #0088cc;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.welcome-popup {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffffffee;
+  color: #222;
+  padding: 15px 25px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  animation: fadeInSlide 1s ease, fadeOut 0.5s 4s ease forwards;
+  z-index: 9999;
+}
+
+@keyframes fadeInSlide {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translate(-50%, -40px); }
+}
+
+    .copy-btn:hover {
+      background-color: #e0f4ff;
+    }
+  </style>
+</head>
+<body>
+
+
+    <!-- الهيدر -->
+    <div class="header">
+      <img src="icon/Telegram.png" alt="Telegram Logo" class="logo-spin">
+      <div class="typewriter-box">
+        <div class="typewriter-text">
+          Telegram <span class="gold">Channels</span>
+        </div>
+      </div>
+    </div>
+
+
+
+<div id="channelCount" class="channel-counter">📊 عدد القنوات المضافة: 0</div>
+<!-- مربع البحث -->
+<input type="text" id="searchInput" placeholder="ابحث عن قناة..." class="search-box">
+
+<!-- زر فتح النافذة -->
+<button class="qr-open-btn" onclick="openQRModal()">🔲 توليد رمز QR</button>
+
+
+<!-- النافذة المنبثقة -->
+<div id="qrModal" class="qr-modal">
+  <div class="qr-content">
+    <span class="close-btn" onclick="closeQRModal()">×</span>
+    <h2>أدخل الرابط لإنشاء رمز QR</h2>
+    <input type="text" id="qrInput" placeholder="ضع الرابط هنا">
+    <div id="qrcode"></div>
+    <button onclick="downloadQR()">⬇️ تحميل الرمز</button>
+  </div>
+</div>
+
+<div id="welcome-message" class="welcome-popup">
+  👋 مرحبًا بك في <span>Telegram <strong>Pro</strong></span> – عالم القنوات المميزة ✨
+</div>
+
+<h2 class="section-title"> Design channels</h2>
+    <!-- روابط القنوات -->
+    <div class="channel-list"
+
+<a class="channel-btn" https://t.me/r_rwi"
+         data-link="https://t.me/r_rwi"
+         data-img="icon/r_rwi.jpg" target="_blank">
+        متجر كورسات مجانيه 
+      </a>
+
+<a class="channel-btn" href="https://t.me/fontsstore"
+         data-link="https://t.me/fontsstore"
+         data-img="icon/fontsstore.jpg" target="_blank">
+        مخزن الخطوط 
+      </a>
+
+<a class="channel-btn" href="https://t.me/TheDesignX"
+         data-link="https://t.me/TheDesignX"
+         data-img="icon/TheDesignX.jpg" target="_blank">
+        حقيبة المصمم 
+      </a>
+
+<a class="channel-btn" href="https://t.me/muslimtechnology"
+         data-link="https://t.me/muslimtechnology"
+         data-img="icon/muslimtechnology.jpg" target="_blank">
+        مسلم التكنولوجي 
+      </a>
+
+<a class="channel-btn" href="https://t.me/Design3A"
+         data-link="https://t.me/Design3A"
+         data-img="icon/Design3A.jpg" target="_blank">
+        ☆ Media Station™ ☆ 
+      </a>
+<a class="channel-btn" href="https://t.me/learn_ps"
+         data-link="https://t.me/learn_ps"
+         data-img="icon/learn_ps.jpg" target="_blank">
+        اتعلم التصميم 
+      </a>
+<a class="channel-btn" href="https://t.me/DesignJamal"
+         data-link="https://t.me/DesignJamal"
+         data-img="icon/DesignJamal.jpg" target="_blank">
+        استلهم لتصميم 
+      </a>
+
+<a class="channel-btn" href="https://t.me/a18_de"
+         data-link="https://t.me/a18_de"
+         data-img="icon/a18_de.jpg" target="_blank">
+        عزوز صانع محتوي عن التصميم 
+      </a>
+
+<a class="channel-btn" href="https://t.me/ArabicFontsForDesign"
+         data-link="https://t.me/ArabicFontsForDesign"
+         data-img="icon/ArabicFontsForDesign.jpg" target="_blank">
+        خطوط عربية للصميم 
+      </a>
+</div>
+
+<h2 class="section-title"> Store channels</h2>
+    <!-- روابط القنوات -->
+    <div class="channel-list">
+      <!-- أزرار القنوات -->
+
+<a class="channel-btn" href="https://t.me/+3maWylOA2LZhZDY0"
+         data-link="https://t.me/+3maWylOA2LZhZDY0"
+         data-img="icon/earnanza.jpg" target="_blank">
+        Earnanza 
+      </a>
+
+<a class="channel-btn" href="https://t.me/CezmaApp"
+         data-link="https://t.me/CezmaApp"
+         data-img="icon/CezmaApp.jpg" target="_blank">
+        Cezma App 
+      </a>
+
+<a class="channel-btn" href="https://t.me/+I-4TPJ6_g99jNDA0"
+         data-link="https://t.me/+I-4TPJ6_g99jNDA0"
+         data-img="icon/over.jpg" target="_blank">
+        Over 
+      </a>
+
+<a class="channel-btn" href="https://t.me/kirlloCompany"
+         data-link="https://t.me/kirlloCompany"
+         data-img="icon/kirllo.jpg" target="_blank">
+        شركة كيرلو للاستراد
+      </a>
+
+</div>
+
+<h2 class="section-title"> Hacker channels</h2>
+    <!-- روابط القنوات -->
+    <div class="channel-list">
+      <!-- أزرار القنوات -->
+      <a class="channel-btn" href="https://t.me/smmegy2"
+         data-link="https://t.me/smmegy2"
+         data-img="icon/smmegy.jpg" target="_blank">
+        SMM⚡EGY
+      </a>
+
+      <a class="channel-btn" href="https://t.me/EslamTube"
+         data-link="https://t.me/EslamTube"
+         data-img="icon/eslamtube.png" target="_blank">
+         Eslam 📵 Tube
+      </a>
+
+      <a class="channel-btn" href="https://t.me/kings_team00"
+         data-link="https://t.me/kings_team00"
+         data-img="icon/kings_team.jpg" target="_blank">
+         Kings Team
+      </a>
+
+<a class="channel-btn" href="https://t.me/fakemailbot"
+         data-link="https://t.me/fakemailbot"
+         data-img="icon/fakemailbot.jpg" target="_blank">
+        Fake Mail Bot 
+      </a>
+    </div>
+
+<h2 class="section-title"> Apps Mods channels</h2>
+    <!-- روابط القنوات -->
+    <div class="channel-list">
+      <!-- أزرار القنوات -->
+<a class="channel-btn" href="https://t.me/apkdaily"
+         data-link="https://t.me/apkdaily"
+         data-img="icon/apkdaily.jpg" target="_blank">
+        apkdaily 
+      </a>
+
+<a class="channel-btn" href="https://t.me/techkhyoot"
+         data-link="https://t.me/techkhyoot"
+         data-img="icon/techkhyoot.jpg" target="_blank">
+        techkhyoot
+      </a>
+
+<a class="channel-btn" href="https://t.me/AndroidPro6"
+         data-link="https://t.me/AndroidPro6"
+         data-img="icon/AndroidPro6.jpg" target="_blank">
+        AndroidPro6 
+      </a>
+
+<a class="channel-btn" href="https://t.me/arabes1"
+         data-link="https://t.me/arabes1"
+         data-img="icon/arabes1.jpg" target="_blank">
+        arabes1 
+      </a>
+
+<a class="channel-btn" href="https://t.me/TraidMod"
+         data-link="https://t.me/TraidMod"
+         data-img="icon/TraidMod.jpg" target="_blank">
+        TraidMod 
+      </a>
+
+<a class="channel-btn" href="https://t.me/appsx1"
+         data-link="https://t.me/appsx1"
+         data-img="icon/appsx1.jpg" target="_blank">
+        قناص التقني 
+      </a>
+
+<a class="channel-btn" href="https://t.me/Technique7"
+         data-link="https://t.me/Technique7"
+         data-img="icon/Technique7.jpg" target="_blank">
+        شروحات التطبيقات 
+      </a>
+
+<a class="channel-btn" href="https://t.me/ALASTARALMDFOA"
+         data-link="https://t.me/ALASTARALMDFOA"
+         data-img="icon/ALASTARALMDFOA.jpg" target="_blank">
+        الاصدار المدفوع 
+      </a>
+
+<a class="channel-btn" href="https://t.me/RabieApp"
+         data-link="https://t.me/RabieApp"
+         data-img="icon/RabieApp.jpg" target="_blank">
+        تطبيقات والعاب 
+      </a>
+
+<a class="channel-btn" href="https://t.me/DevRabie"
+         data-link="https://t.me/DevRabie"
+         data-img="icon/DevRabie.jpg" target="_blank">
+        ربيع اندرويد
+      </a>
+
+      <a class="channel-btn" href="https://t.me/mk7android"
+         data-link="https://t.me/mk7android"
+         data-img="icon/ملك_شرح.jpg" target="_blank">
+        ملك الشرح
+      </a>
+
+<a class="channel-btn" href="https://t.me/azffu"
+         data-link="https://t.me/azffu"
+         data-img="icon/azffu.jpg" target="_blank">
+        تطبيقات والعاب مهكرة
+      </a>
+
+<a class="channel-btn" href="https://t.me/BASHAR_YAMEN"
+         data-link="https://t.me/BASHAR_YAMEN"
+         data-img="icon/BASHAR_YAMEN.jpg" target="_blank">
+        تطبيقات أنصار الله
+      </a>
+
+<a class="channel-btn" href="https://t.me/bermg1"
+         data-link="https://t.me/bermg1"
+         data-img="icon/bermg1.jpg" target="_blank">
+        المجد الأمني برمجة 
+      </a>
+
+<a class="channel-btn" href="https://t.me/k_h_apk"
+         data-link="https://t.me/k_h_apk"
+         data-img="icon/k_h_apk.jpg" target="_blank">
+        ملك الهكر 
+      </a>
+</div>
+
+     <h2 class="section-title"> Rakan mods</h2>
+  <!-- روابط القنوات -->
+       <div class="channel-list">
+      <!-- أزرار القنوات -->
+
+<a class="channel-btn" href="https://www.facebook.com/rakanalshrmany"
+         data-link="https://www.facebook.com/rakanalshrmany"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        Facebook Rakanalshrmany 
+      </a>
+
+<a class="channel-btn" href="https://www.instagram.com/rakanalshrmany"
+         data-link="https://www.instagram.com/rakanalshrmany"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        Instagram Rakanalshrmany 
+      </a>
+
+<a class="channel-btn" href="https://www.threads.net/@rakanalshrmany"
+         data-link="https://www.threads.net/@rakanalshrmany"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        Threads Rakanalshrmany 
+      </a>
+
+<a class="channel-btn" href="https://www.snapchat.com/add/rakanalshrmany"
+         data-link="https://www.snapchat.com/add/rakanalshrmany"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        Snapchat Rakanalshrmany 
+      </a>
+
+<a class="channel-btn" href="https://tiktok.com/@rakanalshrmany"
+         data-link="https://tiktok.com/@rakanalshrmany"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        TikTok Rakanalshrmany 
+      </a>
+
+<a class="channel-btn" href="https://an2rakan.blogspot.com/"
+         data-link="https://an2rakan.blogspot.com/"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        Site Rakanalshrmany 
+      </a>
+
+<a class="channel-btn" href="https://x.com/rakanalshrmany"
+         data-link="https://x.com/rakanalshrmany"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        X Rakanalshrmany 
+      </a>
+
+
+      <a class="channel-btn" href="https://youtube.com/@rakanalshrmany"
+         data-link="httpshttps://youtube.com/@rakanalshrmany"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        YouTube Rakan Mods
+      </a>
+
+      <a class="channel-btn" href="https://t.me/rakanalshrmany_group"
+         data-link="https://t.me/rakanalshrmany_group"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        Group 
+      </a>
+
+     <a class="channel-btn" href="https://t.me/rakanalshrmany"
+         data-link="https://t.me/rakanalshrmany"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        Chanal 1 
+      </a>
+
+     <a class="channel-btn" href="https://t.me/an2rakan"
+         data-link="https://t.me/an2rakan"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        chanal 2 
+      </a>
+
+<a class="channel-btn" href="https://t.me/RSWhats"
+         data-link="https://t.me/RSWhats"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        channel 3
+      </a>
+
+<a class="channel-btn" href="https://t.me/RSRakan"
+         data-link="https://t.me/RSRakan"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        channel 4
+      </a>
+<a class="channel-btn" href="https://whatsapp.com/channel/0029VaDgVWhISTkApPyrUV0p"
+         data-link="https://whatsapp.com/channel/0029VaDgVWhISTkApPyrUV0p"
+         data-img="icon/rakan_mods.jpg" target="_blank">
+        channel Whatsapp
+      </a>
+      </div>
+
+    </div>
+
+
+
+  <script>
+
+window.addEventListener("DOMContentLoaded", () => {
+  const allLists = document.querySelectorAll(".channel-list");
+
+  let total = 0;
+
+  allLists.forEach(container => {
+    const buttons = [...container.querySelectorAll(".channel-btn")];
+    total += buttons.length;
+    container.innerHTML = "";
+
+    buttons.forEach(btn => {
+      const link = btn.getAttribute("data-link");
+      const imgSrc = btn.getAttribute("data-img") || "telegram.png";
+      const text = btn.textContent.trim();
+
+      const fullBtn = document.createElement("a");
+      fullBtn.href = link;
+      fullBtn.target = "_blank";
+      fullBtn.className = "channel-btn";
+
+      const img = document.createElement("img");
+      img.src = imgSrc;
+      img.className = "channel-img";
+
+      const span = document.createElement("span");
+      span.textContent = text;
+
+      fullBtn.appendChild(img);
+      fullBtn.appendChild(span);
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "copy-btn";
+      copyBtn.textContent = "📋";
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(link).then(() => {
+          copyBtn.textContent = "✅";
+          setTimeout(() => {
+            copyBtn.textContent = "📋";
+          }, 1000);
+        });
+      };
+
+      const row = document.createElement("div");
+      row.className = "channel-row";
+      row.appendChild(fullBtn);
+      row.appendChild(copyBtn);
+
+      container.appendChild(row);
+    });
+  });
+
+  document.getElementById("channelCount").textContent =
+    "📊 عدد القنوات المضافة: " + total;
+});
+
+
+// بحث مباشر في القنوات
+document.getElementById("searchInput").addEventListener("input", function () {
+  const value = this.value.toLowerCase();
+  document.querySelectorAll(".channel-row").forEach(row => {
+    const text = row.querySelector(".channel-btn span").textContent.toLowerCase();
+    row.style.display = text.includes(value) ? "flex" : "none";
+  });
+});
+  </script>
+
+<!-- مكتبة QRCode.js -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<script>
+  function openQRModal() {
+    document.getElementById("qrModal").style.display = "block";
+    document.getElementById("qrInput").value = "";
+    document.getElementById("qrcode").innerHTML = "";
+  }
+
+  function closeQRModal() {
+    document.getElementById("qrModal").style.display = "none";
+  }
+
+  // توليد الرمز تلقائيًا عند الكتابة
+  document.getElementById("qrInput").addEventListener("input", function () {
+    const value = this.value;
+    if (value.trim() === "") {
+      document.getElementById("qrcode").innerHTML = "";
+      return;
+    }
+
+    QRCode.toCanvas(value, { width: 200 }, function (err, canvas) {
+      if (err) return console.error(err);
+      const container = document.getElementById("qrcode");
+      container.innerHTML = "";
+      container.appendChild(canvas);
+      canvas.id = "qrCanvas";
+    });
+  });
+
+  // تحميل الرمز
+  function downloadQR() {
+    const canvas = document.getElementById("qrCanvas");
+    if (!canvas) return alert("قم بإدخال رابط أولاً");
+
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL("image/png");
+    link.download = "qr_telegram.png";
+    link.click();
+  }
+</script>
+
+</body>
+</html>

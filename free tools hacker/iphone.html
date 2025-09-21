@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>IPHONE</title>
+    <style>
+        :root {
+            --iphone-width: 375px;
+            --iphone-height: 736px;
+            --notch-height: 30px;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; overflow: hidden; }
+        .iphone { width: var(--iphone-width); height: var(--iphone-height); background-color: #000; border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); position: relative; overflow: hidden; border: 10px solid #111; box-sizing: content-box; }
+        .screen { width: 100%; height: 100%; background-size: cover; background-position: center; background-image: url("https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A9.png?raw=true"); position: relative; display: flex; flex-direction: column; overflow: hidden; }
+        .notch { width: 50%; height: var(--notch-height); background-color: #111; position: absolute; top: 0; left: 50%; transform: translateX(-50%); border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; z-index: 10; }
+        .status-bar { display: flex; justify-content: space-between; padding: 10px 20px; color: white; font-size: 12px; font-weight: 600; position: absolute; width: 100%; top: 0; z-index: 11; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        
+        /* --- Styles for Page Curl Effect --- */
+        .home-screen-pages { flex-grow: 1; position: relative; perspective: 1500px; cursor: grab; }
+        .page { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, auto); gap: 25px; padding: 50px 25px 20px; box-sizing: border-box; transform-style: preserve-3d; transform-origin: left center; transition: transform 1s cubic-bezier(0.6, 0, 0.4, 1); backface-visibility: hidden; z-index: 2; }
+        .page:not(.active) { transform: rotateY(180deg); z-index: 1; }
+        .page::after { content: ""; position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: linear-gradient(to left, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 10%); opacity: 0; transition: opacity 1s cubic-bezier(0.6, 0, 0.4, 1); pointer-events: none; }
+        .page.is-turning::after { opacity: 1; }
+        .pagination-dots { display: flex; justify-content: center; gap: 8px; margin-bottom: 10px; position: absolute; bottom: 100px; width: 100%; z-index: 5; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background-color: rgba(255, 255, 255, 0.4); transition: background-color 0.3s; }
+        .dot.active { background-color: white; }
+        
+        .app-icon, .folder { display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; text-decoration: none; }
+        .app-icon img, .folder-icon-container { width: 70px; height: 70px; border-radius: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
+        .folder-icon-container { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; padding: 7px; gap: 4px; background-color: rgba(255, 255, 255, 0.3); box-sizing: border-box; }
+        .folder-icon-container img { width: 100%; height: 100%; border-radius: 8px; }
+        .app-icon:hover img, .folder:hover .folder-icon-container { transform: scale(1.1); }
+        .app-name { color: white; font-size: 13px; margin-top: 8px; text-shadow: 1px 1px 2px rgba(0,0,0,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .dock { background-color: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 20px; margin: 0 15px 15px; padding: 10px; display: flex; justify-content: space-around; align-items: center; z-index: 6; }
+        .iframe-container, .folder-content, .wallpaper-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: none; background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); }
+        .iframe-container { background: #fff; backdrop-filter: none; flex-direction: column; }
+        .iframe-header { display: flex; align-items: center; padding: 10px; background-color: #f8f8f8; border-bottom: 1px solid #ddd; }
+        .close-iframe-btn { background: #ff3b30; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; font-size: 14px; font-weight: bold; cursor: pointer; line-height: 25px; text-align: center; }
+        .iframe-title { flex-grow: 1; text-align: center; font-weight: 600; font-size: 14px; }
+        iframe { width: 100%; height: 100%; border: none; }
+        .folder-content { justify-content: center; align-items: center; z-index: 50; }
+        .folder-view { background-color: rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 20px; width: 80%; }
+        .folder-name { color: white; font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px; }
+        .folder-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .url-prompt { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #f0f0f0; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 110; display: none; width: 80%; box-sizing: border-box; }
+        .url-prompt input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        .url-prompt button { width: 100%; padding: 10px; border: none; border-radius: 8px; background-color: #007aff; color: white; font-weight: bold; cursor: pointer; }
+        .wallpaper-screen { flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .wallpaper-screen-content { width: 100%; height: 90%; background: rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .wallpaper-screen-content h2 { color: white; text-align: center; margin-top: 0; margin-bottom: 20px; }
+        .wallpapers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .wallpaper-item { cursor: pointer; border-radius: 10px; overflow: hidden; border: 2px solid transparent; transition: border-color 0.2s; }
+        .wallpaper-item:hover { border-color: #007aff; }
+        .wallpaper-item img { width: 100%; height: auto; display: block; }
+
+        /* نموذج التصفح الخفي */
+        .private-browser-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 120;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .modal-content h3 { margin-top: 0; color: #333; }
+        .modal-content input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+        .button-group button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        .search-btn {
+            background-color: #007aff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone">
+        <div class="screen" id="screen">
+            <div class="notch"></div>
+            <div class="status-bar">
+                <span id="time">9:41</span>
+                <span>
+                    <svg height="12" viewBox="0 0 21 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.6667 0H2.33333C1.04467 0 0 1.04467 0 2.33333V9.66667C0 10.9553 1.04467 12 2.33333 12H18.6667C19.9553 12 21 10.9553 21 9.66667V2.33333C21 1.04467 19.9553 0 18.6667 0ZM18.6667 10.5H2.33333C1.87567 10.5 1.5 10.1243 1.5 9.66667V2.33333C1.5 1.87567 1.87567 1.5 2.33333 1.5H18.6667C19.1243 1.5 19.5 1.87567 19.5 2.33333V9.66667C19.5 10.1243 19.1243 10.5 18.6667 10.5Z" fill="white"></path>
+                        <path d="M18 3H3V9H18V3Z" fill="white"></path>
+                    </svg>
+                </span>
+            </div>
+            
+            <div class="home-screen-pages" id="homeScreenPages">
+                <!-- الصفحة الأولى -->
+                <div class="page">
+                    <div class="folder" onclick="openFolder('telegram-folder')">
+                        <div class="folder-icon-container">
+                            <img src="https://cdn-icons-png.flaticon.com/128/2111/2111646.png" alt="T">
+                            <img src="https://cdn-icons-png.flaticon.com/128/2111/2111646.png" alt="T">
+                            <img src="https://cdn-icons-png.flaticon.com/128/2111/2111646.png" alt="T">
+                        </div>
+                        <span class="app-name">telegram</span>
+                    </div>
+
+                    <div class="folder" onclick="openFolder('HACKER-folder')">
+                        <div class="folder-icon-container">
+                             <img src="https://cdn-icons-png.flaticon.com/128/18266/18266361.png" alt="C">
+<img src="https://github.com/iphone011012013-maker/backgrounds/blob/main/icon_bot.jpg?raw=true" alt="T">
+                            <img src="https://cdn-icons-png.flaticon.com/128/10384/10384161.png" alt="C">
+                            <img src="https://cdn-icons-png.flaticon.com/128/711/711191.png" alt="T">
+                        </div>
+                        <span class="app-name">HACKER</span>
+                    </div>
+
+                    <div class="folder" onclick="openFolder('CEZMA-folder')">
+                        <div class="folder-icon-container">
+                            <img src="https://api.cezma.cloud/storage/thumbnails/stores/1754618155upscalemedia-transformed.jpeg" alt="T">
+                            <img src="https://api.cezma.cloud/storage/thumbnails/stores/1738805210475998141-600034349848814-4941404275909867901-n.jpg" alt="C">
+                            <img src="https://api.cezma.cloud/storage/thumbnails/stores/1745806076temp9057433686712277858.png" alt="T">
+                        </div>
+                        <span class="app-name">CEZMA</span>
+                    </div>
+
+                    <div class="folder" onclick="openFolder('AI-folder')">
+                        <div class="folder-icon-container">
+                            <img src="https://cdn-icons-png.flaticon.com/128/8131/8131880.png" alt="T">
+                            <img src="https://cdn-icons-png.flaticon.com/128/12133/12133548.png" alt="C">
+                            <img src="https://cdn-icons-png.flaticon.com/128/9492/9492647.png" alt="T">
+                        </div>
+                        <span class="app-name">AI</span>
+                    </div>
+
+                    <a href="#" class="app-icon" onclick="openIframe('https://www.google.com/webhp?igu=1', 'GOOGLE')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/300/300221.png" alt="GOOGLE">
+                        <span class="app-name">GOOGLE</span>
+                    </a>
+                </div>
+
+                <!-- الصفحة الثانية -->
+                <div class="page">
+                    <a href="#" class="app-icon" onclick="openIframe('https://100-pounds-credit.netlify.app/', '100-Pounds-Credit')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/10384/10384161.png" alt="Credit">
+                        <span class="app-name">100-Pounds</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://100-pounds-credit.netlify.app/', '100-Pounds-Credit')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/10384/10384161.png" alt="Credit">
+                        <span class="app-name">100-Pounds</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="pagination-dots" id="paginationDots"></div>
+
+            <div class="dock">
+                <a href="#" class="app-icon" onclick="openWallpaperScreen()">
+                    <img src="https://cdn-icons-png.flaticon.com/128/1829/1829586.png" alt="Background">
+                    <span class="app-name">الخلفيات</span>
+                </a>
+                <a href="#" class="app-icon" onclick="openIframe('https://aboelfadl-tools.netlify.app/', 'AboElfadl Tools')">
+                    <img src="https://aboelfadl-tools.netlify.app/icons/mahmoud.png" alt="AboElfadl Tools">
+                    <span class="app-name">AboElfadl</span>
+                </a>
+                <a href="#" class="app-icon" onclick="showUrlPrompt()">
+                    <img src="https://cdn-icons-png.flaticon.com/128/3967/3967017.png" alt="IFRAM">
+                    <span class="app-name">IFRAM</span>
+                </a>
+                <a href="#" class="app-icon" onclick="openPrivateBrowser()">
+                    <img src="https://cdn-icons-png.flaticon.com/128/17115/17115277.png" alt="تصفح خفي">
+                    <span class="app-name">تصفح خفي</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- IFrames وFolders -->
+        <div class="iframe-container" id="iframe-container">
+            <div class="iframe-header">
+                <button class="close-iframe-btn" onclick="closeAllScreens()">X</button>
+                <span class="iframe-title" id="iframe-title"></span>
+            </div>
+            <iframe id="app-iframe" src="" allow="fullscreen; camera; geolocation"></iframe>
+        </div>
+
+        <!-- مجلدات -->
+        <div class="folder-content" id="telegram-folder" onclick="closeFolder(event, 'telegram-folder')">
+            <div class="folder-view">
+                <h3 class="folder-name">telegram</h3>
+                <div class="folder-grid">
+                    <a href="#" class="app-icon" onclick="openIframe('https://web.tel.onl/ar.html', 'Telegram ONL')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/2111/2111646.png" alt="Telegram ONL">
+                        <span class="app-name">Telegram ONL</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://web.telegram.im/', 'Telegram IM')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/2111/2111646.png" alt="Telegram IM">
+                        <span class="app-name">Telegram IM</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://xn--80affa3aj0al.xn--80asehdb/', 'Telegram Pro')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/2111/2111646.png" alt="Telegram Pro">
+                        <span class="app-name">Telegram Pro</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="folder-content" id="HACKER-folder" onclick="closeFolder(event, 'HACKER-folder')">
+            <div class="folder-view">
+                <h3 class="folder-name">HACKER</h3>
+                <div class="folder-grid">
+<a href="#" class="app-icon" onclick="openIframe('https://my_aboelfadl_helper_.eyoo.org/', 'SITE BOT')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/18266/18266361.png" alt="SITE BOT">
+                        <span class="app-name">SITE BOT</span>
+                    </a>
+                    <a href="https://t.me/my_aboelfadl_helper_bot" class="app-icon" onclick="('https://t.me/my_aboelfadl_helper_bot', 'TELEGRAM BOT')">
+                        <img src="https://github.com/iphone011012013-maker/backgrounds/blob/main/icon_bot.jpg?raw=true" alt="TELEGRAM BOT">
+                        <span class="app-name">TELEGRAM BOT</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://100-pounds-credit.netlify.app/', '100-Pounds-Credit')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/10384/10384161.png" alt="100-Pounds-Credit">
+                        <span class="app-name">100-Pounds-Credit</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://c-ip.netlify.app', 'اختراق كاميرا و الموقع')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/711/711191.png" alt="Ca & IP">
+                        <span class="app-name">اختراق Ca&IP</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="folder-content" id="CEZMA-folder" onclick="closeFolder(event, 'CEZMA-folder')">
+            <div class="folder-view">
+                <h3 class="folder-name">CEZMA</h3>
+                <div class="folder-grid">
+                    <a href="#" class="app-icon" onclick="openIframe('https://cezma.com/store/Accessories.Egypt.official', 'أكسسواريز مصر سيزما')">
+                        <img src="https://api.cezma.cloud/storage/thumbnails/stores/1754618155upscalemedia-transformed.jpeg" alt="أكسسواريز مصر سيزما">
+                        <span class="app-name">أكسسواريز مصر سيزما</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://cezma.com/store/aboelfadl.clothing', 'ملابس ابو الفضل')">
+                        <img src="https://api.cezma.cloud/storage/thumbnails/stores/1738805210475998141-600034349848814-4941404275909867901-n.jpg" alt="ملابس ابو الفضل">
+                        <span class="app-name">ملابس ابو الفضل</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://cezma.com/store/AboElfadl-Store', 'AboElfadl Store')">
+                        <img src="https://api.cezma.cloud/storage/thumbnails/stores/1745806076temp9057433686712277858.png" alt="AboElfadl Store">
+                        <span class="app-name">AboElfadl Store</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="folder-content" id="AI-folder" onclick="closeFolder(event, 'AI-folder')">
+            <div class="folder-view">
+                <h3 class="folder-name">AI</h3>
+                <div class="folder-grid">
+                    <a href="#" class="app-icon" onclick="openIframe('https://chat.qwen.ai/', 'QWEN AI')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/8131/8131880.png" alt="QWEN AI">
+                        <span class="app-name">QWEN AI</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://kimi.moonshot.cn/', 'KIMI AI')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/12133/12133548.png" alt="KIMI AI">
+                        <span class="app-name">KIMI AI</span>
+                    </a>
+                    <a href="#" class="app-icon" onclick="openIframe('https://www.qrcode-monkey.com/ar/', 'QR AI')">
+                        <img src="https://cdn-icons-png.flaticon.com/128/9492/9492647.png" alt="QR AI">
+                        <span class="app-name">QR AI</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- نموذج التصفح الخفي -->
+        <div class="private-browser-modal" id="privateBrowserModal">
+            <div class="modal-content">
+                <h3>تصفح خفي</h3>
+                <p>سيتم فتح الرابط في نافذة جديدة (وضع التصفح الخفي إن أمكن).</p>
+                <input type="url" id="privateUrlInput" placeholder="أدخل الرابط هنا...">
+                <div class="button-group">
+                    <button class="cancel-btn" onclick="closePrivateBrowser()">إلغاء</button>
+                    <button class="search-btn" onclick="searchPrivate()">بحث</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- باقي العناصر -->
+        <div class="url-prompt" id="url-prompt">
+            <p>أدخل الرابط لعرضه:</p>
+            <input type="url" id="url-input" placeholder="https://example.com">
+            <button onclick="openUrlFromPrompt()">فتح الرابط</button>
+            <button onclick="document.getElementById('url-prompt').style.display = 'none';" style="background-color: #6c757d; margin-top: 5px;">إلغاء</button>
+        </div>
+
+        <div class="wallpaper-screen" id="wallpaperScreen" onclick="closeWallpaperScreen(event)">
+            <div class="wallpaper-screen-content">
+                <h2>اختر خلفية</h2>
+                <div class="wallpapers-grid" id="wallpapersGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Elements
+        const iframeContainer = document.getElementById('iframe-container');
+        const appIframe = document.getElementById('app-iframe');
+        const iframeTitle = document.getElementById('iframe-title');
+        const urlPrompt = document.getElementById('url-prompt');
+        const urlInput = document.getElementById('url-input');
+        const screenEl = document.getElementById('screen');
+        const wallpaperScreen = document.getElementById('wallpaperScreen');
+        const privateBrowserModal = document.getElementById('privateBrowserModal');
+        const privateUrlInput = document.getElementById('privateUrlInput');
+
+        // --- Screen Management
+        function closeAllScreens() {
+            iframeContainer.style.display = 'none';
+            appIframe.src = 'about:blank';
+            document.querySelectorAll('.folder-content').forEach(f => f.style.display = 'none');
+            wallpaperScreen.style.display = 'none';
+            urlPrompt.style.display = 'none';
+            privateBrowserModal.style.display = 'none';
+        }
+
+        function openIframe(url, title) {
+            closeAllScreens();
+            appIframe.src = url;
+            iframeTitle.textContent = title;
+            iframeContainer.style.display = 'flex';
+        }
+
+        function openFolder(folderId) {
+            closeAllScreens();
+            document.getElementById(folderId).style.display = 'flex';
+        }
+
+        function closeFolder(event, folderId) {
+            if (event.target.id === folderId) {
+                document.getElementById(folderId).style.display = 'none';
+            }
+        }
+
+        function showUrlPrompt() {
+            urlPrompt.style.display = 'block';
+        }
+
+        function openUrlFromPrompt() {
+            const url = urlInput.value.trim();
+            if (url) {
+                try {
+                    new URL(url);
+                    openIframe(url, 'IFRAM Viewer');
+                } catch (_) {
+                    alert('الرجاء إدخال رابط صحيح.');
+                }
+            }
+        }
+
+        // --- Private Browser Functions
+        function openPrivateBrowser() {
+            privateBrowserModal.style.display = 'flex';
+            privateUrlInput.value = '';
+        }
+
+        function closePrivateBrowser() {
+            privateBrowserModal.style.display = 'none';
+        }
+
+        function searchPrivate() {
+            const url = privateUrlInput.value.trim();
+            if (!url) {
+                alert('الرجاء إدخال رابط.');
+                return;
+            }
+            try {
+                new URL(url);
+                // فتح في نافذة جديدة (محاولة دخول وضع التصفح الخفي)
+                window.open(url, '_blank', 'noopener,instant,location=yes');
+            } catch (e) {
+                alert('الرابط غير صحيح.');
+            }
+        }
+
+        // --- Wallpaper Management
+        const wallpapers = [
+            'https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A9.png?raw=true',
+            'https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A91.jpg?raw=true',
+            'https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A92.jpg?raw=true',
+            'https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A93.png?raw=true',
+            'https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A94.jpg?raw=true',
+            'https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A95.jpg?raw=true',
+            'https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A96.jpg?raw=true',
+            'https://github.com/iphone011012013-maker/backgrounds/blob/main/%D8%AE%D9%84%D9%81%D9%8A%D8%A97.jpg?raw=true'
+        ];
+
+        function loadWallpapers() {
+            const container = document.getElementById('wallpapersGrid');
+            if (!container) return;
+            container.innerHTML = '';
+            wallpapers.forEach(src => {
+                const item = document.createElement('div');
+                item.className = 'wallpaper-item';
+                item.onclick = () => setWallpaper(src);
+                const img = document.createElement('img');
+                img.src = src;
+                item.appendChild(img);
+                container.appendChild(item);
+            });
+        }
+
+        function setWallpaper(src) {
+            screenEl.style.backgroundImage = `url('${src}')`;
+            closeAllScreens();
+        }
+
+        function openWallpaperScreen() {
+            closeAllScreens();
+            wallpaperScreen.style.display = 'flex';
+            loadWallpapers();
+        }
+
+        function closeWallpaperScreen(event) {
+            if (event.target.id === 'wallpaperScreen') {
+                wallpaperScreen.style.display = 'none';
+            }
+        }
+
+        // --- Time Update
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}`;
+        }
+
+        // --- Home Screen Paging
+        const homeScreenPagesContainer = document.getElementById('homeScreenPages');
+        const pages = Array.from(homeScreenPagesContainer.children);
+        const pageCount = pages.length;
+        let currentPageIndex = 0;
+        let isDragging = false;
+        let startX = 0;
+        let dist = 0;
+
+        function setupPages() {
+            const paginationDotsContainer = document.getElementById('paginationDots');
+            paginationDotsContainer.innerHTML = '';
+            pages.forEach((page, index) => {
+                page.style.transform = `rotateY(${index * 180}deg)`;
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.onclick = () => turnPage(index);
+                paginationDotsContainer.appendChild(dot);
+            });
+            pages[0].classList.add('active');
+            updateDots();
+            pages.forEach((p, i) => p.style.zIndex = pageCount - Math.abs(i - currentPageIndex));
+        }
+
+        function updateDots() {
+            const dots = Array.from(document.getElementById('paginationDots').children);
+            dots.forEach((dot, index) => {
+                if (index === currentPageIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function turnPage(newIndex) {
+            if (newIndex < 0 || newIndex >= pageCount || newIndex === currentPageIndex) return;
+            const currentPage = pages[currentPageIndex];
+            const newPage = pages[newIndex];
+            currentPage.classList.remove('active');
+            currentPage.classList.add('is-turning');
+            newPage.classList.add('active');
+            setTimeout(() => {
+                currentPage.classList.remove('is-turning');
+                pages.forEach((p, i) => p.style.zIndex = pageCount - Math.abs(i - newIndex));
+            }, 1000);
+            currentPageIndex = newIndex;
+            updateDots();
+        }
+
+        function dragStart(e) {
+            if (pageCount <= 1 || 
+                iframeContainer.style.display !== 'none' || 
+                document.querySelector('.folder-content[style*="display: flex"]') || 
+                wallpaperScreen.style.display !== 'none' ||
+                privateBrowserModal.style.display !== 'none') return;
+            isDragging = true;
+            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            dist = 0;
+        }
+
+        function dragMove(e) {
+            if (!isDragging) return;
+            const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            dist = currentX - startX;
+        }
+
+        function dragEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+            const threshold = 50;
+            if (dist < -threshold) {
+                turnPage(currentPageIndex + 1);
+            } else if (dist > threshold) {
+                turnPage(currentPageIndex - 1);
+            }
+        }
+
+        // --- Event Listeners ---
+        homeScreenPagesContainer.addEventListener('mousedown', dragStart);
+        homeScreenPagesContainer.addEventListener('mousemove', dragMove);
+        homeScreenPagesContainer.addEventListener('mouseup', dragEnd);
+        homeScreenPagesContainer.addEventListener('mouseleave', dragEnd);
+
+        homeScreenPagesContainer.addEventListener('touchstart', dragStart, { passive: true });
+        homeScreenPagesContainer.addEventListener('touchmove', dragMove, { passive: true });
+        homeScreenPagesContainer.addEventListener('touchend', dragEnd);
+
+        // --- Initial Load ---
+        window.onload = () => {
+            updateTime();
+            setInterval(updateTime, 1000);
+            loadWallpapers();
+            setupPages();
+        };
+    </script>
+</body>
+</html>
+
+

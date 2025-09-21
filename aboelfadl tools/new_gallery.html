@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة رفع وتصدير الوسائط - محمود أبو الفضل</title>
+    <style>
+        /* التصميم العام */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            direction: rtl; /* اتجاه الكتابة من اليمين لليسار */
+            text-align: right; /* محاذاة النص لليمين */
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1000px;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        /* قسم الرفع */
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px dashed #007bff;
+            border-radius: 10px;
+            background-color: #eaf5ff;
+        }
+
+        .upload-section label {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #0056b3;
+            font-weight: bold;
+        }
+
+        .upload-section input[type="file"] {
+            display: none; /* إخفاء زر الإدخال الأصلي */
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+            margin-top: 10px;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .file-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .file-list li {
+            background-color: #f8f9fa;
+            border: 1px solid #e2e6ea;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+            color: #495057;
+        }
+
+        .file-list li .remove-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background-color 0.2s ease;
+        }
+
+        .file-list li .remove-btn:hover {
+            background-color: #c82333;
+        }
+
+        /* قسم المعرض الحالي (المرئي في صفحة الرفع) */
+        .media-sections {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .media-section {
+            flex: 1;
+            min-width: 45%;
+            background-color: #fdfdfd;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eee;
+        }
+
+        .media-section h3 {
+            color: #34495e;
+            margin-top: 0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .media-items {
+            display: grid;
+            gap: 15px;
+        }
+
+        .media-item {
+            background-color: #f0f2f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .media-item .item-number {
+            position: absolute;
+            top: 8px;
+            left: 8px; /* ليتناسب مع RTL */
+            background-color: #007bff;
+            color: white;
+            font-size: 0.8em;
+            padding: 4px 8px;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .media-item img, .media-item video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .media-item p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #555;
+            word-break: break-word;
+        }
+
+        /* زر التحميل */
+        .download-section {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .download-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 35px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        /* استجابة التصميم للشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .media-sections {
+                flex-direction: column;
+            }
+            .media-section {
+                min-width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>أداة رفع وتصدير الوسائط</h1>
+        <div class="upload-section">
+            <label for="mediaUpload">اختر صور أو فيديوهات للرفع:</label>
+            <input type="file" id="mediaUpload" accept="image/*,video/*" multiple>
+            <label for="mediaUpload" class="custom-file-upload">
+                + إضافة ملفات
+            </label>
+            <ul id="uploadedFilesList" class="file-list"></ul>
+        </div>
+    </div>
+
+    <div class="container media-sections-container">
+        <h2>معرض الوسائط الحالي</h2>
+        <div class="media-sections">
+            <div class="media-section">
+                <h3>قسم الصور</h3>
+                <div id="imageGallery" class="media-items">
+                    </div>
+            </div>
+            <div class="media-section">
+                <h3>قسم الفيديوهات</h3>
+                <div id="videoGallery" class="media-items">
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container download-section">
+        <button id="downloadPageBtn" class="download-btn">تحميل المعرض كملف HTML منفصل</button>
+    </div>
+
+    <script>
+        // JavaScript لرفع وعرض الملفات
+        const mediaUpload = document.getElementById('mediaUpload');
+        const uploadedFilesList = document.getElementById('uploadedFilesList');
+        const imageGallery = document.getElementById('imageGallery');
+        const videoGallery = document.getElementById('videoGallery');
+        const downloadPageBtn = document.getElementById('downloadPageBtn');
+
+        // قائمة لتخزين البيانات الأساسية للملفات المرفوعة
+        let uploadedMediaData = [];
+
+        mediaUpload.addEventListener('change', function() {
+            const files = mediaUpload.files;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    // تخزين بيانات الملف
+                    uploadedMediaData.push({
+                        name: file.name,
+                        type: file.type,
+                        dataUrl: dataUrl
+                    });
+
+                    // إضافة الملف لقائمة العرض المؤقتة
+                    const listItem = document.createElement('li');
+                    listItem.textContent = file.name;
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.textContent = 'إزالة';
+                    removeBtn.className = 'remove-btn';
+                    removeBtn.addEventListener('click', function() {
+                        listItem.remove();
+                        // إزالة العنصر من array uploadedMediaData
+                        uploadedMediaData = uploadedMediaData.filter(item => item.dataUrl !== dataUrl);
+                        // إعادة عرض المحتوى لتحديث الأرقام
+                        renderMediaGallery();
+                    });
+                    listItem.appendChild(removeBtn);
+                    uploadedFilesList.appendChild(listItem);
+
+                    // عرض الملف في المعرض الحالي
+                    renderMediaGallery();
+                };
+                reader.readAsDataURL(file); // قراءة الملف كـ Data URL
+            }
+        });
+
+        // دالة لإنشاء عنصر رقم الترتيب
+        function createItemNumber(number) {
+            const span = document.createElement('span');
+            span.className = 'item-number';
+            span.textContent = number;
+            return span;
+        }
+
+        // دالة لإعادة بناء وعرض محتوى المعرض
+        function renderMediaGallery() {
+            imageGallery.innerHTML = ''; // تفريغ معرض الصور
+            videoGallery.innerHTML = ''; // تفريغ معرض الفيديوهات
+
+            let imageCount = 0;
+            let videoCount = 0;
+
+            uploadedMediaData.forEach(media => {
+                const mediaItemDiv = document.createElement('div');
+                mediaItemDiv.className = 'media-item';
+                mediaItemDiv.setAttribute('data-src', media.dataUrl);
+
+                const fileNamePara = document.createElement('p');
+                fileNamePara.textContent = media.name;
+
+                if (media.type.startsWith('image/')) {
+                    imageCount++;
+                    const img = document.createElement('img');
+                    img.src = media.dataUrl;
+                    img.alt = media.name;
+                    mediaItemDiv.appendChild(createItemNumber(imageCount));
+                    mediaItemDiv.appendChild(img);
+                    mediaItemDiv.appendChild(fileNamePara);
+                    imageGallery.appendChild(mediaItemDiv);
+                } else if (media.type.startsWith('video/')) {
+                    videoCount++;
+                    const video = document.createElement('video');
+                    video.src = media.dataUrl;
+                    video.controls = true;
+                    video.muted = true;
+                    video.preload = 'metadata';
+                    mediaItemDiv.appendChild(createItemNumber(videoCount));
+                    mediaItemDiv.appendChild(video);
+                    mediaItemDiv.appendChild(fileNamePara);
+                    videoGallery.appendChild(mediaItemDiv);
+                }
+            });
+        }
+
+
+        downloadPageBtn.addEventListener('click', function() {
+            // نبدأ ببناء محتوى الملف الجديد الذي سيتم تحميله (صفحة المعرض فقط)
+            let downloadedFileContent = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض الوسائط الخاص بك - محمود أبو الفضل</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            direction: rtl;
+            text-align: right;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1000px;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+        /* تم حذف CSS الخاص بمربع البحث */
+        .media-sections {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        .media-section {
+            flex: 1;
+            min-width: 45%;
+            background-color: #fdfdfd;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #eee;
+        }
+        .media-section h3 {
+            color: #34495e;
+            margin-top: 0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .media-items {
+            display: grid;
+            gap: 15px;
+        }
+        .media-item {
+            background-color: #f0f2f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .media-item .item-number {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: #007bff;
+            color: white;
+            font-size: 0.8em;
+            padding: 4px 8px;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        .media-item img, .media-item video {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .media-item p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #555;
+            word-break: break-word;
+        }
+        @media (max-width: 768px) {
+            .media-sections {
+                flex-direction: column;
+            }
+            .media-section {
+                min-width: 95%;
+            }
+            /* تم حذف CSS الخاص بمربع البحث على الشاشات الصغيرة */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>معرض الوسائط الخاص بك</h1>
+        </div>
+
+    <div class="container media-sections-container">
+        <div class="media-sections">
+            <div class="media-section">
+                <h3>قسم الصور</h3>
+                <div id="imageGallery" class="media-items">
+`;
+            // إضافة محتوى الصور إلى الملف المحمل
+            let currentImageHTML = '';
+            let imageCountForDownload = 0;
+            uploadedMediaData.forEach(media => {
+                if (media.type.startsWith('image/')) {
+                    imageCountForDownload++;
+                    currentImageHTML += `
+                        <div class="media-item">
+                            <span class="item-number">${imageCountForDownload}</span>
+                            <img src="${media.dataUrl}" alt="${media.name}">
+                            <p>${media.name}</p>
+                        </div>
+                    `;
+                }
+            });
+            downloadedFileContent += currentImageHTML;
+
+            downloadedFileContent += `
+                </div>
+            </div>
+            <div class="media-section">
+                <h3>قسم الفيديوهات</h3>
+                <div id="videoGallery" class="media-items">
+`;
+            // إضافة محتوى الفيديوهات إلى الملف المحمل
+            let currentVideoHTML = '';
+            let videoCountForDownload = 0;
+            uploadedMediaData.forEach(media => {
+                if (media.type.startsWith('video/')) {
+                    videoCountForDownload++;
+                    currentVideoHTML += `
+                        <div class="media-item">
+                            <span class="item-number">${videoCountForDownload}</span>
+                            <video src="${media.dataUrl}" controls muted preload="metadata"></video>
+                            <p>${media.name}</p>
+                        </div>
+                    `;
+                }
+            });
+            downloadedFileContent += currentVideoHTML;
+
+            downloadedFileContent += `
+                </div>
+            </div>
+        </div>
+    </div>
+    </body>
+</html>
+`;
+
+            const blob = new Blob([downloadedFileContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'AboElfadl_Gallery.html'; // اسم الملف عند التحميل
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // تحرير الـ URL بعد التحميل
+        });
+
+    </script>
+</body>
+</html>

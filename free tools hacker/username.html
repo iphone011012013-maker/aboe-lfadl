@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Username Scanner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        .container { 
+            background: rgba(0, 0, 0, 0.85); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 800px; 
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin-bottom: 25px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        #usernameInput {
+            flex-grow: 1;
+            padding: 0.8rem;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #000;
+            color: #0f0;
+            font-size: 1.1rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        #scanBtn {
+            padding: 0.8rem 1.2rem;
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1.2rem;
+            font-family: 'Cairo', sans-serif;
+        }
+        #scanBtn:hover {
+            background: #111;
+            color: #0f0;
+            border: 2px solid #0f0;
+        }
+        #results {
+            margin-top: 25px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 100px;
+            max-height: 450px;
+            overflow-y: auto;
+            text-align: right;
+        }
+        .result-item {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #222;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .result-line {
+            display: block;
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        .result-line a {
+            color: #00c8ff;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .result-line a:hover {
+            text-decoration: underline;
+        }
+        .failed {
+            color: #ff4141;
+        }
+        .loader {
+            border: 4px solid #333;
+            border-top: 4px solid #0f0;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="container">
+        <h1>🕵️‍♂️ أداة البحث عن اسم المستخدم</h1>
+        <div class="input-group">
+            <input type="text" id="usernameInput" placeholder="أدخل اسم المستخدم هنا...">
+            <button id="scanBtn">🔎</button>
+        </div>
+        <div class="loader" id="loader"></div>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Matrix Effect
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        const letters = "01";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        function draw() {
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+
+        // Username Scanner Logic
+        const scanBtn = document.getElementById('scanBtn');
+        const usernameInput = document.getElementById('usernameInput');
+        const resultsDiv = document.getElementById('results');
+        const loader = document.getElementById('loader');
+
+        const socialPlatforms = {
+            'فيسبوك': 'https://www.facebook.com/{username}',
+            'تويتر': 'https://www.twitter.com/{username}',
+            'انستغرام': 'https://www.instagram.com/{username}',
+            'لينكد إن': 'https://www.linkedin.com/in/{username}',
+            'جيت هب': 'https://www.github.com/{username}',
+            'بينتيريست': 'https://www.pinterest.com/{username}',
+            'يوتيوب': 'https://www.youtube.com/@{username}',
+            'تيك توك': 'https://www.tiktok.com/@{username}',
+            'تيليجرام': 'https://t.me/{username}',
+            'جوجل': 'https://www.google.com/search?q={username}'
+        };
+
+        async function checkUrlExists(url) {
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            try {
+                const response = await fetch(proxyUrl, { method: 'HEAD', mode: 'cors' });
+                return response.ok || response.status === 404 || response.status === 403;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        scanBtn.addEventListener('click', async () => {
+            const username = usernameInput.value.trim();
+            if (!username) {
+                alert('الرجاء إدخال اسم مستخدم للبحث عنه.');
+                return;
+            }
+
+            resultsDiv.innerHTML = '';
+            loader.style.display = 'block';
+
+            for (const [platform, urlTemplate] of Object.entries(socialPlatforms)) {
+                const finalUrl = urlTemplate.replace(/{username}/g, username);
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                
+                // استثناء المواقع التي لا يمكن فحصها بشكل موثوق
+                if (['لينكد إن', 'جوجل'].includes(platform)) {
+                     resultItem.innerHTML = `
+                        <span class="result-line">✅ | الموقع: ${platform}</span>
+                        <span class="result-line">📲 | الرابط: <a href="${finalUrl}" target="_blank">${finalUrl}</a></span>
+                    `;
+                    resultsDiv.appendChild(resultItem);
+                    continue;
+                }
+
+                const exists = await checkUrlExists(finalUrl);
+
+                if (exists) {
+                    resultItem.innerHTML = `
+                        <span class="result-line">✅ | الموقع: ${platform}</span>
+                        <span class="result-line">📲 | الرابط: <a href="${finalUrl}" target="_blank">${finalUrl}</a></span>
+                    `;
+                } else {
+                    resultItem.innerHTML = `
+                        <span class="result-line">⚠️ | الموقع: ${platform}</span>
+                        <span class="result-line failed">فشل الاتصال أو الحساب غير موجود</span>
+                    `;
+                }
+                resultsDiv.appendChild(resultItem);
+            }
+            
+            loader.style.display = 'none';
+        });
+    </script>
+
+</body>
+</html>
+

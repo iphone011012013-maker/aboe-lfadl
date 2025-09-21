@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visa Hunter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        .container { 
+            background: rgba(0, 0, 0, 0.8); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 800px; 
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+        }
+        .header { text-align: center; padding-bottom: 1rem; border-bottom: 1px solid #0f0; margin-bottom: 1.5rem; }
+        .header h1 {
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+        }
+        .header p {
+            font-family: 'Cairo', sans-serif;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn, .issuer-select {
+            padding: 0.8rem 1.5rem;
+            background: #0f0;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1.1rem;
+            font-family: 'Cairo', sans-serif;
+        }
+        .btn:hover, .issuer-select:hover {
+            background: #111;
+            color: #0f0;
+            border: 2px solid #0f0;
+        }
+        .issuer-select {
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+        }
+        option { background-color: #000; }
+        .card-data {
+            background: #000;
+            border: 1px solid #0f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .card-data.empty {
+            text-align: center;
+            color: #888;
+            font-family: 'Cairo', sans-serif;
+        }
+        .warning {
+            background: rgba(255, 255, 0, 0.1);
+            border: 1px solid #ff0;
+            color: #ff0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-family: 'Cairo', sans-serif;
+        }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Visa Hunter</h1>
+            <p>أداة لتوليد بيانات بطاقات ائتمان</p>
+        </div>
+        
+        <div class="content">
+            <div class="warning">
+                <strong>⚠️ تحذير مهم</strong>
+              تم إنشاؤها لأغراض تعليمية واختبارية فقط. لا تستخدمها في معاملات حقيقية.
+            </div>
+
+            <div class="controls">
+                <select id="issuerSelect" class="issuer-select">
+                    <option value="random">عشوائي</option>
+                    <option value="visa">Visa</option>
+                    <option value="mastercard">Mastercard</option>
+                    <option value="amex">American Express</option>
+                    <option value="discover">Discover</option>
+                </select>
+                
+                <button class="btn" onclick="generateCard()">🎲 توليد بطاقة جديدة</button>
+                <button class="btn" onclick="generateMultiple()">📋 توليد 5 بطاقات</button>
+                <button class="btn" onclick="clearData()">🗑️ مسح البيانات</button>
+            </div>
+
+            <div id="cardData" class="card-data empty">
+                اضغط على "توليد بطاقة جديدة" لإنشاء بيانات وهمية
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix Effect
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        const letters = "01";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        function draw() {
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+
+        // Card Generation Logic (نفس الكود بدون تغيير)
+        const firstNames = [
+            'Ahmed', 'Mohamed', 'Ali', 'Omar', 'Khaled', 'Hassan', 'Ibrahim', 'Mahmoud', 'Youssef', 'Amr',
+            'Fatma', 'Aisha', 'Maryam', 'Nour', 'Sara', 'Dina', 'Rana', 'Hala', 'Layla', 'Yasmin',
+            'John', 'Michael', 'David', 'James', 'Robert', 'William', 'Richard', 'Joseph', 'Thomas', 'Christopher',
+            'Mary', 'Patricia', 'Jennifer', 'Linda', 'Elizabeth', 'Barbara', 'Susan', 'Jessica', 'Sarah', 'Karen',
+            'Cayson', 'Rucker', 'Mason', 'Logan', 'Lucas', 'Jackson', 'Aiden', 'Oliver', 'Elijah', 'Liam'
+        ];
+        const lastNames = [
+            'Ahmed', 'Mohamed', 'Ali', 'Hassan', 'Ibrahim', 'Mahmoud', 'Youssef', 'Amr', 'Khaled', 'Omar',
+            'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez',
+            'Wilson', 'Anderson', 'Taylor', 'Thomas', 'Hernandez', 'Moore', 'Martin', 'Jackson', 'Thompson', 'White',
+            'Rucker', 'Parker', 'Evans', 'Edwards', 'Collins', 'Stewart', 'Sanchez', 'Morris', 'Rogers', 'Reed'
+        ];
+        const cardIssuers = {
+            visa: { name: 'Visa', prefixes: ['4'], length: 16 },
+            mastercard: { name: 'Mastercard', prefixes: ['51', '52', '53', '54', '55', '2221', '2222', '2223', '2224', '2225', '2226', '2227', '2228', '2229', '223', '224', '225', '226', '227', '228', '229', '23', '24', '25', '26', '270', '271', '2720'], length: 16 },
+            amex: { name: 'American Express', prefixes: ['34', '37'], length: 15 },
+            discover: { name: 'Discover', prefixes: ['6011', '622126', '622127', '622128', '622129', '62213', '62214', '62215', '62216', '62217', '62218', '62219', '6222', '6223', '6224', '6225', '6226', '6227', '6228', '644', '645', '646', '647', '648', '649', '65'], length: 16 }
+        };
+        function getRandomElement(array) { return array[Math.floor(Math.random() * array.length)]; }
+        function generateRandomNumber(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+        function generateCardNumber(issuer) {
+            let prefix = getRandomElement(issuer.prefixes);
+            let cardNumber = prefix;
+            while (cardNumber.length < issuer.length - 1) {
+                cardNumber += generateRandomNumber(0, 9).toString();
+            }
+            let checkDigit = calculateLuhnCheckDigit(cardNumber);
+            cardNumber += checkDigit;
+            return cardNumber;
+        }
+        function calculateLuhnCheckDigit(cardNumber) {
+            let sum = 0;
+            let alternate = true;
+            for (let i = cardNumber.length - 1; i >= 0; i--) {
+                let digit = parseInt(cardNumber.charAt(i));
+                if (alternate) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit = (digit % 10) + 1;
+                    }
+                }
+                sum += digit;
+                alternate = !alternate;
+            }
+            return (10 - (sum % 10)) % 10;
+        }
+        function generateCVV(issuer) {
+            const length = issuer.name === 'American Express' ? 4 : 3;
+            let cvv = '';
+            for (let i = 0; i < length; i++) {
+                cvv += generateRandomNumber(0, 9).toString();
+            }
+            return cvv;
+        }
+        function generatePIN() {
+            let pin = '';
+            for (let i = 0; i < 4; i++) {
+                pin += generateRandomNumber(0, 9).toString();
+            }
+            return pin;
+        }
+        function generateExpirationDate() {
+            const currentYear = new Date().getFullYear();
+            const futureYear = generateRandomNumber(currentYear + 1, currentYear + 8);
+            const month = generateRandomNumber(1, 12);
+            return `${month.toString().padStart(2, '0')}/${futureYear.toString().slice(-2)}`;
+        }
+        function generateFullName() { return `${getRandomElement(firstNames)} ${getRandomElement(lastNames)}`; }
+        function getSelectedIssuer() {
+            const selectedValue = document.getElementById('issuerSelect').value;
+            if (selectedValue === 'random') {
+                const issuerKeys = Object.keys(cardIssuers);
+                return cardIssuers[getRandomElement(issuerKeys)];
+            }
+            return cardIssuers[selectedValue];
+        }
+        function generateCard() {
+            const issuer = getSelectedIssuer();
+            const cardData = `Card Issuer: ${issuer.name}\nCard Number: ${generateCardNumber(issuer)}\nFull Name: ${generateFullName()}\nCVV: ${generateCVV(issuer)}\nPin: ${generatePIN()}\nExpiration Date: ${generateExpirationDate()}`;
+            document.getElementById('cardData').textContent = cardData;
+            document.getElementById('cardData').classList.remove('empty');
+        }
+        function generateMultiple() {
+            let allCards = '';
+            for (let i = 0; i < 5; i++) {
+                const issuer = getSelectedIssuer();
+                const cardData = `Card Issuer: ${issuer.name}\nCard Number: ${generateCardNumber(issuer)}\nFull Name: ${generateFullName()}\nCVV: ${generateCVV(issuer)}\nPin: ${generatePIN()}\nExpiration Date: ${generateExpirationDate()}`;
+                allCards += cardData + '\n\n' + '─'.repeat(50) + '\n\n';
+            }
+            document.getElementById('cardData').textContent = allCards.trim();
+            document.getElementById('cardData').classList.remove('empty');
+        }
+        function clearData() {
+            document.getElementById('cardData').textContent = 'اضغط على "توليد بطاقة جديدة" لإنشاء بيانات وهمية';
+            document.getElementById('cardData').classList.add('empty');
+        }
+        window.onload = generateCard;
+    </script>
+</body>
+</html>
+

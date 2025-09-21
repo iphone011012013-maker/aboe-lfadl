@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>شركات الاتصالات</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #000000; /* خلفية سوداء */
+    color: #E0E0E0; /* لون نص فاتح للخلفية السوداء */
+  }
+  h1 {
+    color: #00FFFF; /* أزرق سماوي فسفوري */
+    margin-bottom: 30px;
+    font-size: 2.2em;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.7); /* توهج نصي */
+  }
+  .company-section {
+    background-color: #1a1a1a; /* خلفية داكنة للقسم */
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3); /* توهج خفيف للقسم */
+    padding: 30px 40px;
+    margin: 20px 0;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    box-sizing: border-box;
+    border-top: 5px solid; /* For company specific color */
+  }
+  .company-section.vodafone { border-top-color: #FF0000; /* أحمر فسفوري */ }
+  .company-section.etisalat { border-top-color: #009640; /* أخضر فسفوري */ }
+  .company-section.we { border-top-color: #CC00FF; /* موف فسفوري */ }
+  .company-logo {
+    max-width: 120px;
+    height: auto;
+    margin-bottom: 20px;
+    filter: brightness(1.2); /* لجعل الشعار أكثر وضوحًا على الخلفية الداكنة */
+  }
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .styled-button {
+    background-color: #00FFFF; /* أزرق سماوي افتراضي */
+    color: #1a1a1a; /* نص داكن للأزرار الفسفورية */
+    padding: 14px 28px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 700; /* خط سميك لزيادة الوضوح */
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.5); /* توهج للأزرار */
+  }
+  .styled-button:hover {
+    background-color: #00CCCC; /* درجة أغمق عند التمرير */
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8); /* توهج أكبر عند التمرير */
+  }
+  .styled-button:active {
+    transform: translateY(0);
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+  }
+  .styled-button.vodafone-btn { background-color: #FF0000; color: #1a1a1a; } /* أحمر فسفوري */
+  .styled-button.vodafone-btn:hover { background-color: #CC0000; }
+  .styled-button.etisalat-btn { background-color: #00FF00; color: #1a1a1a; } /* أخضر فسفوري */
+  .styled-button.etisalat-btn:hover { background-color: #00CC00; }
+  .styled-button.we-btn { background-color: #CC00FF; color: #1a1a1a; } /* موف فسفوري */
+  .styled-button.we-btn:hover { background-color: #9900CC; }
+  .styled-button.whatsapp-btn { background-color: #00FF99; color: #1a1a1a; } /* أخضر مائي فسفوري */
+  .styled-button.whatsapp-btn:hover { background-color: #00CC7A; }
+  /* Style for selected button */
+  .styled-button.selected {
+    border: 3px solid #FFD700; /* لون ذهبي مميز للاختيار */
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); /* توهج ذهبي */
+  }
+  /* Basic icon for WhatsApp */
+  .whatsapp-btn::before {
+    content: ' ';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%231a1a1a"><path d="M12.04 2C6.59 2 2.04 6.46 2.04 12c0 1.77.5 3.45 1.45 4.9L2 22l5.24-1.45c1.45.96 3.13 1.45 4.9 1.45 5.45 0 9.96-4.46 9.96-10s-4.46-10-10-10zm-1.18 15.35c-.2-.04-.57-.15-.99-.34-.4-.19-2.3-1.12-2.65-1.23-.34-.11-.6-.17-.85.11s-1.12 1.23-1.37 1.49c-.25.26-.5.29-.93.12-.44-.17-1.85-.68-3.53-2.18-.75-.68-1.25-1.52-1.39-1.78-.14-.26-.01-.4-.01-.56s.25-.4.38-.56c.13-.16.29-.4.4-.59.1-.19.14-.34.21-.49s.07-.29.04-.56c-.03-.27-.31-.66-.43-.92-.12-.26-.25-.22-.38-.22-.13 0-.29-.02-.45-.02s-.4-.03-.61-.03c-.22 0-.58.07-.89.37-.32.3-.96.95-.96 2.3s.99 2.65 1.13 2.82c.14.17 1.95 3.01 4.71 4.14 2.76 1.12 3.32.91 3.93.85.61-.06 1.85-.75 2.1-.96s.4-.34.57-.61c.17-.26.17-.48.12-.62-.05-.14-.19-.2-.4-.25z"/></svg>');
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  /* Modal Styles */
+  .modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top, higher than other content */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.9); /* خلفية سوداء شفافة أكثر للمودال */
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.3s ease-out forwards; /* تأثير ظهور ناعم */
+  }
+  /* Fade in animation for modal */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  /* Fade out animation for modal */
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+  .modal.fade-out {
+    animation: fadeOut 0.3s ease-out forwards;
+  }
+  .modal-content {
+    background-color: #1f1f1f; /* خلفية داكنة للمودال، أغمق قليلاً */
+    margin: auto;
+    padding: 40px; /* زيادة المساحة الداخلية */
+    border: 1px solid #333;
+    width: 90%; /* عرض أكبر قليلاً */
+    max-width: 500px; /* أقصى عرض */
+    border-radius: 15px; /* زوايا أكثر استدارة */
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.7); /* توهج فسفوري أقوى */
+    position: relative;
+    color: #E0E0E0; /* لون نص فاتح داخل المودال */
+    transform: translateY(-20px); /* تأثير حركة عند الظهور */
+    animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; /* حركة ظهور احترافية */
+  }
+  @keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-content h2 {
+    color: #00FFFF; /* أزرق سماوي فسفوري لعنوان المودال */
+    margin-bottom: 25px; /* مسافة أكبر أسفل العنوان */
+    font-size: 1.8em;
+    text-shadow: 0 0 6px rgba(0, 255, 255, 0.5);
+  }
+  .close-button {
+    color: #00FFFF; /* أزرق سماوي فسفوري لزر الإغلاق */
+    font-size: 36px; /* حجم أكبر لزر الإغلاق */
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+  .close-button:hover,
+  .close-button:focus {
+    color: #FF00FF; /* ماجنتا فسفوري عند التمرير */
+    transform: rotate(90deg); /* دوران عند التمرير */
+    text-decoration: none;
+  }
+  /* New style for individual account entries as boxes */
+  .account-entry {
+    display: flex;
+    align-items: center;
+    background-color: #2a2a2a; /* خلفية أغمق قليلاً من المودال */
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 15px; /* مسافة بين المربعات */
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.2); /* توهج خفيف للمربع */
+    border: 1px solid rgba(0, 255, 255, 0.1); /* حدود خفيفة */
+  }
+  .account-entry:last-child {
+    margin-bottom: 0; /* لا مسافة بعد آخر مربع */
+  }
+  .account-entry .label {
+    font-weight: bold;
+    color: #00FFFF; /* أزرق سماوي فسفوري للعناوين */
+    min-width: 110px; /* زيادة عرض التسمية للمحاذاة */
+    text-align: right; /* محاذاة لليمين */
+    padding-right: 15px; /* مسافة بين التسمية والقيمة */
+    flex-shrink: 0; /* منع التصغير */
+  }
+  .account-entry .value {
+    flex-grow: 1;
+    text-align: left;
+    word-break: break-all;
+    color: #00FF00; /* أخضر فسفوري للقيم */
+    font-size: 1.15em; /* حجم أكبر قليلاً للقيمة */
+  }
+  .copy-icon {
+    margin-left: 15px; /* مسافة أكبر عن القيمة */
+    cursor: pointer;
+    width: 24px; /* حجم أكبر للأيقونة */
+    height: 24px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2300FFFF"><path d="M16 1H4C2.9 1 2 1.9 2 3v14h2V3h12V1zm3 4H8C6.9 5 6 5.9 6 7v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>');
+    background-size: cover;
+    opacity: 0.7; /* شفافية أقل قليلاً */
+    transition: opacity 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+    flex-shrink: 0; /* منع التصغير */
+  }
+  .copy-icon:hover {
+    opacity: 1;
+    transform: scale(1.1); /* تكبير عند التمرير */
+    filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.9)); /* توهج أقوى */
+  }
+  .copy-icon.copied {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2300FF00"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>'); /* Checkmark icon */
+    filter: none; /* إزالة التوهج بعد النسخ */
+    transform: scale(1); /* إعادة الحجم بعد النسخ */
+  }
+  .copy-message {
+    font-size: 0.95em; /* حجم أكبر قليلاً للرسالة */
+    color: #00FF00; /* أخضر فسفوري لرسالة النجاح */
+    margin-left: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    text-shadow: 0 0 6px rgba(0, 255, 0, 0.8); /* توهج أقوى للرسالة */
+    white-space: nowrap; /* منع التفاف النص */
+  }
+  .copy-message.show {
+    opacity: 1;
+  }
+  .modal-footer {
+    margin-top: 30px; /* مسافة أكبر للزر السفلي */
+    text-align: center;
+  }
+  /* Vodafone modal footer button */
+  .modal-footer .styled-button.vodafone-btn {
+    background-color: #FF0000; /* أحمر فسفوري */
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.6); /* توهج أحمر */
+  }
+  .modal-footer .styled-button.vodafone-btn:hover {
+    background-color: #CC0000; /* أحمر أغمق عند التمرير */
+    box-shadow: 0 0 18px rgba(255, 0, 0, 0.9); /* توهج أقوى عند التمرير */
+  }
+  /* WE modal footer button */
+  .modal-footer .styled-button.we-btn {
+    background-color: #CC00FF; /* موف فسفوري */
+    box-shadow: 0 0 12px rgba(204, 0, 255, 0.6); /* توهج موف */
+  }
+  .modal-footer .styled-button.we-btn:hover {
+    background-color: #9900CC; /* موف أغمق عند التمرير */
+    box-shadow: 0 0 18px rgba(204, 0, 255, 0.9); /* توهج أقوى عند التمرير */
+  }
+  /* Responsive adjustments for smaller screens */
+  @media (max-width: 600px) {
+    .company-section {
+      padding: 20px;
+    }
+    .modal-content {
+      padding: 25px;
+      width: 95%;
+    }
+    .modal-content h2 {
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+    .account-entry {
+      padding: 10px 12px;
+      margin-bottom: 10px;
+    }
+    .account-entry .label {
+      min-width: 70px;
+      padding-right: 10px;
+      font-size: 0.95em;
+    }
+    .account-entry .value {
+      font-size: 1em;
+    }
+    .copy-icon {
+      width: 20px;
+      height: 20px;
+      margin-left: 10px;
+    }
+    .copy-message {
+      font-size: 0.85em;
+    }
+    .styled-button {
+      padding: 12px 20px;
+      font-size: 1em;
+      min-width: unset; /* Allow buttons to shrink on small screens */
+      flex-grow: 1; /* Allow buttons to fill available space */
+    }
+    .modal-footer .styled-button {
+      padding: 10px 20px;
+      font-size: 0.95em;
+    }
+  }
+</style>
+</head>
+<body>
+  <h1>روابط شركات الاتصالات المصرية</h1>
+  <div class="company-section vodafone">
+    <img src="Vodafone_eg.png" alt="sim Logo" class="company-logo">
+    <h2>فودافون مصر</h2>
+    <div class="button-group">
+      <button class="styled-button vodafone-btn" data-link-key="vodafone-website" onclick="openVodafoneAccountsModal();">
+        الموقع الرسمي (الحسابات)
+      </button>
+    </div>
+  </div>
+  <div class="company-section etisalat">
+    <img src="Etisalat_eg.png" alt="sim Logo" class="company-logo">
+    <h2>اتصالات مصر</h2>
+    <div class="button-group">
+      <button class="styled-button etisalat-btn" data-link-key="etisalat-website" onclick="navigateAndSelect(this, 'https://www.etisalat.eg/LoginApp/index.jsp?locale=ar_U')">
+        الموقع الرسمي
+      </button>
+      <button class="styled-button whatsapp-btn" data-link-key="etisalat-whatsapp-adsl" onclick="navigateAndSelect(this, 'https://wa.me/+201111234777')">
+        <span class="whatsapp-btn-text">واتساب ADSL</span>
+      </button>
+      <button class="styled-button whatsapp-btn" data-link-key="etisalat-whatsapp-general" onclick="navigateAndSelect(this, 'https://wa.me/+201111234333')">
+        <span class="whatsapp-btn-text">واتساب عام</span>
+      </button>
+    </div>
+  </div>
+  <div class="company-section we">
+    <img src="We_eg.jpeg" alt="sim Logo" class="company-logo">
+    <h2>وي (WE)</h2>
+    <div class="button-group">
+      <button class="styled-button we-btn" data-link-key="we-personal" onclick="openWePersonalAccountsModal();">
+        حساب شخصي
+      </button>
+      <button class="styled-button we-btn" data-link-key="we-landline" onclick="openWeLandlineModal();">
+        تليفون أرضي
+      </button>
+    </div>
+  </div>
+  <div id="vodafoneAccountsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('vodafoneAccountsModal')">&times;</span>
+      <h2>حسابات فودافون</h2>
+      <div class="account-list">
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="phone1">01001264955</span> <span class="copy-icon" onclick="copyText('phone1', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="pass1">AbouElfadl#25</span> <span class="copy-icon" onclick="copyText('pass1', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="phone2">01033350905</span> <span class="copy-icon" onclick="copyText('phone2', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="pass2">150150</span> <span class="copy-icon" onclick="copyText('pass2', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="phone3">01097123179</span> <span class="copy-icon" onclick="copyText('phone3', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="pass3">150150</span> <span class="copy-icon" onclick="copyText('pass3', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="phone4">01061809351</span> <span class="copy-icon" onclick="copyText('phone4', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="pass4">Std#050525</span> <span class="copy-icon" onclick="copyText('pass4', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="phone5">01020713347</span> <span class="copy-icon" onclick="copyText('phone5', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="pass5">Std#050525</span> <span class="copy-icon" onclick="copyText('pass5', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="phone6">01110879051</span> <span class="copy-icon" onclick="copyText('phone6', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="pass6">AbouElfadl#25</span> <span class="copy-icon" onclick="copyText('pass6', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="phone7">01093650351</span> <span class="copy-icon" onclick="copyText('phone7', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="pass7">AbouElfadl#25</span> <span class="copy-icon" onclick="copyText('pass7', this)"></span>
+        </div>
+      </div>
+      <p style="margin-top: 25px; font-size: 0.9em; color: #E0E0E0;">
+        لاستخدام هذه البيانات، انسخ الرقم وكلمة السر ثم انتقل إلى موقع فودافون.
+      </p>
+      <div class="modal-footer">
+        <button class="styled-button vodafone-btn" onclick="navigateAndSelect(this, 'https://www.vodafone.com.eg/ar/personal/my-vodafone/login')">
+          الانتقال إلى موقع فودافون
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="wePersonalAccountsModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('wePersonalAccountsModal')">&times;</span>
+      <h2>حساب شخصي (WE)</h2>
+      <div class="account-list">
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="wePhone1">01554436872</span> <span class="copy-icon" onclick="copyText('wePhone1', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="wePass1">Std#050525</span> <span class="copy-icon" onclick="copyText('wePass1', this)"></span>
+        </div>
+      </div>
+      <p style="margin-top: 25px; font-size: 0.9em; color: #E0E0E0;">
+        لاستخدام هذه البيانات، انسخ الرقم وكلمة السر ثم انتقل إلى موقع WE.
+      </p>
+      <div class="modal-footer">
+        <button class="styled-button we-btn" onclick="navigateAndSelect(this, 'https://my.te.eg/ar-EG')">
+          الانتقال إلى موقع WE
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="weLandlineModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="closeModal('weLandlineModal')">&times;</span>
+      <h2>تليفون أرضي (WE)</h2>
+      <div class="account-list">
+        <div class="account-entry">
+          <span class="label">رقم الموبايل:</span> <span class="value" id="weLandlinePhone">0233162083</span> <span class="copy-icon" onclick="copyText('weLandlinePhone', this)"></span>
+        </div>
+        <div class="account-entry">
+          <span class="label">كلمة السر:</span> <span class="value" id="weLandlinePass">Std#050525</span> <span class="copy-icon" onclick="copyText('weLandlinePass', this)"></span>
+        </div>
+      </div>
+      <p style="margin-top: 25px; font-size: 0.9em; color: #E0E0E0;">
+        لاستخدام هذه البيانات، انسخ الرقم وكلمة السر ثم انتقل إلى موقع WE الخاص بالتليفون الأرضي.
+      </p>
+      <div class="modal-footer">
+        <button class="styled-button we-btn" onclick="navigateAndSelect(this, 'https://billing.te.eg/ar-EG/Login')">
+          الانتقال إلى موقع تليفون WE الأرضي
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Function to handle navigation and selection
+    function navigateAndSelect(button, url) {
+      // Remove 'selected' class from all buttons
+      const allButtons = document.querySelectorAll('.styled-button');
+      allButtons.forEach(btn => btn.classList.remove('selected'));
+      // Add 'selected' class to the clicked button
+      button.classList.add('selected');
+      // Store the key of the selected button in localStorage
+      localStorage.setItem('lastSelectedButton', button.dataset.link-key);
+      // Navigate to the URL
+      window.location.href = url;
+    }
+    // Function to apply selection on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const lastSelectedKey = localStorage.getItem('lastSelectedButton');
+      if (lastSelectedKey) {
+        const selectedButton = document.querySelector(`[data-link-key="${lastSelectedKey}"]`);
+        if (selectedButton) {
+          selectedButton.classList.add('selected');
+          selectedButton.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    });
+    // Universal function to open a modal
+    function openModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('fade-out'); // Ensure fade-out is removed if present
+      modal.style.display = 'flex'; // Use flex to center the modal
+    }
+    // Universal function to close a modal with animation
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('fade-out');
+      modal.addEventListener('animationend', function handler() {
+        modal.style.display = 'none';
+        modal.classList.remove('fade-out');
+        modal.removeEventListener('animationend', handler);
+      });
+    }
+    // Assign open functions to specific buttons
+    function openVodafoneAccountsModal() {
+      openModal('vodafoneAccountsModal');
+    }
+    function openWePersonalAccountsModal() {
+      openModal('wePersonalAccountsModal');
+    }
+    function openWeLandlineModal() {
+      openModal('weLandlineModal');
+    }
+    // Close any modal if clicked outside
+    window.onclick = function(event) {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        if (event.target === modal) {
+          closeModal(modal.id);
+        }
+      });
+    }
+    // Copy to clipboard function
+    function copyText(elementId, copyIcon) {
+      const textToCopyElement = document.getElementById(elementId);
+      const textToCopy = textToCopyElement.innerText.trim();
+      // Extract only the value after the colon if present
+      const colonIndex = textToCopy.indexOf(':');
+      const finalCopyText = colonIndex !== -1 ? textToCopy.substring(colonIndex + 1).trim() : textToCopy;
+      // Use document.execCommand('copy') as a fallback for clipboard API issues in some environments
+      // navigator.clipboard.writeText is preferred if available
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(finalCopyText).then(() => {
+          showCopyFeedback(copyIcon);
+        }).catch(err => {
+          console.error('Failed to copy text using Clipboard API: ', err);
+          fallbackCopyText(finalCopyText, copyIcon);
+        });
+      } else {
+        fallbackCopyText(finalCopyText, copyIcon);
+      }
+    }
+    function fallbackCopyText(text, copyIcon) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed"; // Avoid scrolling to bottom
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showCopyFeedback(copyIcon);
+      } catch (err) {
+        console.error('Fallback: Failed to copy text: ', err);
+      }
+      document.body.removeChild(textArea);
+    }
+    function showCopyFeedback(copyIcon) {
+      // Change icon to checkmark
+      copyIcon.classList.add('copied');
+      // Remove existing copy message if any
+      const existingMessage = copyIcon.parentNode.querySelector('.copy-message');
+      if (existingMessage) {
+          existingMessage.remove();
+      }
+      // Add 'Copied!' message
+      const message = document.createElement('span');
+      message.className = 'copy-message';
+      message.innerText = 'تم النسخ!';
+      copyIcon.parentNode.appendChild(message);
+      // Animate message appearance
+      setTimeout(() => {
+        message.classList.add('show');
+      }, 10);
+      // Hide message and revert icon after a delay
+      setTimeout(() => {
+        message.classList.remove('show');
+        copyIcon.classList.remove('copied');
+        setTimeout(() => {
+          message.remove();
+        }, 300); // Remove element after fade out
+      }, 1500); // Display for 1.5 seconds
+    }
+  </script>
+</body>
+</html>

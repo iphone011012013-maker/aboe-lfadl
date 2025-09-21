@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تحميل صور بدون خلفية</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f1f3f6;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    .app {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-top: 30px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+      border: none;
+      margin-top: 20px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 13px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <h2>📸 بحث صور بدون خلفية</h2>
+
+    <input type="text" id="searchTerm" placeholder="مثال: أسد، وردة، هاتف" />
+
+    <label for="size">📏 حجم الصورة:</label>
+    <select id="size">
+      <option value="">أي حجم</option>
+      <option value="isz:l">كبيرة</option>
+      <option value="isz:m">متوسطة</option>
+      <option value="isz:i">صغيرة</option>
+    </select>
+
+    <label for="type">📷 نوع الصورة:</label>
+    <select id="type">
+      <option value="">أي نوع</option>
+      <option value="itp:face">وجه</option>
+      <option value="itp:lineart">رسم</option>
+      <option value="itp:animated">صور متحركة (GIF)</option>
+      <option value="itp:photo">فوتوغرافية</option>
+    </select>
+
+    <label for="transparent">🧼 الخلفية:</label>
+    <select id="transparent">
+      <option value="">كل الصور</option>
+      <option value="ic:trans">شفافة (بدون خلفية)</option>
+    </select>
+
+    <label for="color">🎨 لون الصورة:</label>
+    <select id="color">
+      <option value="">كل الألوان</option>
+      <option value="ic:specific,isc:red">أحمر</option>
+      <option value="ic:specific,isc:blue">أزرق</option>
+      <option value="ic:specific,isc:green">أخضر</option>
+      <option value="ic:specific,isc:black">أسود</option>
+      <option value="ic:specific,isc:white">أبيض</option>
+      <option value="ic:specific,isc:yellow">أصفر</option>
+      <option value="ic:specific,isc:orange">برتقالي</option>
+      <option value="ic:specific,isc:purple">بنفسجي</option>
+      <option value="ic:specific,isc:brown">بني</option>
+      <option value="ic:specific,isc:gray">رمادي</option>
+      <option value="ic:specific,isc:pink">وردي</option>
+      <option value="ic:specific,isc:teal">تركواز</option>
+    </select>
+
+    <button onclick="searchGoogle()">🔍 ابحث في Google</button>
+
+    <footer>💡 تصميم AboElfadl - تطبيق بحث صور احترافي</footer>
+  </div>
+
+  <script>
+    function searchGoogle() {
+      const query = document.getElementById("searchTerm").value.trim();
+      const size = document.getElementById("size").value;
+      const type = document.getElementById("type").value;
+      const transparent = document.getElementById("transparent").value;
+      const color = document.getElementById("color").value;
+
+      if (!query) {
+        alert("من فضلك اكتب ما تريد البحث عنه.");
+        return;
+      }
+
+      // تجميع الفلاتر
+      const filters = [size, type, transparent, color].filter(Boolean).join(',');
+
+      // رابط بحث Google بصيغة الصور
+      const url = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(query)}&tbs=${filters}`;
+
+      // فتح الرابط في تبويب جديد
+      window.open(url, "_blank");
+    }
+  </script>
+
+</body>
+</html>

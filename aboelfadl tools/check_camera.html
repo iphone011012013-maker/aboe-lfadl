@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة فحص الكاميرا</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%;
+            /* تعديل العرض الأقصى ليناسب الشكل الطولي */
+            max-width: 450px; 
+            background-color: #1e1e1e;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+
+        h1 {
+            color: #bb86fc;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .camera-container {
+            position: relative;
+            width: 100%;
+            /* === هذا هو التغيير الأساسي === */
+            /* تم تغيير النسبة إلى 177.78% لعمل شكل طولي (Aspect Ratio 9:16) */
+            padding-top: 177.78%; 
+            background-color: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        #camera-feed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            transition: filter 0.3s ease;
+        }
+        
+        #qr-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60%;
+            height: 40%; /* تعديل ارتفاع المربع ليتناسب مع الشكل الطولي */
+            transform: translate(-50%, -50%);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.5);
+            display: none;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* عمودان دائمًا */
+            gap: 15px;
+        }
+        
+        .zoom-control {
+            grid-column: 1 / -1; /* تجعل شريط التقريب يمتد على عرض العمودين */
+            display: none;
+            align-items: center;
+            gap: 10px;
+            color: #ccc;
+        }
+        
+        #zoom-slider {
+            width: 100%;
+        }
+
+        .btn, .filter-select {
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 700;
+            transition: background-color 0.2s ease;
+        }
+        
+        /* جعل الفلاتر تمتد على عرض العمودين */
+        .filter-select {
+             grid-column: 1 / -1;
+        }
+
+        .btn:hover, .filter-select:hover {
+            background-color: #444;
+        }
+        
+        #switch-camera-btn, #zoom-container {
+            display: none;
+        }
+        
+        #capture-btn { background-color: #bb86fc; color: #121212; }
+        #scan-qr-btn { background-color: #03dac6; color: #121212; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📷 فاحص الكاميرا</h1>
+        
+        <div class="camera-container">
+            <video id="camera-feed" autoplay playsinline></video>
+            <canvas id="capture-canvas" style="display: none;"></canvas>
+            <div id="qr-box"></div>
+        </div>
+        
+        <div class="controls-grid">
+            <button id="capture-btn" class="btn">📸 التقاط صورة</button>
+            <button id="scan-qr-btn" class="btn">🔳 مسح QR</button>
+            <button id="switch-camera-btn" class="btn">🔄 تبديل</button>
+            <select id="filter-select" class="filter-select">
+                <option value="none">بدون فلتر</option>
+                <option value="contrast(150%)">تباين عالي</option>
+                <option value="grayscale(100%)">أبيض وأسود</option>
+                <option value="sepia(100%)">بني داكن</option>
+                <option value="invert(100%)">ألوان معكوسة</option>
+            </select>
+            <div class="zoom-control" id="zoom-container">
+                <label for="zoom-slider">تقريب:</label>
+                <input type="range" id="zoom-slider" min="1" max="1" step="0.1" value="1">
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const videoElement = document.getElementById('camera-feed');
+        const switchBtn = document.getElementById('switch-camera-btn');
+        const filterSelect = document.getElementById('filter-select');
+        const captureBtn = document.getElementById('capture-btn');
+        const scanBtn = document.getElementById('scan-qr-btn');
+        const canvas = document.getElementById('capture-canvas');
+        const zoomContainer = document.getElementById('zoom-container');
+        const zoomSlider = document.getElementById('zoom-slider');
+        const qrBox = document.getElementById('qr-box');
+
+        let currentStream;
+        let videoDevices = [];
+        let currentDeviceIndex = 0;
+        let isScanning = false;
+        let scanInterval;
+
+        function stopScanning() {
+            clearInterval(scanInterval);
+            isScanning = false;
+            qrBox.style.display = 'none';
+            scanBtn.textContent = '🔳 مسح QR';
+        }
+
+        function stopCurrentStream() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            stopScanning();
+        }
+
+        async function startStream(deviceId) {
+            stopCurrentStream();
+            const constraints = { audio: false, video: { deviceId: deviceId ? { exact: deviceId } : undefined } };
+            
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                videoElement.srcObject = currentStream;
+                setupControls();
+            } catch (err) {
+                alert("لا يمكن الوصول إلى الكاميرا. الرجاء التأكد من منح الأذونات اللازمة.");
+            }
+        }
+        
+        function setupControls() {
+            const track = currentStream.getVideoTracks()[0];
+            const settings = track.getSettings();
+            videoElement.style.transform = (settings.facingMode === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
+            const capabilities = track.getCapabilities();
+            if (capabilities.zoom) {
+                zoomSlider.min = capabilities.zoom.min;
+                zoomSlider.max = capabilities.zoom.max;
+                zoomSlider.step = capabilities.zoom.step;
+                zoomSlider.value = settings.zoom || 1;
+                zoomContainer.style.display = 'flex';
+            } else {
+                zoomContainer.style.display = 'none';
+            }
+        }
+
+        async function initializeCamera() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                videoDevices = devices.filter(device => device.kind === 'videoinput');
+                if (videoDevices.length > 0) {
+                    if (videoDevices.length > 1) switchBtn.style.display = 'block';
+                    await startStream(videoDevices[currentDeviceIndex].deviceId);
+                } else {
+                    alert("لم يتم العثور على أي كاميرا.");
+                }
+            } catch (err) {
+                 console.error("Error enumerating devices:", err);
+            }
+        }
+        
+        function tick() {
+            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                canvas.height = videoElement.videoHeight;
+                canvas.width = videoElement.videoWidth;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                    stopScanning();
+                    alert(`تم العثور على رمز:\n${code.data}`);
+                    try {
+                        new URL(code.data);
+                        window.open(code.data, '_blank');
+                    } catch (_) {}
+                }
+            }
+        }
+
+        switchBtn.addEventListener('click', () => {
+            if (videoDevices.length > 1) {
+                currentDeviceIndex = (currentDeviceIndex + 1) % videoDevices.length;
+                startStream(videoDevices[currentDeviceIndex].deviceId);
+            }
+        });
+
+        filterSelect.addEventListener('change', () => {
+            videoElement.style.filter = filterSelect.value;
+        });
+
+        zoomSlider.addEventListener('input', () => {
+            const track = currentStream.getVideoTracks()[0];
+            track.applyConstraints({ advanced: [{ zoom: zoomSlider.value }] });
+        });
+
+        captureBtn.addEventListener('click', () => {
+            const ctx = canvas.getContext('2d');
+            canvas.width = videoElement.videoWidth;
+            canvas.height = videoElement.videoHeight;
+            ctx.save();
+            if (videoElement.style.transform === 'scaleX(-1)') {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+            ctx.filter = videoElement.style.filter;
+            ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
+            const dataUrl = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataUrl;
+            link.download = `capture-${Date.now()}.png`;
+            link.click();
+        });
+        
+        scanBtn.addEventListener('click', () => {
+            isScanning = !isScanning;
+            if (isScanning) {
+                scanBtn.textContent = 'إيقاف المسح';
+                qrBox.style.display = 'block';
+                scanInterval = setInterval(tick, 250);
+            } else {
+                stopScanning();
+            }
+        });
+
+        initializeCamera();
+    });
+    </script>
+</body>
+</html>
+

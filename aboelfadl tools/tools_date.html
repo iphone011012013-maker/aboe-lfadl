@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>أدوات التاريخ والتقويم</title>
+  <script src="https://cdn.jsdelivr.net/npm/hijri-date/lib/hijri-date.min.js"></script>
+  <style>
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 15px;
+    }
+    h1 {
+      text-align: center;
+      color: #ffd700;
+      margin: 20px 0;
+    }
+    .tool-card {
+      background: #1a1a1a;
+      border-radius: 15px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
+    }
+    .tool-title {
+      background: #ffd700;
+      color: #000;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #333;
+      color: #ffd700;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #ffd700;
+      color: #000;
+      font-weight: bold;
+      margin-top: 5px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 10px;
+      background: #222;
+      color: #ffd700;
+      padding: 10px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+    }
+    .tools-bar {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+    .tools-bar button {
+      flex: 1;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📅 أدوات التاريخ والتقويم</h1>
+
+    <!-- أداة: تاريخ اليوم -->
+    <div class="tool-card">
+      <div class="tool-title">📆 تاريخ اليوم هجري وميلادي</div>
+      <button onclick="showToday()">عرض التاريخ</button>
+      <div class="result" id="todayResult"></div>
+      <div class="tools-bar">
+        <button onclick="copyText('todayResult')">📋 نسخ</button>
+        <button onclick="downloadText('todayResult')">💾 تحميل</button>
+      </div>
+    </div>
+
+    <!-- الفرق بين تاريخين -->
+    <div class="tool-card">
+      <div class="tool-title">📏 الفرق بين تاريخين (ميلادي)</div>
+      <input type="date" id="date1">
+      <input type="date" id="date2">
+      <button onclick="dateDiff()">احسب الفرق</button>
+      <div class="result" id="diffResult"></div>
+      <div class="tools-bar">
+        <button onclick="copyText('diffResult')">📋 نسخ</button>
+        <button onclick="downloadText('diffResult')">💾 تحميل</button>
+      </div>
+    </div>
+
+    <!-- إضافة مدة إلى تاريخ -->
+    <div class="tool-card">
+      <div class="tool-title">➕ إضافة مدة إلى تاريخ</div>
+      <input type="date" id="baseDate">
+      <input type="number" id="addDays" placeholder="عدد الأيام">
+      <button onclick="addDuration()">أضف</button>
+      <div class="result" id="addResult"></div>
+      <div class="tools-bar">
+        <button onclick="copyText('addResult')">📋 نسخ</button>
+        <button onclick="downloadText('addResult')">💾 تحميل</button>
+      </div>
+    </div>
+
+    <!-- كم باقي على الراتب -->
+    <div class="tool-card">
+      <div class="tool-title">💰 كم باقي على الراتب</div>
+      <input type="date" id="salaryDate">
+      <button onclick="daysUntilSalary()">احسب</button>
+      <div class="result" id="salaryResult"></div>
+      <div class="tools-bar">
+        <button onclick="copyText('salaryResult')">📋 نسخ</button>
+        <button onclick="downloadText('salaryResult')">💾 تحميل</button>
+      </div>
+    </div>
+
+    <!-- سن التقاعد -->
+    <div class="tool-card">
+      <div class="tool-title">🏁 سن التقاعد</div>
+      <input type="date" id="birthDate">
+      <select id="retireAge">
+        <option value="60">60 سنة</option>
+        <option value="65">65 سنة</option>
+      </select>
+      <button onclick="retirementCalc()">احسب</button>
+      <div class="result" id="retireResult"></div>
+      <div class="tools-bar">
+        <button onclick="copyText('retireResult')">📋 نسخ</button>
+        <button onclick="downloadText('retireResult')">💾 تحميل</button>
+      </div>
+    </div>
+
+    <!-- معرفة البرج الفلكي -->
+    <div class="tool-card">
+      <div class="tool-title">🔮 معرفة البرج الفلكي وصفاته</div>
+      <input type="date" id="zodiacDate">
+      <button onclick="getZodiac()">اعرف برجك</button>
+      <div class="result" id="zodiacResult"></div>
+      <div class="tools-bar">
+        <button onclick="copyText('zodiacResult')">📋 نسخ</button>
+        <button onclick="downloadText('zodiacResult')">💾 تحميل</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+function showToday() {
+  const today = new Date();
+  const gDate = today.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const hijri = new HijriDate();
+  const hDate = hijri.format('iYYYY/iM/iD');
+  document.getElementById("todayResult").innerText = `📅 الميلادي: ${gDate}\n🕌 الهجري: ${hDate} هـ`;
+}
+
+function dateDiff() {
+  const d1 = new Date(document.getElementById("date1").value);
+  const d2 = new Date(document.getElementById("date2").value);
+  if (!d1 || !d2) return alert("يرجى تحديد التاريخين.");
+  const diff = Math.abs((d2 - d1) / (1000 * 3600 * 24));
+  document.getElementById("diffResult").innerText = `📏 الفرق: ${diff} يوم`;
+}
+
+function addDuration() {
+  const base = new Date(document.getElementById("baseDate").value);
+  const days = parseInt(document.getElementById("addDays").value);
+  if (!base || isNaN(days)) return alert("أدخل التاريخ والعدد.");
+  base.setDate(base.getDate() + days);
+  document.getElementById("addResult").innerText = `📅 التاريخ الناتج: ${base.toLocaleDateString('ar-EG')}`;
+}
+
+function daysUntilSalary() {
+  const salary = new Date(document.getElementById("salaryDate").value);
+  const today = new Date();
+  if (!salary) return alert("يرجى إدخال تاريخ الراتب.");
+  const diff = Math.ceil((salary - today) / (1000 * 3600 * 24));
+  document.getElementById("salaryResult").innerText = diff > 0 ? `💰 متبقي ${diff} يوم على الراتب` : '📆 الراتب تم صرفه أو التاريخ غير صحيح';
+}
+
+function retirementCalc() {
+  const birth = new Date(document.getElementById("birthDate").value);
+  const age = parseInt(document.getElementById("retireAge").value);
+  if (!birth || isNaN(age)) return alert("يرجى إدخال بيانات صحيحة.");
+  birth.setFullYear(birth.getFullYear() + age);
+  document.getElementById("retireResult").innerText = `🏁 تاريخ التقاعد: ${birth.toLocaleDateString('ar-EG')}`;
+}
+
+function getZodiac() {
+  const date = new Date(document.getElementById("zodiacDate").value);
+  const d = date.getDate(), m = date.getMonth() + 1;
+  const signs = [
+    { name: 'الحمل', from: [3,21], to: [4,19], traits: 'شجاع، نشيط، قيادي، طموح، مندفع أحياناً' },
+    { name: 'الثور', from: [4,20], to: [5,20], traits: 'صبور، محب للراحة، عملي، عنيد، موثوق' },
+    { name: 'الجوزاء', from: [5,21], to: [6,20], traits: 'ذكي، اجتماعي، متغير، يحب التنوع، لبق' },
+    { name: 'السرطان', from: [6,21], to: [7,22], traits: 'عاطفي، مخلص، حنون، خجول، مزاجي' },
+    { name: 'الأسد', from: [7,23], to: [8,22], traits: 'واثق، كريم، مبدع، محب للقيادة، متسلط أحياناً' },
+    { name: 'العذراء', from: [8,23], to: [9,22], traits: 'منظم، دقيق، عملي، ناقد، متواضع' },
+    { name: 'الميزان', from: [9,23], to: [10,22], traits: 'دبلوماسي، أنيق، متعاون، غير حاسم أحياناً' },
+    { name: 'العقرب', from: [10,23], to: [11,21], traits: 'غامض، شغوف، قوي الإرادة، غيور، حدسي' },
+    { name: 'القوس', from: [11,22], to: [12,21], traits: 'متفائل، صريح، مغامر، يحب السفر، غير صبور' },
+    { name: 'الجدي', from: [12,22], to: [1,19], traits: 'جدي، طموح، منضبط، محافظ، يحب العمل' },
+    { name: 'الدلو', from: [1,20], to: [2,18], traits: 'مستقل، مبتكر، إنساني، غير تقليدي، متقلب' },
+    { name: 'الحوت', from: [2,19], to: [3,20], traits: 'حالم، رحيم، حساس، فني، يهرب من الواقع' }
+  ];
+  const sign = signs.find(z => (m === z.from[0] && d >= z.from[1]) || (m === z.to[0] && d <= z.to[1]));
+  document.getElementById("zodiacResult").innerText = sign ? `🔮 برجك هو: ${sign.name}\n✨ الصفات: ${sign.traits}` : '❌ تاريخ غير صالح';
+}
+
+function copyText(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text);
+  alert("📋 تم النسخ!");
+}
+
+function downloadText(id) {
+  const text = document.getElementById(id).innerText;
+  const blob = new Blob([text], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = id + ".txt";
+  link.click();
+}
+</script>
+</body>
+</html>

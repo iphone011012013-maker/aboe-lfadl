@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>مجمّع المواقع - 100 موقع</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #f5f7fa;
+      color: #2c3e50;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 10px;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 20px 0 10px;
+      color: #2c3e50;
+      font-size: 1.8rem;
+    }
+
+    .search-box {
+      display: block;
+      width: 100%;
+      max-width: 600px;
+      margin: 15px auto;
+      padding: 12px 16px;
+      border: 1px solid #ddd;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .category-title {
+      font-size: 1.3rem;
+      color: #2980b9;
+      margin: 25px 0 15px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #ecf0f1;
+      background-color: #ffffff;
+      padding: 10px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .button-item {
+      display: flex;
+      align-items: center;
+      background-color: white;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      border-radius: 14px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .button-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+    }
+
+    .number {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 32px;
+      height: 32px;
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+      border-radius: 50%;
+      margin-left: 12px;
+      flex-shrink: 0;
+    }
+
+    .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      margin-left: 12px;
+      background-size: cover;
+      background-position: center;
+      flex-shrink: 0;
+    }
+
+    .text-container {
+      flex-grow: 1;
+    }
+
+    .text {
+      font-size: 1rem;
+      color: #2c3e50;
+      display: block;
+      font-weight: 600;
+    }
+
+    .desc {
+      font-size: 0.85rem;
+      color: #7f8c8d;
+      margin-top: 3px;
+    }
+
+    a {
+      text-decoration: none;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    /* إخفاء العناصر غير المطابقة للبحث */
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>📌 مجمّع المواقع - 100 موقع</h1>
+    <input type="text" class="search-box" placeholder="ابحث عن موقع..." id="searchInput">
+
+    <!-- الأقسام -->
+    <div class="category-title">🤖 الذكاء الاصطناعي</div>
+    <div id="ai-container"></div>
+
+    <div class="category-title">🎨 التصميم والجرافيك</div>
+    <div id="design-container"></div>
+
+    <div class="category-title">🛠️ الأدوات المساعدة</div>
+    <div id="tools-container"></div>
+
+    <div class="category-title">📞 الاتصال والتواصل</div>
+    <div id="communication-container"></div>
+
+    <div class="category-title">💰 التمويل والخدمات المصرفية</div>
+    <div id="finance-container"></div>
+
+    <div class="category-title">💻 التطوير والبرمجة</div>
+    <div id="development-container"></div>
+
+    <div class="category-title">📥 التحميلات والبرمجيات</div>
+    <div id="download-container"></div>
+
+    <div class="category-title">📦 متفرقات</div>
+    <div id="misc-container"></div>
+  </div>
+
+  <script>
+    // قائمة الروابط مع وصف بسيط
+    const links = [
+      { url: "https://www.openai.fm/", name: "OpenAI", desc: "تجربة نموذج تحويل النص إلى كلام من OpenAI", category: "ai" },
+      { url: "https://chatgpt.com/", name: "ChatGPT", desc: "نسخة تجريبية لنموذج تحويل النص إلى كلام من OpenAI", category: "ai" },
+      { url: "https://www.meta.ai/", name: "Meta AI", desc: "ذكاء اصطناعي من ميتا للدردشة والمساعدة", category: "ai" },
+      { url: "https://kimi.moonshot.cn/", name: "Kimi", desc: "ذكاء اصطناعي صيني يدعم تحليل النصوص الطويلة", category: "ai" },
+      { url: "https://grok.com/chat", name: "Grok", desc: "مساعد ذكاء اصطناعي من xAI لشركة إيلون ماسك", category: "ai" },
+      { url: "https://chat.mistral.ai/chat", name: "Mistral AI", desc: "دردشة مع نماذج الذكاء الاصطناعي من ميسترال", category: "ai" },
+      { url: "https://gemini.google.com/app", name: "Gemini", desc: "مساعد ذكاء اصطناعي من جوجل للإجابة والاستكشاف", category: "ai" },
+      { url: "https://copilot.microsoft.com/", name: "Copilot", desc: "مساعد ذكاء اصطناعي من مايكروسوفت مدعوم بـ GPT", category: "ai" },
+      { url: "https://chat.chaton.ai/auth/login", name: "ChatON", desc: "منصة تجميع لعدة نماذج ذكاء اصطناعي", category: "ai" },
+      { url: "https://gpt4o.so/app", name: "GPT-4o", desc: "واجهة بسيطة للدردشة مع GPT-4o", category: "ai" },
+      { url: "https://pi.ai/onboarding", name: "Pi AI", desc: "مساعد ذكاء اصطناعي شخصي للدردشة اليومية", category: "ai" },
+      { url: "https://poe.com/login", name: "Poe", desc: "منصة للدردشة مع عدة روبوتات ذكاء اصطناعي", category: "ai" },
+      { url: "https://heypat.ai/signin", name: "HeyPat", desc: "مساعد ذكاء اصطناعي متعدد الوظائف", category: "ai" },
+      { url: "https://aistudio.google.com/prompts/new_chat?hl=ar-EG", name: "Google AI Studio", desc: "أداة من جوجل لإنشاء وتجربة أطر عمل ذكاء اصطناعي", category: "ai" },
+      { url: "https://hunyuan.tencent.com/", name: "Hunyuan", desc: "نماذج ذكاء اصطناعي من تينسنت للدردشة والصورة", category: "ai" },
+      { url: "https://gptgo.ai/", name: "GPTGo", desc: "بحث محسن باستخدام الذكاء الاصطناعي", category: "ai" },
+      { url: "https://bypass.hix.ai/", name: "Bypass AI", desc: "أداة لتخطي الحظر عن نماذج الذكاء الاصطناعي", category: "ai" },
+      { url: "https://picsart.com/create", name: "PicsArt", desc: "محرر صور وتصميمات فنية عبر الإنترنت", category: "design" },
+      { url: "https://pixlr.com/x/", name: "Pixlr", desc: "محرر صور احترافي عبر المتصفح", category: "design" },
+      { url: "https://www.watermarkremover.io/", name: "إزالة العلامة المائية", desc: "إزالة العلامات المائية من الصور تلقائيًا", category: "design" },
+      { url: "https://www.upscale.media/ar", name: "Upscale Media", desc: "تكبير الصور بدون فقدان الجودة", category: "design" },
+      { url: "https://www.renderforest.com/logo-maker#All", name: "RenderForest", desc: "إنشاء شعارات وفيديوهات احترافية", category: "design" },
+      { url: "https://www.iloveimg.com/ar", name: "ILoveIMG", desc: "ضغط وتحويل الصور بسهولة", category: "design" },
+      { url: "https://dashboard.visme.co/v2/login", name: "Visme", desc: "أداة لتصميم العروض التقديمية والتصاميم البصرية", category: "design" },
+      { url: "https://www.3dlogolab.io/", name: "3D Logo Lab", desc: "إنشاء شعارات ثلاثية الأبعاد بسهولة", category: "design" },
+      { url: "https://www.flaticon.com/", name: "Flaticon", desc: "أكبر مكتبة أيقونات مجانية للتحميل", category: "design" },
+      { url: "https://convertio.co/ar/jpg-ico/", name: "ConvertIO", desc: "تحويل صيغ الملفات بين الصور والمستندات", category: "design" },
+      { url: "https://converter.space/", name: "Converter.Space", desc: "أداة تحويل متعددة الاستخدامات", category: "design" },
+      { url: "https://www.hipdf.com/ar/jpg-to-ico", name: "HiPDF", desc: "تحويل وتحرير ملفات PDF عبر الإنترنت", category: "design" },
+      { url: "https://products.aspose.app/imaging/ar/conversion/image-to-ico", name: "Aspose", desc: "تحويل الصور باستخدام أدوات متقدمة", category: "design" },
+      { url: "https://www.pngwing.com/ar/", name: "PNGWing", desc: "تحميل صور PNG بدون خلفية", category: "design" },
+      { url: "https://ar.pngtree.com/", name: "PngTree", desc: "مكتبة ضخمة لصور وعناصر تصميم", category: "design" },
+      { url: "https://looka.com/", name: "Looka", desc: "إنشاء شعارات احترافية باستخدام الذكاء الاصطناعي", category: "design" },
+      { url: "https://topai.tools/browse?pricing=free", name: "TopAI.Tools", desc: "دليل لأفضل أدوات الذكاء الاصطناعي المجانية", category: "tools" },
+      { url: "https://dictation.io/speech", name: "Dictation.IO", desc: "تحويل الكلام إلى نص بسرعة ودقة", category: "tools" },
+      { url: "https://www.naturalreaders.com/", name: "Natural Readers", desc: "تحويل النصوص إلى كلام بصوت طبيعي", category: "tools" },
+      { url: "https://vocalremover.org/ar/", name: "VocalRemover", desc: "إزالة الصوت من الأغاني أو عزله", category: "tools" },
+      { url: "https://fish.audio/ar/?invite=86a1fc36d62a45c79a3651427053089e", name: "Fish Audio", desc: "تحويل النص إلى كلام بصوت واقعي", category: "tools" },
+      { url: "https://www.mohmal.com/ar/inbox#", name: "Mohmal", desc: "بريد مؤقت لاستلام الرسائل دون تسجيل", category: "tools" },
+      { url: "https://temp-mail.org/ar/", name: "بريد مؤقت", desc: "إنشاء بريد إلكتروني مؤقت فوري", category: "tools" },
+      { url: "https://passwords.google.com/", name: "كلمات المرور (Google)", desc: "إدارة كلمات المرور المحفوظة في جوجل", category: "tools" },
+      { url: "https://app.the-qrcode-generator.com/", name: "توليد QR", desc: "إنشاء رموز استجابة سريعة مخصصة", category: "tools" },
+      { url: "https://www.qrcode-monkey.com/ar/#", name: "QR Monkey", desc: "إنشاء رموز QR جذابة بصريًا", category: "tools" },
+      { url: "https://hovercode.com/", name: "HoverCode", desc: "أداة تطوير وتحويل التعليمات البرمجية", category: "tools" },
+      { url: "https://www.appcreator24.com/", name: "AppCreator24", desc: "إنشاء تطبيقات بدون برمجة", category: "tools" },
+      { url: "https://web.mobeasy.com/#/", name: "Mobeasy", desc: "منصة لإنشاء تطبيقات جوال بسهولة", category: "tools" },
+      { url: "https://console.firebase.google.com/u/0/?pli=1", name: "Firebase", desc: "لوحة تحكم لخدمات جوجل للتطوير", category: "tools" },
+      { url: "https://manage.wix.com/", name: "Wix", desc: "إدارة مواقع ويب تم إنشاؤها على ويكس", category: "tools" },
+      { url: "https://www.icloud.com/", name: "iCloud", desc: "الوصول إلى ملفات وبيانات أجهزة آبل", category: "tools" },
+      { url: "https://us.i.mi.com/", name: "Mi Cloud", desc: "تخزين وتأمين بيانات أجهزة شاومي", category: "tools" },
+      { url: "https://v3.account.samsung.com/dashboard/services", name: "Samsung Cloud", desc: "إدارة بيانات وخدمات أجهزة سامسونج", category: "tools" },
+      { url: "https://app.netlify.com/teams/apoalfadl4", name: "Netlify", desc: "نشر وتشغيل تطبيقات الويب بسهولة", category: "tools" },
+      { url: "https://tinywow.com/tools", name: "TinyWow", desc: "مجموعة أدوات مجانية لتحرير الملفات", category: "tools" },
+      { url: "https://smallpdf.com/#r=app", name: "SmallPDF", desc: "ضغط وتحويل ملفات PDF بسهولة", category: "tools" },
+      { url: "https://www.ilovepdf.com/", name: "ILovePDF", desc: "أداة شاملة لتحرير ملفات PDF", category: "tools" },
+      { url: "https://tools.nafezly.com/", name: "Nafezly Tools", desc: "أدوات عربية متعددة لتحرير الملفات", category: "tools" },
+      { url: "https://downev.com/profileviewer.html", name: "DownEV", desc: "عرض وتحليل الملفات من الإنترنت", category: "tools" },
+      { url: "https://cutt.ly/", name: "Cutt.ly", desc: "اختصار الروابط وتحليل الزيارات", category: "tools" },
+      { url: "https://web.truecaller.com/linkdevice?utm_source=WebMain&utm_medium=Footer", name: "Truecaller", desc: "تحديد هوية المتصل وحظر المكالمات المزعجة", category: "communication" },
+      { url: "https://camscanner.com/file/manager", name: "CamScanner", desc: "مسح المستندات ضوئيًا من الهاتف", category: "communication" },
+      { url: "https://messages.google.com/web/", name: "Messages", desc: "إرسال واستقبال الرسائل النصية من الكمبيوتر", category: "communication" },
+      { url: "https://familylink.google.com/", name: "Family Link", desc: "مراقبة استخدام أجهزة الأطفال من جوجل", category: "communication" },
+      { url: "https://www.google.com/android/find/lock", name: "العثور على جهازي", desc: "تتبع أو قفل الجهاز المفقود من جوجل", category: "communication" },
+      { url: "https://www.google.com/android/find/?login", name: "Android Find", desc: "العثور على جهاز أندرويد مفقود", category: "communication" },
+      { url: "https://managewallet.meeza.eg/Ar", name: "Meeza Wallet", desc: "إدارة المحفظة الإلكترونية المصرية ميزا", category: "finance" },
+      { url: "https://ib.bebasata.qnbalahli.com/Login/LoginPage.aspx?Lang=AR", name: "البنك الأهلي", desc: "الخدمات المصرفية عبر الإنترنت للبنك الأهلي", category: "finance" },
+      { url: "https://digital-egypt.mashreq.com/onlinebanking/", name: "Mashreq Digital", desc: "الخدمات البنكية الرقمية من مصرف المشرق", category: "finance" },
+      { url: "https://console.firebase.google.com/u/0/?pli=1", name: "Firebase Console", desc: "لوحة تحكم Firebase للتطبيقات", category: "development" },
+      { url: "https://app.netlify.com/teams/apoalfadl4", name: "Netlify Dev", desc: "بيئة تطوير تفاعلية لتطبيقات الويب", category: "development" },
+      { url: "https://poe.com/login", name: "Poe API", desc: "واجهة برمجة لدمج نماذج الذكاء الاصطناعي", category: "development" },
+      { url: "https://www.filehorse.com/", name: "FileHorse", desc: "تنزيل برامج آمنة ومجانية للحاسوب", category: "download" },
+      { url: "https://juststartpc.com/", name: "JustStartPC", desc: "أداة لتحسين بدء تشغيل الكمبيوتر", category: "download" },
+      { url: "https://samfw.com/", name: "SamFW", desc: "أداة لإزالة قفل التنشيط من أجهزة سامسونج", category: "download" },
+      { url: "https://www.ifixit.com/", name: "iFixit", desc: "أدلة إصلاح الأجهزة الإلكترونية خطوة بخطوة", category: "download" },
+      { url: "https://ninite.com/", name: "Ninite", desc: "تثبيت عدة برامج دفعة واحدة بدون إعلانات", category: "download" },
+      { url: "https://igetintopc.com/", name: "IGetIntoPC", desc: "تنزيل برامج ويندوز الكاملة", category: "download" },
+      { url: "https://www.farescd.com/", name: "FaresCD", desc: "موقع عربي لتحميل البرامج والألعاب", category: "download" },
+      { url: "https://pesktop.com/", name: "Pesktop", desc: "تطبيق لتشغيل بيس على سطح المكتب", category: "download" },
+      { url: "https://www.videoscribe.co/new-free-trial/", name: "VideoScribe", desc: "إنشاء فيديوهات رسم تلقائي احترافية", category: "download" },
+      { url: "https://download.cnet.com/windows/", name: "CNET Download", desc: "تنزيل برامج ويندوز من مصدر موثوق", category: "download" },
+      { url: "https://smartserials.com/", name: "SmartSerials", desc: "قاعدة بيانات لسلسلات ترخيص البرامج", category: "download" },
+      { url: "https://www.mutaz.pro/", name: "مُتَّاز برو", desc: "موقع عربي لأدوات رقمية وتعليمات تقنية", category: "download" },
+      { url: "https://www.google.com/android/find/?login", name: "Android Find", desc: "العثور على جهاز أندرويد مفقود", category: "misc" },
+      { url: "https://cutt.ly/", name: "اختصار الروابط", desc: "اختصار الروابط الطويلة إلى قصيرة", category: "misc" },
+      { url: "https://www.ilovepdf.com/", name: "ضغط ملفات PDF", desc: "ضغط حجم ملفات PDF لتقليل الحجم", category: "misc" },
+      { url: "https://tools.nafezly.com/", name: "أدوات نفزلي", desc: "مجموعة أدوات رقمية عربية مجانية", category: "misc" },
+      { url: "https://downev.com/profileviewer.html", name: "عرض الملفات", desc: "عرض معلومات الملفات من الإنترنت", category: "misc" },
+      { url: "https://tinywow.com/tools", name: "أدوات TinyWow", desc: "أدوات متعددة لتحرير الصور والفيديوهات", category: "misc" },
+      { url: "https://smallpdf.com/#r=app", name: "SmallPDF", desc: "أداة شاملة لتحرير ملفات PDF", category: "misc" }
+    ];
+
+    // دالة لجلب أيقونة الموقع
+    function getFaviconUrl(url) {
+      try {
+        const domain = new URL(url).origin;
+        return `${domain}/favicon.ico`;
+      } catch (e) {
+        return "https://www.google.com/s2/favicons?domain=" + url;
+      }
+    }
+
+    // توليد الأزرار
+    let counter = 1;
+    const containers = {
+      ai: document.getElementById("ai-container"),
+      design: document.getElementById("design-container"),
+      tools: document.getElementById("tools-container"),
+      communication: document.getElementById("communication-container"),
+      finance: document.getElementById("finance-container"),
+      development: document.getElementById("development-container"),
+      download: document.getElementById("download-container"),
+      misc: document.getElementById("misc-container")
+    };
+
+    links.forEach(link => {
+      const container = containers[link.category];
+      if (!container) return;
+
+      const item = document.createElement("div");
+      item.className = "button-item";
+      item.dataset.name = link.name + " " + link.desc;
+
+      const number = document.createElement("div");
+      number.className = "number";
+      number.textContent = counter++;
+
+      const icon = document.createElement("div");
+      icon.className = "icon";
+      icon.style.backgroundImage = `url(${getFaviconUrl(link.url)})`;
+
+      const textContainer = document.createElement("div");
+      textContainer.className = "text-container";
+
+      const text = document.createElement("span");
+      text.className = "text";
+      text.textContent = link.name;
+
+      const desc = document.createElement("span");
+      desc.className = "desc";
+      desc.textContent = link.desc;
+
+      textContainer.appendChild(text);
+      textContainer.appendChild(desc);
+
+      const a = document.createElement("a");
+      a.href = link.url;
+      a.target = "_blank";
+      a.appendChild(number);
+      a.appendChild(icon);
+      a.appendChild(textContainer);
+
+      item.appendChild(a);
+      container.appendChild(item);
+    });
+
+    // بحث فوري
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("input", function () {
+      const value = this.value.toLowerCase();
+      document.querySelectorAll(".button-item").forEach(item => {
+        const text = item.dataset.name.toLowerCase();
+        item.classList.toggle("hidden", !text.includes(value));
+      });
+    });
+  </script>
+</body>
+</html>

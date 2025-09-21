@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عجلة الحظ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #16213e;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            /* === تم تعديل مدة الدوران هنا === */
+            transition: transform 10s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        #pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #e94560;
+            z-index: 10;
+        }
+
+        .controls-container {
+            background-color: #16213e;
+            padding: 25px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            color: #0f3460;
+            margin-top: 0;
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 10px;
+        }
+
+        #name-input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 2px solid #0f3460;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        #add-name-btn, #spin-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #add-name-btn {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        #spin-btn {
+            background-color: #e94560;
+            color: #16213e;
+        }
+
+        #spin-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        
+        #name-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        #name-list li {
+            background-color: #1a1a2e;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #e94560;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="wheel-container">
+            <div id="pointer"></div>
+            <canvas id="wheel" width="400" height="400"></canvas>
+        </div>
+        <div class="controls-container">
+            <h2>عجلة الحظ</h2>
+            <input type="text" id="name-input" placeholder="أدخل اسمًا هنا...">
+            <button id="add-name-btn">➕ إضافة اسم</button>
+            <button id="spin-btn" disabled>🎡 ابدأ الدوران</button>
+            <ul id="name-list"></ul>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const wheelCanvas = document.getElementById('wheel');
+        const nameInput = document.getElementById('name-input');
+        const addNameBtn = document.getElementById('add-name-btn');
+        const spinBtn = document.getElementById('spin-btn');
+        const nameList = document.getElementById('name-list');
+        const ctx = wheelCanvas.getContext('2d');
+        
+        let names = [];
+        let rotation = 0;
+        let isSpinning = false;
+        
+        const colors = ['#e94560', '#0f3460', '#533483', '#16213e', '#f9d923', '#39a2db'];
+
+        function drawWheel() {
+            const numSegments = names.length;
+            if (numSegments === 0) {
+                ctx.clearRect(0, 0, 400, 400);
+                return;
+            }
+            
+            const anglePerSegment = (2 * Math.PI) / numSegments;
+            const centerX = 200;
+            const centerY = 200;
+            
+            ctx.clearRect(0, 0, 400, 400);
+            ctx.font = 'bold 18px Tajawal';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            names.forEach((name, i) => {
+                const startAngle = i * anglePerSegment;
+                const endAngle = startAngle + anglePerSegment;
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, 200, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = '#ffffff';
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + anglePerSegment / 2);
+                ctx.fillText(name, 120, 0);
+                ctx.restore();
+            });
+        }
+
+        function updateNameList() {
+            nameList.innerHTML = '';
+            names.forEach((name, index) => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                const removeBtn = document.createElement('button');
+                removeBtn.textContent = '×';
+                removeBtn.className = 'remove-btn';
+                removeBtn.onclick = () => {
+                    names.splice(index, 1);
+                    updateNameList();
+                    drawWheel();
+                };
+                li.appendChild(removeBtn);
+                nameList.appendChild(li);
+            });
+            spinBtn.disabled = names.length < 2;
+        }
+
+        addNameBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim();
+            if (name) {
+                names.push(name);
+                nameInput.value = '';
+                updateNameList();
+                drawWheel();
+            }
+        });
+
+        nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addNameBtn.click();
+            }
+        });
+
+        spinBtn.addEventListener('click', () => {
+            if (isSpinning || names.length < 2) return;
+            
+            isSpinning = true;
+            spinBtn.disabled = true;
+
+            // === تم تعديل سرعة وعدد اللفات هنا ===
+            const randomSpins = Math.floor(Math.random() * 8) + 10; // 10 إلى 17 لفة كاملة
+            const randomAngle = Math.random() * 360;
+            const totalRotation = (randomSpins * 360) + randomAngle;
+
+            rotation += totalRotation;
+            wheelCanvas.style.transform = `rotate(${rotation}deg)`;
+
+            // === تم تعديل مدة انتظار النتيجة هنا لتطابق مدة الدوران في CSS ===
+            setTimeout(() => {
+                const degrees = rotation % 360;
+                const anglePerSegment = 360 / names.length;
+                const pointerAngle = 270;
+                const adjustedDegrees = (360 - degrees + pointerAngle) % 360;
+                const winnerIndex = Math.floor(adjustedDegrees / anglePerSegment);
+                
+                alert(`الفائز هو: ${names[winnerIndex]}`);
+
+                isSpinning = false;
+                spinBtn.disabled = false;
+            }, 10000); // 10000ms = 10s
+        });
+
+        drawWheel();
+    });
+    </script>
+</body>
+</html>
+

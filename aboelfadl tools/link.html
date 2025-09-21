@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة إنشاء السيرة الذاتية الإحترافية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Cairo', sans-serif;
+scroll-behavior: smooth; }
+        .template-card { transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
+}
+        .template-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+        .color-input-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+        .color-input-wrapper input[type="color"] { border: 1px solid #ddd; width: 40px; height: 40px;
+border-radius: 50%; cursor: pointer; padding: 0; background-color: transparent; }
+        .dynamic-entry { border: 1px solid #e5e7eb;
+padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; position: relative; }
+        .dark .dynamic-entry { border-color: #374151;
+}
+        .remove-btn { position: absolute; top: 0.5rem; left: 0.5rem; background: #ef4444; color: white;
+width: 24px; height: 24px; border-radius: 50%; border: none; cursor: pointer; font-weight: bold; line-height: 24px; text-align: center;
+}
+        .section-header { font-size: 1.25rem; font-weight: 700; border-bottom: 2px solid #14b8a6; padding-bottom: 0.5rem;
+margin-bottom: 1rem; }
+
+        /* Added for video aspect ratio */
+        .aspect-video {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+        }
+
+        /* Styles for AI Modal */
+        .ai-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none; /* Hidden by default */
+        }
+
+        .ai-modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            text-align: right;
+            color: #1f2937; /* Dark text for light mode */
+        }
+
+        .dark .ai-modal-content {
+            background-color: #1f2937; /* Dark background for dark mode */
+            color: #f3f4f6; /* Light text for dark mode */
+        }
+
+        .ai-modal-content h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #0d9488; /* Primary teal color */
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .dark .ai-modal-content h2 {
+            color: #2dd4bf; /* Lighter teal for dark mode */
+        }
+
+
+        .ai-modal-content .close-button {
+            position: absolute;
+            top: 1rem;
+            left: 1rem; /* Adjust for RTL */
+            font-size: 2rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .ai-modal-content textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            resize: vertical;
+            background-color: #f9fafb;
+            color: #1f2937;
+        }
+
+        .dark .ai-modal-content textarea {
+            background-color: #374151;
+            border-color: #4b5563;
+            color: #f3f4f6;
+        }
+
+        .ai-modal-content button.ai-action-btn {
+            background-color: #0d9488; /* Teal */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .ai-modal-content button.ai-action-btn:hover {
+            background-color: #0f766e; /* Darker teal */
+        }
+        .dark .ai-modal-content button.ai-action-btn {
+            background-color: #2dd4bf; /* Lighter teal */
+        }
+        .dark .ai-modal-content button.ai-action-btn:hover {
+            background-color: #24b8a6; /* Slightly darker lighter teal */
+        }
+
+        .ai-modal-content .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0d9488; /* Teal spinner */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 1.5rem auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ai-response-area {
+            background-color: #f0fdf4; /* Light green background for response */
+            border: 1px solid #a7f3d0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            min-height: 80px;
+            margin-top: 1rem;
+            color: #065f46; /* Darker green text */
+        }
+        .dark .ai-response-area {
+            background-color: #0f5132; /* Darker green for dark mode */
+            border-color: #064e3b;
+            color: #d1fae5; /* Lighter green text */
+        }
+        .ai-response-area p {
+            margin: 0;
+        }
+
+        .ai-modal-content .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ai-modal-content .gap-4 {
+            gap: 1rem;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <div id="template-selection">
+            <header class="text-center mb-10">
+                <h1 class="text-3xl md:text-5xl font-bold text-teal-600 dark:text-teal-400">إنشاء موقع سيرة ذاتية</h1>
+                <p class="text-lg md:text-xl mt-2">اختر
+قالبك، أضف لمستك، وأبهر العالم بسيرتك الذاتية المتحركة</p>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="template-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden" onclick="selectTemplate('minimalist-modern')">
+                    <div class="p-6"><div class="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center mb-4"><span class="text-gray-500">معاينة قالب بسيط</span></div><h3 class="text-2xl font-bold mb-2 text-teal-600 dark:text-teal-400">البسيط الحديث</h3><p class="mb-4">تصميم نظيف يركز على المحتوى.</p><button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">اختر هذا القالب</button></div>
+                </div>
+                <div class="template-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden" onclick="selectTemplate('professional-elegant')">
+                    <div class="p-6"><div class="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center
+justify-center mb-4"><span class="text-gray-500">معاينة قالب احترافي</span></div><h3 class="text-2xl font-bold mb-2 text-teal-600 dark:text-teal-400">الاحترافي الأنيق (التصميم الجديد)</h3><p class="mb-4">هيكل احترافي بتصميم مطابق للصورة.</p><button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">اختر هذا القالب</button></div>
+                </div>
+                <div class="template-card bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden" onclick="selectTemplate('creative-bold')">
+                    <div class="p-6"><div class="w-full h-48 bg-gray-200 dark:bg-gray-700 rounded-md flex items-center justify-center mb-4"><span class="text-gray-500">معاينة قالب إبداعي</span></div><h3 class="text-2xl font-bold mb-2 text-teal-600
+dark:text-teal-400">الإبداعي الجريء</h3><p class="mb-4">تصميم فريد يعكس شخصيتك.</p><button class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg">اختر هذا القالب</button></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="customization-form" class="hidden">
+            <button onclick="goBackToTemplates()" class="mb-6 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg">←
+العودة للقوالب</button>
+            <div class="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg">
+                <h2 class="text-3xl font-bold mb-6 text-center text-teal-600 dark:text-teal-400">إضافة البيانات وتخصيص القالب</h2>
+
+                <div class="space-y-8">
+                    <div class="p-4 border rounded-lg dark:border-gray-700">
+                        <h3 class="section-header">المعلومات الأساسية والتواصل</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+
+                            <div><label class="block mb-1 font-bold">الاسم الكامل</label><input type="text" id="fullName" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"></div>
+                            <div><label class="block mb-1 font-bold">المسمى الوظيفي</label><input type="text" id="jobTitle" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"></div>
+                            
+                            <div class="md:col-span-2">
+                                <label class="block mb-1 font-bold">نبذة عني</label>
+                                <textarea id="aboutMe" rows="3" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"></textarea>
+                                <button type="button" onclick="openAIGeneratorModal()" class="mt-2 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg text-sm">توليد نبذة بالذكاء الاصطناعي ✨</button>
+                            </div>
+                            
+                            <div><label class="block mb-1 font-bold">الصورة الشخصية</label><input type="file" id="profileImage" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"></div>
+                            
+                            <div><label class="block mb-1 font-bold">رقم الهاتف</label><input type="tel" id="phone" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"></div>
+
+                            <div><label class="block mb-1 font-bold">البريد الإلكتروني</label><input type="email" id="email" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"></div>
+                            <div><label class="block mb-1 font-bold">رقم الواتساب</label><input type="tel" id="whatsapp" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"></div>
+
+                            <div class="md:col-span-2"><label class="block mb-1 font-bold">روابط التواصل (فيسبوك، بيهانس، إلخ)</label><input type="url" id="facebook" placeholder="رابط فيسبوك" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600 mb-2"><input type="url" id="behance" placeholder="رابط بيهانس" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"></div>
+                        </div>
+                    </div>
+
+                     <div class="p-4 border rounded-lg dark:border-gray-700">
+                        <h3 class="section-header">الخبرة العملية والتعليم</h3>
+                        <div><h4 class="font-bold mb-2">الخبرة العملية</h4><div id="work-experience-container"></div><button onclick="addWorkExperience()" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm">+ أضف وظيفة</button></div>
+
+ <div class="mt-6"><h4 class="font-bold mb-2">التعليم</h4><div id="education-container"></div><button onclick="addEducation()" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm">+ أضف مؤهل</button></div>
+                    </div>
+
+                    <div class="p-4 border rounded-lg dark:border-gray-700">
+                        <h3 class="section-header">المهارات</h3>
+                        <label class="block mb-1 font-bold">قائمة المهارات</label>
+                        <textarea id="skills" rows="3" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600" placeholder="أدخل المهارات مفصولة بفاصلة، مثال: UI/UX, Photoshop, Illustrator"></textarea>
+                    </div>
+                    
+                    <div class="p-4 border rounded-lg dark:border-gray-700">
+                        <h3 class="section-header">المعرض (صور وفيديوهات)</h3>
+                        
+                        <h4 class="font-bold mb-2">الصور</h4>
+                        <div id="gallery-images-container" class="space-y-4">
+                            </div>
+                        <button onclick="addGalleryImage()" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm">+ أضف صورة</button>
+
+                        <h4 class="font-bold mb-2 mt-6">الفيديوهات</h4>
+                        <div id="gallery-videos-container" class="space-y-4">
+                            </div>
+                        <button onclick="addGalleryVideo()" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm">+ أضف فيديو</button>
+                    </div>
+                    <div class="p-4 border rounded-lg dark:border-gray-700">
+
+                        <h3 class="section-header">المظهر والحركة</h3>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:col-span-2">
+                                <div><h4 class="font-bold mb-2">ألوان الوضع النهاري</h4><div class="color-input-wrapper"><input type="color" id="lightPrimaryColor" value="#0d9488"><label>أساسي</label></div><div class="color-input-wrapper"><input type="color" id="lightBgColor" value="#ffffff"><label>خلفية</label></div><div class="color-input-wrapper"><input type="color" id="lightTextColor" value="#1f2937"><label>نص</label></div></div>
+                                <div><h4 class="font-bold mb-2">ألوان الوضع الليلي</h4><div class="color-input-wrapper"><input type="color" id="darkPrimaryColor" value="#2dd4bf"><label>أساسي</label></div><div class="color-input-wrapper"><input type="color" id="darkBgColor" value="#111827"><label>خلفية</label></div><div class="color-input-wrapper"><input type="color"
+id="darkTextColor" value="#f3f4f6"><label>نص</label></div></div>
+                            </div>
+                            <div>
+                                <h4 class="font-bold mb-2">صورة خلفية الهيدر</h4>
+                                <div class="mb-4">
+                                    <label class="block text-sm font-bold mb-1">رفع صورة (للقالب الاحترافي الأنيق)</label>
+                                    <input type="file" id="headerBgImage" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+                                    <p class="text-xs text-gray-500 mt-1">إذا لم ترفع صورة، ستُستخدم صورة افتراضية.</p>
+                                </div>
+
+                                <h4 class="font-bold mb-2">تخصيص الحركات</h4>
+                                <div class="space-y-3">
+                                     <div><label class="block text-sm
+font-bold">حركة الاسم والصورة</label><select id="anim-header" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"><option value="none">بدون حركة</option><option value="fade-in" selected>ظهور تدريجي</option><option value="slide-in-up">دخول من الأسفل</option><option value="zoom-in">تكبير للداخل</option></select></div>
+                                     <div><label class="block text-sm font-bold">حركة عناوين الأقسام</label><select id="anim-sections" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"><option value="none">بدون حركة</option><option value="fade-in">ظهور تدريجي</option><option value="slide-in-left" selected>دخول من اليسار</option><option value="pulse">نبض خفيف</option></select></div>
+
+                                </div>
+                                <h4 class="font-bold mt-4 mb-2">شكل الأزرار</h4>
+                                <div class="flex flex-col gap-2"><label class="flex items-center gap-2"><input type="radio" name="buttonStyle" value="rounded-lg" checked class="text-teal-600"><span>دائري الأطراف</span></label><label class="flex items-center
+gap-2"><input type="radio" name="buttonStyle" value="rounded-none" class="text-teal-600"><span>حاد</span></label><label class="flex items-center gap-2"><input type="radio" name="buttonStyle" value="rounded-full" class="text-teal-600"><span>بيضاوي</span></label></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-8 flex flex-col md:flex-row gap-4">
+                    <button onclick="generateAndDownload()" class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg text-lg">🚀 إنشاء وتحميل السيرة الذاتية</button>
+
+                    <button onclick="downloadInstructions()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg">📥 تحميل تعليمات النشر</button>
+                </div>
+                <div id="loading-indicator" class="hidden mt-4 text-center"><p class="text-teal-500">جاري الإنشاء...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiGeneratorModal" class="ai-modal-overlay">
+        <div class="ai-modal-content">
+            <span class="close-button" onclick="closeAIGeneratorModal()">×</span>
+            <h2>توليد نبذة تعريفية بالذكاء الاصطناعي ✨</h2>
+            <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">صف بإيجاز نفسك أو المهارات والخبرات التي ترغب في إبرازها في نبذة تعريفية احترافية لسيرتك الذاتية.
+            <textarea id="aiAboutMeInput" placeholder="مثال: مهندس برمجيات ذو خبرة 5 سنوات في تطوير تطبيقات الويب باستخدام React و Node.js، متخصص في بناء واجهات مستخدم جذابة وحلول خلفية قوية." rows="4"></textarea>
+            <div class="flex-between">
+                <button type="button" onclick="generateAboutMeContent()" class="ai-action-btn">توليد النص</button>
+                <div class="loading-spinner" id="aiLoadingSpinner"></div>
+            </div>
+            <div id="aiGeneratedResponse" class="ai-response-area mt-4 hidden">
+                </div>
+            <button type="button" id="useGeneratedTextBtn" onclick="useGeneratedText()" class="ai-action-btn mt-4 w-full hidden">استخدام هذا النص</button>
+        </div>
+    </div>
+
+
+<script>
+    let selectedTemplate = null;
+    let profileImageBase64 = null; // Stores Base64 for profile image
+    let headerBgImageBase64 = null; // Stores Base64 for header background image
+
+    // Arrays to store gallery items
+    let galleryImages = []; // Stores objects like { id: 'uniqueId', base64: string | null }
+    let galleryVideos = []; // Stores objects like { id: 'uniqueId', url: string, base64: string | null, fileType: string | null }
+
+
+    const templateSelectionDiv = document.getElementById('template-selection');
+    const customizationFormDiv = document.getElementById('customization-form');
+
+    // Helper function to generate unique IDs
+    function generateUniqueId() {
+        return 'item_' + Date.now() + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Helper function to read file as Base64
+    function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Event listener for profile image upload
+    document.getElementById('profileImage').addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) {
+            profileImageBase64 = null; // Clear if no file selected
+            return;
+        }
+        profileImageBase64 = await readFileAsBase64(file);
+        console.log("Profile image loaded successfully as Base64.");
+    });
+
+    // Event listener for header background image upload
+    document.getElementById('headerBgImage').addEventListener('change', async e => {
+        const file = e.target.files[0];
+        if (!file) {
+            headerBgImageBase64 = null; // Clear if no file selected
+            return;
+        }
+        headerBgImageBase64 = await readFileAsBase64(file);
+        console.log("Header background image loaded successfully as Base64.");
+    });
+
+    // Add Gallery Image Input
+    function addGalleryImage() {
+        const container = document.getElementById('gallery-images-container');
+        const entryId = generateUniqueId();
+        const newEntry = { id: entryId, base64: null }; // Data for this specific image entry
+        galleryImages.push(newEntry);
+
+        const div = document.createElement('div');
+        div.id = `gallery-image-entry-${entryId}`;
+        div.className = 'dynamic-entry flex flex-col gap-2'; // Tailwind classes for styling
+
+        div.innerHTML = `
+            <label class="block text-sm font-bold mb-1">صورة المعرض</label>
+            <input type="file" accept="image/*" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600 gallery-image-input" data-id="${entryId}">
+            <button type="button" onclick="removeGalleryEntry('gallery-images-container', '${entryId}', galleryImages)" class="remove-btn">-</button>
+        `;
+        container.appendChild(div);
+
+        // Add event listener for the newly created input
+        div.querySelector('.gallery-image-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            const entry = galleryImages.find(item => item.id === entryId);
+            if (file && entry) {
+                entry.base64 = await readFileAsBase64(file);
+            } else if (entry) {
+                entry.base64 = null;
+            }
+        });
+    }
+
+    // Add Gallery Video Input (allowing both URL and file upload)
+    function addGalleryVideo() {
+        const container = document.getElementById('gallery-videos-container');
+        const entryId = generateUniqueId();
+        const newEntry = { id: entryId, url: '', base64: null, fileType: null }; // Data for this specific video entry
+        galleryVideos.push(newEntry);
+
+        const div = document.createElement('div');
+        div.id = `gallery-video-entry-${entryId}`;
+        div.className = 'dynamic-entry flex flex-col gap-2'; // Tailwind classes for styling
+
+        div.innerHTML = `
+            <label class="block text-sm font-bold mb-1">فيديو المعرض (رابط يوتيوب/فيميو أو ملف)</label>
+            <input type="text" placeholder="رابط يوتيوب/فيميو (اختياري)" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600 gallery-video-url-input" data-id="${entryId}">
+            <p class="text-center text-gray-500 my-1 text-sm">أو</p>
+            <input type="file" accept="video/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 gallery-video-file-input" data-id="${entryId}">
+            <p class="text-xs text-red-500 mt-1">⚠️ تحميل الفيديوهات مباشرة قد يزيد حجم الملف النهائي بشكل كبير جدًا.</p>
+            <button type="button" onclick="removeGalleryEntry('gallery-videos-container', '${entryId}', galleryVideos)" class="remove-btn">-</button>
+        `;
+        container.appendChild(div);
+
+        // Add event listeners for the newly created inputs
+        div.querySelector('.gallery-video-url-input').addEventListener('input', (e) => {
+            const entry = galleryVideos.find(item => item.id === entryId);
+            if (entry) {
+                entry.url = e.target.value.trim();
+                // If URL is entered, clear file upload data for consistency
+                entry.base64 = null;
+                entry.fileType = null;
+                e.target.closest('.dynamic-entry').querySelector('.gallery-video-file-input').value = ''; // Clear file input
+            }
+        });
+
+        div.querySelector('.gallery-video-file-input').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            const entry = galleryVideos.find(item => item.id === entryId);
+            if (file && entry) {
+                entry.base64 = await readFileAsBase64(file);
+                entry.fileType = file.type;
+                // If file is uploaded, clear URL input for consistency
+                entry.url = '';
+                e.target.closest('.dynamic-entry').querySelector('.gallery-video-url-input').value = ''; // Clear URL input
+            } else if (entry) {
+                entry.base64 = null;
+                entry.fileType = null;
+            }
+        });
+    }
+
+    // Helper to remove entries from DOM and array
+    function removeGalleryEntry(containerId, entryIdToRemove, array) {
+        const elementIdPrefix = containerId.includes('image') ? 'gallery-image-entry' : 'gallery-video-entry';
+        const elementToRemove = document.getElementById(`${elementIdPrefix}-${entryIdToRemove}`);
+        if (elementToRemove) {
+            elementToRemove.remove();
+            // Remove from the array
+            const index = array.findIndex(item => item.id === entryIdToRemove);
+            if (index > -1) {
+                array.splice(index, 1);
+            }
+        }
+    }
+
+
+    function selectTemplate(t) {
+        selectedTemplate = t;
+        templateSelectionDiv.classList.add('hidden');
+        customizationFormDiv.classList.remove('hidden');
+        window.scrollTo(0,0);
+        if(document.getElementById('work-experience-container').children.length === 0) addWorkExperience();
+        if(document.getElementById('education-container').children.length === 0) addEducation();
+        // Add one default gallery image and video input if none exist
+        if(galleryImages.length === 0) addGalleryImage();
+        if(galleryVideos.length === 0) addGalleryVideo();
+    }
+
+    function goBackToTemplates() {
+        customizationFormDiv.classList.add('hidden');
+        templateSelectionDiv.classList.remove('hidden');
+        window.scrollTo(0,0);
+    }
+
+    function createDynamicEntry(containerId, fields) {
+        const container = document.getElementById(containerId);
+        const entryDiv = document.createElement('div');
+        entryDiv.className = 'dynamic-entry grid grid-cols-1 md:grid-cols-2 gap-4';
+        let htmlContent = '';
+        fields.forEach(field => {
+            htmlContent += field.type === 'textarea' ?
+                `<div class="md:col-span-2"><label class="block text-sm font-bold mb-1">${field.label}</label><textarea class="${field.class} w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600" placeholder="${field.placeholder}"></textarea></div>` :
+                `<div><label class="block text-sm font-bold mb-1">${field.label}</label><input type="text" class="${field.class} w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600" placeholder="${field.placeholder}"></div>`;
+        });
+        entryDiv.innerHTML = htmlContent + '<button class="remove-btn" onclick="this.parentElement.remove()">-</button>';
+        container.appendChild(entryDiv);
+    }
+
+    function addWorkExperience() {
+        createDynamicEntry('work-experience-container', [
+            {label:'المسمى الوظيفي',class:'work-title',placeholder:'مدير مشروع'},
+            {label:'الشركة والتاريخ',class:'work-company',placeholder:'شركة تك، 2020 - 2024'},
+            {label:'المهام',class:'work-desc',type:'textarea',placeholder:'وصف موجز للمهام...'}
+        ]);
+    }
+
+    function addEducation() {
+        createDynamicEntry('education-container', [
+            {label:'المؤهل',class:'edu-degree',placeholder:'بكالوريوس علوم الحاسب'},
+            {label:'المؤسسة',class:'edu-school',placeholder:'جامعة الملك سعود، 2016 - 2020'},
+            {label:'وصف إضافي',class:'edu-desc',type:'textarea',placeholder:'مشاريع التخرج...'}
+        ]);
+    }
+
+    function generateHtmlContent() {
+        // Data Collection
+        const data = {
+            fullName: document.getElementById('fullName').value || "اسمك هنا",
+            jobTitle: document.getElementById('jobTitle').value || "مسمى وظيفتك",
+            aboutMe: (document.getElementById('aboutMe').value || "نبذة تعريفية...").replace(/\n/g, '<br>'),
+            phone: document.getElementById('phone').value,
+            email: document.getElementById('email').value,
+            whatsapp: document.getElementById('whatsapp').value,
+            facebook: document.getElementById('facebook').value,
+            behance: document.getElementById('behance').value,
+            skills: (document.getElementById('skills').value || "").split(',').map(s => s.trim()).filter(s => s),
+            lightPrimary: document.getElementById('lightPrimaryColor').value,
+            lightBg: document.getElementById('lightBgColor').value,
+            lightText: document.getElementById('lightTextColor').value,
+            darkPrimary: document.getElementById('darkPrimaryColor').value,
+            darkBg: document.getElementById('darkBgColor').value,
+            darkText: document.getElementById('darkTextColor').value,
+            buttonStyle: document.querySelector('input[name="buttonStyle"]:checked').value,
+            profileImageSrc: profileImageBase64 || `https://placehold.co/200x200/e2e8f0/cbd5e0?text=${(document.getElementById('fullName').value||'A').charAt(0)}`,
+            animHeader: document.getElementById('anim-header').value,
+            animSections: document.getElementById('anim-sections').value,
+            headerBgImage: headerBgImageBase64 || 'https://images.unsplash.com/photo-1522252234503-e356532cafd5?q=80&w=1925&auto=format&fit=crop'
+        };
+
+        const workEntries = Array.from(document.querySelectorAll('#work-experience-container .dynamic-entry')).map(e => ({
+            title: e.querySelector('.work-title').value,
+            company: e.querySelector('.work-company').value,
+            desc: e.querySelector('.work-desc').value.replace(/\n/g, '<br>')
+        }));
+        const eduEntries = Array.from(document.querySelectorAll('#education-container .dynamic-entry')).map(e => ({
+            degree: e.querySelector('.edu-degree').value,
+            school: e.querySelector('.edu-school').value,
+            desc: e.querySelector('.edu-desc').value.replace(/\n/g, '<br>')
+        }));
+
+        // Generate Gallery HTML
+        let galleryImagesHtml = '';
+        if (galleryImages.length > 0) {
+            const validImages = galleryImages.filter(img => img.base64);
+            if (validImages.length > 0) {
+                galleryImagesHtml = `<div class="mb-8"><h2 class="section-title anim-on-scroll ${data.animSections}">الصور</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">${validImages.map(img => `<div class="rounded-lg overflow-hidden shadow-md"><img src="${img.base64}" alt="صورة معرض" class="w-full h-48 object-cover"></div>`).join('')}</div></div>`;
+            }
+        }
+
+        let galleryVideosHtml = '';
+        if (galleryVideos.length > 0) {
+            const validVideos = galleryVideos.filter(vid => vid.url || vid.base64);
+            if (validVideos.length > 0) {
+                galleryVideosHtml = `<div class="mb-8"><h2 class="section-title anim-on-scroll ${data.animSections}">الفيديوهات</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">${validVideos.map(vid => {
+                    if (vid.url) {
+                        // Check if it's a YouTube or Vimeo URL and extract embed URL
+                        let embedUrl = '';
+                        if (vid.url.includes('youtube.com/watch?v=')) {
+                            const videoId = vid.url.split('v=')[1].split('&')[0];
+                            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        } else if (vid.url.includes('youtu.be/')) {
+                            const videoId = vid.url.split('youtu.be/')[1].split('?')[0];
+                            embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                        } else if (vid.url.includes('vimeo.com/')) {
+                            const videoId = vid.url.split('vimeo.com/')[1].split('?')[0];
+                            embedUrl = `https://player.vimeo.com/video/${videoId}`;
+                        }
+
+                        if (embedUrl) {
+                            return `<div class="rounded-lg overflow-hidden shadow-md aspect-video"><iframe src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="w-full h-full"></iframe></div>`;
+                        } else {
+                            return `<div class="rounded-lg overflow-hidden shadow-md p-4 bg-gray-200 dark:bg-gray-700 text-sm text-center">لا يمكن تضمين الرابط: ${vid.url}</div>`;
+                        }
+                    } else if (vid.base64) {
+                        // Assume mp4 if type is not captured or is generic
+                        const videoType = vid.fileType || 'video/mp4'; 
+                        return `<div class="rounded-lg overflow-hidden shadow-md aspect-video"><video controls class="w-full h-full"><source src="${vid.base64}" type="${videoType}">متصفحك لا يدعم الفيديو.</video></div>`;
+                    }
+                    return ''; // Fallback for invalid entries
+                }).join('')}</div></div>`;
+            }
+        }
+
+
+        // HTML Snippets Generation
+        const workHtml = workEntries.length > 0 && workEntries[0].title ?
+            `<div class="mb-8"><h2 class="section-title anim-on-scroll ${data.animSections}">الخبرة العملية</h2><div class="mt-4 space-y-4">${workEntries.map(w => w.title ? `<div class="anim-on-scroll ${data.animSections}"><h3 class="text-xl font-bold">${w.title}</h3><p class="font-semibold primary-text">${w.company}</p><p class="mt-1">${w.desc}</p></div>` : '').join('')}</div></div>` : '';
+        const eduHtml = eduEntries.length > 0 && eduEntries[0].degree ?
+            `<div class="mb-8"><h2 class="section-title anim-on-scroll ${data.animSections}">التعليم</h2><div class="mt-4 space-y-4">${eduEntries.map(e => e.degree ? `<div class="anim-on-scroll ${data.animSections}"><h3 class="text-xl font-bold">${e.degree}</h3><p class="font-semibold primary-text">${e.school}</p><p class="mt-1">${e.desc}</p></div>` : '').join('')}</div></div>` : '';
+        const skillsHtml = data.skills.length > 0 ?
+            `<div class="mb-8"><h2 class="section-title anim-on-scroll ${data.animSections}">المهارات</h2><div class="flex flex-wrap gap-3 mt-4 anim-on-scroll ${data.animSections}">${data.skills.map(s => `<span class="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 py-1 px-4 rounded-full font-semibold">${s}</span>`).join('')}</div></div>` : '';
+        const contactMeHtml = (data.email || data.phone) ?
+            `<div class="mb-8"><h2 class="section-title anim-on-scroll ${data.animSections}">تواصل معي</h2><div class="mt-4 space-y-2 anim-on-scroll ${data.animSections}">${data.email ? `<p><b>البريد الإلكتروني:</b> <a href="mailto:${data.email}" class="primary-text hover:underline">${data.email}</a></p>` : ''}${data.phone ? `<p><b>الهاتف:</b> ${data.phone}</p>` : ''}</div></div>` : '';
+
+        const socialLinksHtml = `<div class="flex justify-center md:justify-start items-center gap-x-4 mt-4">${data.whatsapp?`<a href="https://wa.me/${data.whatsapp}" target="_blank" class="social-btn" title="واتساب"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99 0-3.902-.539-5.586-1.54l-6.167 1.687a.498.498 0 0 1-.599-.601zm7.844-4.895c.187-.093.276-.112.435-.112s1.07.364 1.25.42.42.056-.78-.126c-1.33-1.046-2.19-2.2-2.31-2.42-.12-.224-.015-.348.09-.46s.21-.24.315-.405c.105-.165.15-.28.06-.495-.09-.21-.84-2.025-1.155-2.775-.315-.75-.63-.65-.87-.65h-.225c-.24 0-.525.12-.75.36s-.87.84-.87 2.055c0 1.215.885 2.385 1.005 2.565.12.18 1.74 2.76 4.23 3.75 2.49.9 2.91.71 3.435.68.525-.03 1.635-.66 1.86-1.29.225-.63.225-1.17.15-1.29-.075-.12-.27-.18-.42-.27z"/></svg></a>`:""}${data.facebook?`<a href="${data.facebook}" target="_blank" class="social-btn" title="فيسبوك"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg></a>`:""}${data.behance?`<a href="https://www.behance.net/${data.behance}" target="_blank" class="social-btn" title="Behance"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M22 7h-7v-2h7v2zm-7 4h5.459c.416-1.357.672-2.772.784-4h-6.243v4zm-2-4v4h-11v-4h11zm0 6h-11v10h11v-10zm-3.086 8.322c-.414.211-.885.322-1.414.322-1.743 0-2.5-1.156-2.5-2.644 0-1.543.832-2.678 2.5-2.678.575 0 1.054.135 1.414.353v4.647zm-1.414-7.322c-2.544 0-4.5 1.846-4.5 4.5s1.956 4.5 4.5 4.5c.69 0 1.343-.135 1.914-.388v-8.224c-.586-.212-1.224-.388-1.914-.388zm13.5 1.5c-.142 1.614-.528 3.193-1.125 4.5h-5.875v-4.5h7z"/></svg></a>`:""}${data.email?`<a href="mailto:${data.email}" target="_blank" class="social-btn" title="بريد"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3v18h24v-18h-24zm21.518 2l-9.518 7.713-9.518-7.713h19.036zm-19.518 14v-11.817l9.518 7.713 9.518-7.713v11.817h-19.036z"/></svg></a>`:""}</div>`;
+
+        // Final HTML Assembly
+        const animationCss = `<style>@keyframes fade-in{from{opacity:0}to{opacity:1}}@keyframes slide-in-up{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}@keyframes slide-in-left{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}@keyframes zoom-in{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}.anim-on-scroll{opacity:0;transition:opacity .5s,transform .5s}.fade-in.visible{animation:fade-in .7s forwards}.slide-in-up.visible{animation:slide-in-up .7s forwards}.slide-in-left.visible{animation:slide-in-left .7s forwards}.zoom-in.visible{animation:zoom-in .7s forwards}.pulse.visible{animation:pulse 1.5s infinite}</style>`;
+        const animationScript = `<script>const observer=new IntersectionObserver(e=>{e.forEach(e=>{e.isIntersecting&&e.target.classList.add("visible")})},{threshold:.2});document.querySelectorAll(".anim-on-scroll").forEach(e=>{observer.observe(e)});<` + `/script>`;
+        const commonHead = `<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${data.fullName} |
+${data.jobTitle}</title><script src="https://cdn.tailwindcss.com"><` + `/script><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">${animationCss}`;
+        const commonStyles = `<style>:root{--primary-color:${data.lightPrimary};--background-color:${data.lightBg};--text-color:${data.lightText};--btn-radius:${data.buttonStyle}}html.dark{--primary-color:${data.darkPrimary};--background-color:${data.darkBg};--text-color:${data.darkText}}body{font-family:'Cairo',sans-serif;background-color:var(--background-color);color:var(--text-color);transition:background-color .5s,color .5s}.primary-text{color:var(--primary-color)}.primary-bg{background-color:var(--primary-color)}.social-btn{opacity:.8;transition:.3s}.social-btn:hover{opacity:1;transform:scale(1.1)}.profile-image{border:5px solid var(--primary-color);padding:5px;background-color:var(--background-color)}.section-title{font-size:1.875rem;font-weight:700;color:var(--primary-color);border-bottom:2px solid;padding-bottom:.5rem;margin-bottom:1rem}</style>`;
+        const themeToggle = `<button id="theme-toggle" class="fixed top-4 right-4 z-50 rounded-full w-12 h-12 flex items-center justify-center bg-gray-200 dark:bg-gray-700" title="تبديل"><svg id="moon-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg><svg id="sun-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1
+1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zM3 11a1 1 0 100-2H2a1 1 0 100 2h1z" clip-rule="evenodd"></path></svg></button>`;
+        const themeScript = `<script>const t=document.getElementById("theme-toggle"),o=document.getElementById("sun-icon"),e=document.getElementById("moon-icon");localStorage.getItem("color-theme")==="dark"||!("color-theme"in localStorage)&&window.matchMedia("(prefers-color-scheme: dark)").matches?(document.documentElement.classList.add("dark"),e.classList.add("hidden"),o.classList.remove("hidden")):(document.documentElement.classList.remove("dark"),e.classList.remove("hidden"),o.classList.add("hidden")),t.addEventListener("click",function(){const t=document.documentElement.classList.toggle("dark");localStorage.setItem("color-theme",t?"dark":"light"),e.classList.toggle("hidden",t),o.classList.toggle("hidden",!t)});<` + `/script>`;
+
+        let templateHtml;
+        const headerBgSrc = headerBgImageBase64 || 'https://images.unsplash.com/photo-1522252234503-e356532cafd5?q=80&w=1925&auto=format&fit=crop';
+
+        switch(selectedTemplate){
+            case'minimalist-modern':
+                templateHtml=`<div class="min-h-screen flex items-center justify-center p-4"><div class="max-w-4xl w-full text-center"><img src="${data.profileImageSrc}" class="profile-image w-40 h-40 rounded-full mx-auto mb-6 object-cover anim-on-scroll ${data.animHeader}"><h1 class="text-4xl md:text-5xl font-bold primary-text anim-on-scroll ${data.animHeader}">${data.fullName}</h1><p class="text-xl mt-2 mb-4 anim-on-scroll ${data.animHeader}">${data.jobTitle}</p><p class="max-w-2xl mx-auto mb-6 text-lg anim-on-scroll ${data.animHeader}">${data.aboutMe}</p>${socialLinksHtml.replace(/social-btn/g, 'social-btn text-current')}<div class="mt-12 text-left">${workHtml}${eduHtml}${skillsHtml}${contactMeHtml}</div></div></div>`;
+                break;
+            case'professional-elegant':
+                const professionalSocials = socialLinksHtml.replace(/social-btn/g, 'social-btn inline-block p-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full transition-colors duration-300');
+                templateHtml=`
+                    <header class="relative text-white py-16 md:py-24 px-8 text-center md:text-left shadow-lg">
+                        <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('${headerBgSrc}');"></div>
+                        <div class="absolute inset-0 bg-black/60"></div>
+                        <div class="relative max-w-6xl mx-auto flex flex-col-reverse md:flex-row items-center justify-between gap-8 anim-on-scroll ${data.animHeader}">
+                            <div class="md:w-2/3 mt-6 md:mt-0">
+                                <h1 class="text-4xl md:text-6xl font-bold">${data.fullName}</h1>
+                                <p class="text-xl md:text-2xl mt-2 mb-4 opacity-90">${data.jobTitle}</p>
+                                <p class="text-base md:text-lg mb-6 max-w-3xl">${data.aboutMe}</p>
+                                ${professionalSocials}
+                            </div>
+                            <div class="md:w-auto flex-shrink-0">
+                                 <img src="${data.profileImageSrc}" class="w-40 h-40 md:w-48 md:h-48 rounded-full object-cover shadow-2xl border-4 border-white/80">
+                            </div>
+                        </div>
+                    </header>
+                    <main class="max-w-5xl mx-auto p-8 md:p-12">
+                        ${workHtml}
+                        ${skillsHtml}
+                        ${galleryImagesHtml}
+                        ${galleryVideosHtml}
+                        ${eduHtml}
+                        ${contactMeHtml}
+                    </main>
+                `;
+                break;
+            case'creative-bold':
+                templateHtml=`<div class="min-h-screen relative overflow-x-hidden p-6 flex items-center justify-center"><div class="absolute -top-20 -left-20 w-80 h-80 primary-bg rounded-full opacity-50 filter blur-2xl"></div><div class="absolute -bottom-20 -right-20 w-80 h-80 primary-bg rounded-full opacity-50 filter blur-2xl"></div><div class="relative z-10 bg-white/40 dark:bg-black/40 backdrop-blur-lg p-8 rounded-2xl shadow-2xl max-w-4xl w-full"><div class="text-center anim-on-scroll ${data.animHeader}"><img src="${data.profileImageSrc}" class="profile-image w-36 h-36 rounded-full mx-auto mb-4 object-cover shadow-lg"><h1 class="text-4xl font-bold primary-text">${data.fullName}</h1><p class="mt-1 mb-4 text-lg italic">${data.jobTitle}</p><p class="mb-6">${data.aboutMe}</p>${socialLinksHtml.replace(/social-btn/g, 'social-btn text-current')}</div><div class="mt-10 text-right">${workHtml}${eduHtml}${skillsHtml}${galleryImagesHtml}${galleryVideosHtml}${contactMeHtml}</div></div></div>`;
+                break;
+        }
+        return`<!DOCTYPE html><html lang="ar" dir="rtl"><head>${commonHead}${commonStyles}</head><body class="bg-white dark:bg-gray-900">${themeToggle}${templateHtml}${themeScript}${animationScript}</body></html>`
+    }
+
+    function downloadFile(fileName, content, mimeType) {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([content], {type: mimeType}));
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function generateAndDownload() {
+        if(!selectedTemplate){
+            alert('اختر قالب أولاً');
+            return;
+        }
+        document.getElementById('loading-indicator').classList.remove('hidden');
+        setTimeout(() => {
+            downloadFile('index.html', generateHtmlContent(), 'text/html;charset=utf-8');
+            document.getElementById('loading-indicator').classList.add('hidden');
+        }, 500);
+    }
+
+    function downloadInstructions() {
+        const instructionsText = `مرحباً!
+لنشر موقعك، اتبع الآتي:
+1. استعمل ملف index.html الذي تم تحميله.
+2. ارفع الملف إلى خدمة استضافة مجانية مثل Netlify أو GitHub Pages.
+
+مبروك موقعك الآن مباشر!`;
+        downloadFile('كيفية_النشر.txt', instructionsText, 'text/plain;charset=utf-8');
+    }
+
+    // AI Generator Modal Functions
+    function openAIGeneratorModal() {
+        document.getElementById('aiGeneratorModal').style.display = 'flex';
+        // Clear previous content
+        document.getElementById('aiAboutMeInput').value = '';
+        document.getElementById('aiGeneratedResponse').innerHTML = '';
+        document.getElementById('aiGeneratedResponse').classList.add('hidden');
+        document.getElementById('useGeneratedTextBtn').classList.add('hidden');
+        document.getElementById('aiLoadingSpinner').style.display = 'none';
+    }
+
+    function closeAIGeneratorModal() {
+        document.getElementById('aiGeneratorModal').style.display = 'none';
+    }
+
+    async function generateAboutMeContent() {
+        const aiInput = document.getElementById('aiAboutMeInput').value.trim();
+        const aiResponseArea = document.getElementById('aiGeneratedResponse');
+        const aiLoadingSpinner = document.getElementById('aiLoadingSpinner');
+        const useTextBtn = document.getElementById('useGeneratedTextBtn');
+
+        if (!aiInput) {
+            aiResponseArea.innerHTML = '<p style="color: red;">الرجاء وصف نفسك أو المهارات التي ترغب في إبرازها.</p>';
+            aiResponseArea.classList.remove('hidden');
+            useTextBtn.classList.add('hidden');
+            return;
+        }
+
+        aiResponseArea.innerHTML = '';
+        aiResponseArea.classList.add('hidden');
+        useTextBtn.classList.add('hidden');
+        aiLoadingSpinner.style.display = 'block'; // Show spinner
+
+        try {
+            const currentJobTitle = document.getElementById('jobTitle').value || 'محترف';
+            const prompt = `أكتب نبذة تعريفية احترافية وموجزة لسيرة ذاتية، لشخص يعمل كـ "${currentJobTitle}". ركز على النقاط التالية: "${aiInput}". اجعل النص جذابًا وملهمًا ومناسبًا لسيرة ذاتية حديثة.`;
+
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            // IMPORTANT: Replace YOUR_API_KEY with your actual Google Cloud API key
+            // You need to enable the Gemini API for your Google Cloud project.
+            // DO NOT share your API key publicly or commit it to a public repository.
+            const apiKey = "YOUR_API_KEY"; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            aiLoadingSpinner.style.display = 'none'; // Hide spinner
+
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const generatedText = result.candidates[0].content.parts[0].text;
+                aiResponseArea.innerHTML = `<p>${generatedText}</p>`;
+                aiResponseArea.classList.remove('hidden');
+                useTextBtn.classList.remove('hidden'); // Show "Use this text" button
+                useTextBtn.setAttribute('data-generated-text', generatedText); // Store text to be used
+            } else {
+                aiResponseArea.innerHTML = '<p style="color: red;">عذراً، لم أتمكن من توليد النص. الرجاء المحاولة مرة أخرى.</p>';
+                aiResponseArea.classList.remove('hidden');
+            }
+        } catch (error) {
+            aiLoadingSpinner.style.display = 'none'; // Hide spinner
+            aiResponseArea.innerHTML = `<p style="color: red;">حدث خطأ: ${error.message}. الرجاء التحقق من اتصالك بالإنترنت.</p>`;
+            aiResponseArea.classList.remove('hidden');
+            console.error('Error calling Gemini API:', error);
+        }
+    }
+
+    function useGeneratedText() {
+        const generatedText = document.getElementById('useGeneratedTextBtn').getAttribute('data-generated-text');
+        if (generatedText) {
+            document.getElementById('aboutMe').value = generatedText;
+            closeAIGeneratorModal();
+        }
+    }
+
+    // Initialize one default gallery image and video input when form is first displayed
+    document.addEventListener('DOMContentLoaded', () => {
+        // This will be called after selecting a template
+        // For initial load if template is not selected: no gallery inputs
+    });
+
+    // Make sure initial gallery inputs are added when customization form becomes visible
+    // This part is handled by `selectTemplate` function which ensures initial `addGalleryImage` and `addGalleryVideo` calls.
+
+</script>
+</body>
+</html>

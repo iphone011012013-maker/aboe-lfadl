@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مولد رموز WiFi QR</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+  <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; transition: background 0.3s, color 0.3s; }
+    .dark-mode { background-color: #121212; color: #eee; }
+    .dark-mode .form-control, .dark-mode select, .dark-mode .input-group-text { background-color: #1e1e1e; color: #fff; border-color: #555; }
+    .qr-card { background: #fff; border-radius: 15px; padding: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
+    .dark-mode .qr-card { background: #1e1e1e; }
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+    .toast { padding: 10px 15px; background: #333; color: #fff; border-radius: 5px; margin-top: 10px; animation: fadeInOut 4s; }
+    @keyframes fadeInOut { 0% { opacity: 0 } 10% { opacity: 1 } 90% { opacity: 1 } 100% { opacity: 0 } }
+    .form-check-input { margin-left: 10px; }
+    .filter-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+    .qr-scroll-container { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 10px; scroll-snap-type: x mandatory; }
+    .qr-scroll-container .qr-card { min-width: 250px; scroll-snap-align: start; }
+    /* --- New Style from wifi_qr_password_check --- */
+    #passwordStrengthBar { height: 5px; border-radius: 5px; margin-top: 5px; transition: width 0.4s ease-in-out; }
+    .password-display { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 10px; }
+    .password-display span { font-weight: bold; }
+    .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; text-align: center; color: #888; font-size: 0.9em; }
+    .dark-mode .footer { border-top-color: #333; color: #bbb; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="d-flex justify-content-end align-items-center mb-3">
+    <div class="form-check form-switch me-3">
+      <input class="form-check-input" type="checkbox" id="autoDarkModeToggle">
+      <label class="form-check-label" for="autoDarkModeToggle">وضع ليلي تلقائي</label>
+    </div>
+    <button id="darkModeToggle" class="btn btn-secondary">🌓 تبديل الوضع</button>
+  </div>
+  <h3 class="mb-4">🔐 إنشاء رمز QR لشبكة WiFi</h3>
+  <div class="row g-2 mb-3">
+    <div class="col-md-4"><input id="ssid" class="form-control" placeholder="🔤 اسم الشبكة"></div>
+    <div class="col-md-4"><input id="note" class="form-control" placeholder="📝 ملاحظة (اختياري)"></div>
+    <div class="col-md-4">
+      <div class="input-group">
+        <input id="password" class="form-control" placeholder="🔑 كلمة المرور" oninput="checkPasswordStrength(this.value)">
+        <button class="btn btn-outline-secondary" type="button" onclick="generateStrongPassword()">🔑</button>
+      </div>
+      <div class="w-100">
+        <div id="passwordStrengthBar" class="bg-danger"></div>
+        <small id="passwordStrengthText" class="text-muted"></small>
+        <small id="passwordSecurityTips" class="text-info mt-1" style="display: block;"></small>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <select id="encryption" class="form-control" onchange="updateEncryptionTip()">
+        <option value="WPA">WPA/WPA2</option>
+        <option value="WEP">WEP</option>
+        <option value="nopass">بدون تشفير</option>
+      </select>
+      <small id="encryptionTip" class="text-muted mt-1" style="display: block;"></small>
+    </div>
+    <div class="col-md-4 mb-3 form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="hiddenNetwork">
+      <label class="form-check-label" for="hiddenNetwork">شبكة مخفية</label>
+    </div>
+  </div>
+  <div class="mb-3">
+    <button onclick="generateQRCode()" class="btn btn-dark">✅ إنشاء رمز</button>
+    <button onclick="downloadQRCode()" class="btn btn-success">📥 تحميل</button>
+    <button onclick="printQRCode()" class="btn btn-info">🖨️ طباعة</button>
+    <button onclick="shareQRCode()" class="btn btn-primary" id="shareButton" style="display:none;">📲 مشاركة</button>
+  </div>
+  <div class="mb-3">
+    <input type="file" accept="image/*" onchange="decodeQRCodeFromImage(this)" class="form-control" />
+  </div>
+  <div id="qrcode" class="my-4"></div>
+  <div id="extractedInfo" class="alert alert-info" style="display:none;"></div>
+  <hr>
+  <div class="filter-group">
+    <input type="text" id="searchInput" oninput="renderSavedQRCodes()" class="form-control" placeholder="🔍 بحث باسم الشبكة أو الملاحظة">
+    <select id="encryptionFilter" class="form-control" onchange="renderSavedQRCodes()">
+      <option value="">📂 كل أنواع التشفير</option>
+      <option value="WPA">WPA</option>
+      <option value="WEP">WEP</option>
+      <option value="nopass">بدون</option>
+    </select>
+    <button onclick="exportJSON()" class="btn btn-outline-primary">📤 تصدير</button>
+    <input type="file" accept="application/json" onchange="importJSON(event)" class="form-control">
+  </div>
+  <button onclick="clearSelected()" class="btn btn-danger mb-2">🗑 حذف المحدد</button>
+  <p id="encryptionStats"></p>
+  <div class="qr-scroll-container" id="savedQRCodes"></div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<footer class="footer">
+  <p>&copy; 2025 <a href="https://aboelfadl-tools.netlify.app/" target="_blank">AboElfadl</a> - بواسطة محمود أبو الفضل. جميع الحقوق محفوظة.</p>
+</footer>
+
+<script>
+const ssidEl = document.getElementById("ssid");
+const passwordEl = document.getElementById("password");
+const encryptionEl = document.getElementById("encryption");
+const noteEl = document.getElementById("note");
+const extractedInfo = document.getElementById("extractedInfo");
+
+const toast = (msg, success = true) => {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.style.backgroundColor = success ? '#28a745' : '#dc3545';
+  el.innerText = msg;
+  document.getElementById("toastContainer").appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+};
+
+const applyDarkModeBasedOnTime = () => {
+    const hr = new Date().getHours();
+    if (hr >= 20 || hr < 6) { // من 8 مساءً حتى 6 صباحًا
+        document.body.classList.add("dark-mode");
+    } else {
+        document.body.classList.remove("dark-mode");
+    }
+};
+
+const toggleDarkModeManually = () => {
+  document.body.classList.toggle("dark-mode");
+  document.getElementById("autoDarkModeToggle").checked = false;
+  localStorage.setItem('autoDarkMode', 'false');
+};
+
+const handleAutoDarkModeToggle = () => {
+    const isAuto = document.getElementById("autoDarkModeToggle").checked;
+    localStorage.setItem('autoDarkMode', isAuto);
+    if (isAuto) {
+        applyDarkModeBasedOnTime();
+    } else {
+        document.body.classList.remove("dark-mode");
+    }
+};
+
+function checkPasswordStrength(password) {
+  const bar = document.getElementById("passwordStrengthBar");
+  const text = document.getElementById("passwordStrengthText");
+  const tips = document.getElementById("passwordSecurityTips");
+  let strength = 0;
+  let tipText = "";
+
+  if (password.length >= 8) strength++; else tipText += "⚠️ كلمة المرور يجب ألا تقل عن 8 أحرف/أرقام. ";
+  if (/[A-Z]/.test(password)) strength++; else tipText += "حرف كبير. ";
+  if (/[a-z]/.test(password)) strength++; else tipText += "حرف صغير. ";
+  if (/\d/.test(password)) strength++; else tipText += "رقم. ";
+  if (/[^A-Za-z0-9]/.test(password)) strength++; else tipText += "رمز خاص. ";
+
+  if (password.length > 0 && !/^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/.test(password)) {
+    tipText += "⚠️ كلمة المرور تقبل الإنجليزية فقط. ";
+  }
+
+  if (strength <= 1) {
+    bar.style.width = "20%";
+    bar.className = "bg-danger";
+    text.innerText = "ضعيفة";
+  } else if (strength <= 3) {
+    bar.style.width = "60%";
+    bar.className = "bg-warning";
+    text.innerText = "متوسطة";
+  } else {
+    bar.style.width = "100%";
+    bar.className = "bg-success";
+    text.innerText = "قوية";
+  }
+  tips.innerText = tipText || "استخدم مزيجًا من الحروف الكبيرة، الصغيرة، الأرقام، والرموز لزيادة الأمان.";
+}
+
+function updateEncryptionTip() {
+    const encryptionType = encryptionEl.value;
+    const tipElement = document.getElementById("encryptionTip");
+    if (encryptionType === "WPA") {
+        tipElement.innerText = "ينصح باستخدام WPA/WPA2 لأمان أعلى. هذا هو التشفير الأكثر أماناً للشبكات الحديثة.";
+    } else if (encryptionType === "WEP") {
+        tipElement.innerText = "WEP يعتبر قديماً وأقل أمانًا، ولا يوصى باستخدامه للشبكات الجديدة.";
+    } else { // nopass
+        tipElement.innerText = "بدون تشفير: لا توفر أي حماية لكلمة المرور والبيانات. استخدمه بحذر شديد.";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const darkModeToggleBtn = document.getElementById("darkModeToggle");
+    const autoDarkModeCheckbox = document.getElementById("autoDarkModeToggle");
+    const savedAutoDarkMode = localStorage.getItem('autoDarkMode');
+    if (savedAutoDarkMode === 'true') {
+        autoDarkModeCheckbox.checked = true;
+        applyDarkModeBasedOnTime();
+    } else {
+        autoDarkModeCheckbox.checked = false;
+        document.body.classList.remove("dark-mode");
+    }
+    darkModeToggleBtn.addEventListener("click", toggleDarkModeManually);
+    autoDarkModeCheckbox.addEventListener("change", handleAutoDarkModeToggle);
+    renderSavedQRCodes();
+    updateEncryptionTip(); // لضمان ظهور النصيحة عند تحميل الصفحة
+    if (navigator.share) { // اظهار زر المشاركة إذا كان المتصفح يدعمها
+      document.getElementById("shareButton").style.display = 'inline-block';
+    }
+});
+
+function generateQRCode() {
+  const ssid = ssidEl.value.trim();
+  const password = passwordEl.value;
+  const type = encryptionEl.value;
+  const hidden = document.getElementById("hiddenNetwork").checked ? 'H:true;' : '';
+  const note = noteEl.value.trim();
+
+  if (!ssid) {
+      return toast("⚠️ أدخل اسم الشبكة", false);
+  }
+
+  if (type !== "nopass") {
+      const englishOnlyRegex = /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
+      if (!englishOnlyRegex.test(password)) {
+          return toast("⚠️ كلمة المرور يجب أن تحتوي على أحرف وأرقام ورموز إنجليزية فقط.", false);
+      }
+      if (password.length < 8) {
+          return toast("⚠️ كلمة المرور يجب ألا تقل عن 8 أحرف أو أرقام.", false);
+      }
+  }
+  
+  const existing = JSON.parse(localStorage.getItem("qrList") || "[]");
+  if (existing.find(e => e.ssid === ssid)) return toast("⚠️ الشبكة محفوظة مسبقًا", false);
+  
+  const data = `WIFI:T:${type};S:${ssid};P:${password};${hidden};`;
+  qrcode.innerHTML = "";
+  new QRCode(qrcode, { text: data, width: 200, height: 200 });
+  
+  existing.push({ ssid, data, date: new Date().toLocaleString(), note: note });
+  localStorage.setItem("qrList", JSON.stringify(existing));
+  renderSavedQRCodes();
+  toast("✅ تم حفظ الرمز بنجاح");
+}
+
+function downloadQRCode() {
+  const ssid = ssidEl.value || 'wifi';
+  const canvas = qrcode.querySelector("canvas");
+  if (!canvas) return toast("⚠️ لا يوجد رمز", false);
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL("image/png");
+  a.download = `qr_wifi_${ssid}.png`;
+  a.click();
+}
+
+async function shareQRCode() {
+  const canvas = qrcode.querySelector("canvas");
+  if (!canvas) {
+    toast("⚠️ لا يوجد رمز لمشاركته", false);
+    return;
+  }
+
+  try {
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const filesArray = [new File([blob], 'qrcode.png', { type: 'image/png' })];
+
+    if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+      await navigator.share({
+        files: filesArray,
+        title: 'رمز QR لشبكة WiFi',
+        text: 'إليك رمز QR لشبكة WiFi. قم بمسحه للاتصال بالشبكة بسهولة.',
+      });
+      toast("✅ تم مشاركة الرمز بنجاح");
+    } else {
+      toast("❌ متصفحك لا يدعم مشاركة الملفات.", false);
+    }
+  } catch (error) {
+    console.error('Error sharing:', error);
+    toast("❌ فشل في مشاركة الرمز.", false);
+  }
+}
+
+
+function decodeQRCodeFromImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  extractedInfo.style.display = 'none'; // إخفاء مربع المعلومات قبل المعالجة
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, canvas.width, canvas.height);
+      if (code && code.data.includes("WIFI:")) {
+        const ssid = (code.data.match(/S:([^;]*)/) || [])[1] || "";
+        const pass = (code.data.match(/P:([^;]*)/) || [])[1] || "";
+        const hiddenStatus = code.data.includes('H:true;') ? ' (مخفية)' : '';
+        extractedInfo.innerHTML = `
+          <p>📡 اسم الشبكة: <strong>${ssid}${hiddenStatus}</strong> <button class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard.writeText('${ssid}')">نسخ</button></p>
+          <p>🔑 كلمة المرور: <strong><span id="decodedPassword">${pass.replace(/./g, '*')}</span></strong> <button class="btn btn-sm btn-outline-primary" onclick="togglePasswordVisibility('decodedPassword', this)">👁️</button> <button class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard.writeText('${pass}')">نسخ</button></p>
+        `;
+        extractedInfo.style.display = 'block'; // إظهار مربع المعلومات
+        const existing = JSON.parse(localStorage.getItem("qrList") || "[]");
+        if (!existing.find(e => e.ssid === ssid)) {
+          existing.push({ ssid, data: code.data, date: new Date().toLocaleString(), note: '' }); // الملاحظة ستكون فارغة عند الاستيراد
+          localStorage.setItem("qrList", JSON.stringify(existing));
+          renderSavedQRCodes();
+        }
+      } else {
+        toast("❌ لم يتم العثور على رمز WiFi صالح", false);
+        extractedInfo.style.display = 'none';
+      }
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function togglePasswordVisibility(id, button) {
+    const span = document.getElementById(id);
+    if (span.dataset.hidden === 'true' || span.dataset.hidden === undefined) {
+        span.innerText = span.dataset.password;
+        button.innerText = '🙈';
+        span.dataset.hidden = 'false';
+    } else {
+        span.innerText = span.dataset.password.replace(/./g, '*');
+        button.innerText = '👁️';
+        span.dataset.hidden = 'true';
+    }
+}
+
+
+function renderSavedQRCodes() {
+  const qrs = JSON.parse(localStorage.getItem("qrList") || "[]");
+  const container = document.getElementById("savedQRCodes");
+  const filter = encryptionFilter.value;
+  const search = searchInput.value.toLowerCase();
+  container.innerHTML = "";
+  const stats = { WPA: 0, WEP: 0, nopass: 0 };
+  qrs.forEach((qr, i) => {
+    const enc = (qr.data.match(/T:([^;]*)/) || [])[1];
+    stats[enc] = (stats[enc] || 0) + 1;
+    
+    // البحث في اسم الشبكة أو الملاحظة
+    const qrText = `${qr.ssid} ${qr.note || ''}`.toLowerCase();
+    if (filter && enc !== filter) return;
+    if (!qrText.includes(search)) return;
+
+    const pass = (qr.data.match(/P:([^;]*)/) || [])[1] || "";
+    let encryptionIcon = '';
+    if (enc === 'WPA') encryptionIcon = '🔒';
+    else if (enc === 'WEP') encryptionIcon = '🔓';
+    else if (enc === 'nopass') encryptionIcon = '🚫';
+
+    const col = document.createElement("div");
+    col.className = "";
+    const card = document.createElement("div");
+    card.className = "qr-card";
+    card.innerHTML = `
+      <input type='checkbox' data-i='${i}' class='form-check-input'>
+      <h6>${encryptionIcon} ${qr.ssid}</h6>
+      ${qr.note ? `<p class='small text-muted'>${qr.note}</p>` : ''}
+      <div id='qr-${i}'></div>
+      <div class="password-display">
+        <span>كلمة المرور: </span>
+        <span id="savedPass-${i}" data-password="${pass}" data-hidden="true">${pass.replace(/./g, '*')}</span>
+        <button class="btn btn-sm btn-outline-primary" onclick="togglePasswordVisibility('savedPass-${i}', this)">👁️</button>
+        <button class="btn btn-sm btn-outline-primary" onclick="navigator.clipboard.writeText('${pass}')">نسخ</button>
+      </div>
+      <p class='small'>📅 ${qr.date}</p>
+      <button class='btn btn-sm btn-outline-secondary' onclick='editQR(${i})'>✏️ تعديل</button>
+      <button class='btn btn-sm btn-outline-success' onclick='downloadSaved(${i})'>📥 تحميل</button>
+    `;
+    col.appendChild(card);
+    container.appendChild(col);
+    new QRCode(document.getElementById(`qr-${i}`), { text: qr.data, width: 140, height: 140 });
+  });
+  encryptionStats.textContent = `📊 WPA: ${stats.WPA} | WEP: ${stats.WEP} | بدون: ${stats.nopass}`;
+}
+
+function clearSelected() {
+  if (!confirm("⚠️ هل أنت متأكد من حذف الشبكات المحددة؟")) return;
+  let qrs = JSON.parse(localStorage.getItem("qrList") || "[]");
+  const indices = [...document.querySelectorAll("input[type=checkbox]:checked")].map(e => +e.dataset.i);
+  qrs = qrs.filter((_, i) => !indices.includes(i));
+  localStorage.setItem("qrList", JSON.stringify(qrs));
+  renderSavedQRCodes();
+  toast("✅ تم الحذف بنجاح");
+}
+
+function downloadSaved(i) {
+  const canvas = document.querySelector(`#qr-${i} canvas`);
+  const qrs = JSON.parse(localStorage.getItem("qrList") || "[]");
+  const a = document.createElement("a");
+  a.href = canvas.toDataURL();
+  a.download = `qr_wifi_${qrs[i].ssid}.png`;
+  a.click();
+}
+
+function editQR(i) {
+  const qrs = JSON.parse(localStorage.getItem("qrList") || "[]");
+  const qr = qrs[i];
+  
+  const newSSID = prompt("🔤 اسم الشبكة الجديد:", qr.ssid);
+  if (newSSID === null) return; // المستخدم ألغى
+  
+  const newPass = prompt("🔑 كلمة المرور الجديدة:", (qr.data.match(/P:([^;]*)/) || [])[1] || "");
+  if (newPass === null) return; // المستخدم ألغى
+
+  const newNote = prompt("📝 ملاحظة جديدة (اختياري):", qr.note || "");
+  if (newNote === null) return; // المستخدم ألغى
+
+  const enc = (qr.data.match(/T:([^;]*)/) || [])[1] || "WPA";
+  const hidden = qr.data.includes('H:true;') ? 'H:true;' : ''; // الحفاظ على حالة المخفي
+  
+  // التحقق من صحة كلمة المرور الجديدة إذا لم تكن الشبكة بدون تشفير
+  if (enc !== "nopass") {
+      const englishOnlyRegex = /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
+      if (!englishOnlyRegex.test(newPass)) {
+          return toast("⚠️ كلمة المرور الجديدة يجب أن تحتوي على أحرف وأرقام ورموز إنجليزية فقط.", false);
+      }
+      if (newPass.length < 8) {
+          return toast("⚠️ كلمة المرور الجديدة يجب ألا تقل عن 8 أحرف أو أرقام.", false);
+      }
+  }
+
+  const newData = `WIFI:T:${enc};S:${newSSID};P:${newPass};${hidden};`;
+  qrs[i] = { ssid: newSSID, data: newData, date: new Date().toLocaleString(), note: newNote };
+  localStorage.setItem("qrList", JSON.stringify(qrs));
+  renderSavedQRCodes();
+  toast("✅ تم التعديل بنجاح");
+}
+
+function generateStrongPassword() {
+  const length = 12; // يمكنك تعديل الطول حسب الرغبة
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]\:;?><,./-=";
+  let password = "";
+  for (let i = 0, n = charset.length; i < length; ++i) {
+    password += charset.charAt(Math.floor(Math.random() * n));
+  }
+  passwordEl.value = password;
+  checkPasswordStrength(password); // تحديث مؤشر قوة كلمة المرور
+  toast("✅ تم توليد كلمة مرور قوية");
+}
+
+function printQRCode() {
+  const canvas = qrcode.querySelector("canvas");
+  const ssid = ssidEl.value.trim();
+  const password = passwordEl.value; // للحصول على كلمة المرور الحالية
+  const note = noteEl.value.trim();
+
+  if (!canvas) {
+    return toast("⚠️ لا يوجد رمز لطباعته", false);
+  }
+
+  const printWindow = window.open('', '', 'height=600,width=800');
+  printWindow.document.write('<html><head><title>طباعة رمز QR لشبكة WiFi</title>');
+  printWindow.document.write('<style>');
+  printWindow.document.write('body { font-family: "Segoe UI", sans-serif; text-align: center; padding: 20px; direction: rtl; }'); // دعم RTL للطباعة
+  printWindow.document.write('h2 { color: #333; margin-bottom: 25px; }');
+  printWindow.document.write('img { border: 1px solid #ccc; padding: 10px; margin-bottom: 20px; max-width: 200px; height: auto; }');
+  printWindow.document.write('.info-box { border: 1px solid #eee; padding: 15px; border-radius: 8px; display: inline-block; text-align: right; background-color: #f9f9f9; max-width: 80%; }');
+  printWindow.document.write('.info-box p { margin: 5px 0; font-size: 1.1em; }');
+  printWindow.document.write('.note-text { font-size: 0.9em; color: #666; margin-top: 10px; }');
+  printWindow.document.write('</style>');
+  printWindow.document.write('</head><body>');
+  printWindow.document.write(`<h2>رمز QR لشبكة WiFi</h2>`);
+  printWindow.document.write(`<img src="${canvas.toDataURL("image/png")}" alt="رمز QR لشبكة WiFi">`);
+  printWindow.document.write('<div class="info-box">');
+  printWindow.document.write(`<p><strong>اسم الشبكة (SSID):</strong> ${ssid}</p>`);
+  printWindow.document.write(`<p><strong>كلمة المرور (Password):</strong> <span>${password}</span></p>`);
+  printWindow.document.write('<p><i>يمكنك كتابة كلمة المرور يدوياً هنا: _________________________</i></p>');
+  if (note) {
+      printWindow.document.write(`<p class="note-text"><strong>ملاحظة:</strong> ${note}</p>`);
+  }
+  printWindow.document.write('</div>');
+  printWindow.document.write('</body></html>');
+  printWindow.document.close();
+  printWindow.print();
+}
+
+function exportJSON() {
+  const blob = new Blob([localStorage.getItem("qrList") || "[]"], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "qr_wifi_backup.json";
+  a.click();
+  toast("✅ تم تصدير البيانات بنجاح");
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!Array.isArray(data)) return toast("❌ الملف المستورد غير صالح", false);
+      const old = JSON.parse(localStorage.getItem("qrList") || "[]");
+      // دمج البيانات الجديدة مع القديمة مع تجنب التكرار بناءً على SSID
+      const combined = [...old];
+      data.forEach(newItem => {
+        if (!combined.some(existingItem => existingItem.ssid === newItem.ssid)) {
+          combined.push(newItem);
+        }
+      });
+      localStorage.setItem("qrList", JSON.stringify(combined));
+      renderSavedQRCodes();
+      toast("✅ تم استيراد البيانات بنجاح");
+    } catch (e) { 
+      toast("❌ فشل في قراءة أو تحليل الملف", false); 
+      console.error("Import error:", e);
+    }
+  };
+  reader.readAsText(file);
+}
+
+</script>
+</body>
+</html>

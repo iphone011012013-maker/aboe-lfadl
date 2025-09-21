@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة XO العصرية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* الأنماط العامة وإعادة الضبط */
+        * {
+            box-sizing: border-box; /* يجعل إضافة Padding و Border لا تزيد من الحجم الكلي للعنصر */
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif; /* استخدام الخط الجديد */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* تأكد أن الصفحة تأخذ ارتفاع الشاشة بالكامل */
+            background: linear-gradient(135deg, #a8e063, #56ab2f); /* خلفية متدرجة خضراء جذابة */
+            color: #333;
+            overflow: hidden; /* منع ظهور أشرطة التمرير إذا كان المحتوى أكبر من الشاشة */
+            padding: 20px; /* إضافة بعض المسافة من الحواف */
+        }
+
+        /* رأس الصفحة الجديد لعرض النتائج والعنوان */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 900px; /* لتحديد أقصى عرض للرأس ليتناسب مع تخطيط الصفحة */
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.9); /* خلفية شبه شفافة */
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 10; /* لضمان ظهورها فوق العناصر الأخرى */
+        }
+
+        .game-header .score-display {
+            font-size: 1.8em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .game-header .score-display.x-score {
+            color: #e74c3c; /* لون X */
+        }
+
+        .game-header .score-display.o-score {
+            color: #2ecc71; /* لون O */
+        }
+
+        .game-header h1 {
+            color: #2c3e50;
+            font-size: 2.2em; /* حجم أصغر قليلاً ليتناسب في الرأس */
+            margin: 0; /* إزالة الهامش الافتراضي */
+            text-align: center;
+            flex-grow: 1; /* للسماح بالعنوان بأخذ المساحة المتاحة في المنتصف */
+        }
+
+        .game-container {
+            background-color: #ffffff; /* خلفية بيضاء نظيفة للحاوية الرئيسية */
+            padding: 30px;
+            border-radius: 15px; /* زوايا مستديرة */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* ظل ناعم */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px; /* مسافة بين العناصر داخل الحاوية */
+            width: 90%; /* عرض مرن للحاوية */
+            max-width: 400px; /* تحديد أقصى عرض */
+            z-index: 5; /* لضمان ظهورها فوق خلفية الصفحة ولكن أسفل المودال */
+        }
+
+        /* لوحة اللعبة (الشبكة) */
+        #game-board {
+            display: grid; /* استخدام Grid لإنشاء الشبكة 3x3 */
+            grid-template-columns: repeat(3, 100px); /* 3 أعمدة بعرض 100 بكسل لكل منها */
+            grid-template-rows: repeat(3, 100px); /* 3 صفوف بارتفاع 100 بكسل لكل منها */
+            gap: 8px; /* المسافة بين الخلايا */
+            background-color: #3498db; /* لون أزرق جذاب للوحة */
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1); /* ظل داخلي خفيف */
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #ecf0f1; /* لون فاتح للخلايا */
+            display: flex; /* لتمكين توسيط المحتوى داخل الخلية */
+            justify-content: center; /* توسيط أفقي */
+            align-items: center; /* توسيط عمودي */
+            font-size: 3.5em; /* حجم أكبر للعلامات (X/O) */
+            font-weight: bold;
+            cursor: pointer; /* لإظهار المؤشر كيد عند المرور فوق الخلية */
+            border-radius: 8px; /* زوايا مستديرة للخلايا */
+            transition: background-color 0.3s ease, transform 0.1s ease; /* انتقالات ناعمة للتفاعلات */
+            user-select: none; /* منع تحديد النص داخل الخلايا */
+        }
+
+        .cell:hover {
+            background-color: #dde1e5; /* لون أغمق قليلاً عند المرور بالفأرة */
+            transform: scale(1.02); /* تأثير تكبير بسيط عند المرور */
+        }
+
+        .cell.x {
+            color: #e74c3c; /* أحمر ناري لـ X */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1); /* ظل خفيف للنص لجعله يبرز */
+        }
+
+        .cell.o {
+            color: #2ecc71; /* أخضر زمردي لـ O */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* رسالة الحالة */
+        #status-message {
+            margin-top: 10px;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #34495e;
+            text-align: center;
+            min-height: 1.5em; /* لضمان عدم حدوث تغييرات في التخطيط (CLS) عند تحديث النص */
+        }
+
+        /* أزرار التحكم */
+        .game-controls {
+            display: flex;
+            gap: 15px; /* مسافة بين الأزرار */
+            flex-wrap: wrap; /* للسماح للأزرار بالانتقال لسطر جديد على الشاشات الصغيرة */
+            justify-content: center; /* توسيط الأزرار */
+        }
+
+        .action-button {
+            padding: 12px 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            background-color: #2980b9; /* أزرق داكن */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* ظل للأزرار */
+        }
+
+        .action-button:hover {
+            background-color: #3498db;
+            transform: translateY(-2px); /* تأثير رفع بسيط عند المرور */
+        }
+
+        .action-button:active {
+            transform: translateY(0); /* تأثير الضغط عند النقر */
+        }
+
+        /* لوحة النتائج السفلية (المفصلة) */
+        .score-board {
+            background-color: #f7f7f7; /* خلفية أفتح قليلاً للوحة النتائج */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%; /* تأخذ عرض الحاوية الأبوية */
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px; /* مسافة بين لوحة النتائج ولوحة اللعب */
+        }
+
+        .score-board h2 {
+            color: #34495e;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+
+        .score-stats, .win-rates {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap; /* للسماح للعناصر بالانتقال إلى سطر جديد على الشاشات الصغيرة */
+            gap: 10px;
+        }
+
+        .score-board p {
+            font-size: 1.1em;
+            color: #555;
+            margin: 0; /* إزالة الهامش الافتراضي للفقرات */
+            flex: 1; /* للسماح بتوزيع متساوٍ للمسافات */
+            min-width: 120px; /* لضمان عدم تداخل النصوص */
+        }
+
+        .score-value {
+            font-weight: bold;
+            color: #0d6efd; /* لون أزرق غامق للقيم الرقمية */
+            font-size: 1.2em;
+        }
+
+        .reset-button {
+            background-color: #e74c3c; /* لون أحمر لزر إعادة الضبط */
+        }
+
+        .reset-button:hover {
+            background-color: #c0392b;
+        }
+
+        /* أنماط النافذة المنبثقة (المودال) - عامة لكل المودالز */
+        .modal-overlay {
+            display: none; /* مخفي افتراضياً */
+            position: fixed; /* لتغطية الشاشة بأكملها */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* خلفية داكنة شبه شفافة */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* لضمان ظهورها فوق كل شيء آخر */
+            opacity: 0; /* للتحكم في ظهورها وإخفائها بانتقال ناعم */
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex; /* إظهار المودال */
+            opacity: 1; /* إظهار المودال */
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 90%;
+            max-width: 350px;
+            transform: translateY(-20px); /* تأثير بسيط عند الظهور */
+            transition: transform 0.3s ease;
+            position: relative; /* لتحديد موضع زر الإغلاق */
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0); /* إعادة الوضع الطبيعي عند الظهور */
+        }
+
+        .modal-content p {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            color: #34495e;
+            font-weight: bold;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .modal-button {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-button.confirm {
+            background-color: #e74c3c; /* أحمر للتأكيد */
+            color: white;
+        }
+
+        .modal-button.confirm:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        .modal-button.cancel {
+            background-color: #95a5a6; /* رمادي للإلغاء */
+            color: white;
+        }
+
+        .modal-button.cancel:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-1px);
+        }
+
+        /* زر إغلاق المودال */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+            transition: color 0.2s ease;
+        }
+
+        .close-button:hover {
+            color: #333;
+        }
+
+        /* أنماط مودال السجل */
+        #historyModal .modal-content {
+            max-width: 400px; /* يمكن أن يكون أكبر قليلاً لعرض السجل */
+        }
+        #historyModal .history-stats p {
+            margin-bottom: 10px;
+            text-align: right; /* محاذاة لليمين للنص العربي */
+            padding-right: 20px; /* مسافة داخلية من اليمين */
+        }
+        #historyModal .history-stats p span {
+            float: left; /* جعل الأرقام تطفو على اليسار */
+            color: #0d6efd;
+            font-weight: bold;
+        }
+
+
+        /* استجابة التصميم للشاشات الأصغر (الجوال) */
+        @media (max-width: 600px) {
+            .game-header {
+                flex-direction: column; /* ترتيب العناصر عموديًا */
+                gap: 10px;
+                padding: 10px;
+                margin-bottom: 15px;
+            }
+            .game-header h1 {
+                font-size: 1.8em;
+            }
+            .game-header .score-display {
+                font-size: 1.4em;
+            }
+
+            #game-board {
+                grid-template-columns: repeat(3, 80px); /* خلايا أصغر */
+                grid-template-rows: repeat(3, 80px);
+                gap: 6px;
+            }
+
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 3em; /* حجم خط أصغر */
+            }
+
+            #status-message {
+                font-size: 1.3em;
+            }
+
+            .action-button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+
+            .game-container {
+                padding: 20px;
+            }
+
+            .score-board p {
+                font-size: 1em;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+            .modal-content p {
+                font-size: 1em;
+            }
+            #historyModal .history-stats p {
+                text-align: right;
+                padding-right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <div class="score-display x-score">
+            X: <span id="headerScoreX">0</span>
+        </div>
+        <h1>لعبة XO</h1>
+        <div class="score-display o-score">
+            O: <span id="headerScoreO">0</span>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div id="game-board">
+            <div class="cell" data-cell-index="0"></div>
+            <div class="cell" data-cell-index="1"></div>
+            <div class="cell" data-cell-index="2"></div>
+            <div class="cell" data-cell-index="3"></div>
+            <div class="cell" data-cell-index="4"></div>
+            <div class="cell" data-cell-index="5"></div>
+            <div class="cell" data-cell-index="6"></div>
+            <div class="cell" data-cell-index="7"></div>
+            <div class="cell" data-cell-index="8"></div>
+        </div>
+
+        <div id="status-message">دور اللاعب X</div>
+
+        <div class="game-controls">
+            <button id="restart-button" class="action-button">جولة جديدة</button>
+            <button id="show-history-button" class="action-button">السجل</button>
+            <button id="reset-scores-button" class="action-button reset-button">حذف النتائج</button>
+        </div>
+
+        <div class="score-board">
+            <h2>النتائج المفصلة</h2>
+            <div class="score-stats">
+                <p>فوز X: <span id="scoreX" class="score-value">0</span></p>
+                <p>فوز O: <span id="scoreO" class="score-value">0</span></p>
+                <p>تعادل: <span id="scoreDraws" class="score-value">0</span></p>
+                <p>مجموع الألعاب: <span id="totalGames" class="score-value">0</span></p>
+            </div>
+            <div class="win-rates">
+                <p>نسبة فوز X: <span id="winRateX" class="score-value">0%</span></p>
+                <p>نسبة فوز O: <span id="winRateO" class="score-value">0%</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <p>هل أنت متأكد أنك تريد حذف جميع النتائج وبدء مباراة جديدة؟</p>
+            <div class="modal-buttons">
+                <button id="confirmResetButton" class="modal-button confirm">تأكيد</button>
+                <button id="cancelResetButton" class="modal-button cancel">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-button" id="closeHistoryModal">&times;</button>
+            <h2>سجل النتائج</h2>
+            <div class="history-stats score-stats">
+                <p>فوز X: <span id="historyScoreX" class="score-value">0</span></p>
+                <p>فوز O: <span id="historyScoreO" class="score-value">0</span></p>
+                <p>تعادل: <span id="historyScoreDraws" class="score-value">0</span></p>
+                <p>مجموع الألعاب: <span id="historyTotalGames" class="score-value">0</span></p>
+                <p>نسبة فوز X: <span id="historyWinRateX" class="score-value">0%</span></p>
+                <p>نسبة فوز O: <span id="historyWinRateO" class="score-value">0%</span></p>
+            </div>
+            <div class="modal-buttons">
+                <button id="deleteHistoryButton" class="modal-button confirm delete">حذف</button>
+                <button id="closeHistoryButton" class="modal-button cancel">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // جلب عناصر HTML التي سنتفاعل معها باستخدام معرفاتها (IDs)
+        const cells = document.querySelectorAll('.cell'); // جميع خلايا لوحة اللعب (عناصر div ذات الفئة 'cell')
+        const statusMessage = document.getElementById('status-message'); // رسالة الحالة (دور اللاعب، الفوز، التعادل)
+        const restartButton = document.getElementById('restart-button'); // زر إعادة اللعب (الآن "جولة جديدة")
+        const showHistoryButton = document.getElementById('show-history-button'); // زر "السجل" الجديد
+        const resetScoresButton = document.getElementById('reset-scores-button'); // زر إعادة ضبط النتائج (الآن "حذف النتائج")
+
+        // عناصر عرض النتائج في رأس الصفحة
+        const headerScoreXSpan = document.getElementById('headerScoreX');
+        const headerScoreOSpan = document.getElementById('headerScoreO');
+
+        // عناصر النافذة المنبثقة للتأكيد (المودال)
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmResetButton = document.getElementById('confirmResetButton');
+        const cancelResetButton = document.getElementById('cancelResetButton');
+
+        // عناصر النافذة المنبثقة للسجل (المودال الجديد)
+        const historyModal = document.getElementById('historyModal');
+        const closeHistoryModalButton = document.getElementById('closeHistoryModal'); // زر إغلاق الـ X
+        const closeHistoryButton = document.getElementById('closeHistoryButton'); // زر "إغلاق" في المودال
+
+        // *** العنصر الجديد لزر "حذف" في مودال السجل ***
+        const deleteHistoryButton = document.getElementById('deleteHistoryButton'); //
+
+
+        // عناصر لوحة النتائج المفصلة (التي يتم عرضها أيضًا في مودال السجل)
+        const scoreXSpan = document.getElementById('scoreX'); // هذا العنصر لم يعد يعرض في مكان ظاهر بالصفحة الرئيسية ولكن يستخدم لتحديث السجل الداخلي
+        const scoreOSpan = document.getElementById('scoreO');
+        const scoreDrawsSpan = document.getElementById('scoreDraws');
+        const totalGamesSpan = document.getElementById('totalGames');
+        const winRateXSpan = document.getElementById('winRateX');
+        const winRateOSpan = document.getElementById('winRateO');
+
+        const historyScoreX = document.getElementById('historyScoreX');
+        const historyScoreO = document.getElementById('historyScoreO');
+        const historyScoreDraws = document.getElementById('historyScoreDraws');
+        const historyTotalGames = document.getElementById('historyTotalGames');
+        const historyWinRateX = document.getElementById('historyWinRateX');
+        const historyWinRateO = document.getElementById('historyWinRateO');
+
+
+        // حالة اللعبة الحالية
+        let gameBoard = ['', '', '', '', '', '', '', '', '']; // يمثل 9 خانات للوحة اللعب، فارغة في البداية
+        let currentPlayer = 'X'; // اللاعب الحالي، يبدأ بـ 'X'
+        let isGameActive = true; // علامة منطقية لتحديد ما إذا كانت اللعبة ما زالت قيد اللعب أم انتهت
+
+        // كائن لتخزين نتائج اللاعبين والتعادلات
+        let scores = {
+            X: 0,
+            O: 0,
+            draws: 0,
+            total: 0 // هذا سيتم حسابه ديناميكيًا من X, O, draws
+        };
+
+        // جميع حالات الفوز الممكنة (ثلاثة في صف أو عمود أو قطر)
+        const winningConditions = [
+            [0, 1, 2], // الصف العلوي
+            [3, 4, 5], // الصف الأوسط
+            [6, 7, 8], // الصف السفلي
+            [0, 3, 6], // العمود الأيسر
+            [1, 4, 7], // العمود الأوسط
+            [2, 5, 8], // العمود الأيمن
+            [0, 4, 8], // القطر من أعلى اليسار إلى أسفل اليمين
+            [2, 4, 6]  // القطر من أعلى اليمين إلى أسفل اليسار
+        ];
+
+        // --- وظائف إدارة النتائج وحفظها في Local Storage ---
+
+        // وظيفة لتحميل النتائج من Local Storage عند بدء تشغيل اللعبة
+        function loadScores() {
+            try {
+                const storedScores = localStorage.getItem('xoScores'); // جلب البيانات المخزنة باسم 'xoScores'
+                if (storedScores) {
+                    const parsedScores = JSON.parse(storedScores);
+                    // التأكد من أن جميع الخصائص موجودة في الكائن المحمل
+                    scores.X = parsedScores.X || 0;
+                    scores.O = parsedScores.O || 0;
+                    scores.draws = parsedScores.draws || 0;
+                    // Total سيتم تحديثه تلقائيًا في updateScoreBoard
+                }
+            } catch (e) {
+                console.error("خطأ في تحميل النتائج من Local Storage:", e); // تسجيل الخطأ إذا حدث
+                // في حالة وجود خطأ، نقوم بتهيئة النتائج لضمان استمرارية اللعبة
+                scores = { X: 0, O: 0, draws: 0, total: 0 };
+            }
+            updateScoreBoard(); // تحديث لوحة النتائج في الواجهة بعد التحميل
+        }
+
+        // وظيفة لحفظ النتائج الحالية في Local Storage
+        function saveScores() {
+            localStorage.setItem('xoScores', JSON.stringify(scores)); // تحويل كائن النتائج إلى نص وحفظه
+        }
+
+        // وظيفة لتحديث عرض النتائج على لوحة النتائج في الواجهة (رئيسي ومفصل وسجل)
+        function updateScoreBoard() {
+            // تحديث النتائج في لوحة النتائج المفصلة السفلية (إذا كانت مرئية)
+            scoreXSpan.textContent = scores.X;
+            scoreOSpan.textContent = scores.O;
+            scoreDrawsSpan.textContent = scores.draws;
+
+            // تحديث النتائج في رأس الصفحة
+            headerScoreXSpan.textContent = scores.X;
+            headerScoreOSpan.textContent = scores.O;
+
+            // حساب إجمالي الألعاب
+            scores.total = scores.X + scores.O + scores.draws;
+            totalGamesSpan.textContent = scores.total;
+            historyTotalGames.textContent = scores.total; // تحديث في مودال السجل أيضاً
+
+            // حساب نسبة الفوز لكل لاعب (مع تجنب القسمة على صفر)
+            const winRateX = (scores.total > 0) ? ((scores.X / scores.total) * 100).toFixed(1) : 0;
+            const winRateO = (scores.total > 0) ? ((scores.O / scores.total) * 100).toFixed(1) : 0;
+
+            winRateXSpan.textContent = `${winRateX}%`;
+            winRateOSpan.textContent = `${winRateO}%`;
+
+            // تحديث النتائج في مودال السجل
+            historyScoreX.textContent = scores.X;
+            historyScoreO.textContent = scores.O;
+            historyScoreDraws.textContent = scores.draws;
+            historyWinRateX.textContent = `${winRateX}%`;
+            historyWinRateO.textContent = `${winRateO}%`;
+        }
+
+        // وظيفة لإعادة ضبط جميع النتائج إلى الصفر (بعد التأكيد)
+        function resetScoresConfirmed() {
+            scores = {
+                X: 0,
+                O: 0,
+                draws: 0,
+                total: 0
+            };
+            saveScores(); // حفظ النتائج المعاد ضبطها في Local Storage
+            updateScoreBoard(); // تحديث عرض النتائج في الواجهة
+            restartGame(); // بدء لعبة جديدة بعد إعادة ضبط النتائج
+        }
+
+        // --- وظائف النافذة المنبثقة (المودال) ---
+
+        // وظيفة لإظهار النافذة المنبثقة
+        function showModal(modalElement) {
+            modalElement.style.display = 'flex'; // اجعل المودال مرئياً
+            setTimeout(() => { // إضافة تأخير بسيط لتطبيق انتقال الشفافية
+                modalElement.classList.add('show');
+            }, 10);
+        }
+
+        // وظيفة لإخفاء النافذة المنبثقة
+        function hideModal(modalElement) {
+            modalElement.classList.remove('show');
+            setTimeout(() => { // إخفاء المودال بعد انتهاء انتقال الشفافية
+                modalElement.style.display = 'none';
+            }, 300); // يجب أن تتوافق مع مدة الانتقال في CSS
+        }
+
+        // --- وظائف منطق اللعبة ---
+
+        // وظيفة التعامل مع النقر على الخلية
+        function handleCellClick(event) {
+            const clickedCell = event.target; // الخلية التي تم النقر عليها (عنصر DOM)
+            // الحصول على فهرس الخلية من خاصية 'data-cell-index'
+            const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index'));
+
+            // التحقق مما إذا كانت الخلية مشغولة بالفعل أو اللعبة غير نشطة
+            if (gameBoard[clickedCellIndex] !== '' || !isGameActive) {
+                return; // لا تفعل شيئًا إذا كانت الخلية ممتلئة أو اللعبة انتهت
+            }
+
+            // تحديث حالة لوحة اللعب الداخلية وواجهة المستخدم
+            gameBoard[clickedCellIndex] = currentPlayer; // وضع علامة اللاعب الحالي في اللوحة
+            clickedCell.textContent = currentPlayer; // عرض علامة اللاعب في الخلية
+            clickedCell.classList.add(currentPlayer.toLowerCase()); // إضافة فئة 'x' أو 'o' لتطبيق اللون (من CSS)
+
+            checkResult(); // التحقق مما إذا كان هناك فائز أو تعادل بعد هذه الحركة
+        }
+
+        // وظيفة التحقق من نتيجة اللعبة (فوز أو تعادل)
+        function checkResult() {
+            let roundWon = false; // علامة منطقية لتحديد ما إذا كانت الجولة قد فازت
+
+            // التحقق من جميع حالات الفوز المحتملة
+            for (let i = 0; i < winningConditions.length; i++) {
+                const winCondition = winningConditions[i]; // حالة فوز معينة (مثل [0, 1, 2])
+                // جلب قيم الخلايا في حالة الفوز هذه من gameBoard
+                let a = gameBoard[winCondition[0]];
+                let b = gameBoard[winCondition[1]];
+                let c = gameBoard[winCondition[2]];
+
+                // إذا كانت أي من الخلايا فارغة، فلا يمكن أن يكون هناك فوز في هذه الحالة
+                if (a === '' || b === '' || c === '') {
+                    continue; // الانتقال إلى حالة الفوز التالية
+                }
+
+                // إذا كانت جميع الخلايا متطابقة، فهذا يعني أن اللاعب الحالي قد فاز
+                if (a === b && b === c) {
+                    roundWon = true;
+                    break; // الخروج من الحلقة بمجرد العثور على فوز
+                }
+            }
+
+            // إذا فاز اللاعب الحالي
+            if (roundWon) {
+                statusMessage.textContent = `اللاعب ${currentPlayer} فاز! 🎉`;
+                isGameActive = false; // إيقاف اللعبة
+                scores[currentPlayer]++; // زيادة نتيجة اللاعب الفائز (scores.X أو scores.O)
+                saveScores(); // حفظ النتائج الجديدة في Local Storage
+                updateScoreBoard(); // تحديث عرض النتائج في الواجهة
+                return; // إنهاء الوظيفة بعد إعلان الفائز
+            }
+
+            // التحقق من التعادل (إذا كانت جميع الخلايا ممتلئة ولم يفز أحد)
+            let roundDraw = !gameBoard.includes(''); // true إذا لم يكن هناك أي خانة فارغة في gameBoard
+            if (roundDraw) {
+                statusMessage.textContent = 'تعادل! 🤝';
+                isGameActive = false; // إيقاف اللعبة
+                scores.draws++; // زيادة نتيجة التعادل
+                saveScores(); // حفظ النتائج الجديدة في Local Storage
+                updateScoreBoard(); // تحديث عرض النتائج في الواجهة
+                return; // إنهاء الوظيفة بعد إعلان التعادل
+            }
+
+            // إذا لم يفز أحد ولم يكن هناك تعادل، نغير دور اللاعب
+            changePlayer();
+        }
+
+        // وظيفة تغيير اللاعب الحالي
+        function changePlayer() {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X'; // تبديل اللاعب من X إلى O أو العكس
+            statusMessage.textContent = `دور اللاعب ${currentPlayer}`; // تحديث رسالة الحالة في الواجهة
+        }
+
+        // وظيفة إعادة تشغيل اللعبة
+        function restartGame() {
+            gameBoard = ['', '', '', '', '', '', '', '', '']; // مسح لوحة اللعب الداخلية
+            currentPlayer = 'X'; // إعادة تعيين اللاعب الحالي إلى X
+            isGameActive = true; // تفعيل اللعبة مرة أخرى
+            statusMessage.textContent = 'دور اللاعب X'; // إعادة تعيين رسالة الحالة
+
+            // مسح محتوى جميع الخلايا وإزالة فئات اللون (x و o) من الواجهة
+            cells.forEach(cell => {
+                cell.textContent = ''; // مسح النص (X أو O)
+                cell.classList.remove('x', 'o'); // إزالة فئات CSS التي تحدد الألوان
+            });
+        }
+
+        // --- إضافة مستمعي الأحداث للعناصر التفاعلية ---
+
+        // إضافة مستمع لحدث النقر لكل خلية في لوحة اللعب
+        cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+        // إضافة مستمع لحدث النقر لزر إعادة اللعب (الآن "جولة جديدة")
+        restartButton.addEventListener('click', restartGame);
+        // إضافة مستمع لزر "السجل" الجديد لفتح مودال السجل
+        showHistoryButton.addEventListener('click', () => {
+            updateScoreBoard(); // التأكد من تحديث البيانات قبل عرض المودال
+            showModal(historyModal);
+        });
+        // إضافة مستمع لحدث النقر لزر إعادة ضبط النتائج (الآن يفتح النافذة المنبثقة للتأكيد)
+        // هذا هو الزر الذي يقوم بـ "حذف النتائج"
+        resetScoresButton.addEventListener('click', () => showModal(confirmModal));
+
+        // مستمعي أحداث أزرار النافذة المنبثقة للتأكيد
+        confirmResetButton.addEventListener('click', () => {
+            resetScoresConfirmed(); // تنفيذ إعادة ضبط النتائج عند التأكيد
+            hideModal(confirmModal); // إخفاء النافذة المنبثقة
+        });
+
+        cancelResetButton.addEventListener('click', () => hideModal(confirmModal)); // إخفاء النافذة المنبثقة عند الإلغاء
+
+        // مستمعي أحداث أزرار النافذة المنبثقة للسجل
+        closeHistoryModalButton.addEventListener('click', () => hideModal(historyModal)); // زر الإغلاق X
+        closeHistoryButton.addEventListener('click', () => hideModal(historyModal)); // زر "إغلاق"
+
+        // *** مستمع حدث لزر "حذف" الجديد في مودال السجل ***
+        deleteHistoryButton.addEventListener('click', () => { //
+            hideModal(historyModal); // إخفاء مودال السجل
+            showModal(confirmModal); // إظهار مودال التأكيد
+        });
+
+        // --- تهيئة اللعبة عند تحميل الصفحة ---
+        // تحميل النتائج المحفوظة عند بدء تشغيل اللعبة لأول مرة
+        loadScores();
+    </script>
+</body>
+</html>

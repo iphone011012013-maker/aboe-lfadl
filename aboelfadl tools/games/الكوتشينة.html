@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الكوتشينة (بصرة)</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Align content to the top */
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #2c3e50, #1a242f); /* Dark, sophisticated background */
+            color: #f0f0f0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            padding-top: 20px; /* Add some padding from the top for the title */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #f0f0f0;
+            margin-bottom: 25px; /* More space below title */
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+            font-size: 2.8em;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Main layout wrapper for the three columns */
+        .main-game-layout {
+            display: flex;
+            flex-direction: row; /* Horizontal layout by default */
+            justify-content: center;
+            align-items: flex-start; /* Align columns at their top */
+            gap: 25px; /* Space between columns */
+            max-width: 1300px; /* Wider max-width to accommodate 3 columns */
+            width: 98%; /* Use almost full width */
+            padding: 30px; /* Padding inside the main layout wrapper */
+            border-radius: 20px;
+            background-color: rgba(0, 0, 0, 0.75); /* Darker semi-transparent background */
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), /* Deeper shadow */
+                        inset 0 0 30px rgba(255, 255, 255, 0.1); /* Subtle inner glow */
+            border: 3px solid rgba(255, 255, 255, 0.4); /* Prominent border */
+            box-sizing: border-box;
+        }
+
+        /* Styles for left and right side panels */
+        .side-panel {
+            flex-basis: 200px; /* Fixed width for side panels on larger screens */
+            flex-shrink: 0; /* Prevent shrinking */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 15px;
+            background-color: rgba(255,255,255,0.05);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .game-info {
+            font-size: 1.1em; /* Slightly smaller for side panel */
+            text-align: center; /* Center align text within the info box */
+            width: 100%;
+            background-color: transparent; /* No extra background */
+            padding: 0; /* No extra padding */
+            border: none; /* No extra border */
+            box-shadow: none; /* No extra shadow */
+        }
+        .game-info p {
+            margin: 5px 0; /* Smaller margin for lines */
+        }
+
+        #draw-pile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+        }
+
+        /* Main center game area */
+        .main-game-area-center {
+            flex-grow: 1; /* Takes remaining space */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px; /* Space between elements in center */
+            min-width: 400px; /* Ensure minimum space for cards on wider screens */
+            box-sizing: border-box;
+        }
+
+        #game-board-layout { /* This is now inside main-game-area-center */
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            width: 100%;
+            align-items: center;
+            padding: 0; /* No extra padding as parent has it */
+        }
+
+        .player-area, .ai-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            padding: 20px;
+            border-radius: 15px;
+            background-color: rgba(255,255,255,0.05);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .player-area p, .ai-area p {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #c0c0c0;
+        }
+
+        #player-hand, #ai-hand {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 15px;
+            min-height: 160px; /* Space for 4 cards */
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px dashed rgba(255,255,255,0.2);
+            background-color: rgba(0,0,0,0.2);
+            width: 100%; /* Ensure they take full width of their parent */
+            box-sizing: border-box;
+        }
+
+        #ai-hand .card {
+            visibility: hidden; /* Hide AI's cards */
+            background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, transparent 100%),
+                        linear-gradient(135deg, #3f51b5, #2196f3, #3f51b5); /* Blue back */
+        }
+        #ai-hand .card::after {
+            content: ''; /* Prevent showing rank/suit from hidden cards */
+            visibility: visible; /* Make pseudo-element visible */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, transparent 100%),
+                        linear-gradient(135deg, #3f51b5, #2196f3, #3f51b5); /* Blue back */
+            border-radius: inherit;
+        }
+        #ai-hand .card:hover {
+            transform: none; /* No hover effect on AI cards */
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5), 0 3px 6px rgba(0,0,0,0.3);
+        }
+
+        #ground-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 15px;
+            min-height: 180px; /* Space for initial 4 cards and more */
+            width: 100%;
+            padding: 20px;
+            border-radius: 15px;
+            background-color: #388e3c; /* Green felt table */
+            background-image: linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1)), linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1));
+            background-size: 25px 25px;
+            background-position: 0 0, 12.5px 12.5px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8); /* Inner shadow for depth */
+            border: 5px solid #5d4037; /* Wood-like border */
+            box-sizing: border-box;
+        }
+        #ground-cards .card {
+            border: 2px solid rgba(0,0,0,0.5); /* Stronger border for cards on ground */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); /* Stronger shadow on ground */
+            cursor: pointer;
+            transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+        }
+        #ground-cards .card.selected {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6), 0 0 0 3px #fdd835; /* Gold border for selected */
+        }
+
+
+        /* Card Pile (Draw Pile) */
+        .card-stack {
+            width: 100px;
+            height: 150px;
+            border-radius: 10px;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.05) 50%, transparent 100%),
+                        linear-gradient(135deg, #8b0000, #b00000, #8b0000); /* Dark red back for draw pile */
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 0 10px rgba(255,255,255,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255,255,255,0.8);
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Card Styles (Standard 52-card deck) */
+        .card {
+            width: 100px;
+            height: 150px;
+            background-color: #fff;
+            border: 2px solid #333;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 5px;
+            box-sizing: border-box;
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, border-color 0.1s ease-out;
+        }
+
+        .card.playable-selected {
+             transform: translateY(-10px) scale(1.05); /* Lift card when selected from hand */
+             box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 0 4px #fdd835; /* Gold border */
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+
+        /* Card Suit Colors */
+        .card.red-suit { color: #e53935; } /* Hearts, Diamonds */
+        .card.black-suit { color: #333; } /* Clubs, Spades */
+
+        /* Card Ranks and Suits */
+        .card-corner {
+            font-size: 0.6em; /* Smaller rank/suit in corners */
+            position: absolute;
+            line-height: 1;
+        }
+        .card-corner.top-left { top: 5px; left: 5px; }
+        .card-corner.bottom-right { bottom: 5px; right: 5px; transform: rotate(180deg); }
+
+        .card-center-symbol {
+            font-size: 1.8em; /* Large suit symbol in center */
+            line-height: 1;
+        }
+
+        /* Specific Suit Symbols (Unicode) */
+        .suit-heart::before { content: '♥'; }
+        .suit-diamond::before { content: '♦'; }
+        .suit-club::before { content: '♣'; }
+        .suit-spade::before { content: '♠'; }
+
+
+        #game-message {
+            color: #ffe082;
+            font-weight: bold;
+            margin-top: 15px;
+            text-shadow: 0 0 5px rgba(255,224,130,0.5);
+            font-size: 1.4em;
+            text-align: center; /* Ensure message is centered */
+            width: 100%; /* Take full width of parent */
+        }
+
+        .winner {
+            color: #8bc34a;
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(139,195,74,0.7);
+        }
+
+        .controls {
+            margin-top: 20px; /* Adjusted margin */
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%; /* Take full width of parent */
+        }
+
+        .controls button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: linear-gradient(180deg, #64b5f6 0%, #2196f3 100%);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .controls button:hover {
+            background: linear-gradient(180deg, #2196f3 0%, #64b5f6 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+        }
+        .controls button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Specific button styling */
+        #play-selected-card-btn {
+            background: linear-gradient(180deg, #8bc34a 0%, #689f38 100%); /* Green for Play */
+        }
+        #play-selected-card-btn:hover {
+            background: linear-gradient(180deg, #689f38 0%, #8bc34a 100%);
+        }
+        #pass-turn-btn {
+            background: linear-gradient(180deg, #ff7043 0%, #e64a19 100%); /* Orange/Red for Pass */
+        }
+        #pass-turn-btn:hover {
+            background: linear-gradient(180deg, #e64a19 0%, #ff7043 100%);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.85); /* Darker overlay */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 40px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.7);
+            color: #333;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 36px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #new-game-confirm-modal button {
+            margin: 15px;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        #confirm-new-game-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        #confirm-new-game-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        #cancel-new-game-btn {
+            background-color: #95a5a6;
+            color: white;
+        }
+        #cancel-new-game-btn:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Responsive adjustments */
+        /* For screens smaller than 1024px, stack columns vertically */
+        @media (max-width: 1024px) {
+            .main-game-layout {
+                flex-direction: column; /* Stack columns vertically */
+                align-items: center;
+                gap: 20px;
+                padding: 20px;
+            }
+            .side-panel {
+                width: 100%; /* Side panels take full width when stacked */
+                flex-basis: auto; /* Remove fixed width constraint */
+            }
+            .main-game-area-center {
+                width: 100%; /* Center area takes full width when stacked */
+                min-width: auto; /* Allow center area to shrink below 400px on small screens */
+            }
+            .game-info {
+                text-align: center; /* Center text when stacked */
+            }
+        }
+
+        /* Further adjustments for very small screens (e.g., mobile phones) */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .card {
+                width: 80px; /* Smaller card size */
+                height: 120px;
+                font-size: 1.8em;
+            }
+            .card-stack {
+                width: 80px;
+                height: 120px;
+            }
+            .game-info {
+                font-size: 1em;
+                padding: 10px 15px;
+            }
+            #game-board-layout {
+                gap: 15px;
+            }
+            .controls button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            .main-game-layout {
+                padding: 15px; /* Less padding on very small screens */
+            }
+        }
+        
+        /* Collected Pile Display */
+        .collected-pile-display {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #b0b0b0;
+            background-color: rgba(0,0,0,0.1);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة الكوتشينة (بصرة)</h1>
+    <div class="main-game-layout">
+        <!-- Left Column: Game Info -->
+        <div class="side-panel left-panel">
+            <div class="game-info">
+                <p>الدور الحالي: <span id="current-turn">أنت</span></p>
+                <p>نقاطك: <span id="player-score">0</span></p>
+                <p>نقاط الكمبيوتر: <span id="ai-score">0</span></p>
+            </div>
+        </div>
+
+        <!-- Center Column: Main Game Area -->
+        <div class="main-game-area-center">
+            <p id="game-message"></p>
+            <div class="ai-area">
+                <p>الكمبيوتر (أوراقه: <span id="ai-hand-count">0</span>)</p>
+                <div id="ai-hand">
+                    <!-- AI's cards (face down) will be rendered here -->
+                </div>
+                <div class="collected-pile-display">
+                    <p>الأوراق المكتسبة: <span id="ai-collected-count">0</span></p>
+                </div>
+            </div>
+
+            <div id="ground-cards">
+                <!-- Cards on the ground will be rendered here -->
+            </div>
+
+            <div class="player-area">
+                <p>أنت (أوراقك: <span id="player-hand-count">0</span>)</p>
+                <div id="player-hand">
+                    <!-- Player's cards will be rendered here -->
+                </div>
+                <div class="collected-pile-display">
+                    <p>الأوراق المكتسبة: <span id="player-collected-count">0</span></p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button id="play-selected-card-btn">العب الورقة</button>
+                <button id="pass-turn-btn" style="display:none;">تجاوز الدور</button>
+                <button id="new-game-btn">لعبة جديدة</button>
+                <button id="show-history-btn">سجل النتائج</button>
+            </div>
+        </div>
+
+        <!-- Right Column: Draw Pile -->
+        <div class="side-panel right-panel">
+            <div id="draw-pile-container">
+                <div class="card-stack" id="draw-pile">
+                    <span>الكومة</span>
+                </div>
+                <span id="draw-pile-count">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals outside the main game layout -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="history-close-btn">&times;</span>
+            <h2>سجل النتائج</h2>
+            <p>أنت: <span id="human-round-wins-count">0</span> فوز بالجولات</p>
+            <p>الكمبيوتر: <span id="opponent-round-wins-count">0</span> فوز بالجولات</p>
+            <p>إجمالي ألعابك الفائزة: <span id="human-game-wins-count">0</span></p>
+            <p>إجمالي ألعاب الكمبيوتر الفائزة: <span id="opponent-game-wins-count">0</span></p>
+        </div>
+    </div>
+
+    <!-- Modal for New Game Confirmation -->
+    <div id="new-game-confirm-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="new-game-close-btn">&times;</span>
+            <h2>بدء لعبة جديدة؟</h2>
+            <p>هل أنت متأكد أنك تريد مسح النتائج السابقة وبدء لعبة جديدة؟</p>
+            <button id="confirm-new-game-btn">نعم، ابدأ لعبة جديدة</button>
+            <button id="cancel-new-game-btn">إلغاء</button>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Logic for the Basra Game
+
+        // DOM Elements
+        const playerHandElement = document.getElementById('player-hand');
+        const aiHandElement = document.getElementById('ai-hand');
+        const groundCardsElement = document.getElementById('ground-cards');
+        const drawPileCountSpan = document.getElementById('draw-pile-count');
+        const playerHandCountSpan = document.getElementById('player-hand-count');
+        const aiHandCountSpan = document.getElementById('ai-hand-count');
+        const currentTurnSpan = document.getElementById('current-turn');
+        const playerScoreSpan = document.getElementById('player-score');
+        const aiScoreSpan = document.getElementById('ai-score');
+        const gameMessage = document.getElementById('game-message');
+
+        // Control Buttons
+        const playSelectedCardBtn = document.getElementById('play-selected-card-btn');
+        const passTurnBtn = document.getElementById('pass-turn-btn');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const showHistoryBtn = document.getElementById('show-history-btn');
+
+        // Modals
+        const historyModal = document.getElementById('history-modal');
+        const historyCloseBtn = document.getElementById('history-close-btn');
+        const humanRoundWinsCountSpan = document.getElementById('human-round-wins-count');
+        const opponentRoundWinsCountSpan = document.getElementById('opponent-round-wins-count');
+        const humanGameWinsCountSpan = document.getElementById('human-game-wins-count');
+        const opponentGameWinsCountSpan = document.getElementById('opponent-game-wins-count');
+        const newGameConfirmModal = document.getElementById('new-game-confirm-modal');
+        const newGameCloseBtn = document.getElementById('new-game-close-btn');
+        const confirmNewGameBtn = document.getElementById('confirm-new-game-btn');
+        const cancelNewGameBtn = document.getElementById('cancel-new-game-btn');
+
+        // NEW DOM Elements for collected cards display
+        const playerCollectedCountSpan = document.getElementById('player-collected-count');
+        const aiCollectedCountSpan = document.getElementById('ai-collected-count');
+
+
+        // Game State Variables
+        let deck = [];
+        let playerHand = [];
+        let aiHand = [];
+        let groundCards = [];
+        let playerCollectedPile = [];
+        let aiCollectedPile = [];
+        let playerScore = 0;
+        let aiScore = 0;
+        let currentPlayer = 'human';
+        let gameEnded = false;
+        let selectedHandCard = null; // The card selected from player's hand
+        let selectedGroundCards = []; // Cards selected from ground for collection
+        let lastCollector = null; // 'human' or 'ai' - for end of round
+
+        // History
+        let humanRoundWins = parseInt(localStorage.getItem('basraHumanRoundWins') || '0');
+        let opponentRoundWins = parseInt(localStorage.getItem('basraOpponentRoundWins') || '0');
+        let humanGameWins = parseInt(localStorage.getItem('basraHumanGameWins') || '0');
+        let opponentGameWins = parseInt(localStorage.getItem('basraOpponentGameWins') || '0');
+
+
+        const SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+        const RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+
+        // Card values for comparison and summing
+        const CARD_VALUES = {
+            'A': { numeric: 1, rank: 14, isPicture: false }, // Ace is 1 for summing, 14 for ranking
+            '2': { numeric: 2, rank: 2, isPicture: false },
+            '3': { numeric: 3, rank: 3, isPicture: false },
+            '4': { numeric: 4, rank: 4, isPicture: false },
+            '5': { numeric: 5, rank: 5, isPicture: false },
+            '6': { numeric: 6, rank: 6, isPicture: false },
+            '7': { numeric: 7, rank: 7, isPicture: false },
+            '8': { numeric: 8, rank: 8, isPicture: false },
+            '9': { numeric: 9, rank: 9, isPicture: false },
+            '10': { numeric: 10, rank: 10, isPicture: false },
+            'J': { numeric: 0, rank: 11, isPicture: true }, // Picture cards no numeric value for summing
+            'Q': { numeric: 0, rank: 12, isPicture: true },
+            'K': { numeric: 0, rank: 13, isPicture: true }
+        };
+        const WINNING_SCORE = 200;
+
+        // --- Card Generation and Utility Functions ---
+
+        function createDeck() {
+            let newDeck = [];
+            SUITS.forEach(suit => {
+                RANKS.forEach(rank => {
+                    newDeck.push({ suit: suit, rank: rank });
+                });
+            });
+            return shuffleArray(newDeck);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Render a single card HTML element
+        function renderCard(card, isSelectable = false, containerType = '') {
+            const cardElement = document.createElement('div');
+            cardElement.classList.add('card');
+            cardElement.dataset.rank = card.rank;
+            cardElement.dataset.suit = card.suit;
+
+            // Determine suit color
+            if (card.suit === 'Hearts' || card.suit === 'Diamonds') {
+                cardElement.classList.add('red-suit');
+            } else {
+                cardElement.classList.add('black-suit');
+            }
+
+            const getSuitSymbol = (suit) => {
+                switch (suit) {
+                    case 'Hearts': return '♥';
+                    case 'Diamonds': return '♦';
+                    case 'Clubs': return '♣';
+                    case 'Spades': return '♠';
+                    default: return '';
+                }
+            };
+
+            const topLeft = document.createElement('div');
+            topLeft.classList.add('card-corner', 'top-left');
+            topLeft.innerHTML = `${card.rank}<br><span class="suit-${card.suit.toLowerCase()}"></span>`;
+            cardElement.appendChild(topLeft);
+
+            const centerSymbol = document.createElement('div');
+            centerSymbol.classList.add('card-center-symbol', `suit-${card.suit.toLowerCase()}`);
+            centerSymbol.textContent = getSuitSymbol(card.suit);
+            cardElement.appendChild(centerSymbol);
+
+            const bottomRight = document.createElement('div');
+            bottomRight.classList.add('card-corner', 'bottom-right');
+            bottomRight.innerHTML = `${card.rank}<br><span class="suit-${card.suit.toLowerCase()}"></span>`;
+            cardElement.appendChild(bottomRight);
+
+            if (isSelectable) {
+                if (containerType === 'hand') {
+                    cardElement.addEventListener('click', () => handleHandCardSelect(card, cardElement));
+                } else if (containerType === 'ground') {
+                    cardElement.addEventListener('click', () => handleGroundCardSelect(card, cardElement));
+                }
+            }
+            return cardElement;
+        }
+
+        // --- Rendering Functions ---
+
+        function renderHands() {
+            playerHandElement.innerHTML = '';
+            playerHand.forEach(card => {
+                playerHandElement.appendChild(renderCard(card, true, 'hand'));
+            });
+            playerHandCountSpan.textContent = playerHand.length;
+
+            aiHandElement.innerHTML = '';
+            for (let i = 0; i < aiHand.length; i++) {
+                aiHandElement.appendChild(renderCard({ suit: '', rank: '' }, false, 'hand')); // Render face down
+            }
+            aiHandCountSpan.textContent = aiHand.length;
+        }
+
+        function renderGround() {
+            groundCardsElement.innerHTML = '';
+            groundCards.forEach(card => {
+                groundCardsElement.appendChild(renderCard(card, true, 'ground'));
+            });
+        }
+
+        function updateDrawPileCount() {
+            drawPileCountSpan.textContent = deck.length;
+        }
+
+        function updateScoreDisplay() {
+            playerScoreSpan.textContent = playerScore;
+            aiScoreSpan.textContent = aiScore;
+            playerCollectedCountSpan.textContent = playerCollectedPile.length; // Update collected count
+            aiCollectedCountSpan.textContent = aiCollectedPile.length;       // Update collected count
+        }
+
+        function updateTurnDisplay() {
+            currentTurnSpan.textContent = currentPlayer === 'human' ? 'أنت' : 'الكمبيوتر';
+        }
+
+        // NEW: Pure validation function, does NOT update gameMessage
+        function isValidPlayerMove(handCard, selectedGroundCards) {
+            if (!handCard) return false; // Should not happen if called correctly
+
+            const handCardValue = CARD_VALUES[handCard.rank];
+            const isJack = handCard.rank === 'J';
+            const isSevenOfDiamonds = handCard.rank === '7' && handCard.suit === 'Diamonds';
+
+            if (isJack || isSevenOfDiamonds) {
+                // Valid if no ground cards selected, OR if all ground cards are selected
+                return selectedGroundCards.length === 0 || 
+                       (selectedGroundCards.length === groundCards.length && selectedGroundCards.every(gc => groundCards.includes(gc)));
+            }
+
+            if (handCardValue.isPicture) {
+                const hasMatchingPicture = selectedGroundCards.some(gc => gc.rank === handCard.rank && CARD_VALUES[gc.rank].isPicture);
+                return selectedGroundCards.length === 0 || (hasMatchingPicture && selectedGroundCards.length === 1);
+            }
+
+            const sumOfSelectedGroundCards = selectedGroundCards.reduce((sum, gc) => {
+                return sum + CARD_VALUES[gc.rank].numeric;
+            }, 0);
+
+            return selectedGroundCards.length === 0 || (handCardValue.numeric > 0 && sumOfSelectedGroundCards === handCardValue.numeric);
+        }
+
+        // MODIFIED: Now updates gameMessage based on current selection
+        function checkPlayValidityAndSetMessage() {
+            if (!selectedHandCard) {
+                gameMessage.textContent = 'الرجاء اختيار ورقة من يدك أولاً.';
+                return false;
+            }
+
+            const isValid = isValidPlayerMove(selectedHandCard, selectedGroundCards);
+
+            if (!isValid) {
+                const handCardValue = CARD_VALUES[selectedHandCard.rank];
+                const isJack = selectedHandCard.rank === 'J';
+                const isSevenOfDiamonds = selectedHandCard.rank === '7' && selectedHandCard.suit === 'Diamonds';
+
+                if (selectedGroundCards.length === 0) { // If no ground cards selected, it's always valid to just play
+                    gameMessage.textContent = `اخترت ${selectedHandCard.rank} ${getSuitSymbol(selectedHandCard.suit)}. انقر "العب الورقة" لوضعها.`;
+                } else if (isJack || isSevenOfDiamonds) {
+                    gameMessage.textContent = `عند لعب ${selectedHandCard.rank} أو 7 الديناري، يمكنك جمع كل الأوراق أو عدم جمع شيء.`;
+                } else if (handCardValue.isPicture) {
+                    gameMessage.textContent = 'لجمع ورقة مصورة، اختر الورقة المصورة المطابقة فقط.';
+                } else {
+                    gameMessage.textContent = 'المجموعة المختارة غير قانونية.';
+                }
+            } else {
+                gameMessage.textContent = `اخترت ${selectedHandCard.rank} ${getSuitSymbol(selectedHandCard.suit)}. هذه المجموعة صالحة. انقر "العب الورقة".`;
+            }
+            return isValid;
+        }
+
+        // Helper to find combinations for summing (recursive)
+        // This helper assumes cards parameter is the groundCards
+        function findCombinations(cards, targetSum, currentCombination = [], startIndex = 0) {
+            let combinations = [];
+            const currentSum = currentCombination.reduce((sum, card) => sum + CARD_VALUES[card.rank].numeric, 0);
+
+            if (currentSum === targetSum && currentCombination.length > 0) {
+                combinations.push([...currentCombination]);
+                // Optimization: if we found a combination that reaches targetSum,
+                // and we're looking for *any* combination, we can stop.
+                // If we want *all* combinations, we would remove this return.
+                // For AI, we just need one to test.
+                return combinations;
+            }
+            if (currentSum > targetSum) {
+                return combinations;
+            }
+
+            for (let i = startIndex; i < cards.length; i++) {
+                const card = cards[i];
+                // Only numeric cards for summing, and avoid re-using cards from the same level of recursion
+                if (!CARD_VALUES[card.rank].isPicture) {
+                    currentCombination.push(card);
+                    combinations = combinations.concat(findCombinations(cards, targetSum, currentCombination, i + 1));
+                    currentCombination.pop(); // backtrack
+                }
+            }
+            return combinations;
+        }
+
+        function getSuitSymbol(suit) {
+            switch (suit) {
+                case 'Hearts': return '♥';
+                case 'Diamonds': return '♦';
+                case 'Clubs': return '♣';
+                case 'Spades': return '♠';
+                default: return '';
+            }
+        }
+
+        // --- Game Initialization ---
+
+        function initializeGame() {
+            deck = createDeck();
+            playerHand = [];
+            aiHand = [];
+            groundCards = [];
+            playerCollectedPile = [];
+            aiCollectedPile = [];
+            playerScore = 0;
+            aiScore = 0;
+            currentPlayer = 'human';
+            gameEnded = false;
+            selectedHandCard = null;
+            selectedGroundCards = [];
+            lastCollector = null;
+
+            updateScoreDisplay(); 
+            updateTurnDisplay(); 
+            gameMessage.textContent = 'اللعبة جاهزة! سأقوم بتوزيع الأوراق.';
+
+            // Initial deal for the round
+            dealCardsToHandsAndGround();
+        }
+
+        async function dealCardsToHandsAndGround() {
+            // Clear all areas before dealing
+            playerHandElement.innerHTML = '';
+            aiHandElement.innerHTML = '';
+            groundCardsElement.innerHTML = '';
+            
+            // Deal 4 cards to player, 4 to AI from deck
+            for (let i = 0; i < 4; i++) {
+                playerHand.push(deck.pop());
+                aiHand.push(deck.pop());
+            }
+
+            // Deal 4 unique rank cards to ground, avoiding J and 7 of Diamonds
+            let tempGround = [];
+            let ranksOnGround = new Set();
+            while (tempGround.length < 4) {
+                if (deck.length === 0) {
+                    console.error("Deck exhausted while dealing initial ground cards with unique rank rule.");
+                    gameMessage.textContent = 'تم استنفاد الأوراق في الكومة. لا يمكن بدء اللعبة.';
+                    gameEnded = true;
+                    return;
+                }
+                const card = deck.pop();
+                const isSpecialCard = (card.rank === 'J' || (card.rank === '7' && card.suit === 'Diamonds'));
+
+                if (!ranksOnGround.has(card.rank) && !isSpecialCard) {
+                    tempGround.push(card);
+                    ranksOnGround.add(card.rank);
+                } else {
+                    // If the drawn card creates a duplicate rank OR is a special card,
+                    // put it back into the deck and reshuffle.
+                    deck.push(card);
+                    deck = shuffleArray(deck);
+                    gameMessage.textContent = 'تم العثور على ورقة خاصة أو مكررة في الأرض، إعادة التوزيع...';
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Pause for message
+                }
+            }
+            groundCards = tempGround;
+
+            renderHands();
+            renderGround();
+            updateDrawPileCount();
+            
+            gameMessage.textContent = 'تم توزيع الأوراق. دورك!';
+            enablePlayerInput();
+        }
+
+        // --- Player Interaction ---
+
+        function handleHandCardSelect(card, cardElement) {
+            if (gameEnded || currentPlayer !== 'human') return;
+
+            // Deselect previously selected hand card
+            if (selectedHandCard) {
+                const prevSelectedElem = playerHandElement.querySelector('.card.playable-selected');
+                if (prevSelectedElem) {
+                    prevSelectedElem.classList.remove('playable-selected');
+                }
+            }
+            // Clear ground selection
+            selectedGroundCards.forEach(gc => {
+                const elem = groundCardsElement.querySelector(`[data-rank="${gc.rank}"][data-suit="${gc.suit}"]`);
+                if (elem) elem.classList.remove('selected');
+            });
+            selectedGroundCards = [];
+
+            selectedHandCard = card;
+            cardElement.classList.add('playable-selected');
+            gameMessage.textContent = `اخترت ${card.rank} ${getSuitSymbol(card.suit)}. الآن اختر أوراقًا من الأرض لجمعها، أو انقر على "العب الورقة" لوضعها فقط.`;
+            playSelectedCardBtn.disabled = false; // ENABLE Play button when a card is selected
+            passTurnBtn.style.display = 'none'; // Cannot pass if card selected
+        }
+
+        function handleGroundCardSelect(card, cardElement) {
+            if (gameEnded || currentPlayer !== 'human' || !selectedHandCard) return;
+
+            const index = selectedGroundCards.findIndex(c => c.rank === card.rank && c.suit === card.suit);
+            if (index > -1) {
+                selectedGroundCards.splice(index, 1);
+                cardElement.classList.remove('selected');
+            } else {
+                selectedGroundCards.push(card);
+                cardElement.classList.add('selected');
+            }
+            // Now, check play validity and update message *after* selection is updated
+            checkPlayValidityAndSetMessage();
+        }
+
+        // --- Core Game Actions ---
+
+        playSelectedCardBtn.addEventListener('click', async () => {
+            // Defensive null check for selectedHandCard (Primary guard)
+            if (!selectedHandCard) {
+                gameMessage.textContent = 'الرجاء اختيار ورقة من يدك أولاً للعب.';
+                playSelectedCardBtn.disabled = true; // Ensure button is disabled if somehow clicked without a card
+                // Clear any lingering visual selection
+                playerHandElement.querySelectorAll('.card.playable-selected').forEach(elem => elem.classList.remove('playable-selected'));
+                groundCardsElement.querySelectorAll('.card.selected').forEach(elem => elem.classList.remove('selected'));
+                selectedGroundCards = [];
+                return;
+            }
+
+            // Store the current selection before clearing globals and disabling input
+            const cardToPlay = selectedHandCard;
+            const cardsToCollect = [...selectedGroundCards];
+
+            // Immediately disable input and clear visual selection state
+            // This prevents double clicks and ensures a clean state for the next turn/action.
+            disablePlayerInput(); // This also clears selectedHandCard and selectedGroundCards globals.
+
+            // Re-validate the move with the stored copies (crucial for robust error handling)
+            const isValid = isValidPlayerMove(cardToPlay, cardsToCollect);
+
+            // If selected ground cards but the combination is invalid, revert the play.
+            // This allows the player to correct their invalid collection attempt.
+            if (cardsToCollect.length > 0 && !isValid) {
+                gameMessage.textContent = 'اختيارك لأوراق الجمع غير صحيح. يرجى المراجعة.';
+                // We need to push the cardToPlay back to playerHand since disablePlayerInput might have cleaned it already.
+                playerHand.push(cardToPlay);
+                renderHands(); // Re-render hand with the card back
+                renderGround(); // Ground state is unchanged
+                // Explicitly re-select the hand card and ground cards to allow correction
+                selectedHandCard = cardToPlay;
+                const currentHandCardElem = playerHandElement.querySelector(`[data-rank="${cardToPlay.rank}"][data-suit="${cardToPlay.suit}"]`);
+                if (currentHandCardElem) {
+                    currentHandCardElem.classList.add('playable-selected');
+                }
+                cardsToCollect.forEach(gc => {
+                    const elem = groundCardsElement.querySelector(`[data-rank="${gc.rank}"][data-suit="${gc.suit}"]`);
+                    if (elem) elem.classList.add('selected');
+                });
+                selectedGroundCards = cardsToCollect; // Restore for correction
+                enablePlayerInput(); // Re-enable player controls for correction
+                playSelectedCardBtn.disabled = false; // Re-enable the play button
+                checkPlayValidityAndSetMessage(); // Update message to reflect state
+                return;
+            }
+            
+            // --- Valid move logic starts here ---
+            // Remove played card from hand
+            // Find index of cardToPlay before splicing as playerHand might have changed.
+            const indexInHand = playerHand.findIndex(c => c.rank === cardToPlay.rank && c.suit === cardToPlay.suit);
+            if (indexInHand > -1) {
+                playerHand.splice(indexInHand, 1);
+            } else {
+                console.error("Card to play not found in player's hand during play action.");
+                gameMessage.textContent = 'حدث خطأ غير متوقع. يرجى إعادة اللعبة.';
+                return;
+            }
+
+            let collectedCardsInThisTurn = []; // Initialize as empty. Only add if collection happens.
+            let collectedSuccessfully = false;
+
+            const isJackOrSevenDiamondsSpecial = (cardToPlay.rank === 'J' || (cardToPlay.rank === '7' && cardToPlay.suit === 'Diamonds'));
+
+            // Collect selected ground cards
+            if (isJackOrSevenDiamondsSpecial && cardsToCollect.length === groundCards.length && groundCards.length > 0) { // J/7D collecting all, and ground is not empty
+                collectedCardsInThisTurn = [cardToPlay].concat(groundCards); // Hand card + all ground cards
+                groundCards = []; // Clear ground
+                lastCollector = 'human';
+                gameMessage.textContent = `${cardToPlay.rank} ${getSuitSymbol(cardToPlay.suit)} جمعت كل الأوراق!`;
+                collectedSuccessfully = true;
+            } else if (cardsToCollect.length > 0 && isValid) { // Valid collection (non J/7D all-collect)
+                collectedCardsInThisTurn.push(cardToPlay); // Add the hand card itself
+                cardsToCollect.forEach(cardToCollect => {
+                    const index = groundCards.findIndex(gc => gc.rank === cardToCollect.rank && gc.suit === cardToCollect.suit);
+                    if (index > -1) {
+                        collectedCardsInThisTurn.push(groundCards.splice(index, 1)[0]);
+                    }
+                });
+                lastCollector = 'human';
+                gameMessage.textContent = `لقد جمعت الأوراق!`;
+                collectedSuccessfully = true;
+            }
+
+            // If no collection occurred, the card simply goes to the ground
+            if (!collectedSuccessfully) {
+                groundCards.push(cardToPlay);
+                gameMessage.textContent = `أنت تلعب ${cardToPlay.rank} ${getSuitSymbol(cardToPlay.suit)}.`;
+                // lastCollector remains from previous collection, or null if no collections yet.
+            }
+
+            // Check for Basra after collecting
+            if (groundCards.length === 0 && collectedSuccessfully) { // Basra if ground becomes empty AND cards were actually collected
+                playerScore += 10;
+                gameMessage.textContent = 'بصرة! 10 نقاط إضافية!';
+            }
+
+            playerCollectedPile = playerCollectedPile.concat(collectedCardsInThisTurn);
+
+            renderHands();
+            renderGround();
+            updateScoreDisplay();
+
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Pause for user to see
+
+            checkEndOfRoundAndGame();
+            if (!gameEnded) {
+                switchTurn();
+            }
+        });
+
+        // The passTurnBtn is hidden by default and not directly used in Basra rules where a card is always played.
+        // It's kept in HTML but hidden via CSS/JS.
+        passTurnBtn.addEventListener('click', () => {
+            gameMessage.textContent = 'لقد تجاوزت دورك.'; // This scenario is rare in Basra.
+            disablePlayerInput();
+            switchTurn();
+        });
+
+        function switchTurn() {
+            currentPlayer = currentPlayer === 'human' ? 'ai' : 'human';
+            updateTurnDisplay();
+            if (currentPlayer === 'ai' && !gameEnded) {
+                gameMessage.textContent += ' دور الكمبيوتر.';
+                setTimeout(makeAIMove, 2000);
+            } else if (!gameEnded) {
+                gameMessage.textContent += ' دورك.';
+                enablePlayerInput();
+            }
+        }
+
+
+        // --- AI Logic ---
+
+        async function makeAIMove() {
+            if (gameEnded) return;
+
+            let aiPlayedCard = null;
+            let aiCollected = [];
+
+            // Strategy:
+            // 1. Try to make a Basra (empty ground)
+            // 2. Try to collect the most cards (J, 7♦ to collect all, then others)
+            // 3. Try to collect any cards
+            // 4. If nothing, play lowest rank card to minimize exposure
+
+            let potentialMoves = []; // { handCard: card, collected: [cards], isBasra: bool }
+
+            for (const handCard of aiHand) {
+                const handCardData = CARD_VALUES[handCard.rank];
+
+                // Option 1: Play J or 7 of Diamonds
+                const isJack = handCard.rank === 'J';
+                const isSevenOfDiamonds = handCard.rank === '7' && handCard.suit === 'Diamonds';
+
+                if (isJack || isSevenOfDiamonds) {
+                    if (groundCards.length > 0) {
+                        potentialMoves.push({
+                            handCard: handCard,
+                            collected: [...groundCards],
+                            isBasra: true // Always true for J/7D if ground is not empty and they collect all
+                        });
+                    } else { // Play J/7D to empty ground
+                         potentialMoves.push({
+                            handCard: handCard,
+                            collected: [], // No collection
+                            isBasra: false // Cannot be Basra if ground was already empty
+                        });
+                    }
+                    continue; // Already considered this card's special power
+                }
+
+                // Option 2: Picture card match
+                if (handCardData.isPicture) {
+                    const matchingGroundCard = groundCards.find(gc => gc.rank === handCard.rank && CARD_VALUES[gc.rank].isPicture);
+                    if (matchingGroundCard) {
+                        const tempCollected = [matchingGroundCard];
+                        potentialMoves.push({
+                            handCard: handCard,
+                            collected: tempCollected,
+                            isBasra: (groundCards.length === tempCollected.length + 1) // +1 because handCard also collected
+                        });
+                    } else {
+                        // If no match, can still play the card to the ground
+                        potentialMoves.push({
+                            handCard: handCard,
+                            collected: [],
+                            isBasra: false
+                        });
+                    }
+                    continue;
+                }
+
+                // Option 3: Numeric card match or sum combination
+                if (handCardData.numeric > 0) {
+                    // Try direct match first
+                    const directMatch = groundCards.find(gc => CARD_VALUES[gc.rank].numeric === handCardData.numeric && !CARD_VALUES[gc.rank].isPicture);
+                    if (directMatch) {
+                        const tempCollected = [directMatch];
+                        potentialMoves.push({
+                            handCard: handCard,
+                            collected: tempCollected,
+                            isBasra: (groundCards.length === tempCollected.length + 1)
+                        });
+                    }
+                    
+                    // Try sum combinations
+                    const possibleCombinations = findCombinations(groundCards, handCardData.numeric);
+                    if (possibleCombinations.length > 0) {
+                        // For AI, pick the combo that collects most cards, or leads to basra
+                        const bestCombo = possibleCombinations.reduce((best, current) => {
+                            // Basra is top priority
+                            if (groundCards.length === current.length + 1) return current; // +1 for the hand card itself
+                            // Otherwise, maximize collected cards
+                            return current.length > best.length ? current : best;
+                        }, []);
+                        
+                        potentialMoves.push({
+                            handCard: handCard,
+                            collected: bestCombo,
+                            isBasra: (groundCards.length === bestCombo.length + 1)
+                        });
+                    }
+
+                    // If no collection at all with this hand card, it's still a valid play
+                    const alreadyConsideredForCollection = potentialMoves.some(m => m.handCard === handCard && m.collected.length > 0);
+                    if (!alreadyConsideredForCollection) {
+                        potentialMoves.push({
+                            handCard: handCard,
+                            collected: [],
+                            isBasra: false
+                        });
+                    }
+                }
+            }
+
+            // --- AI Decision Logic ---
+            // Prioritize: Basra (highest) > Max Collection (then, to avoid giving cards away) > Min Card Play (if no collection)
+
+            // 1. Find Basra moves
+            let basraMoves = potentialMoves.filter(move => move.isBasra);
+            if (basraMoves.length > 0) {
+                // If multiple Basra moves, pick one. For simplicity, pick the first.
+                const chosenMove = basraMoves[0];
+                aiPlayedCard = chosenMove.handCard;
+                aiCollected = chosenMove.collected;
+            } else {
+                // 2. Find moves that collect the most cards (not Basra)
+                let bestCollectionMove = null;
+                let maxCollectedCards = -1; // Initialize with -1 to ensure any collection is better than none
+
+                potentialMoves.filter(move => move.collected.length > 0).forEach(move => {
+                    if (move.collected.length > maxCollectedCards) {
+                        maxCollectedCards = move.collected.length;
+                        bestCollectionMove = move;
+                    }
+                });
+
+                if (bestCollectionMove) {
+                    aiPlayedCard = bestCollectionMove.handCard;
+                    aiCollected = bestCollectionMove.collected;
+                } else {
+                    // 3. If no collection, play the lowest rank card to the ground
+                    let lowestRankCardMove = null;
+                    let minRankValue = Infinity;
+
+                    // Filter to only consider moves that involve just playing to ground (no collection)
+                    potentialMoves.filter(move => move.collected.length === 0).forEach(move => {
+                        const currentRankValue = CARD_VALUES[move.handCard.rank].rank;
+                        if (currentRankValue < minRankValue) {
+                            minRankValue = currentRankValue;
+                            lowestRankCardMove = move;
+                        }
+                    });
+
+                    if (lowestRankCardMove) {
+                        aiPlayedCard = lowestRankCardMove.handCard;
+                        aiCollected = []; // No collection
+                    } else {
+                         // Fallback: If AI has cards but no valid move was assigned (shouldn't happen with robust potentialMoves generation)
+                         // For safety, play the first card in hand.
+                         aiPlayedCard = aiHand[0];
+                         aiCollected = [];
+                    }
+                }
+            }
+
+            // Execute AI's move
+            gameMessage.textContent = 'الكمبيوتر يلعب ورقة...';
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Remove played card from AI's hand
+            const indexInHand = aiHand.findIndex(c => c.rank === aiPlayedCard.rank && c.suit === aiPlayedCard.suit);
+            if (indexInHand > -1) {
+                aiHand.splice(indexInHand, 1);
+            } else {
+                console.error("AI card to play not found in AI hand.");
+                gameMessage.textContent = 'حدث خطأ للكمبيوتر. يرجى إعادة اللعبة.';
+                return;
+            }
+
+            let collectedCardsInThisTurn = []; // Initialize as empty for AI too
+            let collectedSuccessfully = false;
+
+            // Collect ground cards if any were targeted (aiCollected holds ground cards AI wants to collect)
+            if (aiCollected.length > 0) { // AI is attempting to collect
+                collectedCardsInThisTurn.push(aiPlayedCard); // AI's played card is part of its collection
+                aiCollected.forEach(cardToCollect => {
+                    const index = groundCards.findIndex(gc => gc.rank === cardToCollect.rank && gc.suit === cardToCollect.suit);
+                    if (index > -1) {
+                        collectedCardsInThisTurn.push(groundCards.splice(index, 1)[0]);
+                    }
+                });
+                lastCollector = 'ai';
+                gameMessage.textContent = `الكمبيوتر جمع الأوراق!`;
+                collectedSuccessfully = true;
+            } else {
+                // If no collection, just place the card on the ground
+                groundCards.push(aiPlayedCard);
+                gameMessage.textContent = `الكمبيوتر يلعب ${aiPlayedCard.rank} ${getSuitSymbol(aiPlayedCard.suit)}.`;
+                // lastCollector should not be updated here.
+            }
+            
+            // Check for Basra for AI
+            if (groundCards.length === 0 && collectedSuccessfully) { // Basra if ground becomes empty AND cards were collected (not just placing 1 card)
+                aiScore += 10;
+                gameMessage.textContent = 'الكمبيوتر قام بالبصرة! 10 نقاط إضافية!';
+            }
+
+            aiCollectedPile = aiCollectedPile.concat(collectedCardsInThisTurn);
+
+            renderHands();
+            renderGround();
+            updateScoreDisplay();
+
+            await new Promise(resolve => setTimeout(resolve, 1500));
+
+            checkEndOfRoundAndGame();
+            if (!gameEnded) {
+                switchTurn();
+            }
+        }
+
+        // --- End of Round / Game Logic ---
+
+        async function checkEndOfRoundAndGame() {
+            // Check if both hands are empty
+            if (playerHand.length === 0 && aiHand.length === 0) {
+                if (deck.length > 0) {
+                    // If deck is not empty, deal new hands (next batch of 4 cards)
+                    gameMessage.textContent = 'توزيع أوراق جديدة...';
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    dealCardsToHandsAndGround(); // This will deal new hands
+                } else {
+                    // Deck is empty, end of round
+                    gameMessage.textContent = 'نهاية الجولة! يتم حساب النقاط...';
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    endRound();
+                }
+            }
+            // Edge case: one player runs out, and deck is also empty.
+            else if ((playerHand.length === 0 || aiHand.length === 0) && deck.length === 0) {
+                gameMessage.textContent = 'نهاية الجولة! يتم حساب النقاط...';
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                endRound();
+            }
+        }
+
+        function endRound() {
+            // Distribute remaining ground cards to last collector
+            if (groundCards.length > 0) {
+                gameMessage.textContent = `الأوراق المتبقية على الأرض تذهب إلى ${lastCollector === 'human' ? 'أنت' : 'الكمبيوتر'}.`;
+                if (lastCollector === 'human') {
+                    playerCollectedPile = playerCollectedPile.concat(groundCards);
+                } else if (lastCollector === 'ai') {
+                    aiCollectedPile = aiCollectedPile.concat(groundCards);
+                }
+                groundCards = []; // Clear ground
+                renderGround();
+            }
+
+            // Calculate total card count bonus (30 points)
+            if (playerCollectedPile.length > aiCollectedPile.length) {
+                playerScore += 30;
+                humanRoundWins++; // Track round wins
+                localStorage.setItem('basraHumanRoundWins', humanRoundWins);
+                gameMessage.textContent += ' لديك أوراق أكثر! 30 نقطة إضافية.';
+            } else if (aiCollectedPile.length > playerCollectedPile.length) {
+                aiScore += 30;
+                opponentRoundWins++; // Track round wins
+                localStorage.setItem('basraOpponentRoundWins', opponentRoundWins);
+                gameMessage.textContent += ' الكمبيوتر لديه أوراق أكثر! 30 نقطة إضافية.';
+            } else {
+                 gameMessage.textContent += ' عدد الأوراق المجمعة متساوٍ.';
+            }
+            updateScoreDisplay();
+
+            // Check if game has been won (total score 200+)
+            if (playerScore >= WINNING_SCORE) {
+                gameMessage.textContent = 'تهانينا! أنت الفائز باللعبة!';
+                gameMessage.classList.add('winner');
+                humanGameWins++;
+                localStorage.setItem('basraHumanGameWins', humanGameWins);
+                gameEnded = true;
+            } else if (aiScore >= WINNING_SCORE) {
+                gameMessage.textContent = 'للأسف! لقد فاز الكمبيوتر باللعبة!';
+                gameMessage.classList.add('winner');
+                opponentGameWins++;
+                localStorage.setItem('basraOpponentGameWins', opponentGameWins);
+                gameEnded = true;
+            } else {
+                gameMessage.textContent += ' تبدأ جولة جديدة...';
+                // Reset for next round
+                playerCollectedPile = [];
+                aiCollectedPile = [];
+                deck = createDeck(); // New deck for new round
+                lastCollector = null;
+                setTimeout(dealCardsToHandsAndGround, 2000);
+            }
+            disablePlayerInput();
+        }
+
+        // --- Input Control ---
+
+        function disablePlayerInput() {
+            playSelectedCardBtn.disabled = true;
+            passTurnBtn.disabled = true;
+            playerHandElement.style.pointerEvents = 'none';
+            groundCardsElement.style.pointerEvents = 'none';
+            // Also deselect cards visually
+            const prevSelectedElem = playerHandElement.querySelector('.card.playable-selected');
+            if (prevSelectedElem) {
+                prevSelectedElem.classList.remove('playable-selected');
+            }
+            selectedHandCard = null; // Ensure this is nullified
+            selectedGroundCards.forEach(gc => {
+                const elem = groundCardsElement.querySelector(`[data-rank="${gc.rank}"][data-suit="${gc.suit}"]`);
+                if (elem) elem.classList.remove('selected');
+            });
+            selectedGroundCards = [];
+        }
+
+        function enablePlayerInput() {
+            if (gameEnded) return;
+            playSelectedCardBtn.disabled = true; // Button starts disabled until a card is selected
+            passTurnBtn.disabled = false; // Player can pass if no moves (or just play a card)
+            playerHandElement.style.pointerEvents = 'auto';
+            groundCardsElement.style.pointerEvents = 'auto';
+            // In Basra, a player usually always plays a card from hand if they have one.
+            // The "pass" button is generally not used for skipping a turn if a card is playable.
+            // For simplicity, it will be hidden until a card is selected, and then remain hidden.
+            passTurnBtn.style.display = 'none';
+            playSelectedCardBtn.style.display = 'inline-block'; // Make sure it's visible.
+        }
+
+        // --- Button and Modal Functions ---
+
+        // New Game (opens confirmation modal)
+        newGameBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'flex';
+        });
+
+        // Show History button
+        showHistoryBtn.addEventListener('click', () => {
+            humanRoundWinsCountSpan.textContent = humanRoundWins;
+            opponentRoundWinsCountSpan.textContent = opponentRoundWins;
+            humanGameWinsCountSpan.textContent = humanGameWins;
+            opponentGameWinsCountSpan.textContent = opponentGameWins;
+            historyModal.style.display = 'flex';
+        });
+
+        // Close History Modal
+        historyCloseBtn.addEventListener('click', () => {
+            historyModal.style.display = 'none';
+        });
+
+        // Close New Game Confirmation Modal
+        newGameCloseBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'none';
+        });
+
+        // Confirm New Game and clear history
+        confirmNewGameBtn.addEventListener('click', () => {
+            localStorage.clear(); // Clear all results from local storage
+            humanRoundWins = 0;
+            opponentRoundWins = 0;
+            humanGameWins = 0;
+            opponentGameWins = 0;
+            initializeGame();
+            newGameConfirmModal.style.display = 'none';
+            gameMessage.textContent = 'تم بدء لعبة جديدة ومسح النتائج!';
+            gameMessage.classList.remove('winner');
+        });
+
+        // Cancel New Game
+        cancelNewGameBtn.addEventListener('click', () => {
+            newGameConfirmModal.style.display = 'none';
+        });
+
+        // Hide modals when clicking outside their content
+        window.addEventListener('click', (event) => {
+            if (event.target === historyModal) {
+                historyModal.style.display = 'none';
+            }
+            if (event.target === newGameConfirmModal) {
+                newGameConfirmModal.style.display = 'none';
+            }
+        });
+
+
+        // Start the game when the page loads
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>

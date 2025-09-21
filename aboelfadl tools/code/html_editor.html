@@ -1,0 +1,2611 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر كود HTML فقط (بمميزات متكاملة)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/default.min.css">
+
+    <style>
+        :root {
+            /* Light Mode Variables */
+            --body-bg: #f4f7f6;
+            --text-color: #333;
+            --header-bg: #ffffff;
+            --header-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            --container-bg: #ffffff;
+            --container-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --border-color: #dcdfe6;
+            --button-bg: #4CAF50;
+            --button-hover-bg: #45a049;
+            --download-btn-bg: #007bff;
+            --download-btn-hover-bg: #0056b3;
+            --clipboard-btn-bg: #6c757d;
+            --clipboard-btn-hover-bg: #5a6268;
+            --upload-btn-bg: #ff9800;
+            --upload-btn-hover-bg: #fb8c00;
+            --modal-bg: #fefefe;
+            --modal-border: #888;
+            --close-button-color: #aaa;
+            --close-button-hover-color: #333;
+            --codemirror-bg: #ffffff;
+            --codemirror-text: #000000;
+            --codemirror-border: #dcdfe6;
+            --codemirror-active-line-bg: #eaf2ff;
+            --codemirror-selection-bg: #d7d4f0;
+        }
+
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --body-bg: #222;
+            --text-color: #eee;
+            --header-bg: #333;
+            --header-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            --container-bg: #333;
+            --container-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            --border-color: #555;
+            --button-bg: #0056b3;
+            --button-hover-bg: #004599;
+            --download-btn-bg: #007bff;
+            --download-btn-hover-bg: #0056b3;
+            --clipboard-btn-bg: #495057;
+            --clipboard-btn-hover-bg: #343a40;
+            --upload-btn-bg: #cc7a00;
+            --upload-btn-hover-bg: #b36b00;
+            --modal-bg: #444;
+            --modal-border: #666;
+            --close-button-color: #bbb;
+            --close-button-hover-color: #eee;
+            --codemirror-bg: #282a36; /* Dracula background */
+            --codemirror-text: #f8f8f2; /* Dracula foreground */
+            --codemirror-border: #555;
+            --codemirror-active-line-bg: #44475a; /* Dracula current line */
+            --codemirror-selection-bg: #44475a; /* Dracula selection */
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            padding: 20px 0;
+            margin-bottom: 0;
+            background-color: var(--header-bg);
+            box-shadow: var(--header-shadow);
+            transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1000px; /* تم تقليل العرض لأنه محرر واحد الآن */
+            margin: 20px auto;
+            background-color: var(--container-bg);
+            border-radius: 8px;
+            box-shadow: var(--container-shadow);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            min-height: 520px; /* تم تعديل الارتفاع الأدنى ليناسب محرر 500 بكسل + بعض الهوامش */
+        }
+
+        .editor-panel h2 {
+            margin: 0;
+            padding: 10px 15px;
+            font-size: 1.1em;
+            background-color: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        /* CodeMirror styles override */
+        .CodeMirror {
+            width: 500px; /* تحديد العرض بـ 500 بكسل */
+            height: 500px; /* تحديد الارتفاع بـ 500 بكسل */
+            border: none !important;
+            background-color: var(--codemirror-bg) !important;
+            color: var(--codemirror-text) !important;
+            font-family: 'Consolas', 'Monaco', monospace !important;
+            font-size: 1em !important;
+            line-height: 1.5 !important;
+            border-radius: 0 0 5px 5px;
+            padding-bottom: 1px;
+            resize: none; /* إلغاء خاصية تغيير الحجم */
+            max-width: 100%; /* لضمان الاستجابة على الشاشات الصغيرة */
+            margin: 0 auto; /* لمركزة المحرر إذا كان عرضه أصغر من الـ container */
+            display: block; /* لضمان تطبيق الهوامش بشكل صحيح */
+        }
+
+        .CodeMirror-vscrollbar, .CodeMirror-hscrollbar {
+            background-color: var(--codemirror-bg);
+        }
+
+        .CodeMirror-gutter {
+            background-color: var(--codemirror-bg);
+            border-right: 1px solid var(--border-color);
+        }
+        .CodeMirror-linenumber {
+            color: var(--text-color);
+        }
+        .CodeMirror-activeline-background {
+            background-color: var(--codemirror-active-line-bg) !important;
+        }
+        .CodeMirror-selected {
+            background-color: var(--codemirror-selection-bg) !important;
+        }
+        .CodeMirror-focused .CodeMirror-selected {
+            background-color: var(--codemirror-selection-bg) !important;
+        }
+        body.dark-mode .CodeMirror-scroll {
+             background-color: var(--codemirror-bg) !important;
+             color: var(--codemirror-text) !important;
+        }
+        body.dark-mode .CodeMirror {
+            background-color: var(--codemirror-bg) !important;
+            color: var(--codemirror-text) !important;
+        }
+        body.dark-mode .CodeMirror-gutter {
+            background-color: var(--codemirror-bg) !important;
+        }
+        body.dark-mode .CodeMirror-activeline-background {
+            background-color: var(--codemirror-active-line-bg) !important;
+        }
+        body.dark-mode .CodeMirror-linenumber {
+            color: #888;
+        }
+
+
+        .button-group {
+            text-align: center;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.1em;
+            background-color: var(--button-bg);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+        button.download-btn { background-color: var(--download-btn-bg); }
+        button.clipboard-btn { background-color: var(--clipboard-btn-bg); }
+        button.upload-btn { background-color: var(--upload-btn-bg); }
+        button.dark-mode-toggle { background-color: #3498db; }
+        button.reset-btn { background-color: #e74c3c; } /* لون زر إعادة التعيين/المسح */
+
+        button:hover {
+            background-color: var(--button-hover-bg);
+            transform: translateY(-2px);
+        }
+        button.download-btn:hover { background-color: var(--download-btn-hover-bg); }
+        button.clipboard-btn:hover { background-color: var(--clipboard-btn-hover-bg); }
+        button.upload-btn:hover { background-color: var(--upload-btn-hover-bg); }
+        button.dark-mode-toggle:hover { background-color: #2980b9; }
+        button.reset-btn:hover { background-color: #c0392b; }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* إخفاء input file الأصلي */
+        #fileInput {
+            display: none;
+        }
+
+        /* Project Management */
+        .project-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .project-controls select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--container-bg);
+            color: var(--text-color);
+            font-size: 1em;
+            cursor: pointer;
+            transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+        }
+        .project-controls select:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg);
+            padding: 20px;
+            border: 1px solid var(--modal-border);
+            width: 90%;
+            max-width: 900px;
+            height: 80%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .close-button {
+            color: var(--close-button-color);
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--close-button-hover-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-iframe {
+            flex: 1;
+            width: 100%;
+            border: none;
+            background-color: var(--codemirror-bg);
+            border-radius: 5px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            margin-top: auto;
+            font-size: 0.9em;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+                gap: 15px;
+            }
+            h1 {
+                font-size: 1.5em;
+                padding: 15px 0;
+            }
+            .editor-panel {
+                min-height: 400px; /* ليتناسب مع الشاشات الصغيرة */
+            }
+            .CodeMirror {
+                width: 100%; /* اجعله يأخذ العرض الكامل على الشاشات الصغيرة */
+                height: 400px; /* قلل الارتفاع قليلاً ليناسب الشاشات الصغيرة */
+            }
+            .button-group, .project-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            button, .project-controls select {
+                width: 100%;
+            }
+            .modal-content {
+                width: 95%;
+                height: 90%;
+                max-height: 90vh;
+                padding: 15px;
+            }
+            .close-button {
+                font-size: 24px;
+                top: 5px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>محرر كود HTML فقط</h1>
+
+    <div class="container">
+        <div class="project-controls">
+            <select id="projectSelect" onchange="loadProject(this.value)">
+            </select>
+            <button onclick="saveCurrentProject()">حفظ المشروع الحالي</button>
+            <button onclick="createNewProject()">مشروع جديد</button>
+            <button onclick="deleteSelectedProject()">حذف المشروع المحدد</button>
+        </div>
+
+        <div class="editor-panel">
+            <h2>HTML</h2>
+            <textarea id="htmlCodeEditor"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button onclick="copyCode()" class="clipboard-btn">نسخ الكود</button>
+            <button onclick="pasteCode()" class="clipboard-btn">لصق الكود</button>
+            <button onclick="document.getElementById('fileInput').click()" class="upload-btn">رفع ملف</button>
+            <input type="file" id="fileInput" accept=".html,.txt" onchange="handleFileUpload(event)">
+            <button onclick="openModal()">معاينة الكود</button>
+            <button class="download-btn" onclick="downloadCombinedCode()">تحميل الكود</button>
+            <button onclick="toggleDarkMode()" class="dark-mode-toggle">الوضع الداكن / الفاتح</button>
+            <button onclick="resetCurrentCode()" class="reset-btn">إعادة تعيين الكود</button>
+            <button onclick="clearEditorContent()" class="reset-btn">مسح الكل</button>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 محرر كود HTML. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal()">×</span>
+            <iframe id="modalPreviewFrame" class="modal-iframe" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/addon/selection/active-line.min.js"></script>
+
+    <script>
+        // Initializing CodeMirror editor for HTML only
+        const htmlEditor = CodeMirror.fromTextArea(document.getElementById('htmlCodeEditor'), {
+            mode: 'htmlmixed',
+            lineNumbers: true,
+            autoCloseTags: true,
+            autoCloseBrackets: true,
+            lineWrapping: true,
+            styleActiveLine: true,
+            theme: 'default'
+        });
+
+        const previewModal = document.getElementById('previewModal');
+        const modalPreviewFrame = document.getElementById('modalPreviewFrame');
+        const projectSelect = document.getElementById('projectSelect');
+        const localStorageProjectsKey = 'html_editor_projects_only'; // مفتاح جديد للمشاريع بعد التغيير
+        const localStorageDarkModeKey = 'dark_mode_enabled';
+        let projects = [];
+        let currentProjectId = null;
+
+        // Default code for new projects (HTML only)
+        const defaultHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <title>مشروع HTML جديد</title>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        .welcome-card {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #28a745;
+        }
+        p {
+            font-size: 1.1em;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="welcome-card">
+        <h1>مرحباً بك في محرر HTML!</h1>
+        <p>هنا يمكنك كتابة وتجربة كود HTML.</p>
+        <button onclick="alert('زر HTML يعمل!')">زر التجربة</button>
+    </div>
+</body>
+</html>`;
+
+
+        // --- Project Management Functions ---
+
+        function loadProjects() {
+            const storedProjects = localStorage.getItem(localStorageProjectsKey);
+            if (storedProjects) {
+                projects = JSON.parse(storedProjects);
+            } else {
+                // If no projects, create a default one
+                projects = [{
+                    id: Date.now(),
+                    name: "المشروع الأول",
+                    html: defaultHtml
+                }];
+            }
+            updateProjectSelect();
+            // Load the last opened project or the first one
+            const lastOpenedId = localStorage.getItem('lastOpenedProjectId');
+            if (lastOpenedId && projects.some(p => p.id == lastOpenedId)) {
+                loadProject(lastOpenedId);
+            } else {
+                loadProject(projects[0].id);
+            }
+        }
+
+        function updateProjectSelect() {
+            projectSelect.innerHTML = ''; // Clear existing options
+            projects.forEach(project => {
+                const option = document.createElement('option');
+                option.value = project.id;
+                option.textContent = project.name;
+                projectSelect.appendChild(option);
+            });
+            // Select the current project in the dropdown
+            if (currentProjectId) {
+                projectSelect.value = currentProjectId;
+            }
+        }
+
+        function saveProjects() {
+            localStorage.setItem(localStorageProjectsKey, JSON.stringify(projects));
+        }
+
+        function saveCurrentProject() {
+            if (!currentProjectId) {
+                alert('لا يوجد مشروع حالي للحفظ.');
+                return;
+            }
+            const currentProjectIndex = projects.findIndex(p => p.id == currentProjectId);
+            if (currentProjectIndex !== -1) {
+                projects[currentProjectIndex].html = htmlEditor.getValue();
+                saveProjects();
+                // alert('تم حفظ المشروع الحالي!'); // يمكن إزالته لعدم إزعاج المستخدم بالحفظ التلقائي
+            }
+        }
+
+        function loadProject(id) {
+            const projectToLoad = projects.find(p => p.id == id);
+            if (projectToLoad) {
+                htmlEditor.setValue(projectToLoad.html);
+                currentProjectId = projectToLoad.id;
+                localStorage.setItem('lastOpenedProjectId', currentProjectId);
+                updateProjectSelect();
+                alert(`تم تحميل المشروع: ${projectToLoad.name}`);
+            } else {
+                console.error('المشروع غير موجود:', id);
+            }
+        }
+
+        function createNewProject() {
+            const projectName = prompt('أدخل اسم المشروع الجديد:');
+            if (projectName && projectName.trim() !== '') {
+                const newProject = {
+                    id: Date.now(),
+                    name: projectName.trim(),
+                    html: defaultHtml
+                };
+                projects.push(newProject);
+                saveProjects();
+                updateProjectSelect();
+                loadProject(newProject.id);
+                alert(`تم إنشاء مشروع جديد: ${newProject.name}`);
+            } else {
+                alert('اسم المشروع لا يمكن أن يكون فارغاً.');
+            }
+        }
+
+        function deleteSelectedProject() {
+            if (projects.length <= 1) {
+                alert('لا يمكن حذف المشروع الأخير!');
+                return;
+            }
+            const projectIdToDelete = projectSelect.value;
+            const projectToDeleteName = projects.find(p => p.id == projectIdToDelete)?.name;
+
+            if (confirm(`هل أنت متأكد من حذف المشروع "${projectToDeleteName}"؟`)) {
+                projects = projects.filter(p => p.id != projectIdToDelete);
+                saveProjects();
+                if (currentProjectId == projectIdToDelete) {
+                    loadProject(projects[0].id);
+                } else {
+                    updateProjectSelect();
+                }
+                alert(`تم حذف المشروع: ${projectToDeleteName}`);
+            }
+        }
+
+        // Save current project state periodically
+        let saveInterval;
+        htmlEditor.on('change', () => { clearTimeout(saveInterval); saveInterval = setTimeout(saveCurrentProject, 1000); });
+
+
+        // --- Editor & Preview Functions ---
+
+        function openModal() {
+            const htmlCode = htmlEditor.getValue();
+            const frameDoc = modalPreviewFrame.contentWindow.document;
+
+            frameDoc.open();
+            frameDoc.write(htmlCode); // فقط كود HTML
+            frameDoc.close();
+
+            previewModal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            previewModal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == previewModal) {
+                closeModal();
+            }
+        }
+
+        // --- Download Function ---
+        function downloadCombinedCode() {
+            const htmlCode = htmlEditor.getValue();
+            const filename = "my_project.html";
+            const blob = new Blob([htmlCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('تم تحميل الكود كملف HTML!');
+        }
+
+        // --- Clipboard Functions ---
+        async function copyCode() { // لا تحتاج لـ editorType بعد الآن
+            const codeToCopy = htmlEditor.getValue();
+            try {
+                await navigator.clipboard.writeText(codeToCopy);
+                alert('تم نسخ الكود إلى الحافظة!');
+            } catch (err) {
+                console.error('فشل نسخ الكود:', err);
+                alert('فشل نسخ الكود. يرجى النسخ يدويًا (Ctrl+C أو Command+C).');
+            }
+        }
+
+        async function pasteCode() { // لا تحتاج لـ editorType بعد الآن
+            try {
+                const text = await navigator.clipboard.readText();
+                htmlEditor.setValue(text);
+                saveCurrentProject(); // Save changes after paste
+                alert('تم لصق الكود من الحافظة!');
+            } catch (err) {
+                console.error('فشل لصق الكود:', err);
+                alert('فشل لصق الكود. يرجى اللصق يدويًا (Ctrl+V أو Command+V).');
+            }
+        }
+
+        // --- File Upload Function ---
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const fileName = file.name.toLowerCase();
+            // الأنواع المسموح بها هي HTML و TXT فقط
+            if (!fileName.endsWith('.html') && !fileName.endsWith('.txt')) {
+                alert('الرجاء اختيار ملف بصيغة .html أو .txt فقط.');
+                event.target.value = ''; // Clear file input
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                htmlEditor.setValue(e.target.result);
+                saveCurrentProject();
+                alert(`تم تحميل الملف "${file.name}" بنجاح!`);
+            };
+            reader.onerror = function() {
+                console.error('خطأ في قراءة الملف:', reader.error);
+                alert('حدث خطأ أثناء قراءة الملف.');
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // --- Dark Mode Functionality ---
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem(localStorageDarkModeKey, isDarkMode);
+
+            // Update CodeMirror theme
+            if (isDarkMode) {
+                htmlEditor.setOption('theme', 'dracula');
+            } else {
+                htmlEditor.setOption('theme', 'default');
+            }
+        }
+
+        // Apply dark mode on load
+        function applyDarkModeOnLoad() {
+            const isDarkModeEnabled = localStorage.getItem(localStorageDarkModeKey) === 'true';
+            if (isDarkModeEnabled) {
+                document.body.classList.add('dark-mode');
+                setTimeout(() => {
+                    htmlEditor.setOption('theme', 'dracula');
+                }, 100);
+            }
+        }
+
+        // --- Reset Code Function ---
+        function resetCurrentCode() {
+            if (confirm('هل أنت متأكد من إعادة تعيين الكود الحالي؟ سيتم مسح كود HTML إلى القالب الافتراضي.')) {
+                htmlEditor.setValue(defaultHtml);
+                saveCurrentProject();
+                alert('تم إعادة تعيين الكود.');
+            }
+        }
+
+        // --- Clear Editor Content Function ---
+        function clearEditorContent() {
+            if (confirm('هل أنت متأكد من مسح كل المحتوى؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                htmlEditor.setValue(''); // تعيين قيمة المحرر إلى سلسلة فارغة
+                saveCurrentProject(); // حفظ المشروع بعد المسح (ليكون فارغًا)
+                alert('تم مسح كل المحتوى.');
+            }
+        }
+
+
+        // --- Keyboard Shortcuts ---
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 's': // Ctrl/Cmd + S to save
+                        e.preventDefault();
+                        saveCurrentProject();
+                        break;
+                    case 'p': // Ctrl/Cmd + P to preview
+                        e.preventDefault();
+                        openModal();
+                        break;
+                    case 'd': // Ctrl/Cmd + D to download
+                        e.preventDefault();
+                        downloadCombinedCode();
+                        break;
+                }
+            }
+        });
+
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProjects();
+            applyDarkModeOnLoad();
+        });
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة معالجة الكود الشاملة</title>
+    <style>
+        /* الأنماط الأساسية (الوضع النهاري) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            direction: rtl;
+            text-align: right;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        h2 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: color 0.3s;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        textarea {
+            width: calc(100% - 22px);
+            height: 300px; /* ارتفاع أكبر لمربع النص */
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            resize: vertical;
+            direction: ltr; /* اتجاه النص من اليسار لليمين داخل مربع النص */
+            text-align: left;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            font-family: 'Consolas', 'Monaco', monospace; /* خط monospace للكود */
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+            display: block;
+        }
+        .buttons-group {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease, color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #pasteBtn {
+            background-color: #6c757d;
+        }
+        #pasteBtn:hover {
+            background-color: #5a6268;
+        }
+        #livePreviewBtn {
+            background-color: #ffc107;
+            color: #333;
+        }
+        #livePreviewBtn:hover {
+            background-color: #e0a800;
+        }
+        #downloadBtn {
+            background-color: #17a2b8;
+        }
+        #downloadBtn:hover {
+            background-color: #138496;
+        }
+        #editCodeBtn { /* زر التعديل الجديد */
+            background-color: #9c27b0; /* لون بنفسجي */
+        }
+        #editCodeBtn:hover {
+            background-color: #7b1fa2;
+        }
+        #darkModeToggle {
+            background-color: #6c757d;
+        }
+        #darkModeToggle:hover {
+            background-color: #5a6268;
+        }
+
+        /* مربع البحث */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .search-container input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            direction: rtl; /* اتجاه النص من اليمين لليسار لمربع البحث */
+            text-align: right;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .search-container button {
+            padding: 10px 15px;
+            font-size: 1rem;
+            background-color: #007bff;
+            color: white;
+        }
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+
+        #preview-container {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s, border-color 0.3s;
+            display: none;
+        }
+        #code-text-preview {
+            white-space: pre-wrap;
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            border: 1px solid #ced4da;
+            max-height: 400px;
+            overflow-y: auto;
+            direction: ltr;
+            text-align: left;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        /* تمييز نتائج البحث */
+        .highlight {
+            background-color: yellow;
+            color: black;
+            font-weight: bold;
+        }
+        .dark-mode .highlight {
+            background-color: #e0a800; /* لون تمييز في الوضع الليلي */
+            color: #1a1a2e;
+        }
+
+        #live-preview-iframe-container {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #fff;
+            display: none;
+            transition: background-color 0.3s, border-color 0.3s;
+            width: 100%; /* العرض الافتراضي */
+            resize: horizontal; /* السماح بتغيير حجم العرض يدوياً */
+            overflow: auto; /* للسماح بالتمرير إذا كان المحتوى أكبر من العرض */
+        }
+        #live-preview-iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            display: block;
+        }
+        .message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        /* ------------------------------------- */
+        /* أنماط الوضع الليلي (Dark Mode Styles) */
+        /* ------------------------------------- */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .dark-mode .container {
+            background-color: #16213e;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .dark-mode h2 {
+            color: #92b4ec;
+        }
+        .dark-mode textarea {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+        .dark-mode input[type="file"] {
+            color: #e0e0e0;
+        }
+        .dark-mode .search-container input[type="text"] {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+        .dark-mode .search-container button {
+            background-color: #3e5f8a;
+            color: #e0e0e0;
+        }
+        .dark-mode .search-container button:hover {
+            background-color: #2e4a6d;
+        }
+
+        .dark-mode button {
+            background-color: #3e5f8a;
+            color: #e0e0e0;
+        }
+        .dark-mode button:hover {
+            background-color: #2e4a6d;
+        }
+        .dark-mode #pasteBtn {
+            background-color: #4a4e69;
+        }
+        .dark-mode #pasteBtn:hover {
+            background-color: #3b3e55;
+        }
+        .dark-mode #livePreviewBtn {
+            background-color: #c07d00;
+            color: #e0e0e0;
+        }
+        .dark-mode #livePreviewBtn:hover {
+            background-color: #a06500;
+        }
+        .dark-mode #downloadBtn {
+            background-color: #0b5f6b;
+        }
+        .dark-mode #downloadBtn:hover {
+            background-color: #084a54;
+        }
+        .dark-mode #editCodeBtn {
+            background-color: #7c4dff; /* لون بنفسجي فاتح للوضع الليلي */
+        }
+        .dark-mode #editCodeBtn:hover {
+            background-color: #653bdf;
+        }
+        .dark-mode #darkModeToggle {
+            background-color: #4a4e69;
+        }
+        .dark-mode #darkModeToggle:hover {
+            background-color: #3b3e55;
+        }
+
+        .dark-mode #preview-container {
+            background-color: #0f3460;
+            border-color: #3e5f8a;
+        }
+        .dark-mode #code-text-preview {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+        .dark-mode #live-preview-iframe-container {
+            background-color: #0f3460;
+            border-color: #3e5f8a;
+        }
+        .dark-mode .success {
+            background-color: #1e4d2b;
+            color: #7ad08d;
+            border-color: #2c6e39;
+        }
+        .dark-mode .info {
+            background-color: #1a4d55;
+            color: #8dd8e6;
+            border-color: #276d75;
+        }
+        .dark-mode .error {
+            background-color: #5e1f24;
+            color: #e6a0a7;
+            border-color: #7b2a30;
+        }
+
+        /* زر الوضع الليلي في الزاوية */
+        #darkModeToggleContainer {
+            position: fixed;
+            top: 20px;
+            left: 20px; 
+            z-index: 1000;
+        }
+
+        /* ------------------------------------- */
+        /* أنماط النافذة المنبثقة (Modal) */
+        /* ------------------------------------- */
+        .modal {
+            display: none; /* مخفي افتراضياً */
+            position: fixed; /* يبقى في مكانه حتى عند التمرير */
+            z-index: 1001; /* فوق كل شيء آخر */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* تمكين التمرير إذا كان المحتوى كبيراً جداً */
+            background-color: rgba(0, 0, 0, 0.7); /* خلفية معتمة */
+            justify-content: center; /* توسيط أفقياً */
+            align-items: center; /* توسيط عمودياً */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto; /* توسيط في المتصفحات القديمة */
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 8px;
+            width: 80%; /* عرض المودال */
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: fadeIn 0.3s;
+            direction: rtl; /* اتجاه النص داخل المودال */
+            text-align: right;
+            max-height: 90vh; /* لتجنب أن يكون المودال أكبر من الشاشة */
+            overflow-y: auto; /* للسماح بالتمرير داخل المودال إذا كان المحتوى كثيرًا */
+        }
+        .dark-mode .modal-content {
+            background-color: #16213e;
+            border-color: #3e5f8a;
+            color: #e0e0e0;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: left; /* ليكون في الزاوية اليسرى العلوية */
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: #000;
+            text-decoration: none;
+        }
+        .dark-mode .close-button {
+            color: #e0e0e0;
+        }
+        .dark-mode .close-button:hover,
+        .dark-mode .close-button:focus {
+            color: #fff;
+        }
+
+        .modal-content input[type="text"],
+        .modal-content input[type="number"],
+        .modal-content input[type="color"],
+        .modal-content select { /* أضف select هنا */
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+        .dark-mode .modal-content input[type="text"],
+        .dark-mode .modal-content input[type="number"],
+        .dark-mode .modal-content input[type="color"],
+        .dark-mode .modal-content select { /* أضف select هنا */
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end; /* وضع الأزرار على اليسار */
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            font-size: 1rem;
+        }
+        #applyEditsBtn {
+            background-color: #28a745; /* لون أخضر لتطبيق التعديلات */
+        }
+        #applyEditsBtn:hover {
+            background-color: #218838;
+        }
+        .dark-mode #applyEditsBtn {
+            background-color: #1d7a3a;
+        }
+        .dark-mode #applyEditsBtn:hover {
+            background-color: #17602e;
+        }
+        #cancelEditsBtn {
+            background-color: #dc3545; /* لون أحمر للإلغاء */
+        }
+        #cancelEditsBtn:hover {
+            background-color: #c82333;
+        }
+        .dark-mode #cancelEditsBtn {
+            background-color: #a7283c;
+        }
+        .dark-mode #cancelEditsBtn:hover {
+            background-color: #8c1e2b;
+        }
+
+        /* أنماط خاصة لأقسام التعديل الديناميكية */
+        .edit-section { /* فئة عامة للأقسام المخفية/الظاهرة */
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .dark-mode .edit-section {
+            background-color: #0b1f3c;
+            border-color: #3e5f8a;
+        }
+        .edit-section label {
+            font-weight: normal;
+            margin-bottom: 5px;
+        }
+        .edit-section input[type="text"] {
+            margin-bottom: 10px;
+        }
+
+        /* أنماط خاصة لحقول الألوان */
+        .color-edit-section {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .color-display-box {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background-color: #fff;
+        }
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            gap: 10px;
+        }
+        .color-input-group input[type="text"] {
+            flex-grow: 1;
+            margin-bottom: 0;
+            width: auto;
+        }
+        .color-input-group input[type="color"] {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            margin-bottom: 0;
+        }
+        .color-input-group input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        .color-input-group input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .color-input-group input[type="color"]::-moz-color-swatch {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        /* أنماط خاصة لحقول المقاسات */
+        .size-edit-section { 
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .size-input-group {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            gap: 5px;
+        }
+        .size-input-group input[type="text"] {
+            flex-grow: 1;
+            margin-bottom: 0;
+            width: auto;
+        }
+        .size-input-group select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: #fff;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+            margin-bottom: 0;
+        }
+        .dark-mode .size-input-group select {
+            background-color: #0f3460;
+            color: #e0e0e0;
+            border-color: #3e5f8a;
+        }
+
+        /* أنماط خاصة لحقول الروابط */
+        .link-edit-section {
+            border: 1px solid #eee;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #f8f8f8;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .dark-mode .link-edit-section {
+            background-color: #0b1f3c;
+            border-color: #3e5f8a;
+        }
+        .link-edit-section label {
+            font-weight: normal;
+            margin-bottom: 5px;
+        }
+        .link-edit-section input[type="text"] {
+            margin-bottom: 10px;
+            direction: ltr; /* اتجاه النص من اليسار لليمين للروابط */
+            text-align: left;
+        }
+
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="darkModeToggleContainer">
+        <button id="darkModeToggle">تبديل الوضع الليلي</button>
+    </div>
+
+    <div class="container">
+        <h2>أداة معالجة الكود الشاملة</h2>
+
+        <label for="codeEditor">ضع الكود أو النص هنا:</label>
+        <textarea id="codeEditor" placeholder="الصق كود HTML، CSS، JavaScript، أو أي نص هنا..."></textarea>
+
+        <label for="fileUpload">أو ارفع ملف (TXT, HTML, HTM, CSS, JS):</label>
+        <input type="file" id="fileUpload" accept=".txt,.html,.htm,.css,.js">
+
+        <div class="buttons-group">
+            <button id="pasteBtn">لصق</button>
+            <button id="copyBtn">نسخ</button>
+            <button id="downloadBtn">تحميل</button>
+            <button id="livePreviewBtn">معاينة المظهر</button>
+            <button id="editCodeBtn">تعديل الكود</button>
+        </div>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="ابحث داخل الكود..." dir="rtl">
+            <button id="searchBtn">بحث</button>
+            <button id="clearSearchBtn">مسح البحث</button>
+        </div>
+
+        <div id="preview-container" style="display: none;">
+            <h3>معاينة الكود النصي:</h3>
+            <pre id="code-text-preview">
+                </pre>
+        </div>
+
+        <div id="live-preview-iframe-container">
+            <h3>معاينة المظهر الحي:</h3>
+            <iframe id="live-preview-iframe" sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+        </div>
+        
+        <div id="status-message" class="message info" style="display: none;"></div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>تعديل الكود</h3>
+
+            <label for="editOption">اختر نوع التعديل:</label>
+            <select id="editOption">
+                <option value="all">تعديل الكل</option>
+                <option value="title">تعديل عنوان الصفحة</option>
+                <option value="headings">تعديل نصوص العناوين</option>
+                <option value="colors">تعديل الألوان</option>
+                <option value="sizes">تعديل المقاسات</option>
+                <option value="links">تعديل الروابط</option>
+                <option value="general">تعديل عام (اسم المشروع، الأدوات)</option>
+            </select>
+            <br><br>
+
+            <div id="generalSection" class="edit-section">
+                <h4>معلومات عامة:</h4>
+                <label for="projectName">اسم المشروع:</label>
+                <input type="text" id="projectName" placeholder="ادخل اسم المشروع">
+
+                <label for="toolName">اسم الأدوات:</label>
+                <input type="text" id="toolName" placeholder="ادخل اسم الأدوات">
+                
+                </div>
+
+            <div id="titleSection" class="edit-section">
+                <h4>تعديل عنوان الصفحة (&lt;title&gt;):</h4>
+                <label for="newTitle">العنوان الجديد للصفحة:</label>
+                <input type="text" id="newTitle" placeholder="ادخل العنوان الجديد">
+            </div>
+
+            <div id="headingsSection" class="edit-section">
+                <h4>تعديل نصوص العناوين (h1 - h6):</h4>
+                <div id="dynamicHeadingSections">
+                    </div>
+            </div>
+
+            <div id="colorsSection" class="edit-section">
+                <h4>تعديل الألوان:</h4>
+                <div id="dynamicColorSections">
+                    </div>
+                <p><strong>ملاحظة:</strong> سيتم عرض الألوان التي تم العثور عليها في الكود. يمكنك تغييرها بشكل فردي.</p>
+            </div>
+
+            <div id="sizesSection" class="edit-section">
+                <h4>تعديل المقاسات:</h4>
+                <div id="dynamicSizeSections">
+                    </div>
+                <p><strong>ملاحظة:</strong> سيتم عرض المقاسات التي تم العثور عليها (مثل العرض والارتفاع). يمكنك تغييرها بشكل فردي.</p>
+            </div>
+
+            <div id="linksSection" class="edit-section">
+                <h4>تعديل الروابط:</h4>
+                <div id="dynamicLinkSections">
+                    </div>
+                <p><strong>ملاحظة:</strong> سيتم عرض الروابط التي تم العثور عليها في الكود. يمكنك تغييرها بشكل فردي.</p>
+            </div>
+
+            <div class="modal-buttons">
+                <button id="applyEditsBtn">تطبيق التعديلات</button>
+                <button id="cancelEditsBtn">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const codeEditor = document.getElementById('codeEditor');
+        const fileUpload = document.getElementById('fileUpload');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const livePreviewBtn = document.getElementById('livePreviewBtn');
+        const editCodeBtn = document.getElementById('editCodeBtn');
+        const previewContainer = document.getElementById('preview-container');
+        const codeTextPreview = document.getElementById('code-text-preview');
+        const livePreviewIframeContainer = document.getElementById('live-preview-iframe-container');
+        const livePreviewIframe = document.getElementById('live-preview-iframe');
+        const statusMessage = document.getElementById('status-message');
+
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        // عناصر البحث
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+        // عناصر النافذة المنبثقة (Modal)
+        const editModal = document.getElementById('editModal');
+        const closeButton = document.querySelector('.close-button');
+        const projectNameInput = document.getElementById('projectName');
+        const toolNameInput = document.getElementById('toolName');
+        const newTitleInput = document.getElementById('newTitle');
+        const dynamicHeadingSections = document.getElementById('dynamicHeadingSections'); 
+        const dynamicColorSections = document.getElementById('dynamicColorSections'); 
+        const dynamicSizeSections = document.getElementById('dynamicSizeSections'); 
+        const dynamicLinkSections = document.getElementById('dynamicLinkSections'); 
+        // تم حذف newWidthInput = document.getElementById('newWidth');
+        const applyEditsBtn = document.getElementById('applyEditsBtn');
+        const cancelEditsBtn = document.getElementById('cancelEditsBtn');
+
+        // عناصر القائمة المنسدلة والأقسام
+        const editOptionSelect = document.getElementById('editOption');
+        const generalSection = document.getElementById('generalSection');
+        const titleSection = document.getElementById('titleSection');
+        const headingsSection = document.getElementById('headingsSection');
+        const colorsSection = document.getElementById('colorsSection');
+        const sizesSection = document.getElementById('sizesSection');
+        const linksSection = document.getElementById('linksSection');
+
+        let currentContent = '';
+        let originalContentForSearch = '';
+        let headingElements = []; 
+        let uniqueColors = []; 
+        let uniqueSizes = [];
+        let uniqueLinks = []; 
+
+        // وظيفة لتطبيق الوضع الليلي/النهاري
+        function applyDarkMode(isDarkMode) {
+            if (isDarkMode) {
+                body.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'disabled');
+            }
+            if (editModal.style.display === 'flex') {
+                 if (isDarkMode) {
+                    editModal.querySelector('.modal-content').classList.add('dark-mode');
+                 } else {
+                    editModal.querySelector('.modal-content').classList.remove('dark-mode');
+                 }
+            }
+        }
+
+        // التحقق من تفضيل المستخدم عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                applyDarkMode(true);
+            } else {
+                applyDarkMode(false);
+            }
+            previewContainer.style.display = 'none';
+            livePreviewIframeContainer.style.display = 'none';
+        });
+
+        // معالج حدث لزر تبديل الوضع الليلي
+        darkModeToggle.addEventListener('click', () => {
+            const isCurrentlyDarkMode = body.classList.contains('dark-mode');
+            applyDarkMode(!isCurrentlyDarkMode);
+        });
+
+        // وظيفة لعرض الرسائل
+        function showMessage(msg, type = 'info') {
+            statusMessage.textContent = msg;
+            statusMessage.className = `message ${type}`;
+            statusMessage.style.display = 'block';
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 7000);
+        }
+
+        // وظيفة لإزالة التمييز السابق من النص
+        function removeHighlight() {
+            codeTextPreview.innerHTML = originalContentForSearch;
+        }
+
+        // وظيفة لتحديث المحتوى وعرض المعاينات
+        function updateContent(newContent) {
+            currentContent = newContent;
+            originalContentForSearch = newContent;
+            codeEditor.value = newContent;
+            removeHighlight();
+
+            codeTextPreview.textContent = newContent; 
+            previewContainer.style.display = 'block';
+
+            if (currentContent.trim().startsWith('<')) { 
+                livePreviewIframeContainer.style.display = 'block';
+                const iframeDoc = livePreviewIframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(`<base href="${window.location.href}">` + currentContent);
+                iframeDoc.close();
+            } else {
+                livePreviewIframeContainer.style.display = 'none';
+            }
+        }
+
+        // معالج حدث لزر اللصق
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    updateContent(text);
+                    showMessage('تم لصق المحتوى من الحافظة.', 'success');
+                } else {
+                    showMessage('الحافظة فارغة أو لا يوجد نص.', 'info');
+                }
+            } catch (err) {
+                showMessage('فشل قراءة الحافظة. الرجاء السماح بالوصول أو اللصق يدوياً.', 'error');
+                console.error('Failed to read clipboard: ', err);
+            }
+        });
+
+        // معالج حدث لرفع الملف
+        fileUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    updateContent(e.target.result);
+                    showMessage('تم تحميل الملف بنجاح.', 'success');
+                };
+                reader.onerror = () => {
+                    showMessage('حدث خطأ أثناء قراءة الملف.', 'error');
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // معالج حدث لزر النسخ
+        copyBtn.addEventListener('click', () => {
+            if (currentContent.trim()) {
+                navigator.clipboard.writeText(currentContent).then(() => {
+                    showMessage('تم نسخ المحتوى إلى الحافظة!', 'success');
+                }).catch(err => {
+                    showMessage('فشل نسخ المحتوى: ' + err, 'error');
+                });
+            } else {
+                showMessage('لا يوجد محتوى لنسخه.', 'info');
+            }
+        });
+
+        // معالج حدث لزر التحميل
+        downloadBtn.addEventListener('click', () => {
+            if (currentContent.trim()) {
+                const filename = prompt('أدخل اسم الملف (مع الامتداد، مثال: mycode.html أو myfile.txt):', 'my_content.txt');
+                if (!filename) {
+                    showMessage('تم إلغاء عملية التحميل.', 'info');
+                    return;
+                }
+                
+                let mimeType = 'text/plain';
+                if (filename.endsWith('.html') || filename.endsWith('.htm')) {
+                    mimeType = 'text/html';
+                } else if (filename.endsWith('.css')) {
+                    mimeType = 'text/css';
+                } else if (filename.endsWith('.js')) {
+                    mimeType = 'application/javascript';
+                }
+
+                const url = URL.createObjectURL(new Blob([currentContent], { type: mimeType }));
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showMessage('تم تحميل المحتوى بنجاح.', 'success');
+            } else {
+                showMessage('لا يوجد محتوى لتحميله.', 'info');
+            }
+        });
+
+        // معالج حدث لزر معاينة المظهر
+        livePreviewBtn.addEventListener('click', () => {
+            if (currentContent.trim()) {
+                 if (currentContent.trim().startsWith('<')) {
+                    const iframeDoc = livePreviewIframe.contentWindow.document;
+                    iframeDoc.open();
+                    iframeDoc.write(`<base href="${window.location.href}">` + currentContent);
+                    iframeDoc.close();
+                    livePreviewIframeContainer.style.display = 'block';
+                    showMessage('يتم عرض معاينة المظهر الحي.', 'info');
+                 } else {
+                    livePreviewIframeContainer.style.display = 'none';
+                    showMessage('المحتوى ليس كود HTML صالحًا للمعاينة الحية.', 'warning');
+                 }
+            } else {
+                livePreviewIframeContainer.style.display = 'none';
+                showMessage('لا يوجد محتوى للمعاينة الحية.', 'info');
+            }
+        });
+
+        // لمزامنة التغييرات اليدوية مع currentContent وتحديث المعاينات
+        codeEditor.addEventListener('input', () => {
+            updateContent(codeEditor.value);
+        });
+
+        /* ------------------------------------- */
+        /* منطق البحث */
+        /* ------------------------------------- */
+        function performSearch() {
+            const searchTerm = searchInput.value.trim();
+            removeHighlight();
+
+            if (searchTerm) {
+                const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+                const text = originalContentForSearch;
+
+                let highlightedText = text.replace(regex, `<span class="highlight">$&</span>`);
+                codeTextPreview.innerHTML = highlightedText;
+
+                const matches = text.match(regex);
+                if (matches && matches.length > 0) {
+                    showMessage(`تم العثور على ${matches.length} نتيجة لـ "${searchTerm}".`, 'success');
+                } else {
+                    showMessage(`لم يتم العثور على "${searchTerm}".`, 'info');
+                }
+            } else {
+                showMessage('الرجاء إدخال كلمة للبحث.', 'info');
+            }
+        }
+
+        searchBtn.addEventListener('click', performSearch);
+        
+        searchInput.addEventListener('input', () => {
+            if (searchInput.value.trim() === '') {
+                removeHighlight();
+            }
+        });
+
+        clearSearchBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            removeHighlight();
+            showMessage('تم مسح البحث.', 'info');
+        });
+
+        /* ------------------------------------- */
+        /* منطق النافذة المنبثقة (Modal) والتعديلات */
+        /* ------------------------------------- */
+
+        // دالة لإظهار/إخفاء الأقسام بناءً على اختيار القائمة المنسدلة
+        function toggleEditSections() {
+            const selectedOption = editOptionSelect.value;
+
+            // إخفاء جميع الأقسام أولاً
+            generalSection.style.display = 'none';
+            titleSection.style.display = 'none';
+            headingsSection.style.display = 'none';
+            colorsSection.style.display = 'none';
+            sizesSection.style.display = 'none';
+            linksSection.style.display = 'none'; 
+
+            // إظهار الأقسام المطلوبة بناءً على الاختيار
+            if (selectedOption === 'all') {
+                generalSection.style.display = 'block';
+                titleSection.style.display = 'block';
+                headingsSection.style.display = 'block';
+                colorsSection.style.display = 'block';
+                sizesSection.style.display = 'block';
+                linksSection.style.display = 'block';
+            } else if (selectedOption === 'general') {
+                generalSection.style.display = 'block';
+            } else if (selectedOption === 'title') {
+                titleSection.style.display = 'block';
+            } else if (selectedOption === 'headings') {
+                headingsSection.style.display = 'block';
+            } else if (selectedOption === 'colors') {
+                colorsSection.style.display = 'block';
+            } else if (selectedOption === 'sizes') {
+                sizesSection.style.display = 'block';
+            } else if (selectedOption === 'links') {
+                linksSection.style.display = 'block';
+            }
+        }
+
+        // معالج حدث لتغيير القائمة المنسدلة
+        editOptionSelect.addEventListener('change', toggleEditSections);
+
+        // دالة لإنشاء حقول إدخال ديناميكية لوسوم العناوين (h1-h6)
+        function createDynamicHeadingInputs() {
+            dynamicHeadingSections.innerHTML = ''; // مسح الحقول القديمة
+            headingElements = []; // تفريغ مصفوفة معلومات العناوين
+
+            const headingRegex = /<h([1-6])>(.*?)<\/h\1>/gis; 
+            let match;
+
+            while ((match = headingRegex.exec(currentContent)) !== null) {
+                headingElements.push({
+                    tag: `h${match[1]}`, 
+                    originalText: match[2],
+                });
+            }
+
+            if (headingElements.length > 0) {
+                headingElements.forEach((headingInfo, i) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'edit-section'; /* استخدم الفئة العامة */
+
+                    const label = document.createElement('label');
+                    label.textContent = `عنوان ${headingInfo.tag} رقم ${i + 1} (القديم: ${headingInfo.originalText.substring(0, 50)}${headingInfo.originalText.length > 50 ? '...' : ''}):`;
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = `headingInput_${i}`; 
+                    input.value = headingInfo.originalText;
+                    input.placeholder = `ادخل العنوان الجديد لـ ${headingInfo.tag} رقم ${i + 1}`;
+
+                    sectionDiv.appendChild(label);
+                    sectionDiv.appendChild(input);
+                    dynamicHeadingSections.appendChild(sectionDiv);
+                });
+            } else {
+                const p = document.createElement('p');
+                p.textContent = 'لم يتم العثور على أي وسوم عناوين (h1-h6) لتعديلها بشكل فردي.';
+                dynamicHeadingSections.appendChild(p);
+            }
+        }
+
+        // دالة لاكتشاف الألوان وسياقها وإنشاء حقول الإدخال الديناميكية
+        function createDynamicColorInputs() {
+            dynamicColorSections.innerHTML = ''; // مسح الحقول القديمة
+            uniqueColors = []; // تفريغ مصفوفة الألوان الفريدة
+
+            const colorRegex = /(?:([a-zA-Z-]+)\s*:\s*)?(#[0-9a-fA-F]{3,6}|rgba?\(\d{1,3},\s*\d{1,3},\s*\d{1,3}(?:,\s*(?:0?\.\d+|1|0))?\)|hsla?\(\d{1,3},\s*\d{1,3}%,\s*\d{1,3}%(?:,\s*(?:0?\.\d+|1|0))?\)|(?:inherit|initial|unset|revert)|(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen))\b/gi;
+
+            let matches = {}; 
+
+            let match;
+            while ((match = colorRegex.exec(currentContent)) !== null) {
+                let property = match[1] || 'غير محدد (ربما في HTML style)'; 
+                let colorValue = match[2]; 
+
+                if (property && (property.toLowerCase().includes('text-decoration') || property.toLowerCase().includes('font-weight'))) {
+                    property = 'غير محدد (ربما في HTML style)';
+                }
+                if (colorValue.match(/^[a-zA-Z]+$/)) { 
+                    colorValue = colorValue.toLowerCase();
+                }
+
+                if (!matches[colorValue]) {
+                    matches[colorValue] = property;
+                }
+            }
+
+            for (const color in matches) {
+                uniqueColors.push({
+                    value: color,
+                    property: matches[color]
+                });
+            }
+
+            if (uniqueColors.length > 0) {
+                uniqueColors.forEach((colorInfo, i) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'color-edit-section edit-section'; 
+
+                    const colorDisplayBox = document.createElement('div');
+                    colorDisplayBox.className = 'color-display-box';
+                    colorDisplayBox.style.backgroundColor = colorInfo.value;
+                    colorDisplayBox.title = `اللون الأصلي: ${colorInfo.value}`;
+
+                    const label = document.createElement('label');
+                    label.textContent = `اللون ${i + 1} (${colorInfo.value}, يؤثر على: ${colorInfo.property}):`;
+                    
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'color-input-group';
+
+                    const textInput = document.createElement('input');
+                    textInput.type = 'text';
+                    textInput.id = `colorTextInput_${i}`;
+                    textInput.value = colorInfo.value;
+                    textInput.placeholder = `ادخل اللون الجديد`;
+
+                    const colorPicker = document.createElement('input');
+                    colorPicker.type = 'color';
+                    colorPicker.id = `colorPicker_${i}`;
+                    colorPicker.value = colorInfo.value; 
+
+                    colorPicker.addEventListener('input', (e) => {
+                        textInput.value = e.target.value;
+                    });
+                    textInput.addEventListener('input', (e) => {
+                         if (e.target.value.match(/^#[0-9a-fA-F]{3,6}$/)) {
+                            colorPicker.value = e.target.value;
+                         }
+                    });
+
+                    inputGroup.appendChild(textInput);
+                    inputGroup.appendChild(colorPicker);
+
+                    sectionDiv.appendChild(label);
+                    sectionDiv.appendChild(colorDisplayBox);
+                    sectionDiv.appendChild(inputGroup);
+                    dynamicColorSections.appendChild(sectionDiv);
+                });
+            } else {
+                const p = document.createElement('p');
+                p.textContent = 'لم يتم العثور على ألوان في الكود لتعديلها.';
+                dynamicColorSections.appendChild(p);
+            }
+        }
+
+        // دالة لاكتشاف المقاسات وسياقها وإنشاء حقول الإدخال الديناميكية
+        function createDynamicSizeInputs() {
+            dynamicSizeSections.innerHTML = ''; // مسح الحقول القديمة
+            uniqueSizes = []; // تفريغ مصفوفة المقاسات الفريدة
+
+            const sizeRegex = /(?:([a-zA-Z-]+)\s*:\s*)?(-?\d*\.?\d+(?:px|%|em|rem|vw|vh|vmin|vmax|cm|mm|in|pt|pc)?|auto|none|initial|inherit|unset|max-content|min-content|fit-content|contain|cover)\b/gi;
+
+            let matches = {}; // لتخزين المقاسات الفريدة مع أول خاصية لها
+
+            let match;
+            while ((match = sizeRegex.exec(currentContent)) !== null) {
+                let property = match[1] || 'غير محدد (ربما في HTML style)';
+                let sizeValue = match[2];
+
+                if (property && (property.toLowerCase().includes('z-index') || property.toLowerCase().includes('line-height') || property.toLowerCase().includes('order') || property.toLowerCase().includes('flex-grow') || property.toLowerCase().includes('flex-shrink'))) {
+                    continue; 
+                }
+                
+                if (!matches[sizeValue]) {
+                    matches[sizeValue] = property;
+                }
+            }
+
+            for (const size in matches) {
+                uniqueSizes.push({
+                    value: size,
+                    property: matches[size]
+                });
+            }
+
+            if (uniqueSizes.length > 0) {
+                uniqueSizes.forEach((sizeInfo, i) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'size-edit-section edit-section'; 
+
+                    const label = document.createElement('label');
+                    label.textContent = `المقاس ${i + 1} (${sizeInfo.value}, يؤثر على: ${sizeInfo.property}):`;
+                    
+                    const inputGroup = document.createElement('div');
+                    inputGroup.className = 'size-input-group';
+
+                    const textInput = document.createElement('input');
+                    textInput.type = 'text';
+                    textInput.id = `sizeTextInput_${i}`;
+                    textInput.value = sizeInfo.value;
+                    textInput.placeholder = `ادخل المقاس الجديد (مثال: 200px)`;
+
+                    inputGroup.appendChild(textInput);
+
+                    sectionDiv.appendChild(label);
+                    sectionDiv.appendChild(inputGroup);
+                    dynamicSizeSections.appendChild(sectionDiv);
+                });
+            } else {
+                const p = document.createElement('p');
+                p.textContent = 'لم يتم العثور على مقاسات في الكود لتعديلها.';
+                dynamicSizeSections.appendChild(p);
+            }
+        }
+
+        // دالة لاكتشاف الروابط وإنشاء حقول الإدخال الديناميكية
+        function createDynamicLinkInputs() {
+            dynamicLinkSections.innerHTML = ''; 
+            uniqueLinks = []; 
+
+            const linkRegex = /(?:(?:href|src|url)\s*=\s*['"](.*?)(?<!['"])\s*['"])|(?:url\(['"]?(.*?)(?<!['"])\)\s*)|(?:\b(?:https?|ftp):\/\/[^\s/$.?#].[^\s]*\b)|(?:\b(?:www\.)[^\s/$.?#].[^\s]*\b)/gi;
+            
+            let matches = {}; 
+
+            let match;
+            while ((match = linkRegex.exec(currentContent)) !== null) {
+                let linkValue = match[1] || match[2] || match[0]; 
+                if (linkValue && linkValue.trim() !== '' && !linkValue.startsWith('#') && !linkValue.startsWith('javascript:')) { 
+                    matches[linkValue] = true; 
+                }
+            }
+
+            for (const link in matches) {
+                uniqueLinks.push(link);
+            }
+
+            if (uniqueLinks.length > 0) {
+                uniqueLinks.forEach((linkValue, i) => {
+                    const sectionDiv = document.createElement('div');
+                    sectionDiv.className = 'link-edit-section edit-section'; 
+
+                    const label = document.createElement('label');
+                    label.textContent = `الرابط ${i + 1} (القديم: ${linkValue.substring(0, 70)}${linkValue.length > 70 ? '...' : ''}):`;
+                    
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.id = `linkInput_${i}`; 
+                    input.value = linkValue;
+                    input.placeholder = `ادخل الرابط الجديد`;
+
+                    sectionDiv.appendChild(label);
+                    sectionDiv.appendChild(input);
+                    dynamicLinkSections.appendChild(sectionDiv);
+                });
+            } else {
+                const p = document.createElement('p');
+                p.textContent = 'لم يتم العثور على روابط في الكود لتعديلها.';
+                dynamicLinkSections.appendChild(p);
+            }
+        }
+
+
+        // فتح النافذة المنبثقة
+        editCodeBtn.addEventListener('click', () => {
+            createDynamicHeadingInputs(); 
+            createDynamicColorInputs(); 
+            createDynamicSizeInputs(); 
+            createDynamicLinkInputs(); 
+            
+            editModal.style.display = 'flex';
+            if (body.classList.contains('dark-mode')) {
+                editModal.querySelector('.modal-content').classList.add('dark-mode');
+            } else {
+                editModal.querySelector('.modal-content').classList.remove('dark-mode');
+            }
+            // تم حذف سطر تعيين قيمة newWidthInput هنا
+            
+            editOptionSelect.value = 'all'; 
+            toggleEditSections();
+        });
+
+        // إغلاق النافذة المنبثقة باستخدام زر الإغلاق (X)
+        closeButton.addEventListener('click', () => {
+            editModal.style.display = 'none';
+        });
+
+        // إغلاق النافذة المنبثقة عند النقر خارجها
+        window.addEventListener('click', (event) => {
+            if (event.target === editModal) {
+                editModal.style.display = 'none';
+            }
+        });
+
+        // إغلاق النافذة المنبثقة باستخدام زر "إلغاء"
+        cancelEditsBtn.addEventListener('click', () => {
+            editModal.style.display = 'none';
+        });
+
+        // تطبيق التعديلات من النافذة المنبثقة
+        applyEditsBtn.addEventListener('click', () => {
+            let updatedContent = currentContent;
+            let changesMade = false;
+
+            // تم حذف منطق تطبيق تعديلات العرض الجديد بالبكسل
+            const projectName = projectNameInput.value.trim();
+            const toolName = toolNameInput.value.trim();
+
+            // تطبيق استبدال عنوان الصفحة <title>
+            const newTitle = newTitleInput.value.trim();
+            if (newTitle) {
+                const titleRegex = /(<title>)(.*?)(<\/title>)/is;
+                if (updatedContent.match(titleRegex)) {
+                    updatedContent = updatedContent.replace(titleRegex, `$1${newTitle}$3`);
+                    changesMade = true;
+                    showMessage(`تم تغيير عنوان الصفحة (<title>) إلى "${newTitle}".`, 'success');
+                }
+            }
+
+            // تطبيق تعديل كل وسم عنوان (h1-h6)
+            if (headingElements.length > 0) {
+                let headingsChangedCount = 0;
+                headingElements.forEach((headingInfo, i) => {
+                    const headingInput = document.getElementById(`headingInput_${i}`);
+                    const newHeadingText = headingInput ? headingInput.value.trim() : headingInfo.originalText;
+                    
+                    const escapedOriginalText = headingInfo.originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const specificHeadingRegex = new RegExp(`(<${headingInfo.tag}>)(${escapedOriginalText})(<\/${headingInfo.tag}>)`, 'is');
+
+                    if (newHeadingText !== headingInfo.originalText) {
+                        updatedContent = updatedContent.replace(specificHeadingRegex, `$1${newHeadingText}$3`);
+                        changesMade = true;
+                        headingsChangedCount++;
+                    }
+                });
+                if (headingsChangedCount > 0) {
+                    showMessage(`تم تعديل ${headingsChangedCount} من نصوص العناوين (h1-h6) بنجاح.`, 'success');
+                } else {
+                    showMessage('لم يتم إجراء أي تغييرات على نصوص العناوين.', 'info');
+                }
+            }
+
+            // تطبيق استبدال الألوان الديناميكي
+            if (uniqueColors.length > 0) {
+                let colorsChangedCount = 0;
+                uniqueColors.forEach((colorInfo, i) => {
+                    const newColorInput = document.getElementById(`colorTextInput_${i}`);
+                    const newColorValue = newColorInput ? newColorInput.value.trim() : colorInfo.value;
+
+                    if (newColorValue && newColorValue !== colorInfo.value) {
+                        const escapedOldColor = colorInfo.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const colorReplaceRegex = new RegExp(escapedOldColor, 'gi'); 
+                        
+                        if (newColorValue.match(/^#[0-9a-fA-F]{3,6}$|^rgba?\(\d{1,3},\s*\d{1,3},\s*\d{1,3}(?:,\s*(?:0?\.\d+|1|0))?\)$|^hsla?\(\d{1,3},\s*\d{1,3}%,\s*\d{1,3}%(?:,\s*(?:0?\.\d+|1|0))?\)$|^(?:aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|snow|springgreen|steelblue|tan|teal|thistle|tomato|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)$/i)) {
+                            updatedContent = updatedContent.replace(colorReplaceRegex, newColorValue);
+                            changesMade = true;
+                            colorsChangedCount++;
+                        } else {
+                            showMessage(`اللون الجديد "${newColorValue}" للون القديم "${colorInfo.value}" غير صالح.`, 'error');
+                        }
+                    }
+                });
+                if (colorsChangedCount > 0) {
+                    showMessage(`تم تغيير ${colorsChangedCount} من الألوان بنجاح.`, 'success');
+                } else {
+                    showMessage('لم يتم إجراء أي تغييرات على الألوان.', 'info');
+                }
+            }
+
+            // تطبيق استبدال المقاسات الديناميكي
+            if (uniqueSizes.length > 0) {
+                let sizesChangedCount = 0;
+                uniqueSizes.forEach((sizeInfo, i) => {
+                    const newSizeInput = document.getElementById(`sizeTextInput_${i}`);
+                    const newSizeValue = newSizeInput ? newSizeInput.value.trim() : sizeInfo.value;
+
+                    if (newSizeValue && newSizeValue !== sizeInfo.value) {
+                        const escapedOldSize = sizeInfo.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const sizeReplaceRegex = new RegExp(escapedOldSize, 'gi'); 
+
+                        if (newSizeValue.match(/^-?\d*\.?\d+(?:px|%|em|rem|vw|vh|vmin|vmax|cm|mm|in|pt|pc)?|auto|none|initial|inherit|unset|max-content|min-content|fit-content|contain|cover$/i)) {
+                            updatedContent = updatedContent.replace(sizeReplaceRegex, newSizeValue);
+                            changesMade = true;
+                            sizesChangedCount++;
+                        } else {
+                            showMessage(`المقاس الجديد "${newSizeValue}" للمقاس القديم "${sizeInfo.value}" غير صالح.`, 'error');
+                        }
+                    }
+                });
+                if (sizesChangedCount > 0) {
+                    showMessage(`تم تغيير ${sizesChangedCount} من المقاسات بنجاح.`, 'success');
+                } else {
+                    showMessage('لم يتم إجراء أي تغييرات على المقاسات.', 'info');
+                }
+            }
+
+            // تطبيق استبدال الروابط الديناميكي
+            if (uniqueLinks.length > 0) {
+                let linksChangedCount = 0;
+                uniqueLinks.forEach((oldLinkValue, i) => {
+                    const newLinkInput = document.getElementById(`linkInput_${i}`);
+                    const newLinkValue = newLinkInput ? newLinkInput.value.trim() : oldLinkValue;
+
+                    if (newLinkValue && newLinkValue !== oldLinkValue) {
+                        const escapedOldLink = oldLinkValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        const linkReplaceRegex = new RegExp(escapedOldLink, 'g'); 
+                        
+                        if (newLinkValue.match(/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i) || newLinkValue.match(/^www\.[^\s/$.?#].[^\s]*$/i) || newLinkValue.match(/^\/[^\s]*$/)) { 
+                            updatedContent = updatedContent.replace(linkReplaceRegex, newLinkValue);
+                            changesMade = true;
+                            linksChangedCount++;
+                        } else {
+                            showMessage(`الرابط الجديد "${newLinkValue}" للرابط القديم "${oldLinkValue}" غير صالح.`, 'error');
+                        }
+                    }
+                });
+                if (linksChangedCount > 0) {
+                    showMessage(`تم تغيير ${linksChangedCount} من الروابط بنجاح.`, 'success');
+                } else {
+                    showMessage('لم يتم إجراء أي تغييرات على الروابط.', 'info');
+                }
+            }
+
+            // تحديث المحتوى في الواجهة
+            if (changesMade) {
+                updateContent(updatedContent);
+                showMessage('تم تطبيق التعديلات بنجاح!', 'success');
+            } else {
+                showMessage('لم يتم إجراء أي تعديلات على الكود.', 'info');
+            }
+
+            // إغلاق المودال
+            editModal.style.display = 'none';
+
+            console.log('اسم المشروع:', projectNameInput.value);
+            console.log('اسم الأدوات:', toolNameInput.value);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معاينة الأكواد التفاعلية</title>
+    <style>
+        /* --- أكواد CSS --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .editor-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            width: 90%;
+            max-width: 1200px;
+        }
+
+        .code-panel {
+            flex: 1;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+
+        .code-panel h2 {
+            margin-top: 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            flex-wrap: wrap; /* Allow controls to wrap if space is limited */
+        }
+
+        .controls button, .upload-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            font-size: 14px;
+            transition: background-color 0.2s ease;
+        }
+
+        .controls button:hover, .upload-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Hide the default file input button */
+        input[type="file"] {
+            display: none;
+        }
+
+        .upload-button {
+            display: inline-block;
+            background-color: #28a745; /* Different color for upload */
+        }
+
+        .upload-button:hover {
+            background-color: #218838;
+        }
+
+        .delete-button {
+            background-color: #dc3545; /* Red color for delete */
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+        .download-button {
+            background-color: #6c757d; /* Grey color for download */
+        }
+
+        .download-button:hover {
+            background-color: #5a6268;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box; /* Ensures padding doesn't add to the width */
+        }
+
+        .preview-container {
+            width: 90%;
+            max-width: 1200px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .preview-container h2 {
+            margin-top: 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .preview-container .controls {
+            justify-content: flex-end; /* Align download button to the right */
+            margin-bottom: 15px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .search-replace-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .search-replace-container h2 {
+            margin-top: 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-replace-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-replace-controls input[type="text"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .search-replace-controls select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>معاينة الأكواد التفاعلية</h1>
+
+    <div class="editor-container">
+        <div class="code-panel">
+            <h2>HTML</h2>
+            <div class="controls">
+                <button onclick="copyCode('html-code')">نسخ</button>
+                <button onclick="pasteCode('html-code')">لصق</button>
+                <label for="html-upload" class="upload-button">رفع ملف</label>
+                <input type="file" id="html-upload" accept=".html" onchange="uploadFile('html-code', event)">
+                <button class="download-button" onclick="downloadCode('html-code', 'index.html', 'text/html')">تحميل ملف</button>
+                <button class="delete-button" onclick="clearCode('html-code')">حذف</button>
+            </div>
+            <textarea id="html-code" onkeyup="runCode()"></textarea>
+        </div>
+        <div class="code-panel">
+            <h2>CSS</h2>
+            <div class="controls">
+                <button onclick="copyCode('css-code')">نسخ</button>
+                <button onclick="pasteCode('css-code')">لصق</button>
+                <label for="css-upload" class="upload-button">رفع ملف</label>
+                <input type="file" id="css-upload" accept=".css" onchange="uploadFile('css-code', event)">
+                <button class="download-button" onclick="downloadCode('css-code', 'style.css', 'text/css')">تحميل ملف</button>
+                <button class="delete-button" onclick="clearCode('css-code')">حذف</button>
+            </div>
+            <textarea id="css-code" onkeyup="runCode()"></textarea>
+        </div>
+        <div class="code-panel">
+            <h2>JavaScript</h2>
+            <div class="controls">
+                <button onclick="copyCode('js-code')">نسخ</button>
+                <button onclick="pasteCode('js-code')">لصق</button>
+                <label for="js-upload" class="upload-button">رفع ملف</label>
+                <input type="file" id="js-upload" accept=".js" onchange="uploadFile('js-code', event)">
+                <button class="download-button" onclick="downloadCode('js-code', 'script.js', 'text/javascript')">تحميل ملف</button>
+                <button class="delete-button" onclick="clearCode('js-code')">حذف</button>
+            </div>
+            <textarea id="js-code" onkeyup="runCode()"></textarea>
+        </div>
+    </div>
+
+    <div class="search-replace-container">
+        <h2>البحث والاستبدال</h2>
+        <div class="search-replace-controls">
+            <select id="code-type-select">
+                <option value="html-code">HTML</option>
+                <option value="css-code">CSS</option>
+                <option value="js-code">JavaScript</option>
+            </select>
+            <input type="text" id="search-input" placeholder="ابحث عن...">
+            <input type="text" id="replace-input" placeholder="استبدل بـ...">
+            <button onclick="findText()">بحث</button>
+            <button onclick="replaceText()">استبدال</button>
+        </div>
+    </div>
+
+    <div class="preview-container">
+        <h2>النتيجة</h2>
+        <div class="controls">
+            <button class="download-button" onclick="downloadPreview()">تحميل ملف المعاينة</button>
+        </div>
+        <iframe id="preview-frame"></iframe>
+    </div>
+
+    <script>
+        /* --- أكواد JavaScript --- */
+        function runCode() {
+            const htmlCode = document.getElementById('html-code').value;
+            const cssCode = document.getElementById('css-code').value;
+            const jsCode = document.getElementById('js-code').value;
+            const previewFrame = document.getElementById('preview-frame').contentWindow.document;
+
+            previewFrame.open();
+            previewFrame.write(
+                `<!DOCTYPE html>
+                <html>
+                <head>
+                    <style>${cssCode}</style>
+                </head>
+                <body>
+                    ${htmlCode}
+                    <script>${jsCode}<\/script>
+                </body>
+                </html>`
+            );
+            previewFrame.close();
+        }
+
+        // دالة لنسخ الكود من مربع النص
+        function copyCode(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            textarea.select(); // تحديد كل النص داخل مربع النص
+            textarea.setSelectionRange(0, 99999); // لدعم الأجهزة المحمولة
+            try {
+                navigator.clipboard.writeText(textarea.value);
+                alert('تم نسخ الكود بنجاح!');
+            } catch (err) {
+                alert('فشل النسخ: ' + err);
+            }
+        }
+
+        // دالة للصق الكود في مربع النص
+        async function pasteCode(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            try {
+                const text = await navigator.clipboard.readText();
+                textarea.value = text;
+                runCode(); // تشغيل الكود فور اللصق لتحديث المعاينة
+                alert('تم لصق الكود بنجاح!');
+            } catch (err) {
+                alert('فشل اللصق: ' + err + '\nيرجى التأكد من منح الإذن للصق.');
+            }
+        }
+
+        // دالة لرفع ملف وقراءة محتواه
+        function uploadFile(textareaId, event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const textarea = document.getElementById(textareaId);
+                textarea.value = e.target.result;
+                runCode(); // تشغيل الكود فور الرفع لتحديث المعاينة
+                alert('تم رفع الملف بنجاح!');
+            };
+            reader.onerror = () => {
+                alert('حدث خطأ أثناء قراءة الملف.');
+            };
+            reader.readAsText(file); // قراءة الملف كنص
+        }
+
+        // دالة لمسح محتويات مربع النص
+        function clearCode(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            textarea.value = ''; // تفريغ مربع النص
+            runCode(); // تشغيل الكود لتحديث المعاينة (سيتم عرض صفحة فارغة أو النتائج المتبقية)
+            alert('تم مسح محتوى الخانة!');
+        }
+
+        // دالة البحث عن النص
+        function findText() {
+            const codeType = document.getElementById('code-type-select').value;
+            const searchInput = document.getElementById('search-input').value;
+            const textarea = document.getElementById(codeType);
+            const content = textarea.value;
+
+            if (searchInput === '') {
+                alert('الرجاء إدخال نص للبحث عنه.');
+                return;
+            }
+
+            const regex = new RegExp(searchInput, 'g'); // للبحث عن كل التكرارات
+            const matches = [...content.matchAll(regex)]; // الحصول على جميع المطابقات
+
+            if (matches.length > 0) {
+                let message = `تم العثور على "${searchInput}" ${matches.length} مرة في ${codeType.replace('-code', '')}.`;
+                // يمكنك إضافة منطق لتحديد أو تمييز النص هنا إذا أردت
+                alert(message);
+            } else {
+                alert(`لم يتم العثور على "${searchInput}" في ${codeType.replace('-code', '')}.`);
+            }
+        }
+
+        // دالة استبدال النص (تستبدل جميع التكرارات)
+        function replaceText() {
+            const codeType = document.getElementById('code-type-select').value;
+            const searchInput = document.getElementById('search-input').value;
+            const replaceInput = document.getElementById('replace-input').value;
+            const textarea = document.getElementById(codeType);
+
+            if (searchInput === '') {
+                alert('الرجاء إدخال نص للبحث عنه أولاً قبل الاستبدال.');
+                return;
+            }
+
+            let originalContent = textarea.value;
+            // استخدام RegExp مع العلامة 'g' للاستبدال الشامل
+            const regex = new RegExp(searchInput, 'g');
+            let newContent = originalContent.replace(regex, replaceInput);
+
+            if (originalContent === newContent) {
+                alert(`لم يتم العثور على "${searchInput}" في ${codeType.replace('-code', '')}، لذا لم يتم إجراء أي استبدال.`);
+            } else {
+                textarea.value = newContent;
+                runCode(); // تحديث المعاينة بعد الاستبدال
+                alert(`تم استبدال جميع تكرارات "${searchInput}" بـ "${replaceInput}" في ${codeType.replace('-code', '')}.`);
+            }
+        }
+
+        // دالة لتحميل الكود كملف
+        function downloadCode(textareaId, filename, filetype) {
+            const textarea = document.getElementById(textareaId);
+            const content = textarea.value;
+
+            if (content.trim() === '') {
+                alert('لا يوجد محتوى لتحميله!');
+                return;
+            }
+
+            const blob = new Blob([content], { type: filetype });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert(`تم تحميل ${filename} بنجاح!`);
+        }
+
+        // دالة لتحميل محتوى المعاينة كملف HTML
+        function downloadPreview() {
+            const previewFrame = document.getElementById('preview-frame');
+            let content;
+            try {
+                // Accessing contentDocument might throw security errors if iframe content is from a different origin
+                // For same-origin content, this should work.
+                content = previewFrame.contentDocument.documentElement.outerHTML;
+            } catch (e) {
+                alert('لا يمكن تحميل محتوى المعاينة بسبب قيود الأمان (نطاق مختلف).');
+                console.error('Error accessing iframe content:', e);
+                return;
+            }
+
+            if (content.trim() === '<html dir="rtl"><head></head><body></body></html>' || content.trim() === '') {
+                alert('لا يوجد محتوى في المعاينة لتحميله!');
+                return;
+            }
+
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'preview.html'; // اسم الملف الافتراضي
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('تم تحميل ملف المعاينة (preview.html) بنجاح!');
+        }
+
+
+        // تشغيل الكود عند تحميل الصفحة لأول مرة (في حال وجود أكواد افتراضية أو حفظها)
+        document.addEventListener('DOMContentLoaded', runCode);
+    </script>
+</body>
+</html>

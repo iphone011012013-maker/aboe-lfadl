@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>my-links-app</title>
+    <style>
+        :root { --primary-color: #1a1a1a; --secondary-color: #2c2c2c; --accent-color: #ffd700; --text-color: #ffffff; --input-bg-color: #333333; --danger-color: #dc3545; }
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--primary-color); color: var(--text-color); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 520px; }
+        h1 { color: var(--accent-color); text-align: center; }
+        .input-section, .search-section { margin-bottom: 20px; padding: 20px; background-color: var(--secondary-color); border-radius: 10px; }
+        label { display:block; margin-bottom:10px; font-weight: bold; }
+        textarea, input[type="search"] { width: 100%; padding: 15px; border: 2px solid var(--accent-color); border-radius: 10px; background-color: var(--input-bg-color); color: var(--text-color); font-size: 1em; box-sizing: border-box; }
+        .button-group { display: flex; gap: 10px; margin-top: 10px; }
+        button { flex-grow: 1; padding: 12px; border: none; border-radius: 10px; font-size: 1em; cursor: pointer; font-weight: bold; transition: opacity 0.3s; }
+        button:hover { opacity: 0.9; }
+        .add-btn { background-color: #4CAF50; color: white; }
+        .clear-btn { background-color: var(--danger-color); color: white; }
+        .links-container { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .link-btn { background-color: var(--input-bg-color); color: var(--text-color); text-decoration: none; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid var(--accent-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background-color 0.3s; }
+        .link-btn:hover { background-color: var(--accent-color); color: var(--primary-color); }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body onload="loadLinks()">
+    <div class="container">
+        <h1>روابطي سيرفرات تزويد</h1>
+        <div class="input-section">
+            <label for="links-input">أضف روابط جديدة هنا:</label>
+            <textarea id="links-input" rows="4" placeholder="https://example.com"></textarea>
+            <div class="button-group">
+                <button class="add-btn" onclick="addLinks()">إضافة</button>
+                <button class="clear-btn" onclick="clearAllLinks()">مسح الكل</button>
+            </div>
+        </div>
+        <div class="search-section">
+            <label for="search-input">ابحث في روابطك:</label>
+            <input type="search" id="search-input" onkeyup="searchLinks()" placeholder="اكتب للبحث...">
+        </div>
+        <div id="links-container" class="links-container"></div>
+    </div>
+    <script>
+        let allLinks = [];
+        const storageKey = 'myIndependentLinks';
+
+        function loadLinks() {
+            const savedLinks = localStorage.getItem(storageKey);
+            const initialLinks = JSON.parse('["https://Wenew.online ","https://smmfirex.online/ ","https://smmxmedia.com","https://smmtiger.online/","https://Smmxstar.com","https://Smmaprovider.com","https://smmvolt.com","https://smmvoz.online","https://XFollowr.com","https://smmfirex.online/","https://alkabos.com","https://7ossolikers.com","https://smmcool.com/","https://smmpowermadia.com","https://smmhamob.com","https://smmxzeen.online","https://smmcreative.online/","https://smmtubes.com","https://smmtopfans.com","https://father70.com/","https://smmfirex.online","https://smmpowermadia.com ","https://Foollwrs-Team.com","https://Smmfreeze.com","https://egyptservice.shop","https://media4smm.top","https://goldmedias1.com","https://mtsfoollo.com","https://marketsmm.click","https://smmexahos.com","https://smmsharks.com","https://smmplus.store/","https://smmtop.store","https://smmsouq.com","https://smmtrendstar.com","https://smmcheetah.com","https://Smmbasha.com"]');
+            if (savedLinks) {
+                allLinks = JSON.parse(savedLinks);
+            } else if (initialLinks.length > 0) {
+                allLinks = initialLinks;
+                saveLinksToStorage();
+            }
+            renderLinks();
+        }
+
+        function renderLinks() {
+            const linksContainer = document.getElementById('links-container');
+            linksContainer.innerHTML = '';
+            allLinks.forEach(link => {
+                const button = document.createElement('a');
+                button.href = link;
+                button.textContent = getLinkName(link);
+                button.className = 'link-btn';
+                button.target = '_blank';
+                linksContainer.appendChild(button);
+            });
+            searchLinks();
+        }
+
+        function saveLinksToStorage() {
+            localStorage.setItem(storageKey, JSON.stringify(allLinks));
+        }
+
+        function addLinks() {
+            const linksInput = document.getElementById('links-input');
+            const newLinksText = linksInput.value.trim();
+            if (!newLinksText) return;
+            const newLinksArray = newLinksText.split('\n').filter(link => link.trim() !== '');
+            newLinksArray.forEach(link => {
+                if (!allLinks.includes(link)) allLinks.push(link);
+            });
+            saveLinksToStorage();
+            renderLinks();
+            linksInput.value = '';
+        }
+
+        function clearAllLinks() {
+            if (confirm('هل أنت متأكد؟ سيتم حذف جميع الروابط من هذا الملف.')) {
+                allLinks = [];
+                saveLinksToStorage();
+                renderLinks();
+            }
+        }
+
+        function getLinkName(url) {
+            try {
+                let name = new URL(url).hostname.replace('www.', '');
+                return name.charAt(0).toUpperCase() + name.slice(1, name.lastIndexOf('.'));
+            } catch (e) { return url; }
+        }
+
+        function searchLinks() {
+            const filter = document.getElementById('search-input').value.toUpperCase();
+            const buttons = document.getElementById('links-container').getElementsByTagName('a');
+            for (let i = 0; i < buttons.length; i++) {
+                buttons[i].style.display = buttons[i].textContent.toUpperCase().includes(filter) ? "" : "none";
+            }
+        }
+    </script>
+</body>
+</html>
