@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>أداة الهجوم DDoS - </title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hacker-red: #ff003c;
+      --hacker-green: #00ff7a;
+      --hacker-blue: #00a8ff;
+      --dark-bg: #0a0a0f;
+      --terminal-bg: rgba(10, 15, 20, 0.95);
+      --terminal-border: #1a1a2e;
+      --glow: 0 0 10px rgba(255, 0, 60, 0.5);
+      --success-glow: 0 0 10px rgba(0, 255, 122, 0.5);
+      --extreme-glow: 0 0 15px rgba(0, 168, 255, 0.7);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 0, 60, 0.05) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(0, 255, 122, 0.05) 0%, transparent 20%),
+        linear-gradient(rgba(10, 10, 15, 0.97), rgba(10, 10, 15, 0.97)),
+        url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48cGF0aCBmaWxsPSJub25lIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMC4xNSIgZD0iTSAwIDAgTCAwIDUwIEwgNTAgNTAgTCA1MCAwIEwgMCAwIE0gMjUgMCBMIDI1IDUwIE0gMCAyNSBMIDUwIDI1Ii8+PC9zdmc+');
+      color: var(--hacker-green);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .scan-line {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(to bottom, rgba(0, 255, 122, 0.2), transparent);
+      animation: scan 6s linear infinite;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background: var(--terminal-bg);
+      border: 1px solid var(--terminal-border);
+      border-radius: 12px;
+      box-shadow: var(--glow), 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+
+    .terminal-header {
+      background: rgba(20, 20, 30, 0.95);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--hacker-red);
+    }
+
+    .terminal-buttons {
+      display: flex;
+      gap: 8px;
+      margin-right: auto;
+    }
+
+    .terminal-btn {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-btn.close {
+      background: #ff5f57;
+    }
+
+    .terminal-btn.minimize {
+      background: #ffbd2e;
+    }
+
+    .terminal-btn.maximize {
+      background: #28c940;
+    }
+
+    .terminal-title {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--hacker-green);
+      text-shadow: 0 0 8px var(--hacker-green);
+      letter-spacing: 0.5px;
+    }
+
+    .terminal-body {
+      padding: 25px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .header-icon {
+      font-size: 3.5rem;
+      color: var(--hacker-red);
+      margin-bottom: 15px;
+      text-shadow: var(--glow);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 10px;
+      color: var(--hacker-red);
+      text-shadow: var(--glow);
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      color: var(--hacker-green);
+      margin-bottom: 25px;
+      font-weight: 500;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--hacker-red);
+      font-size: 1.1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 20px 14px 50px;
+      background: rgba(15, 20, 25, 0.8);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      color: var(--hacker-green);
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--hacker-red);
+      box-shadow: var(--glow);
+    }
+
+    input::placeholder {
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    .attack-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .option-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .option-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--hacker-green);
+      font-size: 0.95rem;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      background: rgba(15, 20, 25, 0.8);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      color: var(--hacker-green);
+      font-size: 0.95rem;
+    }
+
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .attack-btn {
+      background: linear-gradient(to bottom, rgba(40, 40, 60, 0.8), rgba(20, 20, 35, 0.9));
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      padding: 16px;
+      color: var(--hacker-green);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .attack-btn i {
+      font-size: 1.3rem;
+    }
+
+    .attack-btn:hover {
+      border-color: var(--hacker-red);
+      box-shadow: var(--glow);
+    }
+
+    .attack-btn.no-proxy {
+      color: var(--hacker-red);
+    }
+
+    .attack-btn.extreme {
+      background: linear-gradient(to bottom, rgba(0, 40, 80, 0.8), rgba(0, 20, 40, 0.9));
+      color: var(--hacker-blue);
+    }
+
+    .attack-btn.extreme:hover {
+      box-shadow: var(--extreme-glow);
+      border-color: var(--hacker-blue);
+    }
+
+    .progress-container {
+      background: rgba(15, 20, 25, 0.8);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      color: var(--hacker-green);
+    }
+
+    .progress-bar {
+      height: 20px;
+      background: rgba(30, 30, 45, 0.8);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--hacker-red), #ff5500);
+      width: 0%;
+      border-radius: 10px;
+      transition: width 0.5s ease;
+    }
+
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .stat-box {
+      background: rgba(15, 20, 25, 0.8);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--hacker-red);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--hacker-green);
+    }
+
+    .contact-btn {
+      background: linear-gradient(to bottom, rgba(0, 80, 40, 0.8), rgba(0, 40, 20, 0.9));
+      border: 1px solid rgba(0, 255, 122, 0.3);
+      border-radius: 8px;
+      padding: 14px;
+      color: var(--hacker-green);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .contact-btn:hover {
+      box-shadow: var(--success-glow);
+    }
+
+    .terminal-footer {
+      background: rgba(20, 20, 30, 0.95);
+      padding: 12px 20px;
+      text-align: center;
+      color: #666;
+      font-size: 0.85rem;
+      border-top: 1px solid var(--terminal-border);
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(15, 20, 25, 0.8);
+      border-top: 1px solid var(--terminal-border);
+      font-size: 0.85rem;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--hacker-green);
+      animation: blink 1.8s infinite;
+    }
+
+    @keyframes blink {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    .log-container {
+      background: rgba(10, 15, 20, 0.8);
+      border: 1px solid var(--terminal-border);
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    .log-entry {
+      margin-bottom: 8px;
+      padding-left: 10px;
+      border-left: 2px solid var(--hacker-green);
+    }
+
+    .log-time {
+      color: #777;
+      margin-right: 10px;
+    }
+
+    .log-message {
+      color: var(--hacker-green);
+    }
+
+    .log-error {
+      border-left-color: var(--hacker-red);
+      color: var(--hacker-red);
+    }
+
+    .log-extreme {
+      border-left-color: var(--hacker-blue);
+      color: var(--hacker-blue);
+      animation: pulseText 1s infinite;
+    }
+
+    @keyframes pulseText {
+      0% { text-shadow: 0 0 5px rgba(0, 168, 255, 0.5); }
+      50% { text-shadow: 0 0 15px rgba(0, 168, 255, 0.9); }
+      100% { text-shadow: 0 0 5px rgba(0, 168, 255, 0.5); }
+    }
+
+    .speed-indicator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0, 20, 40, 0.7);
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      color: var(--hacker-blue);
+      border: 1px solid var(--hacker-blue);
+      box-shadow: var(--extreme-glow);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .buttons-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stat-box {
+        min-width: 120px;
+      }
+      
+      .terminal-body {
+        padding: 20px 15px;
+      }
+      
+      .attack-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="scan-line"></div>
+  
+  <div class="container">
+    <div class="terminal-header">
+      <div class="terminal-buttons">
+        <div class="terminal-btn close"></div>
+        <div class="terminal-btn minimize"></div>
+        <div class="terminal-btn maximize"></div>
+      </div>
+      <div class="terminal-title">أداة الهجوم DDoS</div>
+      <div class="speed-indicator">الإصدار: PRO MAX</div>
+    </div>
+    
+    <div class="terminal-body">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-radiation"></i>
+        </div>
+        <h1>نظام الهجوم المطور DDoS</h1>
+        <h3>أدخل عنوان URL أو IP المستهدف</h3>
+      </div>
+      
+      <div class="input-group">
+        <i class="fas fa-crosshairs"></i>
+        <input type="text" id="urlInput" placeholder="https://example.com أو 192.168.1.1">
+      </div>
+      
+      <div class="attack-options">
+        <div class="option-group">
+          <label class="option-label" for="attackType">نوع الهجوم:</label>
+          <select id="attackType">
+            <option value="slowloris">Slowloris (بطيء)</option>
+            <option value="udp">UDP Flood (متوسط)</option>
+            <option value="http">HTTP Flood (سريع)</option>
+            <option value="extreme">EXTREME Flood (قصوى)</option>
+          </select>
+        </div>
+        
+        <div class="option-group">
+          <label class="option-label" for="attackSpeed">سرعة الهجوم:</label>
+          <select id="attackSpeed">
+            <option value="slow">بطيء (5-10 طلبات/ثانية)</option>
+            <option value="medium" selected>متوسط (15-20 طلبات/ثانية)</option>
+            <option value="fast">سريع (30-50 طلبات/ثانية)</option>
+            <option value="extreme">قصوى (100+ طلبات/ثانية)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="buttons-grid">
+        <button class="attack-btn no-proxy" onclick="startAttack('no-proxy')">
+          <i class="fas fa-bolt"></i>
+          <span>بدء الهجوم المباشر</span>
+        </button>
+        
+        <button class="attack-btn" onclick="startAttack('with-proxy')">
+          <i class="fas fa-user-secret"></i>
+          <span>بدء الهجوم بالبروكسي</span>
+        </button>
+        
+        <button class="attack-btn extreme" onclick="startAttack('extreme')">
+          <i class="fas fa-rocket"></i>
+          <span>هجوم السرعة القصوى</span>
+        </button>
+        
+        <button class="attack-btn" onclick="stopAttack()">
+          <i class="fas fa-stop-circle"></i>
+          <span>إيقاف الهجوم</span>
+        </button>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-header">
+          <span>تقدم الهجوم</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      
+      <div class="stats-container">
+        <div class="stat-box">
+          <div class="stat-value" id="attackCount">0</div>
+          <div class="stat-label">الطلبات المرسلة</div>
+        </div>
+        
+        <div class="stat-box">
+          <div class="stat-value" id="successRate">98%</div>
+          <div class="stat-label">معدل النجاح</div>
+        </div>
+        
+        <div class="stat-box">
+          <div class="stat-value" id="responseTime">--</div>
+          <div class="stat-label">زمن الاستجابة</div>
+        </div>
+        
+        <div class="stat-box">
+          <div class="stat-value" id="duration">0:00</div>
+          <div class="stat-label">مدة الهجوم</div>
+        </div>
+      </div>
+      
+      <button class="contact-btn" onclick="contactDeveloper()">
+        <i class="fas fa-comment-dots"></i>
+        <span>تواصل مع المطور</span>
+      </button>
+      
+      <div class="log-container" id="logContainer">
+        <div class="log-entry">
+          <span class="log-time">[12:00:00]</span>
+          <span class="log-message">النظام جاهز - أدخل الهدف وابدأ الهجوم</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="status-bar">
+      <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>الحالة: في انتظار الأوامر</span>
+      </div>
+      <div>الإصدار: 3.0 | وضع: استعداد</div>
+    </div>
+    
+    <div class="terminal-footer">
+      جميع الحقوق محفوظة لده © 2025 | القرصان روكس 
+    </div>
+  </div>
+
+  <script>
+    // العناصر الأساسية
+    const urlInput = document.getElementById('urlInput');
+    const attackCount = document.getElementById('attackCount');
+    const responseTime = document.getElementById('responseTime');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
+    const durationElement = document.getElementById('duration');
+    const logContainer = document.getElementById('logContainer');
+    const attackType = document.getElementById('attackType');
+    const attackSpeed = document.getElementById('attackSpeed');
+    
+    // متغيرات الهجوم
+    let attackInterval;
+    let attackCounter = 0;
+    let attackDuration = 0;
+    let attackActive = false;
+    const admin = '1466038895';
+    
+    // إضافة سجل جديد
+    function addLog(message, type = 'normal') {
+      const now = new Date();
+      const timeString = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+      
+      const logEntry = document.createElement('div');
+      logEntry.className = `log-entry ${type === 'error' ? 'log-error' : type === 'extreme' ? 'log-extreme' : ''}`;
+      logEntry.innerHTML = `<span class="log-time">${timeString}</span> <span class="log-message">${message}</span>`;
+      
+      logContainer.prepend(logEntry);
+      
+      // الاحتفاظ بـ 10 سجلات فقط
+      if (logContainer.children.length > 10) {
+        logContainer.removeChild(logContainer.lastChild);
+      }
+    }
+    
+    // بدء الهجوم
+    function startAttack(type) {
+      const url = urlInput.value;
+      if (!url) {
+        addLog('خطأ: يجب إدخال عنوان URL أو IP مستهدف!', 'error');
+        return;
+      }
+      
+      if (attackActive) {
+        addLog('خطأ: الهجوم قيد التشغيل بالفعل!', 'error');
+        return;
+      }
+      
+      // إعداد الهجوم
+      attackActive = true;
+      attackCounter = 0;
+      attackDuration = 0;
+      attackCount.textContent = attackCounter;
+      responseTime.textContent = '--';
+      progressFill.style.width = '0%';
+      progressPercent.textContent = '0%';
+      
+      // تحديث حالة النظام
+      document.querySelector('.status-indicator span').textContent = 'الحالة: هجوم نشط';
+      document.querySelector('.status-dot').style.backgroundColor = type === 'extreme' ? 'var(--hacker-blue)' : 'var(--hacker-red)';
+      
+      // الحصول على إعدادات الهجوم
+      const attackTypeValue = attackType.value;
+      const attackSpeedValue = attackSpeed.value;
+      
+      // إضافة سجل البدء
+      const method = type === "with-proxy" ? "مع بروكسي" : 
+                    type === "extreme" ? "السرعة القصوى" : "بدون بروكسي";
+      
+      addLog(`بدأ الهجوم ${method} على ${url} (${getAttackTypeName(attackTypeValue)} - ${getSpeedName(attackSpeedValue)})`, 
+             type === 'extreme' ? 'extreme' : 'normal');
+      
+      // تحديد سرعة الهجوم
+      let requestSpeed;
+      switch(attackSpeedValue) {
+        case 'slow': requestSpeed = 1000; break;
+        case 'medium': requestSpeed = 500; break;
+        case 'fast': requestSpeed = 200; break;
+        case 'extreme': requestSpeed = 50; break;
+        default: requestSpeed = 500;
+      }
+      
+      // بدء عداد المدة
+      const durationInterval = setInterval(() => {
+        if (attackActive) {
+          attackDuration++;
+          const minutes = Math.floor(attackDuration / 60);
+          const seconds = attackDuration % 60;
+          durationElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+          clearInterval(durationInterval);
+        }
+      }, 1000);
+      
+      // بدء الهجوم
+      attackInterval = setInterval(() => {
+        if (attackActive) {
+          // زيادة العداد
+          const increment = attackSpeedValue === 'extreme' ? 5 : 1;
+          attackCounter += increment;
+          attackCount.textContent = attackCounter;
+          
+          // تحديث شريط التقدم
+          const progress = Math.min(100, Math.floor(attackCounter / (attackSpeedValue === 'extreme' ? 5 : 20)));
+          progressFill.style.width = `${progress}%`;
+          progressPercent.textContent = `${progress}%`;
+          
+          // تحديث زمن الاستجابة بشكل عشوائي
+          if (attackCounter % 5 === 0) {
+            const time = attackSpeedValue === 'extreme' ? 
+                         Math.floor(Math.random() * 20) : 
+                         50 + Math.floor(Math.random() * 200);
+            responseTime.textContent = `${time}ms`;
+          }
+          
+          // تحديث سجلات الهجوم بشكل دوري
+          if (attackCounter % (attackSpeedValue === 'extreme' ? 20 : 10) === 0) {
+            const targets = [`${url}`, `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`, `10.0.${Math.floor(Math.random() * 255)}.1`];
+            
+            const messages = attackSpeedValue === 'extreme' ? [
+              `إرسال ${Math.floor(Math.random() * 100) + 50} حزمة بيانات في الثانية`,
+              'تفعيل وضع السرعة القصوى!',
+              'زيادة الطاقة إلى 100%',
+              'تحميل جميع الخوادم المساعدة',
+              'تفعيل بروتوكول الهجوم المتقدم'
+            ] : [
+              `إرسال حزمة بيانات إلى ${targets[Math.floor(Math.random() * targets.length)]}`,
+              'استلام رد من الخادم المستهدف',
+              'تحديث قائمة البروكسي...',
+              'زيادة معدل الطلبات...',
+              'إنشاء اتصال جديد...'
+            ];
+            
+            addLog(messages[Math.floor(Math.random() * messages.length)], 
+                   attackSpeedValue === 'extreme' ? 'extreme' : 'normal');
+          }
+          
+          // إضافة سجلات خطأ عشوائية
+          if (Math.random() > (attackSpeedValue === 'extreme' ? 0.95 : 0.85)) {
+            const errors = [
+              'فشل في الاتصال بالخادم المستهدف',
+              'انتهت مهلة الطلب',
+              'تم رفض الاتصال',
+              'خطأ في إرسال الحزمة',
+              'انقطاع اتصال مؤقت'
+            ];
+            
+            addLog(errors[Math.floor(Math.random() * errors.length)], 'error');
+          }
+          
+          // إيقاف الهجوم عند اكتمال 100%
+          if (progress >= 100) {
+            stopAttack();
+            const message = attackSpeedValue === 'extreme' ? 
+              'اكتمل الهجوم بنجاح! تم تدمير الخادم المستهدف!' : 
+              'اكتمل الهجوم بنجاح!';
+            addLog(message, attackSpeedValue === 'extreme' ? 'extreme' : 'normal');
+          }
+        }
+      }, requestSpeed);
+    }
+    
+    // إيقاف الهجوم
+    function stopAttack() {
+      if (attackActive) {
+        clearInterval(attackInterval);
+        attackActive = false;
+        
+        // تحديث حالة النظام
+        document.querySelector('.status-indicator span').textContent = 'الحالة: في انتظار الأوامر';
+        document.querySelector('.status-dot').style.backgroundColor = 'var(--hacker-green)';
+        
+        addLog('تم إيقاف الهجوم.');
+      }
+    }
+    
+    // مساعدة: الحصول على اسم نوع الهجوم
+    function getAttackTypeName(type) {
+      switch(type) {
+        case 'slowloris': return 'Slowloris';
+        case 'udp': return 'UDP Flood';
+        case 'http': return 'HTTP Flood';
+        case 'extreme': return 'EXTREME Flood';
+        default: return 'غير معروف';
+      }
+    }
+    
+    // مساعدة: الحصول على اسم السرعة
+    function getSpeedName(speed) {
+      switch(speed) {
+        case 'slow': return 'بطيء';
+        case 'medium': return 'متوسط';
+        case 'fast': return 'سريع';
+        case 'extreme': return 'قصوى';
+        default: return 'متوسط';
+      }
+    }
+    
+    // التواصل مع المطور
+    function contactDeveloper() {
+      window.location.href = "https://t.me/QR_l4";
+    }
+    
+    // تهيئة الصفحة
+    document.addEventListener('DOMContentLoaded', function() {
+      // إضافة سجل بدء التشغيل
+      setTimeout(() => {
+        addLog('تم تحميل نظام الهجوم بنجاح');
+        addLog('جاري تهيئة وحدات السرعة القصوى...');
+        
+        setTimeout(() => {
+          addLog('جميع الأنظمة جاهزة للعمل');
+          addLog('وضع السرعة القصوى متاح للاستخدام', 'extreme');
+        }, 1500);
+      }, 500);
+    });
+  </script>
+</body>
+</html>
