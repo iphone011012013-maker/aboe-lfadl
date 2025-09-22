@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قراصنة روكس 🏴‍☠️ | Rooks Pirates</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* التصميم العام - الوضع الداكن الافتراضي */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', monospace;
+            background-color: #0a0a0a;
+            color: #f1f1f1;
+            text-align: center;
+            direction: rtl;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: url('https://i.ibb.co/dsTr8X32/2ea4e4f2bd1a.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: multiply;
+            transition: all 0.5s ease;
+        }
+
+        /* الوضع الفاتح */
+        body.light-mode {
+            background-color: #f5f5f5;
+            color: #333;
+            background-blend-mode: overlay;
+        }
+
+        /* طبقة تغطية الخلفية */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 15, 0.85);
+            z-index: -1;
+            transition: all 0.5s ease;
+        }
+
+        .light-mode .overlay {
+            background: rgba(245, 245, 245, 0.7);
+        }
+
+        /* زر القائمة */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 100;
+            background: rgba(20, 20, 30, 0.8);
+            padding: 10px;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #d9230f;
+            box-shadow: 0 0 15px rgba(217, 35, 15, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .menu-btn {
+            background: rgba(245, 245, 245, 0.8);
+            border: 2px solid #25D366;
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.7);
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.1);
+            background: rgba(217, 35, 15, 0.8);
+        }
+
+        .light-mode .menu-btn:hover {
+            background: rgba(37, 211, 102, 0.8);
+        }
+
+        /* محتوى القائمة */
+        .menu-content {
+            position: fixed;
+            top: 0;
+            left: -350px;
+            width: 300px;
+            height: 100%;
+            background: rgba(20, 20, 30, 0.95);
+            padding: 20px;
+            box-shadow: 5px 0 25px rgba(0, 0, 0, 0.8);
+            z-index: 99;
+            transition: all 0.4s ease;
+            overflow-y: auto;
+            border-right: 3px solid #d9230f;
+        }
+
+        .light-mode .menu-content {
+            background: rgba(245, 245, 245, 0.95);
+            border-right: 3px solid #25D366;
+        }
+
+        .menu-content.show {
+            left: 0;
+        }
+
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 3px solid #d9230f;
+            margin: 20px auto;
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(217, 35, 15, 0.7);
+        }
+
+        .light-mode .profile-img {
+            border: 3px solid #25D366;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.7);
+        }
+
+        .developer-contact {
+            margin-top: 30px;
+        }
+
+        .developer-contact a {
+            display: inline-block;
+            padding: 10px 20px;
+            background: rgba(0, 136, 204, 0.8);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .developer-contact a:hover {
+            background: rgba(0, 136, 204, 1);
+            transform: scale(1.05);
+        }
+
+        /* الهيدر المعدل */
+        header {
+            padding: 20px;
+            background-color: rgba(20, 20, 30, 0.8);
+            border-bottom: 2px solid #d9230f;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.5s ease;
+        }
+
+        .light-mode header {
+            background-color: rgba(245, 245, 245, 0.8);
+            border-bottom: 2px solid #25D366;
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #d9230f;
+            text-shadow: 0 0 10px #d9230f;
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            transition: all 0.5s ease;
+        }
+
+        .light-mode h1 {
+            color: #25D366;
+            text-shadow: 0 0 10px #25D366;
+        }
+
+        /* صورة المطور في الجانب الأيمن */
+        .side-image {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid #d9230f;
+            object-fit: cover;
+            box-shadow: 0 0 20px rgba(217, 35, 15, 0.7);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .side-image {
+            border: 3px solid #25D366;
+            box-shadow: 0 0 20px rgba(37, 211, 102, 0.7);
+        }
+
+        .side-image:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(217, 35, 15, 0.9);
+        }
+
+        .light-mode .side-image:hover {
+            box-shadow: 0 0 30px rgba(37, 211, 102, 0.9);
+        }
+
+        /* المحتوى الرئيسي */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            margin-right: 150px;
+            transition: all 0.5s ease;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                margin-right: 0;
+            }
+        }
+
+        .intro {
+            max-width: 800px;
+            margin-bottom: 40px;
+            background: rgba(30, 20, 20, 0.7);
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 3px solid #d9230f;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s ease;
+        }
+
+        .light-mode .intro {
+            background: rgba(255, 255, 255, 0.7);
+            border-left: 3px solid #25D366;
+        }
+
+        .intro p {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            transition: all 0.5s ease;
+        }
+
+        .light-mode .intro p {
+            color: #333;
+        }
+
+        /* بطاقات الحسابات */
+        .accounts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 30px;
+            max-width: 1000px;
+        }
+
+        .account {
+            background: rgba(30, 20, 20, 0.8);
+            border-radius: 10px;
+            padding: 25px;
+            width: 280px;
+            transition: all 0.4s;
+            border: 1px solid transparent;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            cursor: pointer;
+        }
+
+        .light-mode .account {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .instagram {
+            background-image: url('https://i.ibb.co/0jQ3YyX/pirate-flag.jpg');
+            border: 2px solid #E1306C;
+        }
+
+        .telegram-account {
+            background-image: url('https://i.ibb.co/7Y7XJ0K/pirate-treasure.jpg');
+            border: 2px solid #0088cc;
+        }
+
+        .whatsapp {
+            background-image: url('https://i.ibb.co/6W7qV5j/pirate-ship.jpg');
+            border: 2px solid #25D366;
+        }
+
+        .telegram-channel {
+            background-image: url('https://i.ibb.co/0XJ3QyT/pirate-announcement.jpg');
+            background-position: top;
+            border: 2px solid #0088cc;
+        }
+
+        .telegram-bot {
+            background-image: url('https://i.ibb.co/0mYd0J0/pirate-robot.jpg');
+            border: 2px solid #0088cc;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .store {
+            background-image: url('https://i.ibb.co/7Y7XJ0K/pirate-treasure.jpg');
+            border: 2px solid #f0a30a;
+        }
+
+        .telegram-bot::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 136, 204, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%);
+            z-index: -1;
+        }
+
+        .account::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 10, 10, 0.6);
+            z-index: -1;
+        }
+
+        .light-mode .account::before {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .account:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 15px 30px rgba(217, 35, 15, 0.3);
+        }
+
+        .light-mode .account:hover {
+            box-shadow: 0 15px 30px rgba(37, 211, 102, 0.3);
+        }
+
+        .account i {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px currentColor;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            transition: all 0.5s ease;
+        }
+
+        .light-mode .account i {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .whatsapp i { color: #25D366; }
+        .instagram i { color: #E1306C; }
+        .telegram-channel i { color: #0088cc; }
+        .telegram-account i { color: #0088cc; }
+        .store i { color: #f0a30a; }
+
+        .telegram-bot i { 
+            color: #0088cc; 
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .account h3 {
+            margin: 15px 0;
+            font-size: 1.8rem;
+            color: #fff;
+            text-shadow: 0 0 5px #000;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.5s ease;
+        }
+
+        .light-mode .account h3 {
+            color: #333;
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .account p {
+            color: #ddd;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.5s ease;
+        }
+
+        .light-mode .account p {
+            color: #333;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .account .emoji {
+            font-size: 1.5rem;
+            margin-left: 5px;
+        }
+
+        /* الفوتر */
+        footer {
+            padding: 20px;
+            background-color: rgba(20, 20, 30, 0.9);
+            border-top: 2px solid #d9230f;
+            font-size: 1.1rem;
+            margin-right: 150px;
+            transition: all 0.5s ease;
+            position: relative;
+        }
+
+        .light-mode footer {
+            background-color: rgba(245, 245, 245, 0.9);
+            border-top: 2px solid #25D366;
+        }
+
+        .jolly-roger {
+            width: 80px;
+            margin: 10px auto;
+            filter: drop-shadow(0 0 5px #d9230f);
+            transition: all 0.5s ease;
+        }
+
+        .light-mode .jolly-roger {
+            filter: drop-shadow(0 0 5px #25D366);
+        }
+
+        /* زر تغيير الوضع */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(20, 20, 30, 0.8);
+            border: 2px solid #d9230f;
+            color: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(217, 35, 15, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .theme-toggle {
+            background: rgba(245, 245, 245, 0.8);
+            border: 2px solid #25D366;
+            color: #333;
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.7);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* تأثيرات النص */
+        .hacker-text {
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #d9230f; }
+            to { text-shadow: 0 0 15px #d9230f, 0 0 25px #f0a30a; }
+        }
+
+        .light-mode .hacker-text {
+            animation: glow-light 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow-light {
+            from { text-shadow: 0 0 5px #25D366; }
+            to { text-shadow: 0 0 15px #25D366, 0 0 25px #0088cc; }
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 1200px) {
+            .side-image {
+                width: 100px;
+                height: 100px;
+            }
+            
+            main, footer {
+                margin-right: 120px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .side-image {
+                width: 80px;
+                height: 80px;
+                top: 15px;
+                right: 15px;
+            }
+            
+            main, footer {
+                margin-right: 0;
+            }
+            
+            .accounts {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .account {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <!-- زر القائمة -->
+    <div class="menu-btn" onclick="toggleMenu()">📜</div>
+    
+    <!-- محتوى القائمة -->
+    <div class="menu-content" id="menuContent">
+        <img src="https://i.ibb.co/3mTdXLjd/5097c33e8b3b.jpg" alt="صورة المطور" class="profile-img">
+        <h3 class="dev-title">نبذة عن المطور</h3>
+        <p class="dev-description">
+            « القرصان روكس ☠️<br>
+            <span class="dev-skill-1">مطور بوتات تلجرام بكل الانواع</span><br>
+            <span class="dev-skill-2">ومطور مواقع الويب 🌐</span><br>
+            طالب بكالوريوس الأمن السبراني وشبكات الحاسوب مستوى اول <br>
+            العمر 19 🇾🇪💪 »
+        </p>
+        
+        <div class="developer-contact">
+            <a href="https://t.me/QR_l4" target="_blank">
+                <i class="fab fa-telegram"></i> حسابي ☢️⚜️
+            </a>
+        </div>
+    </div>
+    
+    <!-- زر تغيير الوضع -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-sun"></i>
+    </div>
+    
+    <!-- صورة المطور في الجانب الأيمن -->
+    <img src="https://i.ibb.co/21MMLhWX/e4cdb1a91e8d.jpg" alt="صورة المطور" class="side-image">
+    
+    <header>
+        <div class="header-content">
+            <h1><span class="hacker-text">قراصنة روكس</span> 🏴‍☠️</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="intro">
+            <p>طاقم قراصنة روكس يقدم لكم وسائل التواصل المختلفة. اختر الطريقة التي تناسبك للانضمام إلى مغامرتنا!</p>
+        </div>
+        
+        <div class="accounts">
+            <!-- انستجرام -->
+            <div class="account instagram" onclick="window.open('https://instagram.com/x.s_ik', '_blank')">
+                <i class="fab fa-instagram"></i>
+                <h3>انستجرام <span class="emoji">📷</span></h3>
+                <p>اضغط لزيارة الحساب</p>
+            </div>
+            
+            <!-- حساب تلجرام -->
+            <div class="account telegram-account" onclick="window.open('https://t.me/QR_l4', '_blank')">
+                <i class="fab fa-telegram"></i>
+                <h3>حساب التلجرام <span class="emoji">👤</span></h3>
+                <p>اضغط للتواصل الشخصي</p>
+            </div>
+            
+            <!-- واتساب -->
+            <div class="account whatsapp" onclick="window.open('https://wa.me/+972567692398', '_blank')">
+                <i class="fab fa-whatsapp"></i>
+                <h3>واتساب <span class="emoji">💬</span></h3>
+                <p>اضغط للتواصل المباشر</p>
+            </div>
+            
+            <!-- قناة تلجرام -->
+            <div class="account telegram-channel" onclick="window.open('https://t.me/+K7P7A40PaOIwNGY0', '_blank')">
+                <i class="fab fa-telegram"></i>
+                <h3>قناة التلجرام <span class="emoji">📢</span></h3>
+                <p>اضغط للانضمام للقناة</p>
+            </div>
+            
+            <!-- بوت تلجرام -->
+            <div class="account telegram-bot" onclick="window.open('https://t.me/QR_l4229BOT', '_blank')">
+                <i class="fas fa-robot"></i>
+                <h3>بوت التلجرام <span class="emoji">🤖</span></h3>
+                <p>اضغط للوصول للبوت</p>
+                <div class="new-feature">⚡ خاصية جديدة</div>
+            </div>
+            
+            <!-- متجر القراصنة -->
+            <div class="account store" onclick="window.open('https://roks7.pages.dev/', '_blank')">
+                <i class="fas fa-shopping-bag"></i>
+                <h3>متجر القراصنة <span class="emoji">🏴‍☠️</span></h3>
+                <p>اضغط لزيارة المتجر</p>
+                <div class="new-item">🔥 جديد</div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <img src="https://i.imgur.com/7Q6Wl1P.png" alt="Jolly Roger" class="jolly-roger">
+        <p>© 2023 قراصنة روكس 🏴‍☠️ | جميع الحقوق محفوظة</p>
+        <p class="footer-message">المجد للقراصنة الأحرار! الكنز 💰 الحقيقي هو الاصدقاء الذين نكتسبهم في رحلتنا</p>
+    </footer>
+
+    <script>
+        // تأثيرات إضافية
+        document.addEventListener('DOMContentLoaded', function() {
+            // تأثير تحريك البطاقات عند التحميل
+            const accounts = document.querySelectorAll('.account');
+            
+            setTimeout(() => {
+                accounts.forEach((account, index) => {
+                    setTimeout(() => {
+                        account.style.opacity = '1';
+                        account.style.transform = 'translateY(0)';
+                    }, 200 * index);
+                });
+            }, 500);
+            
+            // جعل البطاقات شفافة في البداية للتحريك
+            accounts.forEach(account => {
+                account.style.opacity = '0';
+                account.style.transform = 'translateY(20px)';
+                account.style.transition = 'all 0.5s ease-out';
+            });
+            
+            // تأثير العوامة للبطاقات
+            accounts.forEach(account => {
+                account.addEventListener('mousemove', (e) => {
+                    const rect = account.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const angleX = (y - centerY) / 20;
+                    const angleY = (centerX - x) / 20;
+                    
+                    account.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg) scale(1.05) translateY(-10px)`;
+                });
+                
+                account.addEventListener('mouseleave', () => {
+                    account.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1) translateY(-10px)';
+                });
+            });
+
+            // تعيين الوضع المظلم كافتراضي
+            document.body.classList.remove('light-mode');
+            document.querySelector('.theme-toggle i').classList.remove('fa-moon');
+            document.querySelector('.theme-toggle i').classList.add('fa-sun');
+        });
+
+        // وظيفة تبديل القائمة
+        function toggleMenu() {
+            const menuContent = document.getElementById('menuContent');
+            menuContent.classList.toggle('show');
+        }
+
+        // وظيفة تبديل الوضع
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.querySelector('.theme-toggle i');
+            
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+        }
+    </script>
+</body>
+</html>
