@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>أداة تشفير وفك تشفير HTML</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+    :root {
+      --hacker-red: #ff0033;
+      --hacker-blue: #00ccff;
+      --hacker-green: #00ff00;
+      --hacker-greenn: #33ff33;
+    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            min-height: 100vh;
+            padding: 10px;
+            line-height: 1.5;
+            font-size: 14px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 5px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        h1 i {
+            color: #ffd700;
+            font-size: 1.3rem;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 5px;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            position: relative;
+            width: 100%;
+        }
+        
+        .panel-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: 0.7rem;
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffd700;
+        }
+        
+        .panel-title i {
+            font-size: 1rem;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            padding: 12px;
+            font-size: 0.9rem;
+            resize: vertical;
+            margin-bottom: 12px;
+            transition: border 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border: 1px solid #ffd700;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+        
+        select:focus {
+            outline: none;
+            border: 1px solid #ffd700;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff8c00, #ffd700);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        button i {
+            font-size: 0.9rem;
+        }
+        
+        button.secondary {
+            background: linear-gradient(45deg, #1a2a6c, #4a00e0);
+            color: white;
+        }
+        
+        button.danger {
+            background: linear-gradient(45deg, #b21f1f, #ff416c);
+        }
+        
+        button.special {
+            background: linear-gradient(45deg, #ff0033, #ff0066);
+        }
+        
+        button.play {
+            background: linear-gradient(45deg, #00cc66, #00ff88);
+        }
+        
+        .output-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        .copy-btn, .run-btn {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+        }
+        
+        .run-btn {
+            left: 85px;
+        }
+        
+        .copy-btn:hover, .run-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+            color: #ffd700;
+        }
+        
+        .feature-title {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+        
+        .credits-container {
+            width: 100%;
+            background: rgba(26, 0, 0, 0.7);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 0, 51, 0.3);
+            box-shadow: 0 0 10px rgba(255, 0, 51, 0.3);
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+            margin: 0 auto 10px;
+        }
+
+        .credits-container::before,
+        .credits-container::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--hacker-red), transparent);
+            box-shadow: 0 0 8px var(--hacker-red);
+        }
+
+        .credits-container::before {
+            top: 0;
+        }
+
+        .credits-container::after {
+            bottom: 0;
+        }
+
+        .hacker-icon {
+            color: var(--hacker-green);
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 8px var(--hacker-green));
+            margin-bottom: 12px;
+            animation: icon-glitch 2s infinite;
+        }
+
+        @keyframes icon-glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        .divider {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--hacker-red) 50%, 
+                transparent 100%);
+            margin: 12px auto;
+            width: 80%;
+            box-shadow: 0 0 8px var(--hacker-red);
+        }
+
+        .rights-text {
+            color: var(--hacker-blue);
+            font-size: 14px;
+            text-shadow: 0 0 8px var(--hacker-blue);
+            position: relative;
+            font-family: 'Courier New', monospace;
+            line-height: 1.5;
+            padding: 0 8px;
+        }
+
+        .secret-link {
+            color: var(--hacker-greenn);
+            text-decoration: none;
+            position: relative;
+            animation: glow 1.5s ease-in-out infinite;
+            text-shadow: 0 0 10px var(--hacker-green);
+            font-weight: bold;
+            padding: 0 3px;
+            transition: all 0.3s;
+        }
+
+        .secret-link:hover {
+            color: white;
+            text-shadow: 0 0 12px white;
+        }
+
+        .secret-link::before {
+            content: "ّ";
+            position: absolute;
+            left: 0;
+        }
+
+        .secret-link:hover::after {
+            content: "لتواصل مع المطور";
+            position: absolute;
+            right: 50%;
+            transform: translateX(50%);
+            color: var(--hacker-green);
+            background: rgba(0,0,0,0.9);
+            padding: 6px 10px;
+            border-radius: 4px;
+            top: -30px;
+            white-space: nowrap;
+            text-shadow: 0 0 12px var(--hacker-green);
+            font-size: 12px;
+            border: 1px solid var(--hacker-green);
+            box-shadow: 0 0 12px var(--hacker-green);
+        }
+
+        @keyframes glow {
+            0% { text-shadow: 0 0 6px var(--hacker-green); }
+            50% { text-shadow: 0 0 15px var(--hacker-green); }
+            100% { text-shadow: 0 0 6px var(--hacker-green); }
+        }
+
+        .terminal-effect {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 90%;
+            pointer-events: none;
+            z-index: -1;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            opacity: 0.2;
+        }
+
+        .notification {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 1000;
+            border-left: 3px solid #ffd700;
+            max-width: 90%;
+            font-size: 0.9rem;
+        }
+        
+        .example-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            position: relative;
+        }
+        
+        .example-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #ffd700;
+            font-size: 0.9rem;
+        }
+        
+        .example-code {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            position: relative;
+            padding-right: 30px;
+        }
+        
+        .example-code:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+        
+        .delete-example-btn {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(255, 0, 0, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            font-size: 0.7rem;
+        }
+        
+        .delete-example-btn:hover {
+            background: rgba(255, 0, 0, 0.7);
+            transform: scale(1.1);
+        }
+        
+        .full-encode-section {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        
+        .full-encode-btn {
+            width: 100%;
+            margin-top: 8px;
+            background: linear-gradient(45deg, #ff0033, #ff0066);
+        }
+        
+        .method-info {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 6px;
+            padding: 8px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+        }
+        
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        
+        .tab {
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 0.8rem;
+            flex: 1;
+            text-align: center;
+            min-width: calc(50% - 6px);
+        }
+        
+        .tab.active {
+            background: #ffd700;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+        
+        .result-info {
+            margin-top: 12px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+        
+        .run-section {
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(0, 100, 0, 0.2);
+            border-radius: 8px;
+            border: 1px dashed rgba(0, 255, 0, 0.3);
+        }
+        
+        .example-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .encryption-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 6px;
+            margin-top: 12px;
+        }
+        
+        .method-tag {
+            background: rgba(0, 100, 200, 0.3);
+            border-radius: 15px;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            text-align: center;
+            border: 1px solid rgba(0, 150, 255, 0.5);
+        }
+
+        /* تعديلات خاصة للشاشات الصغيرة جدًا */
+        @media (max-width: 350px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+            
+            .panel-title {
+                font-size: 1.1rem;
+            }
+            
+            textarea {
+                height: 120px;
+                font-size: 0.8rem;
+            }
+            
+            button {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* تعديلات للشاشات الأكبر من 600px */
+        @media (min-width: 600px) {
+            body {
+                padding: 15px;
+                font-size: 15px;
+            }
+            
+            .container {
+                padding: 0 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .panel {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            
+            textarea {
+                height: 180px;
+                font-size: 1rem;
+            }
+            
+            .btn-group {
+                flex-direction: row;
+            }
+            
+            button {
+                flex: 1;
+            }
+            
+            .features {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .feature-card {
+                flex: 1;
+                min-width: calc(50% - 10px);
+            }
+        }
+
+        /* تعديلات للشاشات الأكبر من 992px */
+        @media (min-width: 992px) {
+            .main-content {
+                flex-direction: row;
+            }
+            
+            .panel {
+                width: calc(50% - 10px);
+            }
+            
+            .features {
+                flex-direction: row;
+            }
+            
+            .feature-card {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- باقي الكود الأصلي كما هو بدون تغيير في الهيكل أو الوظائف -->
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-lock"></i> أداة تشفير وفك تشفير HTML</h1>
+            <p class="subtitle">أداة متكاملة لتحويل أكواد HTML إلى نصوص مشفرة أو فك تشفيرها وتشغيلها مباشرة</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="panel">
+                <div class="panel-info">
+                    <i class="fas fa-info-circle"></i> الكود المدخل لا ينفذ
+                </div>
+                <h2 class="panel-title"><i class="fas fa-keyboard"></i> أدخل النص أو الكود</h2>
+                <textarea id="inputText" placeholder="أدخل النص أو كود HTML هنا..."></textarea>
+                
+                <div class="tabs">
+                    <div class="tab active" data-tab="example">مثال HTML</div>
+                    <div class="tab" data-tab="empty">نموذج فارغ</div>
+                    <div class="tab" data-tab="full">كود كامل</div>
+                    <div class="tab" data-tab="custom">كود مخصص</div>
+                </div>
+                
+                <div class="example-section" id="exampleSection">
+                    <div class="example-header">
+                        <div class="example-title">
+                            <i class="fas fa-code"></i>
+                            <h3>مثال على كود HTML</h3>
+                        </div>
+                        <button class="delete-example-btn" id="deleteExampleBtn">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="example-code" id="exampleHtml">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="ar"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;تم تطويره بواسطة ٱلٰقـيۧٱدهۂَ&lt;/title&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4712/4712033.png"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;مرحباً بالعالم!&lt;/h1&gt;
+  &lt;p&gt;هذا مثال على صفحة HTML بسيطة&lt;/p&gt;
+  &lt;button onclick="alert('مرحباً!')"&gt;انقر هنا&lt;/button&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <select id="method">
+                        <option value="base64">Base64 تشفير</option>
+                        <option value="full-base64">Base64 (كامل الصفحة)</option>
+                        <option value="entities">HTML Entities تشفير</option>
+                        <option value="uri">URI تشفير</option>
+                        <option value="hex">Hexadecimal تشفير</option>
+                        <option value="rot13">ROT13 تشفير</option>
+                        <option value="binary">Binary تشفير</option>
+                        <option value="caesar">Caesar Cipher</option>
+                        <option value="reverse">Reverse تشفير</option>
+                        <option value="base32">Base32 تشفير</option>
+                        <option value="aes">AES تشفير</option>
+                    </select>
+                    
+                    <div class="btn-group">
+                        <button id="encodeBtn"><i class="fas fa-lock"></i> تشفير</button>
+                        <button id="decodeBtn" class="secondary"><i class="fas fa-lock-open"></i> فك التشفير</button>
+                        <button id="clearBtn" class="danger"><i class="fas fa-trash"></i> مسح الكل</button>
+                    </div>
+                </div>
+                
+                <div class="method-info">
+                    <i class="fas fa-info-circle"></i> 
+                    <span id="methodInfo">تشفير Base64: مناسب لتشفير كامل صفحات HTML مع دعم جميع الأحرف</span>
+                </div>
+                
+                <div class="full-encode-section">
+                    <h3 class="panel-title"><i class="fas fa-file-code"></i> خيارات متقدمة</h3>
+                    <p>تشفير كود HTML كاملاً من البداية للنهاية مع دعم التنفيذ المباشر</p>
+                    <button id="fullEncodeBtn" class="full-encode-btn special">
+                        <i class="fas fa-shield-alt"></i> تشفير الكود كاملاً
+                    </button>
+                </div>
+            </div>
+            
+            <div class="panel">
+                <h2 class="panel-title"><i class="fas fa-file-code"></i> النتيجة</h2>
+                <div class="output-container">
+                    <textarea id="outputText" placeholder="ستظهر النتيجة هنا..." readonly></textarea>
+                    <button class="copy-btn" id="copyBtn"><i class="fas fa-copy"></i> نسخ</button>
+                    <button class="run-btn" id="runBtn"><i class="fas fa-play"></i> تشغيل</button>
+                </div>
+                
+                <div class="result-info" id="resultInfo">
+                    <i class="fas fa-info-circle"></i> 
+                    <span>النتيجة ستظهر هنا بعد عملية التشفير أو فك التشفير</span>
+                </div>
+                
+                <div class="run-section">
+                    <h3 class="panel-title"><i class="fas fa-rocket"></i> تشغيل الكود المشفر</h3>
+                    <p>انقر على زر "تشغيل" لفتح الكود المشفر في نافذة جديدة وتشغيله مباشرة</p>
+                    <button id="runOutputBtn" class="play">
+                        <i class="fas fa-play-circle"></i> تشغيل الكود المشفر
+                    </button>
+                </div>
+                
+                <div class="example-section">
+                    <div class="example-title">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>معلومات الأمان</h3>
+                    </div>
+                    <p>عند تشغيل الكود المشفر، سيتم فك تشفيره وتنفيذه في نافذة جديدة. كن حذراً عند تشغيل أكواد من مصادر غير موثوقة.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature-card">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h3 class="feature-title">تشفير آمن</h3>
+                <p class="feature-desc">أكثر من 10 طرق تشفير مختلفة لحماية محتواك</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-bolt feature-icon"></i>
+                <h3 class="feature-title">سرعة وفعالية</h3>
+                <p class="feature-desc">معالجة فورية لأكوادك بدون تأخير مع نتائج دقيقة</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-play-circle feature-icon"></i>
+                <h3 class="feature-title">تشغيل مباشر</h3>
+                <p class="feature-desc">تشغيل الكود المشفر مباشرة بعد فك التشفير</p>
+            </div>
+        </div>
+        
+        <div class="credits-container">
+            <div class="terminal-effect"></div>
+            <i class="fas fa-user-secret hacker-icon"></i>
+            <hr class="divider">
+            <p class="rights-text">
+              جميع الحقوق محفوظه لدى - المطور:
+              <a href="https://t.me/my_aboelfadl_helper_bot" class="secret-link">AboElfdl 💀</a> 
+            </p>
+        </div>
+        
+        <div class="notification" id="notification">تم نسخ النتيجة بنجاح!</div>
+    </div>
+
+    <script>
+        // الكود الأصلي للجافاسكريبت بدون أي تغيير
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputText = document.getElementById('inputText');
+            const outputText = document.getElementById('outputText');
+            const methodSelect = document.getElementById('method');
+            const encodeBtn = document.getElementById('encodeBtn');
+            const decodeBtn = document.getElementById('decodeBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const runBtn = document.getElementById('runBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const fullEncodeBtn = document.getElementById('fullEncodeBtn');
+            const runOutputBtn = document.getElementById('runOutputBtn');
+            const deleteExampleBtn = document.getElementById('deleteExampleBtn');
+            const exampleHtml = document.getElementById('exampleHtml');
+            const notification = document.getElementById('notification');
+            const methodInfo = document.getElementById('methodInfo');
+            const tabs = document.querySelectorAll('.tab');
+            const resultInfo = document.getElementById('resultInfo');
+            
+            // تعبئة المثال التلقائي
+            exampleHtml.addEventListener('click', function() {
+                inputText.value = this.textContent.trim();
+                showNotification('تم تعبئة المثال التلقائي');
+            });
+            
+            // حذف مثال الكود
+            deleteExampleBtn.addEventListener('click', function() {
+                exampleHtml.textContent = '';
+                showNotification('تم حذف مثال الكود');
+            });
+            
+            // تغيير التبويبات
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const tabType = this.dataset.tab;
+                    if(tabType === 'example') {
+                        exampleHtml.textContent = `<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تم تطويره بواسطة ٱلٰقـيۧٱدهۂَ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4712/4712033.png">
+</head>
+<body>
+  <h1>مرحباً بالعالم!</h1>
+  <p>هذا مثال على صفحة HTML بسيطة</p>
+  <button onclick="alert('مرحباً!')">انقر هنا</button>
+</body>
+</html>`;
+                    } else if(tabType === 'empty') {
+                        exampleHtml.textContent = '<!DOCTYPE html>\n<html>\n<head>\n  <title>عنوان الصفحة</title>\n</head>\n<body>\n  <!-- محتوى الصفحة هنا -->\n</body>\n</html>';
+                    } else if(tabType === 'full') {
+                        exampleHtml.textContent = `<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تم تطويره بواسطة ٱلٰقـيۧٱدهۂَ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4712/4712033.png">
+  <style>
+    body {
+      background: linear-gradient(to right, #1a2a6c, #b21f1f, #1a2a6c);
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>مرحباً بك في موقعنا</h1>
+  <p>هذا مثال على صفحة HTML كاملة</p>
+  <script>
+    alert('مرحباً! هذا مثال على سكريبت يعمل');
+  <\/script>
+</body>
+</html>`;
+                    } else if(tabType === 'custom') {
+                        exampleHtml.textContent = `<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>صفحة مخصصة</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      background: #f0f0f0;
+      color: #333;
+      text-align: center;
+      padding: 50px;
+    }
+    .box {
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>صفحة مخصصة</h1>
+    <p>هذا مثال على صفحة HTML مخصصة يمكنك تعديلها كما تريد</p>
+    <button onclick="alert('مرحباً!')">انقر هنا</button>
+  </div>
+</body>
+</html>`;
+                    }
+                });
+            });
+            
+            // تحديث معلومات طريقة التشفير
+            methodSelect.addEventListener('change', function() {
+                const method = this.value;
+                if(method === 'base64') {
+                    methodInfo.textContent = 'تشفير Base64: مناسب لتشفير كامل صفحات HTML مع دعم جميع الأحرف';
+                } else if(method === 'full-base64') {
+                    methodInfo.textContent = 'تشفير Base64 (كامل الصفحة): يولد كود HTML كامل مع دالة فك التشفير';
+                } else if(method === 'entities') {
+                    methodInfo.textContent = 'تشفير HTML Entities: يحول الأحرف الخاصة إلى كيانات HTML';
+                } else if(method === 'uri') {
+                    methodInfo.textContent = 'تشفير URI: يحول النص إلى تنسيق مناسب للروابط';
+                } else if(method === 'hex') {
+                    methodInfo.textContent = 'تشفير Hexadecimal: يحول النص إلى تنسيق سداسي عشر';
+                } else if(method === 'rot13') {
+                    methodInfo.textContent = 'تشفير ROT13: خوارزمية بسيطة تستبدل كل حرف بالحرف الذي يبعد 13 موقعاً في الأبجدية';
+                } else if(method === 'binary') {
+                    methodInfo.textContent = 'تشفير Binary: يحول النص إلى تنسيق ثنائي (أصفار وواحدات)';
+                } else if(method === 'caesar') {
+                    methodInfo.textContent = 'Caesar Cipher: خوارزمية تشفير قديمة تعتمد على إزاحة الأحرف بمقدار محدد';
+                } else if(method === 'reverse') {
+                    methodInfo.textContent = 'Reverse تشفير: يعكس ترتيب الأحرف في النص';
+                } else if(method === 'base32') {
+                    methodInfo.textContent = 'تشفير Base32: مشابه لـ Base64 ولكنه يستخدم مجموعة أحرف مختلفة';
+                } else if(method === 'aes') {
+                    methodInfo.textContent = 'تشفير AES: خوارزمية تشفير متقدمة (تتطلب مفتاح تشفير)';
+                }
+            });
+            
+            // تشفير النص
+            function encodeText() {
+                const text = inputText.value;
+                if (!text.trim()) {
+                    showNotification('الرجاء إدخال نص أولاً');
+                    return;
+                }
+                
+                const method = methodSelect.value;
+                let result = '';
+                
+                switch(method) {
+                    case 'base64':
+                        result = btoa(unescape(encodeURIComponent(text)));
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير النص باستخدام Base64. يمكنك نسخ النتيجة واستخدامها في أي مكان.';
+                        break;
+                    case 'full-base64':
+                        result = generateFullBase64Code(text);
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير الكود كاملاً باستخدام Base64. يمكنك نسخ هذا الكود وحفظه كملف HTML.';
+                        break;
+                    case 'entities':
+                        result = text.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+                            return '&#' + i.charCodeAt(0) + ';';
+                        });
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير النص باستخدام HTML Entities. يمكنك نسخ النتيجة واستخدامها في أكواد HTML.';
+                        break;
+                    case 'uri':
+                        result = encodeURIComponent(text);
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير النص باستخدام URI. مناسب للاستخدام في الروابط ومعاملات URL.';
+                        break;
+                    case 'hex':
+                        result = text.split('').map(function(c) {
+                            return '%' + c.charCodeAt(0).toString(16).padStart(2, '0');
+                        }).join('');
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير النص باستخدام Hexadecimal. مناسب للاستخدام في أنظمة محددة.';
+                        break;
+                    case 'rot13':
+                        result = text.replace(/[a-zA-Z]/g, function(c) {
+                            return String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26);
+                        });
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير النص باستخدام ROT13. يمكن استخدام نفس الطريقة لفك التشفير.';
+                        break;
+                    case 'binary':
+                        result = text.split('').map(function(char) {
+                            return char.charCodeAt(0).toString(2).padStart(8, '0');
+                        }).join(' ');
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير النص باستخدام Binary. كل حرف يمثله 8 أرقام ثنائية.';
+                        break;
+                    case 'caesar':
+                        const shift = 3; // إزاحة ثابتة
+                        result = text.split('').map(function(char) {
+                            const code = char.charCodeAt(0);
+                            if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
+                                const base = code >= 97 ? 97 : 65;
+                                return String.fromCharCode(((code - base + shift) % 26) + base);
+                            }
+                            return char;
+                        }).join('');
+                        resultInfo.innerHTML = `<i class="fas fa-info-circle"></i> تم تشفير النص باستخدام Caesar Cipher مع إزاحة ${shift}.`;
+                        break;
+                    case 'reverse':
+                        result = text.split('').reverse().join('');
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير النص بعكس ترتيب الأحرف.';
+                        break;
+                    case 'base32':
+                        result = base32Encode(text);
+                        resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم تشفير النص باستخدام Base32.';
+                        break;
+                    case 'aes':
+                        result = 'تشفير AES يتطلب مكتبة خارجية. يمكنك استخدام CryptoJS أو مكتبات مشابهة.';
+                        resultInfo.innerHTML = '<i class="fas fa-exclamation-triangle"></i> تشفير AES غير مدعوم في هذا الإصدار.';
+                        break;
+                }
+                
+                outputText.value = result;
+            }
+            
+            // دالة مساعدة لتشفير Base32
+            function base32Encode(input) {
+                const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+                let output = '';
+                let bits = 0;
+                let value = 0;
+                
+                for (let i = 0; i < input.length; i++) {
+                    value = (value << 8) | input.charCodeAt(i);
+                    bits += 8;
+                    
+                    while (bits >= 5) {
+                        output += alphabet[(value >>> (bits - 5)) & 31];
+                        bits -= 5;
+                    }
+                }
+                
+                if (bits > 0) {
+                    output += alphabet[(value << (5 - bits)) & 31];
+                }
+                
+                return output;
+            }
+            
+            // فك تشفير النص
+            function decodeText() {
+                const text = inputText.value;
+                if (!text.trim()) {
+                    showNotification('الرجاء إدخال نص مشفر أولاً');
+                    return;
+                }
+                
+                const method = methodSelect.value;
+                let result = '';
+                
+                try {
+                    switch(method) {
+                        case 'base64':
+                        case 'full-base64':
+                            result = decodeURIComponent(escape(atob(text)));
+                            resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم فك تشفير النص المشفر باستخدام Base64.';
+                            break;
+                        case 'entities':
+                            const textArea = document.createElement('textarea');
+                            textArea.innerHTML = text;
+                            result = textArea.value;
+                            resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم فك تشفير النص المشفر باستخدام HTML Entities.';
+                            break;
+                        case 'uri':
+                            result = decodeURIComponent(text);
+                            resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم فك تشفير النص المشفر باستخدام URI.';
+                            break;
+                        case 'hex':
+                            result = decodeURIComponent(text);
+                            resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم فك تشفير النص المشفر باستخدام Hexadecimal.';
+                            break;
+                        case 'rot13':
+                            result = text.replace(/[a-zA-Z]/g, function(c) {
+                                return String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26);
+                            });
+                            resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم فك تشفير النص المشفر باستخدام ROT13.';
+                            break;
+                        case 'binary':
+                            result = text.split(' ').map(function(bin) {
+                                return String.fromCharCode(parseInt(bin, 2));
+                            }).join('');
+                            resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم فك تشفير النص المشفر باستخدام Binary.';
+                            break;
+                        case 'caesar':
+                            const shift = 3; // إزاحة ثابتة
+                            result = text.split('').map(function(char) {
+                                const code = char.charCodeAt(0);
+                                if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
+                                    const base = code >= 97 ? 97 : 65;
+                                    return String.fromCharCode(((code - base - shift + 26) % 26) + base);
+                                }
+                                return char;
+                            }).join('');
+                            resultInfo.innerHTML = `<i class="fas fa-info-circle"></i> تم فك تشفير النص المشفر باستخدام Caesar Cipher مع إزاحة ${shift}.`;
+                            break;
+                        case 'reverse':
+                            result = text.split('').reverse().join('');
+                            resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> تم فك تشفير النص المشفر بعكس ترتيب الأحرف.';
+                            break;
+                        case 'base32':
+                            result = 'فك تشفير Base32 غير مدعوم في هذا الإصدار.';
+                            resultInfo.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فك تشفير Base32 غير مدعوم حالياً.';
+                            break;
+                        case 'aes':
+                            result = 'فك تشفير AES يتطلب مكتبة خارجية ومفتاح تشفير.';
+                            resultInfo.innerHTML = '<i class="fas fa-exclamation-triangle"></i> فك تشفير AES غير مدعوم في هذا الإصدار.';
+                            break;
+                    }
+                } catch (e) {
+                    result = 'خطأ: النص المدخل غير صالح لفك التشفير باستخدام هذه الطريقة';
+                    resultInfo.innerHTML = '<i class="fas fa-exclamation-circle"></i> حدث خطأ أثناء فك التشفير. تأكد من صحة النص المشفر.';
+                }
+                
+                outputText.value = result;
+            }
+            
+            // توليد كود Base64 كامل الصفحة
+            function generateFullBase64Code(text) {
+                // تشفير النص باستخدام Base64
+                const encodedContent = btoa(unescape(encodeURIComponent(text)));
+                
+                // توليد الكود النهائي مع دالة فك التشفير
+                const fullCode = `<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تم تطويره بواسطة ٱلٰقـيۧٱدهۂَ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4712/4712033.png">
+  <script>
+    function decodeBase64Unicode(str) {
+      return decodeURIComponent(escape(window.atob(str)));
+    }
+
+    const encodedHTML = "${encodedContent}";
+
+    function decodeAndRun() {
+      const decodedHTML = decodeBase64Unicode(encodedHTML);
+      document.open();
+      document.write(decodedHTML);
+      document.close();
+    }
+
+    window.onload = decodeAndRun;
+  <\/script>
+</head>
+<body>
+  <div style="text-align:center;padding:50px;font-family:'Tajawal', sans-serif;color:white;background:#1a2a6c;">
+    <h1>جاري تحميل المحتوى...</h1>
+    <p>يرجى الانتظار</p>
+  </div>
+</body>
+</html>`;
+                
+                return fullCode;
+            }
+            
+            // تشغيل الكود المشفر
+            function runEncodedCode() {
+                const encodedText = outputText.value;
+                if (!encodedText.trim()) {
+                    showNotification('لا يوجد نص مشفر لتشغيله');
+                    return;
+                }
+                
+                const method = methodSelect.value;
+                let decodedText = '';
+                
+                try {
+                    switch(method) {
+                        case 'base64':
+                        case 'full-base64':
+                            decodedText = decodeURIComponent(escape(atob(encodedText)));
+                            break;
+                        case 'entities':
+                            const textArea = document.createElement('textarea');
+                            textArea.innerHTML = encodedText;
+                            decodedText = textArea.value;
+                            break;
+                        case 'uri':
+                            decodedText = decodeURIComponent(encodedText);
+                            break;
+                        case 'hex':
+                            decodedText = decodeURIComponent(encodedText);
+                            break;
+                        case 'rot13':
+                            decodedText = encodedText.replace(/[a-zA-Z]/g, function(c) {
+                                return String.fromCharCode((c <= 'Z' ? 90 : 122) >= (c = c.charCodeAt(0) + 13) ? c : c - 26);
+                            });
+                            break;
+                        case 'binary':
+                            decodedText = encodedText.split(' ').map(function(bin) {
+                                return String.fromCharCode(parseInt(bin, 2));
+                            }).join('');
+                            break;
+                        case 'caesar':
+                            const shift = 3;
+                            decodedText = encodedText.split('').map(function(char) {
+                                const code = char.charCodeAt(0);
+                                if ((code >= 65 && code <= 90) || (code >= 97 && code <= 122)) {
+                                    const base = code >= 97 ? 97 : 65;
+                                    return String.fromCharCode(((code - base - shift + 26) % 26) + base);
+                                }
+                                return char;
+                            }).join('');
+                            break;
+                        case 'reverse':
+                            decodedText = encodedText.split('').reverse().join('');
+                            break;
+                        default:
+                            decodedText = 'الطريقة غير معروفة';
+                    }
+                    
+                    // إنشاء نافذة جديدة وكتابة المحتوى المفكوك
+                    const newWindow = window.open();
+                    newWindow.document.open();
+                    newWindow.document.write(decodedText);
+                    newWindow.document.close();
+                    
+                    showNotification('تم تشغيل الكود بنجاح في نافذة جديدة');
+                } catch (e) {
+                    showNotification('خطأ في تشغيل الكود: ' + e.message);
+                }
+            }
+            
+            // نسخ النتيجة
+            function copyResult() {
+                if (!outputText.value.trim()) {
+                    showNotification('لا يوجد نص للنسخ');
+                    return;
+                }
+                
+                outputText.select();
+                document.execCommand('copy');
+                showNotification('تم نسخ النتيجة بنجاح!');
+            }
+            
+            // مسح الحقول
+            function clearFields() {
+                inputText.value = '';
+                outputText.value = '';
+                resultInfo.innerHTML = '<i class="fas fa-info-circle"></i> النتيجة ستظهر هنا بعد عملية التشفير أو فك التشفير';
+                showNotification('تم مسح الحقول بنجاح');
+            }
+            
+            // إظهار الإشعار
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.style.display = 'block';
+                
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+            
+            // إضافة معالجات الأحداث
+            encodeBtn.addEventListener('click', encodeText);
+            decodeBtn.addEventListener('click', decodeText);
+            copyBtn.addEventListener('click', copyResult);
+            runBtn.addEventListener('click', runEncodedCode);
+            clearBtn.addEventListener('click', clearFields);
+            fullEncodeBtn.addEventListener('click', fullHtmlEncode);
+            runOutputBtn.addEventListener('click', runEncodedCode);
+            
+            // تعبئة الحقل بالمثال الأول
+            inputText.value = exampleHtml.textContent.trim();
+        });
+    </script>
+</body>
+</html>

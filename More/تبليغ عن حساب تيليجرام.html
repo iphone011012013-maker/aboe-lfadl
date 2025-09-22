@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اداة لتبليغ تيليجرام</title>
+    
+    <!-- خطوط Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #0f0;
+            --secondary-color: #ffd700;
+            --bg-color: #000;
+            --container-bg: #111;
+            --text-color: #f0f0f0;
+            --hacker-red: #ff0033;
+            --hacker-blue: #00ccff;
+            --hacker-green: #00ff00;
+            --hacker-greenn: #33ff33;
+            --border-radius: 8px;
+            --box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            font-family: 'Tajawal', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 80, 0, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 80, 0, 0.1) 0%, transparent 20%);
+            line-height: 1.6;
+        }
+        
+        .vip-button-top {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+            animation: pulse 2s infinite;
+        }
+        
+        .vip-button-top a {
+            background: var(--secondary-color);
+            color: #000;
+            padding: 12px 20px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            border: 2px solid var(--secondary-color);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-size: 1.1rem;
+        }
+        
+        .vip-button-top a:hover {
+            background: #000;
+            color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+        }
+        
+        .container {
+            background: var(--container-bg);
+            border: 1px solid var(--primary-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 500px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+            overflow: hidden;
+            margin-top: 30px;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            animation: scanline 4s linear infinite;
+        }
+        
+        h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .input-icon {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--primary-color);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            border-radius: var(--border-radius);
+            font-family: 'Tajawal', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        
+        .input-container {
+            position: relative;
+        }
+        
+        .input-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            font-family: 'Tajawal', sans-serif;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+        }
+        
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #0a0a0a, #001a00);
+            color: var(--primary-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            z-index: 1000;
+            width: 90%;
+            max-width: 400px;
+            border: 1px solid var(--primary-color);
+        }
+        
+        .popup p {
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+        }
+        
+        .popup .report-count {
+            display: inline-block;
+            background: var(--primary-color);
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        
+        .popup button {
+            width: auto;
+            padding: 10px 30px;
+            margin-top: 10px;
+        }
+        
+        .popup.hidden {
+            display: none;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+        }
+        
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .footer a:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
+        
+        .error-message {
+            color: #ff5555;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(0, 255, 0, 0.2);
+            border-bottom-color: var(--primary-color);
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+        }
+        
+        .audio-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .audio-control:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+        
+        .audio-control i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .hacker-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(0, 30, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 30, 0, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* تصميم متجاوب */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .vip-button-top {
+                top: 10px;
+                left: 10px;
+            }
+            
+            .vip-button-top a {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            
+            input, button {
+                padding: 12px;
+            }
+        }
+        
+        .credits-container {
+      width: 80%;
+      max-width: 800px;
+      background: rgba(26, 0, 0, 0.7);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 0, 51, 0.3);
+      box-shadow: 0 0 15px rgba(255, 0, 51, 0.3);
+      padding: 25px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      z-index: 2;
+      display: block;
+      margin: 0 auto;
+    margin-top: 15px;
+    }
+
+    .credits-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, transparent, var(--hacker-red), transparent);
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .credits-container::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, transparent, var(--hacker-red), transparent);
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .hacker-icon {
+      color: var(--hacker-green);
+      font-size: 2.5em;
+      filter: drop-shadow(0 0 10px var(--hacker-green));
+      margin-bottom: 20px;
+      animation: icon-glitch 2s infinite;
+    }
+
+    @keyframes icon-glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(-3px, -3px); }
+      60% { transform: translate(3px, 3px); }
+      80% { transform: translate(3px, -3px); }
+      100% { transform: translate(0); }
+    }
+
+    .divider {
+      border: 0;
+      height: 2px;
+      background: linear-gradient(90deg, 
+          transparent 0%, 
+          var(--hacker-red) 50%, 
+          transparent 100%);
+      margin: 20px auto;
+      width: 80%;
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .rights-text {
+      color: var(--hacker-blue);
+      font-size: 18px;
+      text-shadow: 0 0 10px var(--hacker-blue);
+      position: relative;
+      font-family: 'Courier New', monospace;
+      line-height: 1.6;
+      padding: 0 10px;
+    }
+
+    .secret-link {
+      color: var(--hacker-greenn);
+      text-decoration: none;
+      position: relative;
+      animation: glow 1.5s ease-in-out infinite;
+      text-shadow: 0 0 12px var(--hacker-green);
+      font-weight: bold;
+      padding: 0 5px;
+      transition: all 0.3s;
+    }
+
+    .secret-link:hover {
+      color: white;
+      text-shadow: 0 0 15px white;
+    }
+
+    .secret-link::before {
+      content: "ّ";
+      position: absolute;
+      left: 0;
+    }
+
+    .secret-link:hover::after {
+      content: "لتواصل مع المطور";
+      position: absolute;
+      right: 50%;
+      transform: translateX(50%);
+      color: var(--hacker-green);
+      background: rgba(0,0,0,0.9);
+      padding: 8px 15px;
+      border-radius: 5px;
+      top: -40px;
+      white-space: nowrap;
+      text-shadow: 0 0 15px var(--hacker-green);
+      font-size: 16px;
+      border: 1px solid var(--hacker-green);
+      box-shadow: 0 0 15px var(--hacker-green);
+    }
+
+    @keyframes glow {
+      0% { text-shadow: 0 0 8px var(--hacker-green); }
+      50% { text-shadow: 0 0 20px var(--hacker-green); }
+      100% { text-shadow: 0 0 8px var(--hacker-green); }
+    }
+
+    .terminal-effect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 90%;
+      pointer-events: none;
+      z-index: -1;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      opacity: 0.3;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        height: 80vh;
+      }
+      
+      .message {
+        max-width: 90%;
+        padding: 10px 15px;
+      }
+      
+        .credits-container {
+        padding: 20px 15px;
+    </style>
+</head>
+<body>
+    <div class="vip-button-top">
+        <a href="home.html" target="_blank">
+            <i class="fas fa-crown"></i> قسم VIP
+        </a>
+    </div>
+    
+    <div class="container">
+        <div class="hacker-pattern"></div>
+        
+        <h2><i class="fas fa-bug"></i> تبليغ عن حساب تيليجرام</h2>
+        
+        <form id="reportForm">
+            <div class="form-group">
+                <label for="email">
+                    <i class="fas fa-envelope input-icon"></i> الإيميل (Gmail):
+                </label>
+                <div class="input-container">
+                    <i class="fas fa-at"></i>
+                    <input type="email" id="email" name="email" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">
+                    <i class="fas fa-lock input-icon"></i> كلمة مرور التطبيق:
+                </label>
+                <div class="input-container">
+                    <i class="fas fa-key"></i>
+                    <input type="password" id="password" name="password" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="target">
+                    <i class="fas fa-link input-icon"></i> رابط الحساب المخالف:
+                </label>
+                <div class="input-container">
+                    <i class="fab fa-telegram"></i>
+                    <input type="text" id="target" name="target" placeholder="https://t.me/username" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="seconds">
+                    <i class="fas fa-clock input-icon"></i> عدد الثواني (15 كحد أقصى):
+                </label>
+                <div class="input-container">
+                    <i class="fas fa-stopwatch"></i>
+                    <input type="number" id="seconds" name="seconds" value="10" min="1" max="15" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="per_second">
+                    <i class="fas fa-bolt input-icon"></i> عدد الرسائل في كل ثانية (5 كحد أقصى):
+                </label>
+                <div class="input-container">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <input type="number" id="per_second" name="per_second" value="5" min="1" max="5" required>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="loader"></div>
+                <p>جاري إرسال البلاغات...</p>
+            </div>
+            
+            <button type="submit">
+                <i class="fas fa-paper-plane"></i> إرسال البلاغ
+            </button>
+        </form>
+        
+        <div class="footer">
+            تصميم المطور - <a href="https://t.me/my_aboelfadl_helper_bot" target="_blank">
+                <i class="fab fa-telegram"></i> AboElfadl 🛡
+            </a>
+        </div>
+    </div>
+
+    <div id="popupMessage" class="popup hidden">
+        <p>تم إرسال <span class="report-count" id="reportCount">0</span> بلاغ بنجاح!</p>
+        <p>سيتم إرسال إشعار عند اكتمال العملية</p>
+        <button onclick="hideMessage()">
+            <i class="fas fa-check"></i> حسناً
+        </button>
+    </div>
+
+    <div class="audio-control" id="audioControl">
+        <i class="fas fa-play" id="playIcon"></i>
+    </div>
+    
+    <audio id="backgroundAudio" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-suspense-waiting-667.mp3" type="audio/mpeg">
+    </audio>
+    
+ <div class="credits-container">
+    <div class="terminal-effect"></div>
+    <i class="fas fa-user-secret hacker-icon"></i>
+    <hr class="divider">
+    <p class="rights-text">
+      جميع حقوق التطوير لدى - المبرمج:
+      <a href="https://t.me/QR_l4" class="secret-link">Mahmoud AboElfadl ☠️</a> 
+    </p>
+  </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('reportForm');
+            const popup = document.getElementById('popupMessage');
+            const loading = document.getElementById('loading');
+            const reportCount = document.getElementById('reportCount');
+            const audioControl = document.getElementById('audioControl');
+            const audio = document.getElementById('backgroundAudio');
+            const playIcon = document.getElementById('playIcon');
+            
+            let isPlaying = false;
+            
+            // التحكم في الصوت
+            audioControl.addEventListener('click', function() {
+                if (isPlaying) {
+                    audio.pause();
+                    playIcon.className = 'fas fa-play';
+                } else {
+                    audio.play().catch(e => console.log('Audio play error:', e));
+                    playIcon.className = 'fas fa-pause';
+                }
+                isPlaying = !isPlaying;
+            });
+            
+            // إرسال النموذج
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // إظهار مؤشر التحميل
+                loading.style.display = 'block';
+                
+                // محاكاة عملية الإرسال
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                    
+                    // حساب عدد البلاغات الإجمالي
+                    const seconds = parseInt(document.getElementById('seconds').value);
+                    const perSecond = parseInt(document.getElementById('per_second').value);
+                    const totalReports = seconds * perSecond;
+                    
+                    reportCount.textContent = totalReports;
+                    popup.classList.remove('hidden');
+                    
+                    // إضافة تأثير صوتي للإرسال
+                    const sendSound = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-electronic-retro-block-hit-2185.mp3');
+                    sendSound.volume = 0.3;
+                    sendSound.play();
+                }, 2000);
+            });
+        });
+        
+        function hideMessage() {
+            document.getElementById('popupMessage').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

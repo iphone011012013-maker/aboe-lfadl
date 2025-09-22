@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نموذج بلاغ تيك توك - النسخة الاحترافية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0b0c4e;
+            --secondary: #1a1c6b;
+            --accent: #2196f3;
+            --success: #4CAF50;
+            --danger: #f44336;
+            --light: #f5f5f5;
+            --dark: #333;
+            --hacker-red: #ff0033;
+            --hacker-blue: #00ccff;
+            --hacker-green: #00ff00;
+            --hacker-greenn: #33ff33;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0b0c4e 0%, #1a1c6b 100%);
+            font-family: 'Cairo', sans-serif;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--accent);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        form {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 25px;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px 20px 14px 50px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(33, 150, 243, 0.15);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+        }
+        
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%232196F3' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 15px center;
+            background-size: 12px;
+        }
+        
+        button {
+            background: linear-gradient(to right, var(--accent), #1976d2);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .counter-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 25px;
+        }
+        
+        .counter-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .counter {
+            font-weight: 700;
+            font-size: 2rem;
+            margin: 5px 0;
+        }
+        
+        .success-counter {
+            color: var(--success);
+        }
+        
+        .fail-counter {
+            color: var(--danger);
+        }
+        
+        .counter-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .progress-container {
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--success), #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        
+        .footer a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .footer a:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .loading {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            form {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .counter-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        .credits-container {
+      width: 90%;
+      max-width: 800px;
+      background: rgba(26, 0, 0, 0.7);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 0, 51, 0.3);
+      box-shadow: 0 0 15px rgba(255, 0, 51, 0.3);
+      padding: 25px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      z-index: 2;
+      display: block;
+      margin: 0 auto;
+    margin-bottom: 10px; 
+    }
+
+    .credits-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, transparent, var(--hacker-red), transparent);
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .credits-container::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, transparent, var(--hacker-red), transparent);
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .hacker-icon {
+      color: var(--hacker-green);
+      font-size: 2.5em;
+      filter: drop-shadow(0 0 10px var(--hacker-green));
+      margin-bottom: 20px;
+      animation: icon-glitch 2s infinite;
+    }
+
+    @keyframes icon-glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(-3px, -3px); }
+      60% { transform: translate(3px, 3px); }
+      80% { transform: translate(3px, -3px); }
+      100% { transform: translate(0); }
+    }
+
+    .divider {
+      border: 0;
+      height: 2px;
+      background: linear-gradient(90deg, 
+          transparent 0%, 
+          var(--hacker-red) 50%, 
+          transparent 100%);
+      margin: 20px auto;
+      width: 80%;
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .rights-text {
+      color: var(--hacker-blue);
+      font-size: 18px;
+      text-shadow: 0 0 10px var(--hacker-blue);
+      position: relative;
+      font-family: 'Courier New', monospace;
+      line-height: 1.6;
+      padding: 0 10px;
+    }
+
+    .secret-link {
+      color: var(--hacker-greenn);
+      text-decoration: none;
+      position: relative;
+      animation: glow 1.5s ease-in-out infinite;
+      text-shadow: 0 0 12px var(--hacker-green);
+      font-weight: bold;
+      padding: 0 5px;
+      transition: all 0.3s;
+    }
+
+    .secret-link:hover {
+      color: white;
+      text-shadow: 0 0 15px white;
+    }
+
+    .secret-link::before {
+      content: "ّ";
+      position: absolute;
+      left: 0;
+    }
+
+    .secret-link:hover::after {
+      content: "لتواصل مع المطور";
+      position: absolute;
+      right: 50%;
+      transform: translateX(50%);
+      color: var(--hacker-green);
+      background: rgba(0,0,0,0.9);
+      padding: 8px 15px;
+      border-radius: 5px;
+      top: -40px;
+      white-space: nowrap;
+      text-shadow: 0 0 15px var(--hacker-green);
+      font-size: 16px;
+      border: 1px solid var(--hacker-green);
+      box-shadow: 0 0 15px var(--hacker-green);
+    }
+
+    @keyframes glow {
+      0% { text-shadow: 0 0 8px var(--hacker-green); }
+      50% { text-shadow: 0 0 20px var(--hacker-green); }
+      100% { text-shadow: 0 0 8px var(--hacker-green); }
+    }
+
+    .terminal-effect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 90%;
+      pointer-events: none;
+      z-index: -1;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      opacity: 0.3;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        height: 80vh;
+      }
+      
+      .message {
+        max-width: 90%;
+        padding: 10px 15px;
+      }
+      
+        .credits-container {
+        padding: 20px 15px;
+      }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <h1>نموذج بلاغ لحساب تيك توك</h1>
+            </div>
+            <p class="subtitle">ساعدنا في جعل تيك توك بيئة آمنة للجميع</p>
+        </header>
+        
+        <form id="reportForm">
+            <div class="form-group">
+                <label for="reportType"><i class="fas fa-flag"></i> نوع البلاغ:</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <select id="reportType" required>
+                        <option>استغلال الأطفال</option>
+                        <option>عنف وتهديد</option>
+                        <option>استغلال جنسي</option>
+                        <option>الإساءة للحيوانات</option>
+                        <option>عري ومحتوى جنسي</option>
+                        <option>معلومات مضللة</option>
+                        <option>تنمر</option>
+                        <option>انتحال هوية</option>
+                        <option>محتوى إرهابي</option>
+                        <option>كراهية وتحريض</option>
+                        <option>محتوى غير قانوني</option>
+                        <option>احتيال / سبام</option>
+                        <option>مخدرات وأسلحة</option>
+                        <option>حقوق النشر</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="videoLink"><i class="fas fa-link"></i> رابط الفيديو:</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-video"></i>
+                    <input type="text" id="videoLink" placeholder="https://www.tiktok.com/..." required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user"></i> اسم المستخدم:</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-at"></i>
+                    <input type="text" id="username" placeholder="@username" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="reportCount"><i class="fas fa-bullhorn"></i> عدد البلاغات:</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-hashtag"></i>
+                    <input type="number" id="reportCount" min="1" value="1" required>
+                </div>
+            </div>
+            
+            <button type="submit" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> إرسال البلاغات
+            </button>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="counter-container">
+                <div class="counter-box">
+                    <div class="counter-label">
+                        <i class="fas fa-check-circle success-counter"></i>
+                        <span>ناجحة</span>
+                    </div>
+                    <div class="counter success-counter" id="successCount">0</div>
+                </div>
+                
+                <div class="counter-box">
+                    <div class="counter-label">
+                        <i class="fas fa-times-circle fail-counter"></i>
+                        <span>فاشلة</span>
+                    </div>
+                    <div class="counter fail-counter" id="failCount">0</div>
+                </div>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px;">جاري إرسال البلاغات، الرجاء الانتظار...</p>
+            </div>
+        </form>
+        
+ <div class="credits-container">
+    <div class="terminal-effect"></div>
+    <i class="fas fa-user-secret hacker-icon"></i>
+    <hr class="divider">
+    <p class="rights-text">
+      جميع الحقوق محفوظه لدى - المبرمج:
+      <a href="https://t.me/my_aboelfadl_helper_bot" class="secret-link">AboElFadl 🕷</a> 
+    </p>
+  </div>
+    </div>
+    </div>
+
+    <script>
+        document.getElementById("reportForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            
+            // إظهار مؤشر التحميل
+            const loading = document.getElementById("loading");
+            loading.style.display = "block";
+            
+            const count = parseInt(document.getElementById("reportCount").value);
+            const successEl = document.getElementById("successCount");
+            const failEl = document.getElementById("failCount");
+            const progressBar = document.getElementById("progressBar");
+            const submitBtn = document.getElementById("submitBtn");
+            
+            let success = 0;
+            let fail = 0;
+            
+            // تعطيل الزر أثناء الإرسال
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+            
+            const type = document.getElementById("reportType").value;
+            const video = document.getElementById("videoLink").value;
+            const user = document.getElementById("username").value;
+            
+            // محاكاة الإرسال مع شريط التقدم
+            for (let i = 0; i < count; i++) {
+                // تحديث شريط التقدم
+                const progress = Math.round(((i + 1) / count) * 100);
+                progressBar.style.width = progress + "%";
+                
+                // محاكاة إرسال البلاغ مع احتمالية النجاح أو الفشل
+                const isSuccess = Math.random() > 0.2; // 80% نجاح
+                
+                if (isSuccess) {
+                    success++;
+                    successEl.textContent = success;
+                } else {
+                    fail++;
+                    failEl.textContent = fail;
+                }
+                
+                // تأخير بين البلاغات لمحاكاة عملية الإرسال
+                await new Promise(res => setTimeout(res, 300));
+            }
+            
+            // إخفاء مؤشر التحميل وإعادة تمكين الزر
+            loading.style.display = "none";
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> إرسال البلاغات';
+            
+            // عرض رسالة الإنجاز
+            alert(`تم إرسال ${count} بلاغ بنجاح!\n✅ ناجحة: ${success}\n❌ فاشلة: ${fail}`);
+        });
+    </script>
+</body>
+</html>

